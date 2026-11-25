@@ -47,6 +47,25 @@ fournit ; sinon il est marqué « non relevé ».
     **visible** plutôt qu'une réécriture, pour ne pas trahir le « tel
     quel » du brief (règle dans `CLAUDE.md`).
 
-**Agents** : 3 (2 Opus, 1 Sonnet) — en cours.
+- échafaudage du site (agent Sonnet) et du pipeline (Claude), commités ;
+- les trois spikes rendent leurs rapports (`docs/spike/`). Claude relit,
+  vérifie lui-même un point surprenant (les postes RTE sur ODRÉ n'ont
+  plus de coordonnées : confirmé, retrait « pour des raisons de sécurité
+  publique »), corrige une mention devenue fausse dans un rapport (le
+  `.gitignore` existait déjà, l'agent avait regardé avant sa création) ;
+- contre-vérification adverse des chiffres clés confiée à un agent Opus
+  qui reçoit les affirmations et les sources, pas les conclusions ;
+- après minuit, quatre arbitrages de fond soumis à l'auteur (registre dans
+  `DECISIONS.md`). Réponses : « Combien ? » d'abord, puis « Quand ? » et
+  le simulateur ; pas de thèse avant les enquêtes ; il crée un jeton
+  ENTSO-E. Sur les sollicitations extérieures, réponse citée telle
+  quelle : *« Aucun pour l'instant, "Le nuage était sous nos pieds"
+  n'est pas réutilisable sans leur accord, pour ce micro-projet ? Je
+  suis ta reco »*. Explicitation : L'auteur demande si l'absence de licence
+  interdit vraiment la réutilisation pour un projet de cette taille, et
+  s'en remet à la recommandation de Claude (lien, pas d'extraction,
+  sourçage primaire de chaque projet).
+
+**Agents** : 5 (3 Opus, 2 Sonnet), dont la contre-vérification en cours.
 
 **Durée / coût** : en cours.
