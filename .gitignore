@@ -1,0 +1,23 @@
+# Python (pipeline/)
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node / SvelteKit (site/)
+node_modules/
+.svelte-kit/
+build/
+dist/
+
+# Sources téléchargées (cache local, régénérable)
+data/raw/
+
+# Dossier privé : original du brief, jetons d'API (voir CLAUDE.md)
+source/
+
+# Divers
+.DS_Store
+*.log
+.env
+.obsidian/
