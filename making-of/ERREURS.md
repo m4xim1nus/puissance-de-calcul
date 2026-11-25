@@ -52,3 +52,12 @@ Format :
 - **Repéré par** : `pc check`, lancé sur toutes les années par l'agent du pipeline, qui n'a pas élargi les tolérances de lui-même et a signalé l'échec.
 - **Correction** : tolérances recalibrées et justifiées dans `pc/check.py` (± 0,05 % pour 2024-2025, années de référence du site ; ± 0,5 % avant ; nucléaire relatif au niveau moyen, la convention d'horodatage étant vérifiée à part). L'écart reste affiché année par année. Sa cause n'est pas établie. `ROADMAP.md` est corrigé.
 - **Garde-fou ajouté** : les contrôles portent sur toutes les années disponibles, pas sur l'année de calibration.
+
+### 2026-11-26 — Trois imprécisions dans le texte de « Combien ? », écrit par Claude
+- **Faux** :
+  1. le texte présentait 0,8 TWh (transport) et 3 TWh (Enedis) comme la décomposition des « 4 à 5 TWh », alors que leur somme (3,8 TWh) tombe sous la fourchette ;
+  2. il écrivait « sur les réservations de novembre 2025, 7 GW visaient une mise en service avant 2030 », et le référentiel contenait la contrainte « 7 GW ≤ 14 GW, motif : "dont" ». Or les 7 GW comptent les sites déjà raccordés, que les 14 GW excluent : ce n'est pas une part des réservations. Claude avait pourtant lu cette précision dans la contre-vérification ; il a suivi le « dont » de la source ;
+  3. les 0,9 GW d'Enedis étaient rangés sans réserve parmi les puissances « raccordées », alors que la source dit seulement « en fonctionnement ».
+- **Repéré par** : l'agent qui a construit la page (Opus), chargé de signaler sans corriger toute erreur du texte. Repéré avant publication.
+- **Correction** : texte réécrit (l'écart de 3,8 TWh est montré et dit non expliqué ; les 7 GW sont présentés à part ; « en fonctionnement » est cité) ; contrainte « dont » retirée du référentiel.
+- **Garde-fou ajouté** : la relecture adverse « lectrice experte » de chaque page avant publication devient une étape de la roadmap. Pour le point 1, aucune règle automatique : additionner deux chiffres sourcés pour en vérifier un troisième reste une relecture humaine (ou d'agent).

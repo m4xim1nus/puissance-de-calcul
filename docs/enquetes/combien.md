@@ -18,15 +18,19 @@ les seuls nombres en clair sont des calculs expliqués dans la phrase.
 
 En 2024, les data centers installés sur des sites dédiés ont consommé
 {{dc_conso_sites_dedies_2024}}, pour une consommation brute française de
-{{conso_brute_france_2024}} : de l'ordre de 1 %. Ceux raccordés au
-réseau de transport en représentent {{dc_conso_rpt_2024}}, ceux
-raccordés au réseau d'Enedis {{dc_conso_rpd_2024}}.
+{{conso_brute_france_2024}} : de l'ordre de 1 %. RTE attribue
+{{dc_conso_rpt_2024}} aux data centers raccordés au réseau de transport
+et {{dc_conso_rpd_2024}} à ceux raccordés au réseau d'Enedis. Les deux
+réunis font environ 3,8 TWh, sous la fourchette précédente. RTE
+n'explique pas l'écart : data centers raccordés à d'autres
+gestionnaires de réseau de distribution qu'Enedis, arrondis, ou
+méthodes d'estimation distinctes, on ne sait pas.
 
 Le chiffre change avec le périmètre, et c'est la première source de
 confusion. Les salles informatiques installées dans les locaux des
 entreprises et des administrations ne sont pas des « sites dédiés ».
 En les comptant, RTE estime le total à {{dc_conso_avec_internes_2024}}.
-Le SDES, qui part des points de livraison consommant plus de 1 GWh par
+Le SDES, qui part des points de livraison consommant plus de 1 GWh par
 an, trouve {{dc_conso_sdes_2024}}. Ce n'est pas un recoupement
 indépendant : il repose sur les mêmes comptages que RTE.
 
@@ -44,10 +48,11 @@ différentes. Elles ne s'additionnent pas, et chacune est datée.
    d'une proposition technique et financière avec RTE. Il n'engage pas
    à consommer. Les réservations des data centers sont passées de
    {{dc_reserve_rte_2024_12}} fin 2024 à {{dc_reserve_rte_2025_11}} en
-   novembre 2025, puis à {{dc_reserve_rte_2026_05}} en mai 2026. Sur les
-   réservations de novembre 2025, {{dc_reserve_avant_2030_2025_11}}
-   visaient une mise en service avant 2030, en comptant les sites déjà
-   raccordés.
+   novembre 2025, puis à {{dc_reserve_rte_2026_05}} en mai 2026. En
+   novembre 2025, RTE indiquait aussi que {{dc_reserve_avant_2030_2025_11}}
+   de data centers visaient une mise en service avant 2030 : ce total
+   compte les sites déjà raccordés, que les réservations excluent. Ce
+   n'est donc pas une part des réservations.
 3. **Signée.** Le contrat de raccordement, avec un calendrier. Le
    premier contrat « fast-track », celui du Campus IA à Fouju, prévoit
    {{dc_signe_fouju_2027}}, puis jusqu'à {{dc_signe_fouju_terme}} à
@@ -55,7 +60,9 @@ différentes. Elles ne s'additionnent pas, et chacune est datée.
    dates de mise en service du data center.
 4. **Raccordée.** Fin 2025, les data centers raccordés au réseau de
    transport totalisaient {{dc_raccorde_rpt_2025_12}} de puissance de
-   raccordement. Côté Enedis, RTE indique {{dc_raccorde_rpd_2025}}.
+   raccordement. Côté Enedis, RTE indique {{dc_raccorde_rpd_2025}}
+   « en fonctionnement », sans préciser s'il s'agit de puissance de
+   raccordement ou d'une autre grandeur.
 5. **Appelée.** Ce qui transite réellement. Sur le réseau de transport,
    la consommation de 2025 correspond à une puissance moyenne d'environ
    {{dc_appele_moyen_rpt_2025}}.
@@ -76,7 +83,7 @@ RTE publie un taux moyen d'utilisation de la puissance de raccordement
 de {{dc_taux_utilisation_rpt}} pour les data centers raccordés au
 réseau de transport. On ne le retrouve pas avec les autres chiffres du
 même rapport : {{dc_conso_rpt_2025}} consommés en 2025, rapportés aux
-{{dc_raccorde_rpt_2025_12}} raccordés fin 2025 sur les 8 760 heures de
+{{dc_raccorde_rpt_2025_12}} raccordés fin 2025 sur les 8 760 heures de
 l'année, donnent environ 15 %. L'écart tient
 sans doute à la base de calcul (puissance moyenne de l'année plutôt que
 de fin d'année, ou sous-ensemble de sites), que RTE ne précise pas.

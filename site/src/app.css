@@ -1,86 +1,194 @@
-/* Style neutre et sobre ; la direction visuelle sera définie plus tard. Polices système. */
+/* Système visuel (docs/CONCEPTION.md, § 3) : papier calque froid, encre bleu de Prusse, une seule
+   mise en évidence (--signal). Polices auto-hébergées, importées dans +layout.svelte. */
+
 :root {
-  color-scheme: light dark;
-  --papier: #fbfbf9;
-  --encre: #1b1f24;
-  --ardoise: #4d5661;
-  --filet: #d8dbe0;
-  --fond-leger: #f0f1f3;
-  --lien: #0b5cad;
-  --large: 62rem;
-  --colonne: 70ch;
-  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: light;
+  /* Jetons de couleur, mode clair */
+  --papier: #edf1f2;
+  --papier-2: #e2e8ea; /* aplats discrets : en-têtes de tableau, bandes */
+  --encre: #16263a;
+  --encre-2: #4e5d6c;
+  --trait: #c5ced4;
+  --signal: #f2c200;
+  --sous-zero: #1c7c7d;
+  --sur-zero: #b4642d;
+  --sur-signal: #16263a; /* texte posé sur --signal, dans les deux modes */
+
+  /* Couleurs de données (validées avec le skill dataviz sur --papier, clair et sombre) :
+     --donnee : série principale ; --donnee-faible : second pas de la même rampe (ordinal) ;
+     --donnee-autre : grandeur d'un autre périmètre, non comparable. */
+  --donnee: #1c5cab;
+  --donnee-faible: #6da7ec;
+  --donnee-autre: #d4582a;
+
+  /* Typographie */
+  --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --serif: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+
+  /* Mise en page : colonne de lecture (≤ 68 caractères), gouttière, marge de notes */
+  --mesure: 38rem;
+  --gouttiere: 2.5rem;
+  --marge: 15rem;
+  --large: calc(var(--mesure) + var(--gouttiere) + var(--marge));
+  --bord: 1rem;
 }
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --papier: #161a1f;
-    --encre: #e6e8eb;
-    --ardoise: #a3abb5;
-    --filet: #343b44;
-    --fond-leger: #1f252c;
-    --lien: #7db6f0;
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --papier: #101a26;
+    --papier-2: #172331;
+    --encre: #e3e9ec;
+    --encre-2: #a3b1bd;
+    --trait: #2e3d4e;
+    --signal: #f2c200;
+    --sous-zero: #3fa9a9;
+    --sur-zero: #d98a52;
+    --donnee: #9ec5f4;
+    --donnee-faible: #3987e5;
+    --donnee-autre: #e0682f;
   }
 }
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --papier: #101a26;
+  --papier-2: #172331;
+  --encre: #e3e9ec;
+  --encre-2: #a3b1bd;
+  --trait: #2e3d4e;
+  --signal: #f2c200;
+  --sous-zero: #3fa9a9;
+  --sur-zero: #d98a52;
+  --donnee: #9ec5f4;
+  --donnee-faible: #3987e5;
+  --donnee-autre: #e0682f;
+}
+
 * {
   box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 body {
   margin: 0;
   background: var(--papier);
   color: var(--encre);
-  font: 1.0625rem/1.6 var(--sans);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  hanging-punctuation: first;
 }
+::selection {
+  background: var(--signal);
+  color: var(--sur-signal);
+}
+
+/* Liens : encre soulignée, calmes ; le focus clavier passe au --signal. */
 a {
-  color: var(--lien);
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--encre) 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
 }
+a:hover {
+  text-decoration-color: var(--encre);
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 2px solid var(--encre);
+  outline-offset: 2px;
+}
+a:focus-visible {
+  background: var(--signal);
+  color: var(--sur-signal);
+  border-radius: 1px;
+}
+
+/* Titres, navigation, chiffres : Barlow Semi Condensed. Pas de capitales espacées. */
 h1,
 h2,
 h3,
 h4 {
-  line-height: 1.25;
-  margin: 1.6em 0 0.5em;
+  font-family: var(--sans);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 1.8em 0 0.5em;
+  letter-spacing: 0;
+  text-wrap: balance;
 }
 h1 {
-  font-size: 2rem;
-  margin-top: 0.8em;
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);
+  margin-top: 0.6em;
+  line-height: 1.05;
 }
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
 }
 h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
 }
 h4 {
-  font-size: 1.05rem;
+  font-size: 1.0625rem;
 }
 p,
 ul,
 ol,
 blockquote,
-pre {
+pre,
+dl {
   margin: 0 0 1em;
+}
+ul,
+ol {
+  padding-left: 1.4em;
+}
+li + li {
+  margin-top: 0.35em;
+}
+li::marker {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--encre-2);
+}
+strong {
+  font-weight: 650;
 }
 .colonne,
 .texte {
-  max-width: var(--colonne);
+  max-width: var(--mesure);
+}
+.chapeau {
+  font-size: 1.3rem;
+  line-height: 1.45;
+  max-width: var(--mesure);
+}
+.meta {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--encre-2);
 }
 blockquote {
-  border-left: 3px solid var(--filet);
+  border-left: 2px solid var(--trait);
   padding-left: 1em;
-  color: var(--ardoise);
+  color: var(--encre-2);
 }
 blockquote > :last-child {
   margin-bottom: 0;
 }
 code {
-  font: 0.9em var(--mono);
-  background: var(--fond-leger);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: var(--papier-2);
   padding: 0.1em 0.3em;
   border-radius: 3px;
 }
 pre {
-  background: var(--fond-leger);
+  background: var(--papier-2);
   padding: 0.8em 1em;
   overflow-x: auto;
   border-radius: 4px;
@@ -91,33 +199,63 @@ pre code {
 }
 hr {
   border: 0;
-  border-top: 1px solid var(--filet);
+  border-top: 1px solid var(--trait);
   margin: 2em 0;
 }
 li > ul,
 li > ol {
   margin: 0.25em 0 0;
 }
-/* Tableaux : défilement horizontal sur petit écran, lignes zébrées discrètes. */
+
+/* Tableaux : Barlow, chiffres tabulaires, défilement horizontal sur petit écran. */
 table {
   border-collapse: collapse;
   display: block;
   overflow-x: auto;
   max-width: 100%;
   margin: 0 0 1.2em;
+  font-family: var(--sans);
   font-size: 0.95rem;
-  line-height: 1.45;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
 }
 th,
 td {
-  border: 1px solid var(--filet);
-  padding: 0.4em 0.7em;
+  border-bottom: 1px solid var(--trait);
+  padding: 0.4em 0.9em 0.4em 0;
   text-align: left;
   vertical-align: top;
 }
 th {
-  background: var(--fond-leger);
+  font-weight: 600;
+  border-bottom-color: var(--encre-2);
 }
-tbody tr:nth-child(even) {
-  background: color-mix(in srgb, var(--fond-leger) 50%, transparent);
+
+/* Replis (<details>) : un résumé en Barlow, discret. */
+details > summary {
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--encre-2);
+}
+details > summary:hover {
+  color: var(--encre);
+}
+
+/* Masqué à l'écran, lu par les lecteurs d'écran. */
+.lecteur {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
 }

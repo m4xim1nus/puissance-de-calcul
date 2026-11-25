@@ -180,7 +180,7 @@ chiffres:
     citation: « 14 GW de puissance contractualisée fin 2025 dont ~7 GW pour mise en service d'ici 2030 »
     confiance: B
     verification: contre-verification
-    note: se rapporte aux 14 GW de novembre 2025, pas aux 18 GW de mai 2026 (voir making-of, erreurs du 26/11/2026)
+    note: se rapporte aux 14 GW de novembre 2025, pas aux 18 GW de mai 2026 ; inclut les sites déjà raccordés, que les 14 GW excluent — ce n'est pas un sous-ensemble malgré le « dont » de la source (voir making-of, erreurs du 26/11/2026)
 
   dc_reserve_rte_2026_05:
     libelle: Capacité de raccordement réservée chez RTE pour des data centers
@@ -492,8 +492,6 @@ contraintes:
     motif: le transport est une partie des sites dédiés
   - inferieur: [dc_conso_sites_dedies_2024, dc_conso_avec_internes_2024]
     motif: les sites dédiés sont une partie de l'ensemble
-  - inferieur: [dc_reserve_avant_2030_2025_11, dc_reserve_rte_2025_11]
-    motif: « dont »
   - inferieur: [dc_appele_moyen_rpt_2025, dc_raccorde_rpt_2025_12]
     motif: on n'appelle pas en moyenne plus que la puissance de raccordement
   - inferieur: [dc_signe_fouju_2027, dc_signe_fouju_terme]
