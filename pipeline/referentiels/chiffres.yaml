@@ -420,6 +420,45 @@ chiffres:
     confiance: B
     verification: contre-verification
 
+  traj_hyp_concretisation_rapide:
+    libelle: Taux de concrétisation des projets de data centers, trajectoire « décarbonation rapide »
+    valeur: 60
+    unite: "%"
+    grandeur: part
+    periode: "2030"
+    perimetre: projets ayant demandé un raccordement au réseau de transport, mise en service prévue avant 2030 (soit 4,3 GW)
+    source: rte-bp2025-consommation
+    page: p. 27-28
+    citation: « la trajectoire de décarbonation rapide correspond à un taux de concrétisation d'environ 60 % (4,3 GW) pour les projets ayant demandé un raccordement au réseau de transport d'électricité et dont la mise en service est prévue avant 2030 »
+    confiance: B
+    verification: contre-verification
+
+  traj_hyp_concretisation_lente:
+    libelle: Taux de concrétisation des projets de data centers, trajectoire « décarbonation lente »
+    valeur: 30
+    unite: "%"
+    grandeur: part
+    periode: "2030"
+    perimetre: projets ayant demandé un raccordement au réseau de transport
+    source: rte-bp2025-consommation
+    page: p. 28
+    citation: « la trajectoire de décarbonation lente correspond quant à elle à un taux de concrétisation d'environ 30 % pour les projets ayant demandé un raccordement au réseau de transport »
+    confiance: B
+    verification: contre-verification
+
+  traj_hyp_utilisation_2030:
+    libelle: Taux moyen d'utilisation de la puissance de raccordement supposé en 2030
+    valeur: 20
+    unite: "%"
+    grandeur: part
+    periode: "2030"
+    perimetre: data centers raccordés au réseau de transport, hypothèse des deux trajectoires
+    source: rte-bp2025-consommation
+    page: p. 28
+    citation: « avec une hypothèse de taux moyen d'utilisation de la puissance de raccordement de 20 % à cet horizon »
+    confiance: B
+    verification: contre-verification
+
   traj_ademe_tendanciel_2035:
     libelle: Consommation des data centers en France, scénario tendanciel de l'ADEME
     valeur: 36.73

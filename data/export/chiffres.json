@@ -1,0 +1,750 @@
+{
+ "chiffres": {
+  "conso_brute_france_2024": {
+   "libelle": "Consommation brute d'électricité en France",
+   "valeur": 442.2,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "France métropolitaine, Corse comprise, pertes incluses, pompage exclu",
+   "source": {
+    "cle": "rte-be2024",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2024 — rapport complet",
+    "date_publication": "2025-09-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2025-09/BE2024%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2025-09)"
+   },
+   "page": "p. 12",
+   "citation": "« La consommation brute d'électricité de l'année 2024 s'est élevée à 442,2 TWh »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-be2024",
+     "valeur": "440,1 TWh (somme éCO2mix, hors Corse) + 2,3 TWh (Corse, ODRÉ)",
+     "note": "recalcul du pipeline (pc check) ; même éditeur, mais données horaires distinctes du bilan publié",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "révisé à 442,3 TWh dans ODRÉ (recalcul de l'autoconsommation photovoltaïque)"
+  },
+  "dc_conso_sites_dedies_2024": {
+   "libelle": "Consommation des data centers sur sites dédiés",
+   "valeur": [
+    4,
+    5
+   ],
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "data centers sur sites dédiés, raccordés au transport et à la distribution ; hors salles informatiques internes aux entreprises",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 27, § 2.5.2",
+   "citation": "« de l'ordre de 4 à 5 TWh pour l'ensemble des centres de données sur sites dédiés »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "sdes-datacenters-2024",
+     "valeur": "4,34 TWh pour 471 data centers consommant plus de 1 GWh/an",
+     "note": "autre éditeur, mais mêmes données de comptage (données locales de l'énergie) ; pas un recoupement indépendant",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification"
+  },
+  "dc_conso_sdes_2024": {
+   "libelle": "Consommation des data centers de plus de 1 GWh/an",
+   "valeur": 4.34,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "471 points de livraison identifiés comme data centers, consommation supérieure à 1 GWh/an",
+   "source": {
+    "cle": "sdes-datacenters-2024",
+    "editeur": "SDES",
+    "titre": "La consommation d'électricité des data centers en 2024",
+    "date_publication": "2026-07-02",
+    "url": "https://www.statistiques.developpement-durable.gouv.fr/la-consommation-delectricite-des-data-centers-en-2024",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "classeur de données, figure 1",
+   "citation": "4 339 GWh (figure 1) ; 4 348 GWh (figure 2) — petit écart interne au classeur",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "dc_conso_avec_internes_2024": {
+   "libelle": "Consommation des data centers, salles internes comprises",
+   "valeur": [
+    5,
+    10
+   ],
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "sites dédiés + centres internes aux entreprises et administrations",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 27, § 2.5.2",
+   "citation": "« (et entre 5 et 10 TWh en incluant les centres de données internes) »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "ademe-prospective-2026",
+     "valeur": "9,91 TWh (8,16 inventoriés + 3,5 modélisés)",
+     "note": "méthode d'inventaire et de modélisation, distincte des comptages ; écart non résolu avec le SDES sur la colocation",
+     "independant": true
+    }
+   ],
+   "verification": "contre-verification"
+  },
+  "dc_conso_rpt_2025": {
+   "libelle": "Consommation des data centers raccordés au réseau de transport",
+   "valeur": 1,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2025",
+   "perimetre": "data centers sur sites dédiés raccordés au réseau public de transport (RTE)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 18",
+   "citation": "« elle a atteint près de 1 TWh en 2025 et environ 0,8 TWh en 2024 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_conso_rpt_2024": {
+   "libelle": "Consommation des data centers raccordés au réseau de transport",
+   "valeur": 0.8,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "data centers sur sites dédiés raccordés au réseau public de transport (RTE)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 18",
+   "citation": "« environ 0,8 TWh en 2024 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_conso_rpd_2024": {
+   "libelle": "Consommation des data centers raccordés au réseau de distribution d'Enedis",
+   "valeur": 3,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2024",
+   "perimetre": "data centers sur sites dédiés raccordés au réseau public de distribution d'Enedis",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 18",
+   "citation": "« (3 TWh sur le réseau public de distribution d'Enedis en 2024) »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_recherche_2026_01": {
+   "libelle": "Puissance électrique « recherchée » par les porteurs de projets accompagnés par l'État",
+   "valeur": 28.6,
+   "unite": "GW",
+   "grandeur": "puissance_recherchee",
+   "periode": "2026-01-30",
+   "perimetre": "52 entreprises accompagnées ; définition non publiée",
+   "source": {
+    "cle": "dge-rencontres-2026",
+    "editeur": "Ministère chargé du numérique (DGE)",
+    "titre": "Rencontres des centres de données (communiqué)",
+    "date_publication": "2026-01-30",
+    "url": "https://www.entreprises.gouv.fr/espace-presse/rencontres-des-centres-de-donnees-pres-dun-apres-le-sommet-pour-laction-sur-lia-de",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "communiqué",
+   "citation": "« la puissance électrique recherchée atteint 28,6 GW »",
+   "confiance": "C",
+   "verification": "spike"
+  },
+  "dc_reserve_rte_2024_12": {
+   "libelle": "Capacité de raccordement réservée chez RTE pour des data centers",
+   "valeur": 5,
+   "unite": "GW",
+   "grandeur": "puissance_reservee",
+   "periode": "fin 2024",
+   "perimetre": "réseau de transport ; une quarantaine de projets",
+   "source": {
+    "cle": "rte-page-datacenters",
+    "editeur": "RTE",
+    "titre": "Les data centers en chiffres clés (page web)",
+    "date_publication": "2026-06-01",
+    "url": "https://www.rte-france.com/bases-electricite/consommation-electricite/essor-data-centers-france",
+    "consulte_le": "2026-11-25",
+    "note": "publiée le 21/05/2025, date affichée 01/06/2026 ; page mise à jour sans historique"
+   },
+   "page": "page web",
+   "citation": "« Fin 2024, il y avait une quarantaine de projets totalisant environ 5 GW. »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_reserve_rte_2025_11": {
+   "libelle": "Raccordements de data centers contractualisés auprès de RTE (PTF signées)",
+   "valeur": 14,
+   "unite": "GW",
+   "grandeur": "puissance_reservee",
+   "periode": "2025-11-01",
+   "perimetre": "réseau de transport ; y compris procédure fast-track ; hors sites déjà raccordés, projets suspendus inclus",
+   "source": {
+    "cle": "rte-bp2025-resultats",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025 — Principaux résultats",
+    "date_publication": "2025-12-16",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-16-bilan-previsionnel-principaux-resultats-2025.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 21",
+   "citation": "« une puissance cumulée de l'ordre de 30 GW (environ 14 GW pour des centres de données, y compris ceux s'inscrivant dans une procédure fast track […]) »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-be2025",
+     "valeur": "14 GW (p. 120)",
+     "note": "même éditeur ; date donnée tantôt au 1er, tantôt au 15, tantôt à fin novembre 2025",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification"
+  },
+  "dc_reserve_avant_2030_2025_11": {
+   "libelle": "Part des raccordements contractualisés visant une mise en service d'ici 2030",
+   "valeur": 7,
+   "unite": "GW",
+   "grandeur": "puissance_reservee",
+   "periode": "2025-11-15",
+   "perimetre": "réseau de transport ; inclut les sites déjà raccordés (graphique en cascade)",
+   "source": {
+    "cle": "rte-tdb-electrification-2026",
+    "editeur": "RTE",
+    "titre": "Tableau de bord de suivi de l'électrification",
+    "date_publication": "2026-07-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois"
+   },
+   "page": "p. 25",
+   "citation": "« 14 GW de puissance contractualisée fin 2025 dont ~7 GW pour mise en service d'ici 2030 »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "se rapporte aux 14 GW de novembre 2025, pas aux 18 GW de mai 2026 (voir making-of, erreurs du 26/11/2026)"
+  },
+  "dc_reserve_rte_2026_05": {
+   "libelle": "Capacité de raccordement réservée chez RTE pour des data centers",
+   "valeur": 18,
+   "unite": "GW",
+   "grandeur": "puissance_reservee",
+   "periode": "2026-05",
+   "perimetre": "réseau de transport ; environ 80 projets",
+   "source": {
+    "cle": "rte-page-datacenters",
+    "editeur": "RTE",
+    "titre": "Les data centers en chiffres clés (page web)",
+    "date_publication": "2026-06-01",
+    "url": "https://www.rte-france.com/bases-electricite/consommation-electricite/essor-data-centers-france",
+    "consulte_le": "2026-11-25",
+    "note": "publiée le 21/05/2025, date affichée 01/06/2026 ; page mise à jour sans historique"
+   },
+   "page": "page web",
+   "citation": "« En mai 2026, RTE avait réservé près de 18 GW de capacité, pour environ 80 projets. »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "pas de ventilation par échéance de mise en service"
+  },
+  "dc_fasttrack_prereserve_2025_12": {
+   "libelle": "Capacité pré-réservée sur les cinq sites fast-track",
+   "valeur": 3.8,
+   "unite": "GW",
+   "grandeur": "puissance_reservee",
+   "periode": "2025-12-19",
+   "perimetre": "Fouju, Montereau (Vernou-la-Celle-sur-Seine), Escaudain, Dunkerque (700 MW chacun) et Le Bosquel (1 GW) ; pré-réservations temporaires à la demande de l'État",
+   "source": {
+    "cle": "rte-services-2025-12-19",
+    "editeur": "RTE",
+    "titre": "Pre-reservation of capacity on a new \"fast-track\" site (RTE Services)",
+    "date_publication": "2025-12-19",
+    "url": "https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-a-new-fast-track-site.html",
+    "consulte_le": "2026-11-26"
+   },
+   "page": "actualité",
+   "citation": "« the French State has asked RTE to pre-reserve 700 MW of capacity at the \"Grande Industrie\" area of the \"Grand Port Maritime de Dunkerque\" »",
+   "calcul": "4 × 700 MW + 1 000 MW, d'après les actualités RTE Services du 20/05/2025 et du 19/12/2025",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-services-2025-05-20",
+     "valeur": "700 MW à Escaudain, Fouju et Montereau ; 1 GW au Bosquel",
+     "independant": false
+    },
+    {
+     "source": "rte-fiche-fasttrack-2025",
+     "valeur": "cinq sites nommés, sans MW",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "état en novembre 2026 non vérifié (la pré-réservation du Bosquel courait jusqu'à mi-mai 2026)"
+  },
+  "dc_signe_fouju_2027": {
+   "libelle": "Campus IA (Fouju), premier palier de puissance de raccordement",
+   "valeur": 240,
+   "unite": "MW",
+   "grandeur": "puissance_signee",
+   "periode": "fin 2027",
+   "perimetre": "contrat de raccordement fast-track signé le 26/01/2026 ; puissance mise à disposition, pas une mise en service du data center",
+   "source": {
+    "cle": "rte-cp-campusia-2026",
+    "editeur": "RTE",
+    "titre": "Campus IA et RTE signent un contrat de raccordement accéléré (communiqué)",
+    "date_publication": "2026-01-26",
+    "url": "https://assets.rte-france.com/prod/public/2026-01/20260122_CP_RACCORDEMENT_FASTTRACK_CAMPUSIA_VDEF_0.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "communiqué",
+   "citation": "« un premier palier de puissance de 240 MW d'ici fin 2027, suivi d'un second palier de 700 MW avant fin 2029 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_signe_fouju_terme": {
+   "libelle": "Campus IA (Fouju), puissance de raccordement visée à terme",
+   "valeur": 1400,
+   "unite": "MW",
+   "grandeur": "puissance_signee",
+   "periode": "à terme (non daté)",
+   "perimetre": "contrat de raccordement fast-track signé le 26/01/2026",
+   "source": {
+    "cle": "rte-cp-campusia-2026",
+    "editeur": "RTE",
+    "titre": "Campus IA et RTE signent un contrat de raccordement accéléré (communiqué)",
+    "date_publication": "2026-01-26",
+    "url": "https://assets.rte-france.com/prod/public/2026-01/20260122_CP_RACCORDEMENT_FASTTRACK_CAMPUSIA_VDEF_0.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "communiqué",
+   "citation": "« permettre, à terme, une montée en puissance jusqu'à 1 400 MW »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_raccorde_rpt_2025_12": {
+   "libelle": "Puissance de raccordement des data centers raccordés au réseau de transport",
+   "valeur": 770,
+   "unite": "MW",
+   "grandeur": "puissance_raccordee",
+   "periode": "2025-12-31",
+   "perimetre": "data centers sur sites dédiés raccordés au réseau public de transport ; 40 à 240 MW par site",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 18-19",
+   "citation": "« les puissances de raccordement de ces structures varient entre 40 à 240 MW pour un total de 770 MW à fin décembre 2025 »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-page-datacenters",
+     "valeur": "8 data centers, 800 MW cumulés",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification"
+  },
+  "dc_raccorde_rpd_2025": {
+   "libelle": "Puissance des data centers en fonctionnement sur le réseau d'Enedis",
+   "valeur": 0.9,
+   "unite": "GW",
+   "grandeur": "puissance_raccordee",
+   "periode": "2025",
+   "perimetre": "réseau de distribution d'Enedis ; environ 400 data centers en opération ; nature exacte de la puissance non précisée",
+   "source": {
+    "cle": "rte-tdb-electrification-2026",
+    "editeur": "RTE",
+    "titre": "Tableau de bord de suivi de l'électrification",
+    "date_publication": "2026-07-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois"
+   },
+   "page": "p. 26",
+   "citation": "« 0,9 GW en fonctionnement en 2025 »",
+   "confiance": "C",
+   "verification": "spike"
+  },
+  "dc_appele_moyen_rpt_2025": {
+   "libelle": "Puissance moyenne appelée par les data centers raccordés au réseau de transport",
+   "valeur": 114,
+   "unite": "MW",
+   "grandeur": "puissance_appelee_moyenne",
+   "periode": "2025",
+   "perimetre": "data centers sur sites dédiés raccordés au réseau public de transport",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 18",
+   "citation": "« près de 1 TWh en 2025 »",
+   "calcul": "1 TWh ÷ 8 760 h ≈ 114 MW (calcul du site ; « près de » 1 TWh, donc un majorant)",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_taux_utilisation_rpt": {
+   "libelle": "Taux moyen d'utilisation de la puissance de raccordement (data centers, réseau de transport)",
+   "valeur": 22,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "fin 2025",
+   "perimetre": "installations raccordées au réseau public de transport",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 19",
+   "citation": "« Le taux moyen d'utilisation de la puissance de raccordement pour les installations raccordées au réseau public de transport s'élève ainsi aujourd'hui à 22 %. »",
+   "confiance": "C",
+   "verification": "contre-verification",
+   "note": "rapport moyen (définition BP2025, chap. Consommation, p. 28, note 15), pas une pointe ; on ne le retrouve pas à partir de 1 TWh et 770 MW (≈ 15 %) — écart non résolu"
+  },
+  "dc_pointe_cohorte_2022_2024": {
+   "libelle": "Pointe appelée en 2024 par les data centers raccordés au réseau de transport entre 2022 et 2024",
+   "valeur": 35,
+   "unite": "MW",
+   "grandeur": "puissance_appelee_max",
+   "periode": "2024",
+   "perimetre": "cohorte des data centers raccordés au réseau de transport entre 2022 et 2024 ; pointe simultanée ou somme des pointes non précisé",
+   "source": {
+    "cle": "rte-tdb-electrification-2026",
+    "editeur": "RTE",
+    "titre": "Tableau de bord de suivi de l'électrification",
+    "date_publication": "2026-07-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois"
+   },
+   "page": "p. 25",
+   "citation": "« 0,035 GW utilisés au maximum en 2024 (datacenters raccordés entre 2022 et 2024) »",
+   "confiance": "C",
+   "verification": "contre-verification",
+   "note": "à ne pas rapporter aux 0,63 GW mis à disposition 2022-2025 (autre cohorte, autre année, autre grandeur)"
+  },
+  "dc_mis_a_disposition_2022_2025": {
+   "libelle": "Puissance de raccordement mise à disposition de data centers sur le réseau de transport entre 2022 et 2025",
+   "valeur": 0.63,
+   "unite": "GW",
+   "grandeur": "puissance_raccordee",
+   "periode": "2022 → 2025-11-15",
+   "perimetre": "réseau de transport, raccordements de 2022 à novembre 2025",
+   "source": {
+    "cle": "rte-tdb-electrification-2026",
+    "editeur": "RTE",
+    "titre": "Tableau de bord de suivi de l'électrification",
+    "date_publication": "2026-07-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois"
+   },
+   "page": "p. 25",
+   "citation": "« 0,63 GW de puissance de raccordement mise à disposition entre 2022 et 2025 »",
+   "confiance": "C",
+   "verification": "contre-verification",
+   "note": "incohérence interne de la source — la barre correspondante du graphique vaut ≈ 0,76 GW"
+  },
+  "traj_bp2025_rapide_2030": {
+   "libelle": "Consommation des data centers sur sites dédiés, trajectoire « décarbonation rapide »",
+   "valeur": 15,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2030",
+   "perimetre": "sites dédiés (transport + distribution), hors centres internes",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28, figure 2.10",
+   "citation": "figure 2.10 « Consommation d'électricité des centres de données sur sites dédiés »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-bp2025-resultats",
+     "valeur": "~5 TWh + 10 TWh (p. 25)",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "hypothèse de 4,3 GW de projets concrétisés d'ici 2030 et d'un taux d'utilisation de 20 %"
+  },
+  "traj_bp2025_lente_2030": {
+   "libelle": "Consommation des data centers sur sites dédiés, trajectoire « décarbonation lente »",
+   "valeur": 10,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2030",
+   "perimetre": "sites dédiés (transport + distribution), hors centres internes",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28, figure 2.10",
+   "citation": "figure 2.10 « Consommation d'électricité des centres de données sur sites dédiés »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-bp2025-resultats",
+     "valeur": "~5 TWh + 6 TWh (p. 25)",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "hypothèse de 2,4 GW de projets concrétisés d'ici 2030 et d'un taux d'utilisation de 20 %"
+  },
+  "traj_bp2025_rapide_2035": {
+   "libelle": "Consommation des data centers sur sites dédiés, trajectoire « décarbonation rapide »",
+   "valeur": 32,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2035",
+   "perimetre": "sites dédiés (transport + distribution), hors centres internes",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28",
+   "citation": "« près de 32 TWh en 2035 dans la trajectoire de décarbonation rapide contre 21 TWh dans la trajectoire de décarbonation lente »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_bp2025_lente_2035": {
+   "libelle": "Consommation des data centers sur sites dédiés, trajectoire « décarbonation lente »",
+   "valeur": 21,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2035",
+   "perimetre": "sites dédiés (transport + distribution), hors centres internes",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28",
+   "citation": "« près de 32 TWh en 2035 dans la trajectoire de décarbonation rapide contre 21 TWh dans la trajectoire de décarbonation lente »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_bp2023_2030": {
+   "libelle": "Consommation des data centers projetée par le Bilan prévisionnel 2023",
+   "valeur": [
+    15,
+    20
+   ],
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2030",
+   "perimetre": "data centers, centres internes compris (périmètre du BP2023)",
+   "source": {
+    "cle": "rte-bp2023-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2023 — chapitre 2, Consommation",
+    "date_publication": "2023-11-01",
+    "url": "https://assets.rte-france.com/prod/public/2023-11/Bilan-previsionnel-2023-chapitre2-consommation.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date approchée au mois ; périmètre data centers incluant les centres internes"
+   },
+   "page": "p. 43",
+   "citation": "« pourrait ainsi atteindre 15 à 20 TWh en 2030, et entre 23 et 28 TWh en 2035 »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "chiffres repris en 2026 par la page grand public de RTE, qui les attribue à tort au BP2025"
+  },
+  "traj_bp2023_2035": {
+   "libelle": "Consommation des data centers projetée par le Bilan prévisionnel 2023",
+   "valeur": [
+    23,
+    28
+   ],
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2035",
+   "perimetre": "data centers, centres internes compris (périmètre du BP2023)",
+   "source": {
+    "cle": "rte-bp2023-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2023 — chapitre 2, Consommation",
+    "date_publication": "2023-11-01",
+    "url": "https://assets.rte-france.com/prod/public/2023-11/Bilan-previsionnel-2023-chapitre2-consommation.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date approchée au mois ; périmètre data centers incluant les centres internes"
+   },
+   "page": "p. 43",
+   "citation": "« pourrait ainsi atteindre 15 à 20 TWh en 2030, et entre 23 et 28 TWh en 2035 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_hyp_concretisation_rapide": {
+   "libelle": "Taux de concrétisation des projets de data centers, trajectoire « décarbonation rapide »",
+   "valeur": 60,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "2030",
+   "perimetre": "projets ayant demandé un raccordement au réseau de transport, mise en service prévue avant 2030 (soit 4,3 GW)",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 27-28",
+   "citation": "« la trajectoire de décarbonation rapide correspond à un taux de concrétisation d'environ 60 % (4,3 GW) pour les projets ayant demandé un raccordement au réseau de transport d'électricité et dont la mise en service est prévue avant 2030 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_hyp_concretisation_lente": {
+   "libelle": "Taux de concrétisation des projets de data centers, trajectoire « décarbonation lente »",
+   "valeur": 30,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "2030",
+   "perimetre": "projets ayant demandé un raccordement au réseau de transport",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28",
+   "citation": "« la trajectoire de décarbonation lente correspond quant à elle à un taux de concrétisation d'environ 30 % pour les projets ayant demandé un raccordement au réseau de transport »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_hyp_utilisation_2030": {
+   "libelle": "Taux moyen d'utilisation de la puissance de raccordement supposé en 2030",
+   "valeur": 20,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "2030",
+   "perimetre": "data centers raccordés au réseau de transport, hypothèse des deux trajectoires",
+   "source": {
+    "cle": "rte-bp2025-consommation",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+    "date_publication": "2025-12-23",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 28",
+   "citation": "« avec une hypothèse de taux moyen d'utilisation de la puissance de raccordement de 20 % à cet horizon »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "traj_ademe_tendanciel_2035": {
+   "libelle": "Consommation des data centers en France, scénario tendanciel de l'ADEME",
+   "valeur": 36.73,
+   "unite": "TWh",
+   "grandeur": "energie",
+   "periode": "2035",
+   "perimetre": "territoire français, centres internes compris (base 2024 ≈ 9,91 TWh)",
+   "source": {
+    "cle": "ademe-prospective-2026",
+    "editeur": "ADEME",
+    "titre": "Prospective d'évolution des consommations des centres de données en France de 2024 à 2060 — Synthèse",
+    "date_publication": "2026-01-01",
+    "url": "https://www.actu-environnement.com/media/pdf/news-47330-synthese-etude-Ademe-datacenter-scenario-janvier-2026.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "copie hébergée par Actu-Environnement, les pages ademe.fr ayant refusé l'accès ; date approchée au mois"
+   },
+   "page": "p. 8, tableau",
+   "citation": "tableau des scénarios, ligne « Tendanciel », colonne 2035",
+   "confiance": "C",
+   "verification": "spike"
+  },
+  "dc_sites_identifies_etat": {
+   "libelle": "Sites identifiés par l'État pour accueillir des data centers",
+   "valeur": 63,
+   "unite": "sites",
+   "grandeur": "nombre",
+   "periode": "2025-11-25",
+   "perimetre": "liste non publiée ; carte par région seulement",
+   "source": {
+    "cle": "dge-guide-2025",
+    "editeur": "Ministère chargé du numérique (DGE)",
+    "titre": "Guide — Implantation de centres de données",
+    "date_publication": "2025-11-25",
+    "url": "https://www.entreprises.gouv.fr/files/files/Publications/2025/Guide/25112025__Guide%20Datacenters.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 13",
+   "citation": "63 sites, « quatre d'entre eux bénéficient » de la procédure fast-track",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "35 sites annoncés en février 2025, 63 en 2025, 26 « déjà sécurisés par un porteur de projet » en janvier 2026 ; aucune liste nominative publiée"
+  }
+ }
+}
