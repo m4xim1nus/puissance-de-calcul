@@ -121,4 +121,25 @@ Comme quifaitlaloi : `ROADMAP.md` porte l'étape ou le cycle en cours ;
 
 ## Commandes
 
-À compléter à l'étape 2 (pipeline) et 3 (site).
+Pipeline (depuis `pipeline/`, Python 3.12 + uv) :
+
+```sh
+uv run pc download [clés…] [--force]  # sources → data/raw/ + data/raw/manifeste.json
+uv run pc build                       # data/raw/ → data/export/
+uv run pc check                       # contrôles de cohérence ; code de retour ≠ 0 si échec
+uv run pytest                         # tests (synthétiques + `donnees`, sautés sans data/export/)
+uv run pytest -m "not donnees"        # tests synthétiques seuls, sans réseau ni données
+```
+
+- Clés de `pc download` : `eco2mix_cons_def`, `eco2mix_tr`, `prix_fr`,
+  `odre_nucleaire`, `odre_ges_conso`, `odre_conso_annuelle`,
+  `odre_conso_annuelle_regionale` (défaut : toutes).
+- Incrémental : une année close déjà téléchargée n'est pas refaite (pour
+  éCO2mix, seulement si elle était entièrement « définitive ») ; l'année en
+  cours et les instantanés sont toujours retéléchargés. `--force` refait tout.
+  energy-charts limite à 2 requêtes/min : compter ≈ 6 min pour un `--force`
+  sur les prix.
+- Exports : `data/export/systeme_horaire.parquet`, `horaire/AAAA.csv` (unités
+  dans `horaire/LISEZMOI.md`), `prix_quart_horaire.csv`, `meta.json`.
+- Convention d'horodatage éCO2mix : constante `HORODATAGE_ECO2MIX` dans
+  `pipeline/pc/build.py`, seul endroit à changer.

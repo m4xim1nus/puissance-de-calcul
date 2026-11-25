@@ -46,3 +46,9 @@ Format :
 - **Repéré par** : le test `test_referentiel_du_depot_est_valide` (règle codée dans `pc/chiffres.py`), avant tout commit.
 - **Correction** : cotée B.
 - **Garde-fou ajouté** : aucun nouveau ; c'est le garde-fou existant qui a joué.
+
+### 2026-11-26 — « éCO2mix boucle à 0,002 % » : un constat d'une année généralisé à toutes
+- **Faux** : le spike système avait vérifié la consommation éCO2mix contre les totaux ODRÉ pour **2024 et 2025** (écarts de 7 et 2 GWh) et en avait tiré des tolérances (± 0,05 % ; nucléaire < 5 MW). Claude a repris le constat sans année, dans une question à l'auteur et dans `ROADMAP.md` (« éCO2mix boucle à 0,002 % avec RTE hors Corse »). Sur 2015-2023, l'écart va de −0,33 % à +0,27 % (jusqu'à 1,5 TWh), et l'écart nucléaire de 56 à 126 MW.
+- **Repéré par** : `pc check`, lancé sur toutes les années par l'agent du pipeline, qui n'a pas élargi les tolérances de lui-même et a signalé l'échec.
+- **Correction** : tolérances recalibrées et justifiées dans `pc/check.py` (± 0,05 % pour 2024-2025, années de référence du site ; ± 0,5 % avant ; nucléaire relatif au niveau moyen, la convention d'horodatage étant vérifiée à part). L'écart reste affiché année par année. Sa cause n'est pas établie. `ROADMAP.md` est corrigé.
+- **Garde-fou ajouté** : les contrôles portent sur toutes les années disponibles, pas sur l'année de calibration.

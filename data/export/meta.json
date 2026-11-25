@@ -1,0 +1,549 @@
+{
+  "genere_le": "2026-11-25T23:23:20+00:00",
+  "conventions": {
+    "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
+    "horodatage_eco2mix": "fin",
+    "horodatage_eco2mix_detail": "un point éCO2mix horodaté t décrit la période qui se termine à t ; heure h = moyenne des points h:30 et h+1:00 (30 min) ou h:15…h+1:00 (15 min, temps réel, par analogie, valeurs instantanées)",
+    "unites": "puissances en MW moyens sur l'heure (= MWh de l'heure) ; prix en EUR/MWh ; taux_co2 en gCO2eq/kWh (intensité moyenne de la production, pas marginale)",
+    "heures_incompletes": "laissées vides, jamais imputées",
+    "prix_horaire": "moyenne simple des quarts d'heure après le 2025-10-01 (convention RTE)",
+    "perimetre": "France continentale hors Corse (éCO2mix national)"
+  },
+  "natures": {
+    "definitif": "Données définitives (comptages, MW moyens par demi-heure)",
+    "consolide": "Données consolidées (comptages, MW moyens par demi-heure), révisables",
+    "temps_reel": "Données temps réel (télé-informations et estimations, puissance instantanée au pas de 15 min), remplacées par le consolidé dans les mois suivants"
+  },
+  "annees": {
+    "2015": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2014-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2015-12-31T22:00:00+00:00"
+    },
+    "2016": {
+      "heures": 8784,
+      "natures": {
+        "definitif": 8784
+      },
+      "premiere_heure_utc": "2015-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2016-12-31T22:00:00+00:00"
+    },
+    "2017": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2016-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2017-12-31T22:00:00+00:00"
+    },
+    "2018": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2017-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2018-12-31T22:00:00+00:00"
+    },
+    "2019": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2018-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2019-12-31T22:00:00+00:00"
+    },
+    "2020": {
+      "heures": 8784,
+      "natures": {
+        "definitif": 8784
+      },
+      "premiere_heure_utc": "2019-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2020-12-31T22:00:00+00:00"
+    },
+    "2021": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2020-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2021-12-31T22:00:00+00:00"
+    },
+    "2022": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2021-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2022-12-31T22:00:00+00:00"
+    },
+    "2023": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2022-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2023-12-31T22:00:00+00:00"
+    },
+    "2024": {
+      "heures": 8784,
+      "natures": {
+        "definitif": 8784
+      },
+      "premiere_heure_utc": "2023-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2024-12-31T22:00:00+00:00"
+    },
+    "2025": {
+      "heures": 8760,
+      "natures": {
+        "definitif": 8760
+      },
+      "premiere_heure_utc": "2024-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2025-12-31T22:00:00+00:00"
+    },
+    "2026": {
+      "heures": 7920,
+      "natures": {
+        "consolide": 5830,
+        "temps_reel": 2066
+      },
+      "premiere_heure_utc": "2025-12-31T23:00:00+00:00",
+      "derniere_heure_utc": "2026-11-26T22:00:00+00:00"
+    }
+  },
+  "couverture": {
+    "eco2mix": {
+      "debut_utc": "2014-12-31T23:00:00+00:00",
+      "fin_utc": "2026-11-25T22:45:00+00:00"
+    },
+    "prix": {
+      "debut_utc": "2015-01-01T00:00:00+00:00",
+      "fin_utc": "2026-11-26T22:45:00+00:00",
+      "premier_quart_heure_utc": "2025-09-30T22:00:00+00:00"
+    }
+  },
+  "normalisation_eco2mix": {
+    "cons_def/2015": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2016": {
+      "lignes_brutes": 35136,
+      "lignes_vides": 17568,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2017": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2018": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2019": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2020": {
+      "lignes_brutes": 35136,
+      "lignes_vides": 17568,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2021": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2022": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2023": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2024": {
+      "lignes_brutes": 35136,
+      "lignes_vides": 17568,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2025": {
+      "lignes_brutes": 35040,
+      "lignes_vides": 17520,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "cons_def/2026": {
+      "lignes_brutes": 23328,
+      "lignes_vides": 11665,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 2
+    },
+    "tr": {
+      "lignes_brutes": 8352,
+      "lignes_vides": 96,
+      "lignes_hors_pas": 0,
+      "doublons_utc": 0
+    },
+    "recouvrement_natures": 0
+  },
+  "attributions": [
+    {
+      "donnees": "consommation, production, échanges, taux_co2",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "attribution": "RTE — éCO2mix, via ODRÉ (Open Data Réseaux Énergies)",
+      "url_licence": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+    },
+    {
+      "donnees": "prix day-ahead France",
+      "licence": "CC BY 4.0",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "attribution": "Bundesnetzagentur | SMARD.de, via energy-charts.info (Fraunhofer ISE)",
+      "url_licence": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": {
+    "eco2mix_cons_def/2015": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272015-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272016-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:13+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "450537df097dcc7137c9271606c33d9fab1d71a216cfa90c2113d0249a4dfb19",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2016": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272016-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272017-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:17+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "c4e759aeae17dfab0365777b8e5bf887bc044d7ef71cd3d196df347c1b5a71c8",
+      "lignes": 35136,
+      "natures": {
+        "Données définitives": 17568
+      }
+    },
+    "eco2mix_cons_def/2017": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272017-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272018-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:21+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "bb3d2f9666337e907867a40efd5c025571d1d112678f279d7620d392767f6c1c",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2018": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272018-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272019-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:24+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "87da796752f097f224ec936ef4358d2de57c3ce8ec7ae476083baba4a27f3522",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2019": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272019-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272020-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:28+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "92a41e88be73c1159ffd5533967cec7fb7dbc672d8731c887472361bc3671f22",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2020": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272020-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272021-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:32+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "6cdde8c7b61aa27aeac621d24b7eb01b687ff30d0fd514b6fc4a6473016ecdd4",
+      "lignes": 35136,
+      "natures": {
+        "Données définitives": 17568
+      }
+    },
+    "eco2mix_cons_def/2021": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272021-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272022-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:35+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "d3b5768d2ac91dbf16073ab9e053c4c5cb024bbe2ba9ad4c77237e3861807525",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2022": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272022-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272023-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:38+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "9917fd583d1ecefa7380534cff3bae74c404dea764d0bcc5db0968f8da61cf2d",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2023": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272023-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272024-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:42+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "f9d1b55c4dc3de03a2b20d964e5455e3cbf82af925e8dc8c37ab3414de40165b",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2024": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272024-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272025-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:45+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "0c02cb68797faa48f002f8ee0b7be491b77d30c36c921d389a3bf47a124e7ca3",
+      "lignes": 35136,
+      "natures": {
+        "Données définitives": 17568
+      }
+    },
+    "eco2mix_cons_def/2025": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272025-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272026-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:49+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "d985904f6085daa44d04165c8ba6a8269690176b96a693975a9475670f5bbee8",
+      "lignes": 35040,
+      "natures": {
+        "Données définitives": 17520
+      }
+    },
+    "eco2mix_cons_def/2026": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/exports/parquet?where=date_heure+%3E%3D+%272026-01-01T00%3A00%3A00%2B01%3A00%27+and+date_heure+%3C+%272027-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:21:03+00:00",
+      "nature": "éCO2mix national, consolidé et définitif (MW moyens au pas de 30 min)",
+      "sha256": "834b169f46f117f61ac6b95ea5fff89e8d051f08464c1809d020a50848d096cc",
+      "lignes": 23328,
+      "natures": {
+        "Données consolidées": 11663
+      }
+    },
+    "eco2mix_tr": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-tr/exports/parquet",
+      "extrait_le": "2026-11-25T23:21:04+00:00",
+      "nature": "éCO2mix national, temps réel (MW instantanés au pas de 15 min, fenêtre glissante)",
+      "sha256": "c5bf6cf6a4992730d1a65b1f14c901fd336b96e759affa5cf03e718343733643",
+      "lignes": 8352,
+      "natures": {
+        "Données temps réel": 8256
+      }
+    },
+    "odre_conso_annuelle": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/consommation-annuelle-brute/exports/parquet",
+      "extrait_le": "2026-11-25T23:21:13+00:00",
+      "nature": "consommation brute annuelle France (Corse comprise), GWh",
+      "sha256": "e8479a91beb656a01e188ea87ee4845bb14ca99f24462bce5aeb73d5ac6461d2",
+      "lignes": 25
+    },
+    "odre_conso_annuelle_regionale": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/consommation-annuelle-brute-regionale/exports/parquet",
+      "extrait_le": "2026-11-25T23:21:13+00:00",
+      "nature": "consommation brute annuelle par région, GWh",
+      "sha256": "fb0b3aa060325b0e3d2fe09d724108f0e0d1ff73a4d15508d9faff36df84d3cf",
+      "lignes": 169
+    },
+    "odre_ges_conso": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/part-enr-intensite-ges-conso-tr/exports/parquet",
+      "extrait_le": "2026-11-25T23:21:13+00:00",
+      "nature": "intensité GES de la consommation (imports compris) et part EnR, horaire, gCO2eq/kWh",
+      "sha256": "3c390b12a7c3b0a13d2139de0d0d77c36f7435748ee85732c7d8540232b97941",
+      "lignes": 51717
+    },
+    "odre_nucleaire/2015": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272015-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272016-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:14+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "ca530829d2c6579036354ea549bc7059dca09279b9c089bb6596ac736a2390e1",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2016": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272016-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272017-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:15+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "2c65e1333df5b71ee2b84962d2647b256b61df1848606fa6ba15751d8cba651c",
+      "lignes": 8784
+    },
+    "odre_nucleaire/2017": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272017-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272018-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:15+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "161356ccdc4044e8ef2a2e49aa6dcdbf12b18889eacaccc2fe47d765a0b8f67f",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2018": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272018-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272019-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:16+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "e9d9f0a21ae754c65d785248bde845fb71d74d178329ef04231dd49e57ab9ba7",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2019": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272019-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272020-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:16+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "e30a080cda31052898005a500d730948afc38badbeb081150a60788ccf3cde5c",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2020": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272020-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272021-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:17+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "e32ce4facae008f977e1b16312f0f8dd01d6846d8fbe77c26ae39ed459d66274",
+      "lignes": 8784
+    },
+    "odre_nucleaire/2021": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272021-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272022-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:18+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "f35eb06e9cc6f7b3af494f47d79fb1b05e0caf0328e6146731e39f681dc96d85",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2022": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272022-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272023-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:18+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "559201c98bb11a152d74df95c510e3178cb95d294497b8b10bfec48bb96460c3",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2023": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272023-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272024-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:20+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "7ea7e5c6ac32fe94dd90b18452418f9e4c8aaf45115b3a420ab734cc2e893a77",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2024": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272024-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272025-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:20+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "f52cf4666e5b2830e61e09521b34a031eb35b75668ae52f82d4e093301b66443",
+      "lignes": 8784
+    },
+    "odre_nucleaire/2025": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272025-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272026-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:12:21+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "b498ded273e61ec1f7974cd62b47bde156a7723a440523017afb2b16b0105e1a",
+      "lignes": 8760
+    },
+    "odre_nucleaire/2026": {
+      "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/production-nette-nucleaire/exports/parquet?where=horodate+%3E%3D+%272026-01-01T00%3A00%3A00%2B01%3A00%27+and+horodate+%3C+%272027-01-01T00%3A00%3A00%2B01%3A00%27",
+      "extrait_le": "2026-11-25T23:21:08+00:00",
+      "nature": "production nucléaire nette nationale horaire (GWh par heure, « convention débutante »)",
+      "sha256": "7ec4fa97d6e5b91b999400f23d7373c99e2c2735160cfd43326ed3654f3dc05f",
+      "lignes": 6551
+    },
+    "prix_fr/2015": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2015-01-01&end=2015-12-31",
+      "extrait_le": "2026-11-25T23:12:08+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "81974cf2d38e07d119fd7212f1e4b52987fd429fac28e7078b1489c796f354e9",
+      "lignes": 8759
+    },
+    "prix_fr/2016": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2016-01-01&end=2016-12-31",
+      "extrait_le": "2026-11-25T23:12:41+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "127102f5b867873c1dcf156df002f7a9eca603a969c9cd5473fb980ce5b03a80",
+      "lignes": 8784
+    },
+    "prix_fr/2017": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2017-01-01&end=2017-12-31",
+      "extrait_le": "2026-11-25T23:13:13+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "3bf87d64e2f912d21a363f5718803b66d1a88fc607f7728ae1586ff79366f73a",
+      "lignes": 8760
+    },
+    "prix_fr/2018": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2018-01-01&end=2018-12-31",
+      "extrait_le": "2026-11-25T23:13:45+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "a9d687e386d25036ab91d791961162cfdf14f9d2477244c7347cd4bd151e4f58",
+      "lignes": 8760
+    },
+    "prix_fr/2019": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2019-01-01&end=2019-12-31",
+      "extrait_le": "2026-11-25T23:14:17+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "b37f68df43298b1569dad19e09e8d9d58ac7d53636eaf546272130d7c395fa5b",
+      "lignes": 8760
+    },
+    "prix_fr/2020": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2020-01-01&end=2020-12-31",
+      "extrait_le": "2026-11-25T23:14:49+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "bc223d98b1ffe1cafef0ccfc134897d06d98fb8190cd6b5676a3673a3da29ac6",
+      "lignes": 8784
+    },
+    "prix_fr/2021": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2021-01-01&end=2021-12-31",
+      "extrait_le": "2026-11-25T23:15:22+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "080775137d1a1d5cf3f488ca770f458a5374abe5d605000a51204551727e9357",
+      "lignes": 8760
+    },
+    "prix_fr/2022": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2022-01-01&end=2022-12-31",
+      "extrait_le": "2026-11-25T23:15:54+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "67531be8ad7b11bb9076a6183e5555a11648dc25bedd91b8784e7483d2e2b0b3",
+      "lignes": 8760
+    },
+    "prix_fr/2023": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2023-01-01&end=2023-12-31",
+      "extrait_le": "2026-11-25T23:16:26+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "ed44a94ea3ae23fc217e560bf603c87bd1e80cb57cfb50fc727fa3e50bbbbb12",
+      "lignes": 8760
+    },
+    "prix_fr/2024": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2024-01-01&end=2024-12-31",
+      "extrait_le": "2026-11-25T23:16:59+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "455cd446ac1bc75b1d27bf625f8a70fc754cd11fb5ccd8eabfbf5f95dad9b29b",
+      "lignes": 8784
+    },
+    "prix_fr/2025": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2025-01-01&end=2025-12-31",
+      "extrait_le": "2026-11-25T23:17:31+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "7433475e219dcc495b66d3a4d00826694661e265c70dc956c122879c21bd6018",
+      "lignes": 15387
+    },
+    "prix_fr/2026": {
+      "url": "https://api.energy-charts.info/price?bzn=FR&start=2026-01-01&end=2026-11-27",
+      "extrait_le": "2026-11-25T23:21:07+00:00",
+      "nature": "prix day-ahead (SDAC) zone FR, EUR/MWh, horodatage = début de période ; pas de 60 min puis 15 min à partir de la livraison du 2025-10-01",
+      "sha256": "88d5a9af104087432606c4e8b14853749f83e5e4a146c4fc55022a28ccacf65b",
+      "lignes": 31680
+    }
+  },
+  "fichiers": {
+    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature)",
+    "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
+    "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)"
+  }
+}

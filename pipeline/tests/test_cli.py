@@ -1,6 +1,12 @@
+import pytest
+
 from pc.cli import main
 
 
-def test_commandes_repondent():
-    for commande in ("download", "build", "check"):
-        assert main([commande]) == 0
+def test_cle_inconnue_refusee(tmp_path):
+    with pytest.raises(SystemExit):
+        main(["download", "--raw", str(tmp_path), "source_inexistante"])
+
+
+def test_check_sans_export_echoue(tmp_path):
+    assert main(["check", "--raw", str(tmp_path), "--export", str(tmp_path)]) == 1

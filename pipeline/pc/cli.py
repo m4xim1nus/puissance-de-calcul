@@ -1,7 +1,11 @@
 """Ligne de commande : pc download | build | check.
 
-Les sources sont spécifiées à l'issue du spike (docs/SOURCES.md) ; tant
-qu'aucune n'est branchée, download et build ne font rien et le disent.
+- `pc download [clés…] [--force]` : sources → data/raw/ (+ manifeste.json) ;
+- `pc build` : data/raw/ → data/export/ ;
+- `pc check` : contrôles de cohérence sur data/export/ et les références
+  de data/raw/ ; code de retour non nul si un contrôle échoue.
+
+Spécification des sources et des contrôles : docs/spike/systeme.md.
 """
 
 import argparse
@@ -14,24 +18,39 @@ EXPORT = RACINE / "data/export"
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="pc", description=__doc__)
+    ap = argparse.ArgumentParser(prog="pc", description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="commande", required=True)
     d = sub.add_parser("download", help="télécharge les sources → data/raw/")
     d.add_argument("--raw", type=Path, default=RAW)
+    d.add_argument("--force", action="store_true", help="retélécharge aussi les années closes")
     d.add_argument("sources", nargs="*", help="clés de sources (défaut : toutes)")
     b = sub.add_parser("build", help="data/raw/ → data/export/")
     b.add_argument("--raw", type=Path, default=RAW)
     b.add_argument("--export", type=Path, default=EXPORT)
     c = sub.add_parser("check", help="bilans qui bouclent, recoupements entre sources")
+    c.add_argument("--raw", type=Path, default=RAW)
     c.add_argument("--export", type=Path, default=EXPORT)
     args = ap.parse_args(argv)
 
-    if args.commande in ("download", "build"):
-        print(f"pc {args.commande} : aucune source branchée pour l'instant (étape 1, spike).")
+    if args.commande == "download":
+        from .sources import download
+        download(args.raw, args.sources or None, force=args.force)
+        return 0
+    if args.commande == "build":
+        from .build import build
+        from . import chiffres
+        ref = chiffres.charger()
+        erreurs = chiffres.valider(ref)
+        if erreurs:
+            print("Référentiel des chiffres invalide :\n" + "\n".join(erreurs), file=sys.stderr)
+            return 1
+        chiffres.exporter(ref, args.export / "chiffres.json")
+        build(args.raw, args.export)
         return 0
     if args.commande == "check":
-        print("pc check : aucun contrôle enregistré pour l'instant.")
-        return 0
+        from .check import check
+        return check(args.raw, args.export)
     return 0
 
 
