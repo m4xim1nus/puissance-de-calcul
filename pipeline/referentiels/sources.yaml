@@ -1,0 +1,165 @@
+# Sources citées par referentiels/chiffres.yaml.
+# Une entrée par document. `consulte_le` : date de la dernière lecture vérifiée.
+
+rte-be2025:
+  editeur: RTE
+  titre: Bilan électrique 2025 — rapport complet
+  date_publication: 2026-03-01
+  url: https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf
+  consulte_le: 2026-11-25
+  note: date de publication approchée au mois (URL datée 2026-03)
+
+rte-be2024:
+  editeur: RTE
+  titre: Bilan électrique 2024 — rapport complet
+  date_publication: 2025-09-01
+  url: https://assets.rte-france.com/analyse-et-donnees/2025-09/BE2024%20-%20Rapport%20Complet.pdf
+  consulte_le: 2026-11-25
+  note: date de publication approchée au mois (URL datée 2025-09)
+
+rte-tdb-electrification-2026:
+  editeur: RTE
+  titre: Tableau de bord de suivi de l'électrification
+  date_publication: 2026-07-01
+  url: https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf
+  consulte_le: 2026-11-25
+  note: date de publication approchée au mois
+
+rte-bp2025-consommation:
+  editeur: RTE
+  titre: Bilan prévisionnel 2025-2035 — La consommation d'électricité
+  date_publication: 2025-12-23
+  url: https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf
+  consulte_le: 2026-11-25
+
+rte-bp2025-resultats:
+  editeur: RTE
+  titre: Bilan prévisionnel 2025 — Principaux résultats
+  date_publication: 2025-12-16
+  url: https://assets.rte-france.com/prod/public/2025-12/2025-12-16-bilan-previsionnel-principaux-resultats-2025.pdf
+  consulte_le: 2026-11-25
+
+rte-page-datacenters:
+  editeur: RTE
+  titre: Les data centers en chiffres clés (page web)
+  date_publication: 2026-06-01
+  url: https://www.rte-france.com/bases-electricite/consommation-electricite/essor-data-centers-france
+  consulte_le: 2026-11-25
+  note: publiée le 21/05/2025, date affichée 01/06/2026 ; page mise à jour sans historique
+
+rte-cp-campusia-2026:
+  editeur: RTE
+  titre: Campus IA et RTE signent un contrat de raccordement accéléré (communiqué)
+  date_publication: 2026-01-26
+  url: https://assets.rte-france.com/prod/public/2026-01/20260122_CP_RACCORDEMENT_FASTTRACK_CAMPUSIA_VDEF_0.pdf
+  consulte_le: 2026-11-25
+
+rte-fiche-fasttrack-2025:
+  editeur: RTE
+  titre: Labellisation d'un site « fast-track » par RTE (fiche descriptive, 5 sites)
+  date_publication: 2025-12-01
+  url: https://www.services-rte.com/files/live/sites/services-rte/files/Fiche%20descriptive%20fast-track%20-%205%20sites.pdf
+  consulte_le: 2026-11-25
+  note: date approchée au mois
+
+rte-idf-2026:
+  editeur: RTE
+  titre: Bilan électrique Île-de-France
+  date_publication: 2026-07-09
+  url: https://assets.rte-france.com/prod/public/2026-07/2026-07-09-bilan-electrique-idf-2026.pdf
+  consulte_le: 2026-11-25
+
+sdes-datacenters-2024:
+  editeur: SDES
+  titre: La consommation d'électricité des data centers en 2024
+  date_publication: 2026-07-02
+  url: https://www.statistiques.developpement-durable.gouv.fr/la-consommation-delectricite-des-data-centers-en-2024
+  consulte_le: 2026-11-25
+
+arcep-pns-2026:
+  editeur: Arcep
+  titre: Enquête annuelle « pour un numérique soutenable », 5e édition
+  date_publication: 2026-05-01
+  url: https://www.arcep.fr/fileadmin/user_upload/observatoire/enquete-pns/edition-2026/enquete-annuelle-pour-un-numerique-soutenable_edition2026_mai2026.pdf
+  consulte_le: 2026-11-25
+  note: date approchée au mois
+
+ademe-prospective-2026:
+  editeur: ADEME
+  titre: Prospective d'évolution des consommations des centres de données en France de 2024 à 2060 — Synthèse
+  date_publication: 2026-01-01
+  url: https://www.actu-environnement.com/media/pdf/news-47330-synthese-etude-Ademe-datacenter-scenario-janvier-2026.pdf
+  consulte_le: 2026-11-25
+  note: copie hébergée par Actu-Environnement, les pages ademe.fr ayant refusé l'accès ; date approchée au mois
+
+dge-rencontres-2026:
+  editeur: Ministère chargé du numérique (DGE)
+  titre: Rencontres des centres de données (communiqué)
+  date_publication: 2026-01-30
+  url: https://www.entreprises.gouv.fr/espace-presse/rencontres-des-centres-de-donnees-pres-dun-apres-le-sommet-pour-laction-sur-lia-de
+  consulte_le: 2026-11-25
+
+dge-guide-2025:
+  editeur: Ministère chargé du numérique (DGE)
+  titre: Guide — Implantation de centres de données
+  date_publication: 2025-11-25
+  url: https://www.entreprises.gouv.fr/files/files/Publications/2025/Guide/25112025__Guide%20Datacenters.pdf
+  consulte_le: 2026-11-25
+
+elysee-sommet-ia-2025:
+  editeur: Présidence de la République
+  titre: Faire de la France une puissance de l'IA (dossier de presse du Sommet pour l'action sur l'IA)
+  date_publication: 2025-02-09
+  url: https://www.elysee.fr/admin/upload/default/0001/17/23058aa82354edfd8a30ff11b57b36f2801504f3.pdf
+  consulte_le: 2026-11-25
+
+cre-2025-120:
+  editeur: CRE
+  titre: Délibération n° 2025-120 — procédure de raccordement « fast track »
+  date_publication: 2025-05-07
+  url: https://www.cre.fr/fileadmin/Documents/Deliberations/2025/250507_2025-120_Procedure_raccordement_Fast_track.pdf
+  consulte_le: 2026-11-25
+
+cre-2026-32:
+  editeur: CRE
+  titre: Délibération n° 2026-32 — procédure de raccordement de RTE
+  date_publication: 2026-02-04
+  url: https://www.cre.fr/fileadmin/Documents/Deliberations/2026/260204_2026-32_Procedure_raccordement_RTE.pdf
+  consulte_le: 2026-11-25
+
+ce-com-2026-500:
+  editeur: Commission européenne
+  titre: COM(2026) 500 — Report on the energy efficiency of data centres in the EU
+  date_publication: 2026-09-21
+  url: https://build-up.ec.europa.eu/system/files/2026-10/39-2026-48_Report%20on%20the%20energy%20efficiency%20of%20data%20centres%20in%20the%20EU.pdf
+  consulte_le: 2026-11-25
+
+iea-energy-ai-2025:
+  editeur: AIE
+  titre: Energy and AI
+  date_publication: 2025-04-01
+  url: https://iea.blob.core.windows.net/assets/86ed1178-4d77-45ac-ab38-28e849f3b93f/EnergyandAI.pdf
+  consulte_le: 2026-11-25
+  note: date approchée au mois ; ne contient aucun chiffre pour la France
+
+rte-bp2023-consommation:
+  editeur: RTE
+  titre: Bilan prévisionnel 2023 — chapitre 2, Consommation
+  date_publication: 2023-11-01
+  url: https://assets.rte-france.com/prod/public/2023-11/Bilan-previsionnel-2023-chapitre2-consommation.pdf
+  consulte_le: 2026-11-26
+  note: date approchée au mois ; périmètre data centers incluant les centres internes
+
+rte-services-2025-05-20:
+  editeur: RTE
+  titre: Pre-reservation of capacity on four suitable sites (RTE Services)
+  date_publication: 2025-05-20
+  url: https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-four-suitable-sites.html
+  consulte_le: 2026-11-26
+
+rte-services-2025-12-19:
+  editeur: RTE
+  titre: Pre-reservation of capacity on a new "fast-track" site (RTE Services)
+  date_publication: 2025-12-19
+  url: https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-a-new-fast-track-site.html
+  consulte_le: 2026-11-26

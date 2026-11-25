@@ -40,3 +40,9 @@ Format :
 - **Repéré par** : la contre-vérification adverse. L'hypothèse était signalée comme non vérifiée : elle n'aurait pas été publiée en l'état.
 - **Correction** : rapport annoté.
 - **Garde-fou ajouté** : aucun nouveau.
+
+### 2026-11-26 — Confiance A attribuée sans recoupement indépendant (mineure)
+- **Faux** : en saisissant le référentiel, Claude a coté **A** la consommation brute 2024 (442,2 TWh). Son seul recoupement (somme éCO2mix + Corse) vient du même éditeur, RTE. La règle publiée exige un autre éditeur pour A.
+- **Repéré par** : le test `test_referentiel_du_depot_est_valide` (règle codée dans `pc/chiffres.py`), avant tout commit.
+- **Correction** : cotée B.
+- **Garde-fou ajouté** : aucun nouveau ; c'est le garde-fou existant qui a joué.
