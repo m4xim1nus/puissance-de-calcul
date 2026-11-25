@@ -90,6 +90,15 @@ fournit ; sinon il est marqué « non relevé ».
   visuel et page « Combien ? » (Opus, avec captures d'écran et relecture
   visuelle).
 
+- L'auteur signale, message cité tel quel : *« J'ai créé un compte sur
+  https://transparency.entsoe.eu/, mais pour avoir le security token (ce
+  qui était nécessaire ?), il y a un délai potentiel de 3 jours. Il
+  faudrait pouvoir gérer le déploiement dégradé sans cette donnée, avec
+  des WIP là où nécessaire. »* Explicitation : L'auteur demande si le jeton
+  est vraiment indispensable (oui, pour l'API, pas pour l'interface web)
+  et veut que la mise en ligne n'attende pas : les parties qui en
+  dépendent s'affichent « en chantier » (WIP).
+
 **Agents** : 8 (6 Opus, 2 Sonnet).
 
 **Durée / coût** : en cours.
