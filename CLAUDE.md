@@ -65,6 +65,13 @@ Trois fichiers dans `making-of/`, lus par le site (onglet « Making-of ») :
 | `DECISIONS.md` | Registre daté : décision, raisons, qui a tranché (l'auteur / Claude). | Au moment où la décision est prise. |
 | `ERREURS.md` | Erreurs de Claude (et de ses agents) : ce qui était faux, comment c'est sorti, la correction, ce qui a changé pour éviter la récidive. | Dès qu'une erreur est repérée, avant de la corriger. |
 
+**Caviardage** (décision de l'auteur, 2026-11-25) : le dépôt et le site sont
+publics, le making-of ne publie pas de détails trop personnels sur l'auteur
+ou des tiers (chemins de sa machine, autres projets privés, personnes identifiables). On caviarde **visiblement**
+(`[caviardé : motif]`), jamais en réécrivant en silence, y compris dans
+le brief « publié tel quel » et les demandes citées. En cas de doute,
+on demande à l'auteur avant le push.
+
 L'onglet « À toi » (missions à faire soi-même avec Claude Code) est
 rédigé en tutoiement, ton direct, zéro jargon de dev.
 

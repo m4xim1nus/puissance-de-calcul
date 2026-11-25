@@ -1,0 +1,123 @@
+/* Style neutre et sobre ; la direction visuelle sera définie plus tard. Polices système. */
+:root {
+  color-scheme: light dark;
+  --papier: #fbfbf9;
+  --encre: #1b1f24;
+  --ardoise: #4d5661;
+  --filet: #d8dbe0;
+  --fond-leger: #f0f1f3;
+  --lien: #0b5cad;
+  --large: 62rem;
+  --colonne: 70ch;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papier: #161a1f;
+    --encre: #e6e8eb;
+    --ardoise: #a3abb5;
+    --filet: #343b44;
+    --fond-leger: #1f252c;
+    --lien: #7db6f0;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--encre);
+  font: 1.0625rem/1.6 var(--sans);
+}
+a {
+  color: var(--lien);
+}
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  margin: 1.6em 0 0.5em;
+}
+h1 {
+  font-size: 2rem;
+  margin-top: 0.8em;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.2rem;
+}
+h4 {
+  font-size: 1.05rem;
+}
+p,
+ul,
+ol,
+blockquote,
+pre {
+  margin: 0 0 1em;
+}
+.colonne,
+.texte {
+  max-width: var(--colonne);
+}
+blockquote {
+  border-left: 3px solid var(--filet);
+  padding-left: 1em;
+  color: var(--ardoise);
+}
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+code {
+  font: 0.9em var(--mono);
+  background: var(--fond-leger);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--fond-leger);
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  border-radius: 4px;
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+hr {
+  border: 0;
+  border-top: 1px solid var(--filet);
+  margin: 2em 0;
+}
+li > ul,
+li > ol {
+  margin: 0.25em 0 0;
+}
+/* Tableaux : défilement horizontal sur petit écran, lignes zébrées discrètes. */
+table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  margin: 0 0 1.2em;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+th,
+td {
+  border: 1px solid var(--filet);
+  padding: 0.4em 0.7em;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: var(--fond-leger);
+}
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--fond-leger) 50%, transparent);
+}

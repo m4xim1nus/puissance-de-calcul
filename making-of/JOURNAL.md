@@ -37,6 +37,16 @@ fournit ; sinon il est marqué « non relevé ».
 - trois spikes de sources lancés en parallèle (deux Opus, un Sonnet) :
   système électrique horaire, data centers, réseau/géo/météo.
 
+- deux questions posées à l'auteur pendant les spikes. Réponses :
+  - nom : « Puissance de calcul » conservé (option recommandée) ;
+  - publication, réponse citée telle quelle : *« Public dès le premier
+    livrable, avec caviardage de détails trop perso qui serait publiés
+    dans le making-of »*. Explicitation : dépôt et site publics dès la
+    première enquête relue ; le making-of (journal, brief) ne doit pas
+    exposer de détails personnels. Claude a choisi un caviardage
+    **visible** plutôt qu'une réécriture, pour ne pas trahir le « tel
+    quel » du brief (règle dans `CLAUDE.md`).
+
 **Agents** : 3 (2 Opus, 1 Sonnet) — en cours.
 
 **Durée / coût** : en cours.
