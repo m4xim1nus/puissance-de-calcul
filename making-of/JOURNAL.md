@@ -66,6 +66,30 @@ fournit ; sinon il est marqué « non relevé ».
   s'en remet à la recommandation de Claude (lien, pas d'extraction,
   sourçage primaire de chaque projet).
 
-**Agents** : 5 (3 Opus, 2 Sonnet), dont la contre-vérification en cours.
+- la contre-vérification rend son rapport : la plupart des chiffres sont
+  confirmés à la source, mais **deux erreurs de fond** du spike sont
+  repérées (« 18 GW dont 7 GW avant 2030 », ratio 0,035 / 0,63 GW), plus
+  une imprécision de Claude lui-même et une mineure. Toutes consignées
+  dans `ERREURS.md` avant correction ; rapports de spike annotés
+  d'errata plutôt que réécrits ;
+- conception du site (`docs/CONCEPTION.md`) : Claude rejette son premier
+  jet (fond crème, serif, accent chaud, gros chiffre en hero), qu'il juge
+  trop proche du gabarit par défaut. Retenu : hero = une année heure par
+  heure (heatmap), papier calque froid et encre bleu de Prusse, notes
+  marginales portant la source de chaque chiffre ;
+- référentiel des chiffres (`pc/chiffres.py`) : 32 chiffres, 22 sources,
+  unités contrôlées par nature de grandeur. Sa règle « confiance A =
+  recoupement d'un autre éditeur » attrape aussitôt une surcote de
+  Claude (consignée) ;
+- texte de « Combien ? » écrit par Claude. Une citation de RTE est
+  vérifiée par Claude dans le PDF, car la contre-vérification ne
+  l'avait pas couverte. En relisant, Claude trouve trois hypothèses du
+  BP2025 tapées à la main dans le texte : vérifiées dans le PDF, elles
+  passent au référentiel ;
+- deux agents lancés : pipeline des séries horaires (Opus) ; système
+  visuel et page « Combien ? » (Opus, avec captures d'écran et relecture
+  visuelle).
+
+**Agents** : 8 (6 Opus, 2 Sonnet).
 
 **Durée / coût** : en cours.

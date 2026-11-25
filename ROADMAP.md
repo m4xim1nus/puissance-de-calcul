@@ -8,27 +8,36 @@ Principe du brief : un premier livrable vite visible, puis on
 approfondit. **Plusieurs enquêtes justes valent mieux que toutes les
 enquêtes à moitié.**
 
-## Étape 0 : cadrage — en cours (2026-11-25)
+## Étape 0 : cadrage ✅ (2026-11-25)
 
-Dépôt, conventions, making-of ouvert, décisions de stack.
+Dépôt, conventions alignées sur quifaitlaloi, making-of ouvert, brief
+publié (avec caviardage visible des détails personnels).
 
-## Étape 1 : spike sources — en cours (2026-11-25)
+## Étape 1 : spike sources ✅ (2026-11-26)
 
-Trois spikes parallèles, rapports dans `docs/spike/` :
+Trois spikes (`docs/spike/`) et une contre-vérification adverse des
+chiffres clés, qui a trouvé deux erreurs de fond avant publication
+(`making-of/ERREURS.md`). Verdicts : séries horaires **GO** (éCO2mix
+boucle à 0,002 % avec RTE hors Corse ; heures à prix négatif identiques
+à RTE) ; data centers **riche mais documentaire** (aucun registre, file
+RTE en agrégats) ; réseau **pauvre** (coordonnées des postes RTE
+retirées, aucune capacité de soutirage publiée). Arbitrages de l'auteur :
+« Combien ? » d'abord, pas de thèse avant les enquêtes, aucun contact
+extérieur pour l'instant, jeton ENTSO-E.
 
-- système électrique horaire (éCO2mix, prix, échanges, recoupements) ;
-- data centers (combien, trajectoires, annonces → raccordements, où) ;
-- réseau, géographie, météo (capacités d'accueil, postes, productible).
+## Étape 2 : premier livrable public — en cours
 
-Sortie : `docs/SOURCES.md` consolidé, verdict GO par enquête, et les
-arbitrages de fond soumis à l'auteur (périmètre des enquêtes, thèse, nom).
+- [x] Référentiel des chiffres (`pipeline/referentiels/`, `pc/chiffres.py`) :
+      unités contrôlées par nature de grandeur, confiance A/B/C, contraintes
+      d'ordre ; export `data/export/chiffres.json`
+- [x] Texte de l'enquête « Combien ? » (`docs/enquetes/combien.md`)
+- [ ] Pipeline des séries horaires (éCO2mix, prix) + `pc check` (agent en cours)
+- [ ] Système visuel, page `/combien`, page `/methode` (agent en cours)
+- [ ] Hero de l'accueil : heatmap horaire 2025
+- [ ] Relecture adverse « lectrice experte » de la page avant publication
+- [ ] Caviardage du making-of validé par l'auteur, puis dépôt public et
+      Cloudflare Pages (`puissance-de-calcul.technoperchoir.fr`, à confirmer)
 
-## Étape 2 : pipeline + première enquête
+## Étape 3 : « Quand ? » + simulateur
 
-À détailler après l'étape 1. Pressenti : « Quand ? » (charge plate face
-aux surplus horaires) comme première enquête, parce qu'elle repose sur
-les données les plus solides et prépare le moteur du simulateur.
-
-## Étape 3 : site v1 + module signature
-
-À détailler.
+À détailler après l'étape 2.
