@@ -1,5 +1,7 @@
 # Spike — sources « système électrique horaire »
 
+> **Errata du 26/11/2026** (contre-vérification : `contre-verification.md`). (1) `taux_co2` est en CO2eq (émissions directes), pas en CO2 seul ; l'écart avec le Bilan vient pour ≈ 3/4 (2024) à 9/10 (2025) du fioul corse, le reste des facteurs d'émission. (2) La révision 361 → 352 h (2024) est expliquée : découplage d'EPEX le 26/06/2024, RTE retient les données Nord Pool (BE2025, p. 64). (3) La convention « fin de demi-heure » est confirmée par trois tests, dont un indépendant d'ODRÉ, mais pour le consolidé/définitif seulement ; le temps réel (« puissance instantanée ») reste à tester.
+
 *Spike d'accès, pas de pipeline. Tests réels du 25 novembre 2026 (soir, heure de
 Paris). Toutes les URL ont été appelées ce jour-là, sauf mention contraire.*
 

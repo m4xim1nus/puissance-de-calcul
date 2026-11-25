@@ -1,5 +1,7 @@
 # Spike « data centers » : combien, où, et la pyramide des annonces
 
+> **Errata du 26/11/2026** (contre-vérification : `contre-verification.md`). (1) « 18 GW dont 7 GW avant 2030 » est faux : les ~7 GW se rapportent aux 14 GW de novembre 2025 et incluent le déjà-raccordé. (2) Le rapprochement 0,035 / 0,63 GW est retiré : 0,035 GW est une **pointe** 2024 de la cohorte 2022-2024, 0,63 GW une capacité de raccordement 2022-2025 au 15/11/2025 ; la barre du graphique RTE vaut ≈ 0,76 GW. (3) L'écart page web / BP2025 est expliqué : la page RTE reprend les chiffres du BP2023 (p. 43, centres internes inclus) en les attribuant au BP2025. (4) Le « taux moyen d'utilisation » de 22 % est défini dans le BP2025-C, p. 28, note 15 : rapport moyen, pas pointe ; l'écart avec ≈ 15 % reste non résolu. Le texte ci-dessous est conservé tel que rédigé, avec des renvois `[errata n]`.
+
 *Rédigé le 25/11/2026. Périmètre : France métropolitaine. Aucun chiffre n'est cité de mémoire : chacun renvoie à une URL, à une date de publication et à une page (numérotation **du PDF**, pas la pagination imprimée) ou à un tableau. Quand un point n'a pas pu être vérifié dans une source primaire, c'est écrit.*
 
 Artefacts du spike :
@@ -82,7 +84,7 @@ Contrôle arithmétique (calcul du spike) : 4,3 GW × 20 % × 8 760 h = 7,5 TWh,
 
 ### 2.2 Une contradiction à lever : la page web de RTE
 
-La page « Les data centers en chiffres clés » [8], datée du 01/06/2026, annonce **15 à 20 TWh en 2030** et **23 à 28 TWh en 2035**, en les attribuant au BP 2025-2035 (« décarbonation rapide »). Ces valeurs **ne correspondent pas** au document du BP (10-15 et 21-32). Elles sont reprises telles quelles par la presse : IT for Business, 09/11/2026 [13] ; Institut Quorum. Hypothèse, non vérifiée : la page web inclurait les centres internes, comme son « 10 TWh » actuel. **Pour le site, citer le document du BP et signaler l'écart.**
+La page « Les data centers en chiffres clés » [8], datée du 01/06/2026, annonce **15 à 20 TWh en 2030** et **23 à 28 TWh en 2035**, en les attribuant au BP 2025-2035 (« décarbonation rapide »). Ces valeurs **ne correspondent pas** au document du BP (10-15 et 21-32). Elles sont reprises telles quelles par la presse : IT for Business, 09/11/2026 [13] ; Institut Quorum. Hypothèse, non vérifiée : la page web inclurait les centres internes, comme son « 10 TWh » actuel `[errata 3 : expliqué]`. **Pour le site, citer le document du BP et signaler l'écart.**
 
 ### 2.3 Autres trajectoires
 
@@ -125,7 +127,7 @@ La page « Les data centers en chiffres clés » [8], datée du 01/06/2026, anno
 | **Consommation effective** (RPT) | ≈ 1 TWh, soit ≈ 114 MW moyens (calcul) | 2025 | RTE [1] |
 | idem, **cohorte récente** | **0,035 GW au maximum en 2024** pour les data centers raccordés entre 2022 et 2024 | 2024 | RTE [2], p. 25 |
 
-**Lecture.** Au niveau national, sur le seul réseau de transport : environ 28,6 GW sont recherchés, environ 18 GW réservés (mai 2026), dont environ 7 GW visent une mise en service avant 2030. Seulement 0,77 GW sont raccordés, et environ 0,11 GW sont appelés en moyenne. Les opérateurs eux-mêmes estiment qu'il faut « 10 à 15 ans » pour atteindre ~80 % de la puissance demandée [8]. Le BP note aussi que des développeurs « ont parfois sécurisé un accès au réseau sur plusieurs points du territoire pour des projets en réalité similaires » [3, p. 6 du PDF].
+**Lecture.** Au niveau national, sur le seul réseau de transport : environ 28,6 GW sont recherchés, environ 18 GW réservés (mai 2026), dont environ 7 GW visent une mise en service avant 2030 `[errata 1 : faux]`. Seulement 0,77 GW sont raccordés, et environ 0,11 GW sont appelés en moyenne. Les opérateurs eux-mêmes estiment qu'il faut « 10 à 15 ans » pour atteindre ~80 % de la puissance demandée [8]. Le BP note aussi que des développeurs « ont parfois sécurisé un accès au réseau sur plusieurs points du territoire pour des projets en réalité similaires » [3, p. 6 du PDF].
 
 **Zoom Île-de-France** (RTE, Bilan électrique IdF, 09/07/2026 [18], p. 2) : **640 MW** raccordés sur 6 sites ; **8 GW** « en cours de raccordement » sur une cinquantaine de sites ; **7 GW** « à l'étude » sur une trentaine de sites. La page nationale [8] parle de « ~7 GW réservés » en Île-de-France, puis plus bas de 6,5 GW « demandés » : les définitions ne sont pas alignées entre documents RTE.
 
@@ -242,7 +244,7 @@ Niveau de confiance : **A** = source primaire et recoupement indépendant ; **B*
 |---|---|---|---|---|
 | 1 | Data centers sur sites dédiés : **4 à 5 TWh** en 2024, environ 1 % de la consommation (451 TWh) | RTE, BP2025, p. 27 [3] | SDES 4,34 TWh (> 1 GWh) [4] ; RPT 0,8 + Enedis ~3 TWh [1][2] (mêmes compteurs, pas indépendant) | **A−** |
 | 2 | Data centers sur le RPT : **≈ 1 TWh en 2025**, **770 MW** raccordés fin 2025 | RTE, BE2025, p. 18-19 [1] | page RTE : 8 sites, 800 MW [8] (même émetteur) | **B** |
-| 3 | Cohorte 2022-2024 sur le RPT : **0,035 GW appelés au maximum en 2024** pour 0,63 GW mis à disposition (2022-2025) | RTE, tableau de bord, p. 25 [2] | « 20 % » d'utilisation (BP2025 [12] p. 23 ; RTE [8]) ; ODRÉ section J P max 2024 = 35,3 MW (coïncidence possible, périmètre différent) | **B** |
+| 3 | `[errata 2 : rapprochement retiré]` Cohorte 2022-2024 sur le RPT : **0,035 GW appelés au maximum en 2024** pour 0,63 GW mis à disposition (2022-2025) | RTE, tableau de bord, p. 25 [2] | « 20 % » d'utilisation (BP2025 [12] p. 23 ; RTE [8]) ; ODRÉ section J P max 2024 = 35,3 MW (coïncidence possible, périmètre différent) | **B** |
 | 4 | File RTE data centers : **~14 GW** (PTF, 01-15/11/2025), **~18 GW / ~80 projets** (mai 2026) | RTE [12] p. 21, [2] p. 25, [8] | gouvernement : 28,6 GW « recherchés », 5,8 GW « sécurisés » [14] (autres définitions) | **B** |
 | 5 | ~7 GW de la file visent une mise en service avant 2030 | RTE [2] p. 25 | cohérent avec l'assiette implicite du BP (2,4 / 0,3 ≈ 4,3 / 0,6) [12] | **B+** |
 | 6 | Trajectoire RTE sites dédiés : **10-15 TWh en 2030, 21-32 TWh en 2035** | BP2025, fig. 2.10, p. 28 [3] | *Principaux résultats* p. 25 [12] (+6 / +10 TWh) ; **contredit** par la page web RTE (15-20 / 23-28) [8] | **B** (document) ; page web **C** |
