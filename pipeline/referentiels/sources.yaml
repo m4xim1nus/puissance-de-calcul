@@ -163,3 +163,11 @@ rte-services-2025-12-19:
   date_publication: 2025-12-19
   url: https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-a-new-fast-track-site.html
   consulte_le: 2026-11-26
+
+energy-charts-prix:
+  editeur: Fraunhofer ISE (energy-charts.info), données Bundesnetzagentur / SMARD
+  titre: Prix day-ahead, zone France (API energy-charts, /price?bzn=FR)
+  date_publication: 2026-11-26
+  url: https://api.energy-charts.info/price?bzn=FR
+  consulte_le: 2026-11-26
+  note: licence CC BY 4.0 (energy-charts.info, SMARD.de) ; date = date d'extraction par `pc download`

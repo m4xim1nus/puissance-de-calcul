@@ -725,6 +725,91 @@
    "confiance": "C",
    "verification": "spike"
   },
+  "heures_negatives_2023": {
+   "libelle": "Heures à prix day-ahead strictement négatif en France",
+   "valeur": 147,
+   "unite": "heures",
+   "grandeur": "nombre",
+   "periode": "2023",
+   "perimetre": "zone de prix France, marché day-ahead, prix horaire strictement négatif",
+   "source": {
+    "cle": "rte-be2024",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2024 — rapport complet",
+    "date_publication": "2025-09-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2025-09/BE2024%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2025-09)"
+   },
+   "page": "p. 55",
+   "citation": "« avec 361 heures au cours de l'année (soit 4 % du temps). Il s'agit du double des occurrences de l'année précédente (147 heures) »",
+   "confiance": "A",
+   "recoupements": [
+    {
+     "source": "energy-charts-prix",
+     "valeur": "147 h (recalcul de `pc check` sur les prix SMARD / energy-charts)",
+     "independant": true
+    }
+   ],
+   "verification": "contre-verification"
+  },
+  "heures_negatives_2024": {
+   "libelle": "Heures à prix day-ahead strictement négatif en France",
+   "valeur": 352,
+   "unite": "heures",
+   "grandeur": "nombre",
+   "periode": "2024",
+   "perimetre": "zone de prix France, marché day-ahead, prix horaire strictement négatif",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 68",
+   "citation": "« Le prix spot horaire a été négatif pendant 513 heures en 2025, un nombre d'occurrences plus élevé que l'année précédente (352 en 2024) »",
+   "confiance": "A",
+   "recoupements": [
+    {
+     "source": "energy-charts-prix",
+     "valeur": "352 h (recalcul de `pc check`)",
+     "independant": true
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "révisé depuis 361 h (Bilan 2024) — RTE retient les données Nord Pool pendant le découplage d'EPEX du 26 juin 2024 (BE2025, p. 64)"
+  },
+  "heures_negatives_2025": {
+   "libelle": "Heures à prix day-ahead strictement négatif en France",
+   "valeur": 513,
+   "unite": "heures",
+   "grandeur": "nombre",
+   "periode": "2025",
+   "perimetre": "zone de prix France, marché day-ahead ; après le passage au pas de 15 min (1er octobre 2025), une heure est négative si la moyenne de ses quarts d'heure l'est",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 68 et note 10",
+   "citation": "« Le prix spot horaire a été négatif pendant 513 heures en 2025 »",
+   "confiance": "A",
+   "recoupements": [
+    {
+     "source": "energy-charts-prix",
+     "valeur": "513 h (recalcul de `pc check`)",
+     "independant": true
+    }
+   ],
+   "verification": "contre-verification"
+  },
   "dc_sites_identifies_etat": {
    "libelle": "Sites identifiés par l'État pour accueillir des data centers",
    "valeur": 63,
