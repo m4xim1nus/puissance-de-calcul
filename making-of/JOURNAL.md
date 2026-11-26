@@ -135,6 +135,20 @@ fournit ; sinon il est marqué « non relevé ».
 - relecture adverse « lectrice experte » du site construit lancée (Opus)
   avant toute publication.
 
-**Agents** : 9 (7 Opus, 2 Sonnet).
+- la relecture « lectrice experte » rend son verdict : publiable après
+  corrections, 27 points dont 5 de fond (consignés). Claude revérifie
+  dans les PDF les points qui contredisent ses propres notes, corrige le
+  texte et le référentiel ; l'agent du site corrige le rendu ;
+- dépôt public créé (`m4xim1nus/puissance-de-calcul`), premier push,
+  CI verte. Le site attend le branchement de Cloudflare Pages par
+  l'auteur (Claude n'a pas accès à son compte Cloudflare).
+
+**Agents** : 10 (8 Opus, 2 Sonnet). L'agent du site a été relancé trois
+fois avec son contexte (page « Combien ? », hero, corrections).
+
+**Durée** : de 23 h 03 à 1 h 26, soit environ 2 h 25 de temps réel, avec
+jusqu'à quatre agents en parallèle.
+
+**Coût** : non relevé (à compléter si l'auteur fournit le relevé `/cost`).
 
 **Durée / coût** : en cours.

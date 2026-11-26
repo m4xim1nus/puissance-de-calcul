@@ -32,11 +32,13 @@ extérieur pour l'instant, jeton ENTSO-E.
       d'ordre ; export `data/export/chiffres.json`
 - [x] Texte de l'enquête « Combien ? » (`docs/enquetes/combien.md`)
 - [x] Pipeline des séries horaires (éCO2mix, prix) + `pc check` : 7 contrôles
-- [ ] Système visuel, page `/combien`, page `/methode` (agent en cours)
-- [ ] Hero de l'accueil : heatmap horaire 2025
-- [ ] Relecture adverse « lectrice experte » de la page avant publication
-- [ ] Caviardage du making-of validé par l'auteur, puis dépôt public et
-      Cloudflare Pages (`puissance-de-calcul.technoperchoir.fr`, à confirmer)
+- [x] Système visuel, page `/combien`, page `/methode`
+- [x] Hero de l'accueil : heatmap horaire des prix 2015-2026
+- [x] Relecture adverse « lectrice experte » : 27 points, dont 5 de fond, tous traités
+- [x] Caviardage validé par l'auteur, historique réécrit, dépôt public
+      `m4xim1nus/puissance-de-calcul`, CI verte
+- [ ] Cloudflare Pages relié au dépôt, `pdc.technoperchoir.fr` (l'auteur)
+- [ ] Recette sur téléphone du site en ligne, puis relecture de l'auteur
 
 ## Étape 3 : « Quand ? » + simulateur
 
