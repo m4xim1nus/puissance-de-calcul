@@ -1,5 +1,5 @@
 {
-  "releve": "2026-11-26T12:52+01:00",
+  "releve": "2026-11-26T18:19+01:00",
   "pause_min": 30,
   "signes_par_feuillet": 1500,
   "sessions": [
@@ -79,31 +79,46 @@
       "numero": 3,
       "date": "2026-11-26",
       "incomplet": true,
-      "actif_min": 41,
-      "reponse_auteur_min": 10,
-      "messages_auteur": 3,
-      "choix_auteur": 1,
-      "signes_auteur": 1114,
+      "actif_min": 330,
+      "reponse_auteur_min": 66,
+      "messages_auteur": 9,
+      "choix_auteur": 3,
+      "signes_auteur": 3639,
       "agents": {
-        "opus": 3,
-        "sonnet": 1
+        "opus": 11,
+        "sonnet": 4,
+        "haiku": 1
       },
       "calcul_modeles_min": 0,
       "commandes_min": 0,
       "jetons": {
         "opus": {
-          "produits": 298315,
-          "dont_reflexion": 114063,
-          "entree": 604,
-          "lus_en_cache": 47284696,
-          "ecrits_en_cache": 963660
+          "produits": 1681651,
+          "dont_reflexion": 601013,
+          "entree": 3060,
+          "lus_en_cache": 440553776,
+          "ecrits_en_cache": 5975065
+        },
+        "autre": {
+          "produits": 0,
+          "dont_reflexion": 0,
+          "entree": 0,
+          "lus_en_cache": 0,
+          "ecrits_en_cache": 0
         },
         "sonnet": {
-          "produits": 40217,
-          "dont_reflexion": 8893,
-          "entree": 114,
-          "lus_en_cache": 3723099,
-          "ecrits_en_cache": 106267
+          "produits": 194962,
+          "dont_reflexion": 31632,
+          "entree": 464,
+          "lus_en_cache": 22854698,
+          "ecrits_en_cache": 704391
+        },
+        "haiku": {
+          "produits": 4999,
+          "dont_reflexion": 1209,
+          "entree": 6,
+          "lus_en_cache": 12953,
+          "ecrits_en_cache": 68142
         }
       },
       "cout_api_usd": null
@@ -111,53 +126,61 @@
   ],
   "total": {
     "incomplet": true,
-    "actif_min": 364,
-    "reponse_auteur_min": 73,
-    "messages_auteur": 9,
-    "choix_auteur": 5,
-    "signes_auteur": 3934,
+    "actif_min": 653,
+    "reponse_auteur_min": 129,
+    "messages_auteur": 15,
+    "choix_auteur": 7,
+    "signes_auteur": 6459,
     "agents": {
-      "opus": 20,
-      "sonnet": 3
+      "opus": 28,
+      "sonnet": 6,
+      "haiku": 1
     },
     "calcul_modeles_min": 369,
     "commandes_min": 141,
     "jetons": {
       "haiku": {
-        "produits": 268248,
-        "dont_reflexion": 185090,
-        "entree": 2970519,
-        "lus_en_cache": 0,
-        "ecrits_en_cache": 0
+        "produits": 273247,
+        "dont_reflexion": 186299,
+        "entree": 2970525,
+        "lus_en_cache": 12953,
+        "ecrits_en_cache": 68142
       },
       "opus": {
-        "produits": 2338333,
-        "dont_reflexion": 797660,
-        "entree": 10104,
-        "lus_en_cache": 420859797,
-        "ecrits_en_cache": 7904721
+        "produits": 3721669,
+        "dont_reflexion": 1284610,
+        "entree": 12560,
+        "lus_en_cache": 814128877,
+        "ecrits_en_cache": 12916126
       },
       "sonnet": {
-        "produits": 110300,
-        "dont_reflexion": 19840,
-        "entree": 322,
-        "lus_en_cache": 14425722,
-        "ecrits_en_cache": 345328
+        "produits": 265045,
+        "dont_reflexion": 42579,
+        "entree": 672,
+        "lus_en_cache": 33557321,
+        "ecrits_en_cache": 943452
+      },
+      "autre": {
+        "produits": 0,
+        "dont_reflexion": 0,
+        "entree": 0,
+        "lus_en_cache": 0,
+        "ecrits_en_cache": 0
       }
     },
     "cout_api_usd": 156.09,
-    "feuillets_auteur": 2.6
+    "feuillets_auteur": 4.3
   },
   "depot": {
-    "commits": 41,
-    "lignes_python": 4923,
-    "lignes_site": 9860,
-    "lignes_tests": 2897,
+    "commits": 46,
+    "lignes_python": 8857,
+    "lignes_site": 12518,
+    "lignes_tests": 4555,
     "signes_brief": 6686,
-    "signes_pages_site": 119023,
-    "signes_rapports": 324411,
+    "signes_pages_site": 183281,
+    "signes_rapports": 655282,
     "feuillets_brief": 4.5,
-    "feuillets_pages_site": 79,
-    "feuillets_rapports": 216
+    "feuillets_pages_site": 122,
+    "feuillets_rapports": 437
   }
 }

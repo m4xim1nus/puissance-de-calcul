@@ -792,3 +792,50 @@ session 1, la relecture du contexte en cache domine.
   nommer la série » ; une phrase non établie sur la Corse est corrigée ;
   la page du JO est corrigée. 33 contrôles, 202 et 185 tests. **« Quel
   carbone ? » publiée** ;
+
+**Fin de session : demande de l'auteur** (citée telle quelle) :
+
+> je vais clore la session. Avant cela, d'accord pour dire que la session 4 sera sans doute la dernière avant partage du lien à la lectrice ?
+> Si oui, avant la fin de cette session, clarifie la backlog & la roadmap en ce sens.
+> Si oui, en fin de session (après le Ou & co), il faut revoir
+>  - l'accueil, qui doit être bien plus attrayant et punchy. Là, c'est un titre, un "article" de 2 pages avec référence d'entrée de jeu, 2 paragraphes sur la raison d'être du site, 1 graphe sorti de nulle part, et des blocs d'enquête. Peut etre partir de 1 hot take chiffré par enquête avec lien vers l'enquête complète, un takeaway bien plus compact, la data viz direct d'un (ou plusieurs graphiques ? ou aucun ?), et pourquoi pas un texte plus long de résumé, mais secondaire par rapport à un acceuil qui doit donner envie de continuer la lecture, doit déjà impacter sur le contenu & le contenant.
+>  - making of / Journel / Détail : possible de faire un peu plus clair/digeste, sans répétition par rapport à ce qu'il y a déjà sous Session (genre durée, agents, etc)
+> Ces 2 points sont à mettre au backlog et à traiter à la session suivante. Go dernière intervention avant clear
+
+**Ce qu'elle recouvrait** :
+
+- « la dernière avant partage » : la session 4 prépare l'envoi du lien
+  à la lectrice ; ce qui ne sert pas ce partage attend. Claude est
+  d'accord, à condition d'y tenir la liste : « Où ? », message révisé,
+  accueil, making-of, glossaire et « À toi » (exigences du brief),
+  relecture finale de tout le site ;
+- « Où & co » : l'enquête courte « Où ? » et ce qui reste avant le
+  partage, puis l'accueil et le making-of en fin de session 4 ;
+- « hot take » : un chiffre fort par enquête, qui donne envie de lire ;
+  « takeaway » : le message à retenir, plus compact que l'actuel ;
+- « Détail » du journal : le texte déplié de chaque session répète des
+  informations que son en-tête affiche déjà.
+
+**Fait** : backlog trié (items de la session 3 cochés, onze items
+rangés en session 4, dont les deux retours ci-dessus) ; roadmap :
+étape 5, « session 4, dernière avant l'envoi du lien », ordre de
+travail et liste de ce qui attend après l'envoi ; relevé « En bref »
+refait.
+
+**Agents** : 13 lancés par Claude (11 Opus, 1 Sonnet, 1 de lecture de
+pages web), dont 5 relancés avec leur contexte pour des corrections ou
+des vérifications : accès ENTSO-E, simulateur sur un écran, relecture du
+message et de « En bref », pipeline ENTSO-E, licence ENTSO-E, limites
+de « Quand ? », spike carbone, arrêts pour modulation, relecture des
+limites et de la modulation, relecture du spike carbone, interface du
+simulateur, enquête carbone, relecture de l'enquête carbone. Le relevé
+« En bref » compte 16 transcriptions d'agents distincts (certains
+agents en lancent eux-mêmes).
+
+**Durée** : de 12 h 13 à 18 h 25 environ, soit à peu près 6 h de temps
+réel, avec jusqu'à trois agents en parallèle.
+
+**Coût** : non relevé à la clôture. Claude Code n'écrit le relevé de
+coût d'une conversation qu'à sa fermeture ; `pc bilan`, lancé au début
+de la session 4, le reprendra. Jetons produits d'après les seules
+transcriptions, Haiku exclu : ≈ 1,7 M pour Opus, ≈ 0,2 M pour Sonnet.

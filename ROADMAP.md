@@ -87,7 +87,7 @@ Ordre de la session 2 :
 5. Relecture adverse « lectrice experte » de chaque page avant
    publication.
 
-## Étape 4 : session 3 — en cours
+## Étape 4 : session 3 ✅ (2026-11-26)
 
 1. **Retours de l'auteur sur l'étape 3** (backlog, 26/11) :
    - [x] **éditorial** : trois options proposées (`docs/EDITO.md`) ;
@@ -141,3 +141,33 @@ Ordre de la session 2 :
    aux comparaisons de scénarios de RTE (calcul « si… alors » abandonné,
    décision du 26/11) ; puis « Où ? »
    (enquête courte sur ce qui manque).
+
+## Étape 5 : session 4 — dernière avant l'envoi du lien à la lectrice
+
+Accord de l'auteur et de Claude (fin de session 3) : la session 4 prépare
+le partage. Tout ce qui n'est pas dans cette liste attend après l'envoi
+(backlog). Ordre :
+
+1. **Relevé « En bref »** en début de session (`uv run pc bilan`), qui
+   complète la session 3 ; relancer `pc download edf_remit` et vérifier
+   le contrôle de jonction REMIT (risque d'échec vers le 07/12).
+2. **Enquête courte « Où ? »** : ce qui manque (capacité d'accueil par
+   poste, coordonnées des postes, registre des sites), sources primaires,
+   relecture adverse.
+3. **Message principal révisé** (`docs/MESSAGE.md`) avec « Où ? » et
+   « Quel carbone ? », daté, et ce qui a changé.
+4. **Accueil refait** (retour de l'auteur, backlog) : un chiffre fort par
+   enquête avec son lien, un message à retenir compact, une visualisation
+   choisie pour son effet, le reste secondaire.
+5. **Making-of** : « Détail » des sessions plus digeste, sans répéter
+   l'en-tête ; sauts de ligne des demandes citées.
+6. **Glossaire replié** (exigence du brief) et liens depuis les pages.
+7. **Onglet « À toi »** (exigence du brief) : missions par difficulté
+   croissante ; à défaut, un encart « en préparation » honnête.
+8. **Relecture finale** : « lectrice experte » de tout le site, et
+   « lecteur non spécialiste » pour l'accueil ; corrections et
+   vérification ; puis l'auteur envoie le lien.
+
+Après l'envoi : suite réduite du carbone (heures d'export), enquête
+« stocks », série de température, effacement réaliste, anomalies ENTSO-E
+(décalage d'une heure, biais des flux), licence FR↔GB.

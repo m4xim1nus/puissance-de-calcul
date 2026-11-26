@@ -2,16 +2,26 @@
   "_lisezmoi": "Travail de l'auteur hors conversation avec Claude (actions manuelles, relectures), par session. Les actions viennent du journal. Les minutes sont une estimation de Claude, faite à la demande de l'auteur (« fais une estimation, même à l'arrache », 26/11/2026) : l'auteur dit taper vite, lire en diagonale et bien maîtriser les manipulations GitHub et Cloudflare. Lu par la section « En bref » du making-of.",
   "sessions": {
     "1": {
-      "actions": ["demande d'un jeton ENTSO-E", "branchement de Cloudflare Pages (après la session)"],
+      "actions": [
+        "demande d'un jeton ENTSO-E",
+        "branchement de Cloudflare Pages (après la session)"
+      ],
       "minutes": 15
     },
     "2": {
-      "actions": ["relecture du site en ligne", "essais sur téléphone", "dépôt du jeton ENTSO-E"],
+      "actions": [
+        "relecture du site en ligne",
+        "essais sur téléphone",
+        "dépôt du jeton ENTSO-E"
+      ],
       "minutes": 20
     },
     "3": {
-      "actions": ["relecture du site"],
-      "minutes": 10
+      "actions": [
+        "relecture du site en ligne",
+        "essais sur téléphone et captures du simulateur"
+      ],
+      "minutes": 25
     }
   }
 }
