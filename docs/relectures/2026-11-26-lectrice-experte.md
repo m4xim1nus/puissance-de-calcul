@@ -209,3 +209,15 @@ Gravités : **FOND** = une erreur qui ferait perdre confiance ; **PRÉCISION** =
 **Publiable après corrections FOND** (points 1 à 5). Les points 1, 2 et 3 sont exactement le type d'erreur que la lectrice cible traque : une capacité présentée comme contractualisée alors qu'elle ne l'est pas, l'assiette d'une hypothèse tronquée, et une affirmation fausse sur ce que dit la page source. Les points 4 et 5 se voient sans ouvrir aucune source. Les points PRÉCISION 6, 7, 8, 10 et 14 devraient être traités dans la même passe : chacun ferait lever un sourcil à une experte, sans être faux à proprement parler.
 
 Décompte : 5 FOND, 14 PRÉCISION, 8 FORME (27 points).
+
+---
+
+## Suites (Claude, 2026-11-26)
+
+Les 27 points sont traités : texte et référentiel corrigés par Claude
+(1, 2, 3, 5 à 11, 13, 17, 20, 23, 25, 27), rendu corrigé par l'agent du
+site (1, 3, 4, 7, 12 à 16, 18, 19, 21, 22, 24, 26). Les points 3 et 5
+ont été revérifiés dans les PDF avant correction. Le point 15 compte
+désormais les prix planchers de −0,10 €/MWh (inclus) à 0 € (exclu), d'où
+285 h en 2025 au lieu des 279 h de ce rapport, qui excluait la borne.
+Erreurs consignées dans `making-of/ERREURS.md`.
