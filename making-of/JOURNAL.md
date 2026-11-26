@@ -372,3 +372,15 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   Claude écrit la spécification du simulateur (`docs/SIMULATEUR.md`) et
   lance un agent (Opus) pour la référence Python, le moteur TypeScript,
   la parité testée et la page `/simulateur`.
+- la relecture adverse de `/quand` rend son verdict : publiable après
+  corrections (rapport `docs/relectures/2026-11-26-quand.md`). Elle
+  recalcule tous les chiffres clés sans écart, mais six points de fond
+  portent sur ce qu'on leur fait dire. Claude vérifie à la source le
+  plus grave (une contradiction prêtée à RTE, p. 16 du paramétrage du
+  mécanisme de capacité : confirmé, consigné), puis réécrit le texte :
+  conclusion en tête, équivalence consommation plate / marge rétablie,
+  question des exportations laissée ouverte, plafonds chiffrés avec leur
+  sensibilité, définitions précisées (fil de l'eau, effacements),
+  nouvelle limite « le système change ». Les quatre raisonnements
+  fautifs sont consignés. Les nouveaux chiffres attendent que l'agent
+  du simulateur ait fini avec `pc/quand.py`.
