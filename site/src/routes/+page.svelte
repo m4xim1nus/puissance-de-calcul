@@ -13,22 +13,23 @@
   />
 </svelte:head>
 
-<!-- La question d'abord, visible sans défiler ; puis pourquoi l'heure par heure, et ce que montre
-     la carte. Aucune thèse : la page pose la question (décision de l'auteur, 2026-11-26). -->
+<!-- La question d'abord, visible sans défiler ; puis ce que fait le site et ce que montre le
+     calendrier. Aucune thèse : la page pose la question (décision de l'auteur, 2026-11-26). -->
 <header class="ouverture">
   <h1>
     Le système électrique français peut-il accueillir la vague de data centers, et à quelles
     conditions&#8239;?
   </h1>
   <p>
-    En moyenne sur l’année, la France produit une électricité abondante et largement décarbonée.
-    Mais une consommation supplémentaire s’ajoute à chaque heure, et l’état du système change d’une
-    heure à l’autre&nbsp;: la question se joue à l’heure, au poste électrique et au prix.
+    Ce site vérifie, chiffre et date ce qu’on peut en savoir avec les données publiques&nbsp;:
+    combien les data centers consomment et consommeront, à quelles heures, où, et à quel prix. Il
+    dit aussi où les données manquent ou se contredisent.
   </p>
   <p>
-    La carte ci-dessous en montre une année&nbsp;: une case par heure, une ligne par jour, et pour
-    couleur le prix de gros day-ahead en France, fixé la veille pour le lendemain. On y voit les
-    heures chères et les heures à prix négatif.
+    Le calendrier ci-dessous montre l’un des signaux de l’état du système électrique&nbsp;: le prix
+    de gros day-ahead en France, fixé la veille pour le lendemain, une case par heure, une ligne par
+    jour. Une consommation qui tourne jour et nuit passe par toutes ces heures, les plus chères
+    comme celles à prix négatif.
   </p>
 </header>
 

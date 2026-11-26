@@ -1,6 +1,6 @@
 <script lang="ts">
   // Hero de l'accueil : une année du prix day-ahead France, heure par heure. Une ligne par jour,
-  // une colonne par heure de Paris. Échelle divergente centrée sur 0 €/MWh, écrêtée à 200 €/MWh.
+  // une colonne par heure de Paris. Échelle divergente centrée sur 0 €/MWh, saturée à 200 €/MWh.
   // Dessin sur canvas (8 760 cases) ; survol, clavier et tableau de données pour l'accès.
   import { onMount, untrack } from 'svelte';
   import { FINE, INSECABLE, dateParis, formaterDate, formaterNombre } from '$lib/format';
@@ -337,8 +337,7 @@
     </div>
     <p class="legende-texte">
       <span class="fort">Prix strictement négatif</span> à gauche du zéro, positif à droite (€/MWh).
-      Au-delà de {ECRETAGE}{FINE}€/MWh, la couleur est écrêtée : la valeur exacte reste dans
-      l’infobulle.
+      Au-delà de {ECRETAGE}{FINE}€/MWh, la couleur sature : la valeur exacte reste dans l’infobulle.
     </p>
   </div>
 
@@ -352,7 +351,7 @@
       tabindex="0"
       role="application"
       aria-roledescription="carte de chaleur"
-      aria-label="Prix day-ahead {donnees.annee}, un jour par ligne, une heure par colonne. Flèches pour parcourir les cases, Page précédente et Page suivante pour avancer d’une semaine ; tableau des données sous la carte."
+      aria-label="Prix day-ahead {donnees.annee}, un jour par ligne, une heure par colonne. Flèches pour parcourir les cases, Page précédente et Page suivante pour avancer d’une semaine ; tableau des données sous le calendrier."
       onpointermove={(ev) => (actif = caseSous(ev))}
       onpointerleave={() => (actif = null)}
       onkeydown={touche}
@@ -363,7 +362,7 @@
       ></canvas>
     </div>
     <noscript
-      ><p>La carte de chaleur demande JavaScript ; le décompte mensuel est ci-dessous.</p></noscript
+      ><p>Le calendrier demande JavaScript ; le décompte mensuel est ci-dessous.</p></noscript
     >
     {#if actif && jours[actif.d]}
       {@const c = jours[actif.d].cases[actif.h]}
@@ -389,8 +388,8 @@
     <p class="ecretage">
       {formaterNombre(Math.round(partEcretee * 100))}{FINE}% des heures de {donnees.annee} sont au-delà
       de
-      {ECRETAGE}{FINE}€/MWh : la carte les montre toutes dans la même couleur. Les valeurs exactes
-      sont dans l’infobulle.
+      {ECRETAGE}{FINE}€/MWh : le calendrier les montre toutes dans la même couleur. Les valeurs
+      exactes sont dans l’infobulle.
     </p>
   {/if}
   <ul class="speciales">
@@ -425,7 +424,8 @@
     {#if stats.negatives > 0}
       <p class="planchers">
         {stats.planchers === 0 ? 'Aucune' : `Dont ${heures(stats.planchers)}`} à des prix compris entre
-        {plancher}{FINE}€/MWh (inclus) et 0{FINE}€/MWh (exclu) : prix planchers, décompte du site.
+        {plancher}{FINE}€/MWh (inclus) et 0{FINE}€/MWh (exclu) : prix à peine négatifs, seuil choisi
+        par le site, décompte non recoupé.
       </p>
     {/if}
     {#if reference}
@@ -437,8 +437,9 @@
   <p class="source">
     Prix day-ahead France : Bundesnetzagentur / SMARD.de via energy-charts.info,
     <a href="https://creativecommons.org/licenses/by/4.0/" rel="external">CC BY 4.0</a>. Extraction
-    du {formaterDate(dateParis(donnees.extrait_le))}. Depuis le 1er octobre 2025, le prix d’une
-    heure est la moyenne de ses quatre quarts d’heure. Le site arrondit les prix à l’euro, sauf
+    du {formaterDate(dateParis(donnees.extrait_le))}. Depuis le 1er octobre 2025, le marché fixe un
+    prix par quart d’heure ; le prix d’une heure affiché ici est la moyenne de ses quatre quarts
+    d’heure, calculée par le site (convention de RTE). Le site arrondit les prix à l’euro, sauf
     entre −1 et 1{FINE}€/MWh (quatre décimales, comme la source).
   </p>
 

@@ -45,6 +45,26 @@ describe('markdown complet', () => {
       '<ul><li>a<ul><li>a1</li><li>a2</li></ul></li><li>b</li></ul>\n<ol><li>x</li><li>y</li></ol>'
     );
   });
+  it('garde dans son item un paragraphe indenté qui suit une ligne vide', () => {
+    expect(markdown('- a\n  - a1\n\n  suite de a\n- b')).toBe(
+      '<ul><li><p>a</p><ul><li>a1</li></ul><p>suite de a</p></li><li>b</li></ul>'
+    );
+    expect(markdown('- a\n\n  b\n  c\n\n  - d\n\nfin')).toBe(
+      '<ul><li><p>a</p><p>b c</p><ul><li>d</li></ul></li></ul>\n<p>fin</p>'
+    );
+    // Le paragraphe de continuation passe par `envelopper` (notes marginales des enquêtes).
+    const env = (h: string, c: 'p' | 'li') => (c === 'p' ? `<p class="e">${h}</p>` : `[${h}]`);
+    expect(markdown('1. a\n\n   b\n2. c', { envelopper: env })).toBe(
+      '<ol><li><p class="e">a</p><p class="e">b</p></li><li>[c]</li></ol>'
+    );
+    // Les jetons sont rendus dans l'ordre du document (numérotation des notes).
+    const vus: string[] = [];
+    const jeton = (e: string) => (vus.push(e), e);
+    markdown('1. {{a}}\n  - {{b}}\n\n   {{c}}\n2. {{d}}', { jeton });
+    expect(vus).toEqual(['a', 'b', 'c', 'd']);
+    // Une ligne non indentée après une ligne vide sort de la liste.
+    expect(markdown('- a\n\nhors liste')).toBe('<ul><li>a</li></ul>\n<p>hors liste</p>');
+  });
   it('rend les tableaux avec alignements et pipes échappés', () => {
     const t = '| Date | Valeur |\n|---|--:|\n| `a\\|b` | **1** |\n| c | 2 |';
     expect(markdown(t)).toBe(

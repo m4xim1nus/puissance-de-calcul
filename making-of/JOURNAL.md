@@ -175,6 +175,7 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
 >  - enquête combien ras
 >  - méthode ras
 >  - making of : contenu intéressant sans doute, mais forme trop à plat, illisible pour un humain : effort graphique pour lire plus facilement, eg utiliser les formats imposés pour les décisions/erreurs/autres? pour faire des élements UI. Intégrer le brief au journal, avec toogle pour afficher/masquer. Pour le journal, il y a sans doute plus clair compact à faire aussi.
+>
 > jeton pas encore arrivé
 >
 > go intégrer mes retours aux md, pour reprendre la session 2 (retours, enquête Quand, simulateur, etc)
@@ -231,7 +232,8 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   deux phrases sans chiffre, puis la carte. Making-of : décisions et
   erreurs en fiches filtrables, journal en sessions repliables, brief
   replié dans la session 1 ; le contrat des formats est testé sur les
-  vrais fichiers. Claude relit les captures et reprend deux points :
+  vrais fichiers. Claude relit les captures ; trois points en sortent,
+  deux repris par Claude, un signalé par l'agent :
   - une phrase de l'accueil disait le système « tantôt tendu, tantôt en
     excédent ». L'agent l'avait lui-même signalée comme un constat que
     la carte ne démontre pas pour « tendu », et c'est la question de
@@ -239,9 +241,13 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
     l'autre » ;
   - le test du contrat a trouvé une entrée d'`ERREURS.md` hors format
     (la relecture « lectrice experte » : préambule et liste au lieu des
-    champs Faux et Repéré par). Claude la remet au format sans changer
-    son texte : le préambule devient le champ Repéré par, la liste
-    passe sous Faux ;
+    champs Faux et Repéré par). Claude la remet au format. Premier
+    essai fautif : Claude avait ajouté une phrase de son cru en tête
+    de Faux et laissé « Les cinq erreurs de fond : » à la fin de
+    Repéré par, tout en écrivant ici « sans changer son texte »
+    (repéré par la relecture adverse, consigné). Version finale : le
+    texte d'origine, seulement réordonné (la phrase « Les cinq erreurs
+    de fond : » et la liste sous Faux, le préambule sous Repéré par) ;
   - l'agent signale un défaut de la session 1 : l'ancienne page
     making-of utilisait un jeton de couleur inexistant (`--filet`), si
     bien que le filet entre sections ne s'affichait pas. Sans effet sur
@@ -262,3 +268,48 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   dates REMIT, non documenté, et Flamanville 3 en 2025. Ses calculs
   n'ont été relus par personne ; ils n'entrent pas dans `docs/` tels
   quels.
+- deux agents lancés en parallèle (Opus) : contre-vérification adverse
+  de 17 affirmations du spike, sans accès à ses conclusions
+  (`docs/spike/quand-contre-verification.md`) ; branchement des
+  indisponibilités REMIT d'EDF dans le pipeline (série horaire du
+  nucléaire disponible, contrôle contre les taux du Bilan électrique
+  2025), avec mission de trancher le fuseau des dates et le cas de
+  Flamanville 3.
+- la relecture adverse rend son verdict : publiable après corrections
+  (rapport : `docs/relectures/2026-11-26-accueil-making-of.md`). Les
+  affirmations sur le marché sont justes, et la comparaison mot à mot
+  du making-of rendu avec ses sources ne trouve rien de perdu. Un point
+  de fond : l'ouverture de l'accueil affirmait « la question se joue à
+  l'heure, au poste électrique et au prix », l'hypothèse du brief
+  présentée comme un fait, alors que l'auteur a décidé que l'accueil
+  ne pose pas de thèse. La phrase venait de la consigne de Claude à
+  l'agent du site (consigné). Claude vérifie chaque point dans le code
+  et les fichiers, et les arbitre : ouverture réécrite en description
+  de ce que fait le site ; « carte » devient « calendrier » (après
+  « poste électrique », on attendait une carte de France) ; « couleur
+  écrêtée » devient « la couleur sature » ; « prix planchers » devient
+  « prix à peine négatifs » ; la moyenne horaire des quarts d'heure est
+  dite calcul du site ; une citation de l'auteur et un paragraphe du
+  brief mal rendus sont corrigés ; la session en cours est marquée
+  comme telle. L'agent du site est relancé avec son contexte pour ces
+  corrections.
+- l'agent du site rend les corrections. Elles ont fait apparaître un
+  défaut déjà en ligne sur « Combien ? » (étages de la pyramide
+  numérotés 1, 2, 3 au lieu de 3, 4, 5 ; consigné). La fidélité du
+  making-of à ses sources est désormais un test de la CI. Reste au
+  backlog : les sauts de ligne d'une demande citée sont fondus au
+  rendu (« selon ROADMAP.md » et « retours de lecture : » sur une même
+  ligne) ;
+- la contre-vérification rend son rapport
+  (`docs/spike/quand-contre-verification.md`) : aucun chiffre faux sur
+  17, mais des pièges de sens. Le jeu EDF contient aussi des unités
+  belges (vérifié par Claude dans le fichier, consigné) ; les 8 à
+  10 GW de marge viennent du BP2025 et précèdent la synthèse de
+  l'hiver 2026-2027, qui ne donne plus de marge en GW ; RTE n'écrit
+  nulle part qu'1 GW de consommation à la pointe retire 1 GW de marge,
+  et sa méthode traite différemment une charge plate et une charge
+  sensible au froid ; les 3 TWh d'EnR non produites à prix négatif et
+  les 0,1 TWh écrêtés à la demande de RTE se recouvrent. Le fuseau des
+  dates REMIT est établi en heure de Paris par un test sur 121
+  déclenchements de réacteurs. Informations transmises à l'agent du
+  pipeline.

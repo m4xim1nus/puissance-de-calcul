@@ -75,12 +75,36 @@ Format :
 - **Garde-fou ajouté** : avant chaque push, recherche du prénom, de « wiki » et de « @ » dans les fichiers versionnés (ajoutée à la section « Making-of » de `CLAUDE.md`).
 
 ### 2026-11-26 — Relecture « lectrice experte » : cinq erreurs de fond avant publication
-- **Faux** : cinq erreurs de fond dans le site construit, avant publication :
+- **Faux** : Les cinq erreurs de fond :
   1. **Fouju** : les 1 400 MW, présentés comme un palier du contrat signé, ne sont que le dimensionnement des ouvrages (« conçues de manière à permettre, à terme ») ; le palier signé de 700 MW avant fin 2029 manquait. Erreur du référentiel saisi par Claude, alors que la contre-vérification citait la phrase exacte.
   2. **Taux de concrétisation** (30 % / 60 %) : Claude a omis la restriction « dont la mise en service est prévue avant 2030 », pourtant présente dans la citation qu'il avait lui-même vérifiée. L'assiette réelle est d'environ 7 à 8 GW ; appliqués aux 14 GW de réservations, ces taux contredisent les 15 TWh affichés.
   3. **Enedis 0,9 GW** : une **surcorrection** de Claude. L'agent du site avait signalé que la nature de la puissance n'était « pas précisée » dans le référentiel. Claude a corrigé le texte dans ce sens sans rouvrir la page source, dont le graphique s'intitule « Puissance raccordée pour des datacenters ». Le site affirmait donc faussement que la source ne précisait rien.
   4. **Rendu** : une ligne du Markdown commençant par « 2035. » était lue comme une liste numérotée ; l'année disparaissait de la page.
   5. **ADEME** : la note affichait « 9,91 TWh (8,16 inventoriés + 3,5 modélisés) », une somme fausse. Les 3,5 TWh extrapolés remplacent les centres privés et publics de l'inventaire ; ils ne s'y ajoutent pas (6,46 + 3,5 ≈ 10). Erreur du spike, recopiée par Claude.
-- **Repéré par** : la relecture adverse du site construit (agent Opus, rôle de la lectrice cible ; rapport : `docs/relectures/2026-11-26-lectrice-experte.md`) a relevé 27 points : 5 de fond, 14 de précision, 8 de forme. Claude a revérifié dans les PDF les deux points qui contredisaient ses propres notes (Enedis, ADEME) avant de corriger. Les cinq erreurs de fond :
+- **Repéré par** : la relecture adverse du site construit (agent Opus, rôle de la lectrice cible ; rapport : `docs/relectures/2026-11-26-lectrice-experte.md`) a relevé 27 points : 5 de fond, 14 de précision, 8 de forme. Claude a revérifié dans les PDF les deux points qui contredisaient ses propres notes (Enedis, ADEME) avant de corriger.
 - **Correction** : texte et référentiel corrigés (nouveau chiffre `dc_signe_fouju_2029`, nouvelle grandeur `puissance_dimensionnement`, assiette des taux explicitée, définition des cotes révisée : B = « source primaire, sans recoupement indépendant »). Les points de précision et de forme sont traités dans le même commit ou listés au backlog.
 - **Garde-fou ajouté** : (a) toute correction issue d'un signalement se vérifie à la source, jamais sur la seule foi du signalement (ajouté à `CLAUDE.md`) ; (b) test du rendu Markdown qui refuse une ligne commençant par « nombre de 3 chiffres ou plus + point » hors liste voulue ; (c) la relecture « lectrice experte » reste obligatoire avant chaque publication d'une page.
+
+### 2026-11-26 — Accueil : l'hypothèse du brief écrite comme un fait
+- **Faux** : l'ouverture réécrite de l'accueil disait « En moyenne sur l'année, la France produit une électricité abondante et largement décarbonée. Mais […] la question se joue à l'heure, au poste électrique et au prix. » C'est l'hypothèse de travail du brief, affirmée sans réserve, alors que l'auteur a décidé le 26/11 que l'accueil pose la question sans thèse. La formule venait de la consigne que Claude a donnée à l'agent du site ; Claude, en relisant, a corrigé la moitié de la phrase (« tantôt tendu, tantôt en excédent ») et laissé l'autre. « Largement décarbonée » n'était ni daté ni sourcé, et faux pour 2022, année que le calendrier propose.
+- **Repéré par** : la relecture adverse « lectrice experte » de l'accueil (agent Opus), avant publication.
+- **Correction** : ouverture réécrite en description de ce que fait le site (vérifier, chiffrer, dater ; dire où les données manquent), sans affirmation sur le système.
+- **Garde-fou ajouté** : une consigne à un agent qui rédige un texte public ne contient plus de formulation de fond toute faite : Claude donne le but et les décisions de l'auteur qui le bornent, et relit la phrase produite contre ces décisions.
+
+### 2026-11-26 — « Sans changer son texte » : une phrase ajoutée en remettant une erreur au format
+- **Faux** : en remettant au format l'entrée « Relecture "lectrice experte" : cinq erreurs de fond », Claude a ajouté en tête du champ Faux une phrase de son cru (« cinq erreurs de fond dans le site construit, avant publication : ») et laissé la phrase d'origine « Les cinq erreurs de fond : » orpheline à la fin de Repéré par. Le journal disait dans le même temps « sans changer son texte ».
+- **Repéré par** : la relecture adverse du making-of (agent Opus), avant publication.
+- **Correction** : texte d'origine rétabli, seulement réordonné ; le journal le dit.
+- **Garde-fou ajouté** : le script de fidélité de la relecture (comparaison mot à mot des Markdown et du HTML rendu) est relancé avant chaque push qui touche le making-of. Il ne voit pas un ajout à la source : une modification d'une entrée déjà écrite se relit en `git diff` avant commit.
+
+### 2026-11-26 — « Combien ? » : étages de la pyramide mal numérotés en ligne
+- **Faux** : sur la page publiée `/combien`, la pyramide des puissances (liste numérotée de 1 à 5) était coupée en deux par le paragraphe « Cas particulier, la pré-réservation ». Le Markdown maison du site ne savait pas garder dans un item un paragraphe indenté après une ligne vide : les étages « Signée », « Raccordée » et « Appelée » s'affichaient numérotés 1, 2, 3 au lieu de 3, 4, 5. Aucun chiffre touché, mais l'ordre des étages, qui est le propos de la pyramide, était brouillé.
+- **Repéré par** : l'agent du site, en corrigeant le même défaut de rendu signalé dans le brief par la relecture du making-of ; vérifié en rendant `docs/enquetes/combien.md` avec l'ancien code.
+- **Correction** : le Markdown garde les paragraphes de continuation dans leur item ; les notes marginales qu'ils portent restent dans l'ordre du texte. Tests ajoutés.
+- **Garde-fou ajouté** : test de fidélité du making-of en CI (mot à mot, Markdown contre HTML rendu). Rien d'équivalent pour les enquêtes : une relecture du rendu de chaque page reste nécessaire, et la relecture adverse de la session 1 ne l'a pas vu.
+
+### 2026-11-26 — Spike « Quand ? » : jeu REMIT d'EDF dit « EDF SA seulement »
+- **Faux** : le rapport du spike « Quand ? » (agent Opus) décrivait le jeu des indisponibilités d'EDF comme « EDF SA seulement ». Il contient aussi des unités de Luminus en Belgique (Seraing, Ringvaart, Nobelwind) : 984 lignes dans l'historique, 59 dans la liste courante (recomptées par Claude, motifs « Seraing », « Ringvaart », « Nobelwind »). Sans effet sur le nucléaire ; un agrégat gaz ou éolien en mer tiré de ce jeu aurait été faux.
+- **Repéré par** : la contre-vérification adverse (agent Opus distinct, sans accès aux conclusions du spike).
+- **Correction** : rapport du spike annoté ; l'agent du pipeline filtre explicitement la filière nucléaire et les tranches françaises.
+- **Garde-fou ajouté** : aucun nouveau ; la contre-vérification indépendante avant usage d'un chiffre de spike a fonctionné.

@@ -131,7 +131,7 @@ version remplacée, Annulée, Supprimée), identifiant, version, centrale
 (tranche), filière, début, fin, type, cause, information complémentaire,
 puissance maximale (MW), puissance disponible (MW), date de publication.
 Filières : nucléaire (273 k lignes), STEP, réservoirs, fil de l'eau, charbon,
-gaz, fioul/TAC, éolien en mer, énergie marine. **EDF SA seulement** : complet
+gaz, fioul/TAC, éolien en mer, énergie marine. **EDF SA seulement** *[annotation de la session principale, 26/11 : inexact, le jeu contient aussi des unités Luminus en Belgique ; voir `quand-contre-verification.md` et `making-of/ERREURS.md`]* : complet
 pour le nucléaire, partiel pour l'hydraulique et le thermique (CNR, SHEM,
 TotalEnergies, Engie, GazelEnergie… absents).
 

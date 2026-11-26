@@ -262,6 +262,8 @@ export interface Session {
   parties: string[];
   /** HTML de tout le reste de la session, replié à l'affichage. */
   detail: string;
+  /** Pas de paragraphe « Durée » : la session n'est pas close. */
+  enCours: boolean;
   /** HTML du brief, rattaché à la session 1 (décision de l'auteur, 2026-11-26). */
   brief: string | null;
 }
@@ -328,6 +330,7 @@ export function analyserJournal(texte: string, brief: string | null = null): Ana
       objet: enLigne(m?.[4] ?? titre.replace(/^##\s*/, '')),
       demande: demande ? markdown(demande.lignes.join('\n')) : '',
       resume,
+      enCours: !parties.some((p) => p.titre === 'Durée'),
       parties: reste.map((p) => p.titre ?? 'Notes'),
       detail: markdown(reste.map((p) => p.lignes.join('\n')).join('\n\n')),
       brief: numero === 1 ? brief : null

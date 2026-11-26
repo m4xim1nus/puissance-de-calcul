@@ -127,24 +127,62 @@ function liste(lignes: string[], debut: number, options: OptionsMarkdown): [stri
     if (!m || indent(lignes[i]) !== base) break;
     let texte = m[3];
     i++;
-    let sous = '';
-    while (i < lignes.length && lignes[i].trim() !== '') {
-      const mm = lignes[i].match(RE_PUCE);
-      if (mm && indent(lignes[i]) > base) {
-        const [html, suite] = liste(lignes, i, options);
-        sous += html;
-        i = suite;
-      } else if (mm) {
-        break;
-      } else {
-        texte += ' ' + rogner(lignes[i]); // ligne de continuation
-        i++;
+    // Ce qui suit le texte de l'item, dans l'ordre : sous-listes et paragraphes de continuation.
+    let apres = '';
+    let paragraphe: string | null = null; // paragraphe de continuation en cours
+    let avecParagraphes = false;
+    // Le texte de tête est rendu dès qu'un bloc le suit : les jetons {{…}} (et les numéros de
+    // notes qu'ils reçoivent) restent ainsi dans l'ordre du document.
+    let contenu: string | null = null;
+    const figer = () => {
+      contenu ??= enLigne(texte, options);
+    };
+    const fermer = () => {
+      figer();
+      if (paragraphe === null) return;
+      const html = enLigne(paragraphe, options);
+      apres += options.envelopper ? options.envelopper(html, 'p') : `<p>${html}</p>`;
+      paragraphe = null;
+      avecParagraphes = true;
+    };
+    for (;;) {
+      while (i < lignes.length && lignes[i].trim() !== '') {
+        const mm = lignes[i].match(RE_PUCE);
+        if (mm && indent(lignes[i]) > base) {
+          fermer();
+          const [html, suite] = liste(lignes, i, options);
+          apres += html;
+          i = suite;
+        } else if (mm) {
+          break;
+        } else {
+          // Ligne de continuation : du texte de l'item, ou du paragraphe ouvert.
+          if (paragraphe !== null) paragraphe += ' ' + rogner(lignes[i]);
+          else if (contenu === null) texte += ' ' + rogner(lignes[i]);
+          else paragraphe = rogner(lignes[i]);
+          i++;
+        }
       }
+      // Après une ligne vide, une ligne indentée au-delà de la puce prolonge l'item : nouveau
+      // paragraphe, ou sous-liste. Sinon la liste s'arrête là.
+      let j = i;
+      while (j < lignes.length && lignes[j].trim() === '') j++;
+      if (j === i || j >= lignes.length || indent(lignes[j]) <= base) break;
+      fermer();
+      i = j;
+      if (!RE_PUCE.test(lignes[i])) paragraphe = rogner(lignes[i++]);
     }
-    const contenu = enLigne(texte, options);
-    items.push(
-      `<li>${options.envelopper ? options.envelopper(contenu, 'li') : contenu}${sous}</li>`
-    );
+    fermer();
+    contenu ??= enLigne(texte, options);
+    // Item à plusieurs paragraphes : son texte devient lui aussi un paragraphe.
+    const tete = avecParagraphes
+      ? options.envelopper
+        ? options.envelopper(contenu, 'p')
+        : `<p>${contenu}</p>`
+      : options.envelopper
+        ? options.envelopper(contenu, 'li')
+        : contenu;
+    items.push(`<li>${tete}${apres}</li>`);
   }
   const balise = ordonnee ? 'ol' : 'ul';
   return [`<${balise}>${items.join('')}</${balise}>`, i];

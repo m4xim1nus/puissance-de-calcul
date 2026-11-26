@@ -195,6 +195,9 @@ describe('analyse des formats (cas synthétiques)', () => {
       { cle: 'Coût', html: 'non relevé' }
     ]);
     expect(s.parties).toEqual(['Fait', 'Durée', 'Coût']);
+    expect(s.enCours).toBe(false);
+    const ouverte = analyserJournal(SESSION + "**Demande de l'auteur** :\n\n> fais x\n");
+    expect(ouverte.entrees[0].enCours).toBe(true);
     expect(s.detail).not.toContain('fais x');
     expect(s.brief).toBeNull();
   });

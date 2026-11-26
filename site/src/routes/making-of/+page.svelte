@@ -55,8 +55,9 @@
 <p class="colonne">
   Ce site est construit par Claude Code, sous la direction de l’auteur. Le making-of est tenu au fil
   de l’eau dans trois fichiers du dépôt : le journal des sessions, le registre des décisions et
-  celui des erreurs de Claude. Cette page les met en forme sans changer leur texte. Le brief de
-  départ, publié tel quel, est replié dans la session 1 du journal.
+  celui des erreurs de Claude. Cette page les met en forme sans changer leur texte&#8239;; seul le
+  rappel du format, en tête du registre des erreurs, n’est pas affiché. Le brief de départ, publié
+  tel quel, est replié dans la session 1 du journal.
 </p>
 <nav class="sommaire" aria-label="Sections du making-of">
   <a href="#journal">Journal</a>
@@ -90,7 +91,8 @@
             </h3>
             <p class="quand">
               {#if s.date}<time datetime={s.date}>{formaterDate(s.date)}</time>{/if}{#if s.horaire},
-                {courbe(s.horaire)}{/if}
+                {courbe(s.horaire)}{/if}{#if s.enCours}
+                <span class="etiquette en-cours">session en cours</span>{/if}
             </p>
             {#if s.resume.length}
               <dl class="resume">
@@ -299,6 +301,10 @@
     margin: 0.15rem 0 0.6rem;
     font-family: var(--sans);
     color: var(--encre-2);
+  }
+  .en-cours {
+    margin-left: 0.3rem;
+    font-family: var(--sans);
   }
   .resume {
     display: grid;
