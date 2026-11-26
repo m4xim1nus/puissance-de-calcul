@@ -149,6 +149,15 @@ fois avec son contexte (page « Combien ? », hero, corrections).
 **Durée** : de 23 h 03 à 1 h 26, soit environ 2 h 25 de temps réel, avec
 jusqu'à quatre agents en parallèle.
 
-**Coût** : non relevé (à compléter si l'auteur fournit le relevé `/cost`).
+**Coût** : pas de montant en euros, aucun relevé `/cost` n'a été
+transmis. Volumes estimés à partir des transcriptions locales (fil
+principal et 8 sous-agents dont la transcription est conservée) :
+Opus, ≈ 0,81 M jetons produits, ≈ 152 M jetons lus en cache et ≈ 2,4 M
+écrits en cache ; Sonnet, ≈ 0,07 M produits, ≈ 10,7 M lus en cache et
+≈ 0,24 M écrits en cache. La lecture du contexte en cache domine
+largement le volume.
 
-**Durée / coût** : en cours.
+**Après la session** (même jour) : l'auteur branche Cloudflare Pages.
+Le site est en ligne sur `pdc.technoperchoir.fr`, et toutes les routes
+répondent (404 compris). Jeton ENTSO-E toujours attendu. La relecture
+de l'auteur et la recette sur téléphone ouvriront la session 2.

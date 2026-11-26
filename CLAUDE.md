@@ -12,6 +12,9 @@ la question se joue **à l'heure, au poste électrique et au prix**. Le
 site vérifie, chiffre, date, et dit où les données contredisent
 l'hypothèse ou manquent. Instrument de preuve, pas un tract.
 
+En ligne : https://pdc.technoperchoir.fr (Cloudflare Pages, build à chaque
+push sur `main`). Dépôt public : `m4xim1nus/puissance-de-calcul`.
+
 Le brief est dans `docs/BRIEF.md` : figé, **publié tel quel** dans le
 making-of (exigence du brief). L'original est dans `source/BRIEF.md`
 (dossier privé, non versionné). En cas d'écart, le brief prime.

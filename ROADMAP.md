@@ -37,9 +37,35 @@ extérieur pour l'instant, jeton ENTSO-E.
 - [x] Relecture adverse « lectrice experte » : 27 points, dont 5 de fond, tous traités
 - [x] Caviardage validé par l'auteur, historique réécrit, dépôt public
       `m4xim1nus/puissance-de-calcul`, CI verte
-- [ ] Cloudflare Pages relié au dépôt, `pdc.technoperchoir.fr` (l'auteur)
-- [ ] Recette sur téléphone du site en ligne, puis relecture de l'auteur
+- [x] Cloudflare Pages relié au dépôt : en ligne sur
+      https://pdc.technoperchoir.fr (2026-11-26)
+- [ ] Recette sur téléphone du site en ligne
+- [ ] Relecture de l'auteur : retours à traiter en ouverture de session 2
+      (chaque retour sur un chiffre se vérifie à la source avant correction)
 
 ## Étape 3 : « Quand ? » + simulateur
 
-À détailler après l'étape 2.
+Ordre prévu pour la session 2 :
+
+1. **Retours de relecture de l'auteur** sur l'étape 2. On les cite dans
+   le journal, on les traite, et on consigne dans `ERREURS.md` ce qui
+   en relève.
+2. **Jeton ENTSO-E** : s'il est arrivé (`source/entsoe_token`, jamais
+   versionné), on vérifie l'accès avec un agent Sonnet, puis on branche
+   la source dans `pc download` (prix et mix des voisins, flux
+   transfrontaliers). Il sert à l'enquête carbone et au recoupement des
+   prix energy-charts. Sinon, on ne fait rien : l'étape 3 n'en dépend pas.
+3. **Enquête « Quand ? »** (`/quand`) : à quelles heures le système a de
+   la marge et à quelles heures il n'en a pas. Monotones de charge et de
+   prix, heures de tension et heures de surplus, ce qu'une charge plate
+   de X GW change à ces heures. Données déjà disponibles : éCO2mix
+   horaire 2015-2026 et prix. Spike Opus pour les sources de marge
+   (tension, écrêtement, effacements), puis texte, référentiel,
+   relecture adverse.
+4. **Simulateur** (`/simulateur`) : un moteur TS dans le navigateur, et
+   une référence Python dans `pipeline/` qui doit donner les mêmes
+   résultats (test croisé). Profil de charge plat par défaut,
+   hypothèses affichées et modifiables. Le simulateur dit ce qu'il ne
+   modélise pas (réseau local, marginal).
+5. Relecture adverse « lectrice experte » de chaque page avant
+   publication.
