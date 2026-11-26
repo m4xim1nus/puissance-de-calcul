@@ -23,7 +23,7 @@ RTE. Il le dit en tête de page, pas en note.
 | Année de référence | 2025 | 2015-2025 | séries publiées `data/export/horaire/AAAA.csv` |
 | Puissance appelée X | 1 GW | 0 à 20 GW | puissance **appelée**, pas réservée ni raccordée (lien vers « Combien ? ») |
 | Profil | plat | plat ; plat avec effacement | aucune courbe de charge de data center n'est publiée |
-| Effacement : heures | 0 | 0 à 500 h/an | la consommation ajoutée est nulle pendant les N heures où la charge résiduelle **observée** est la plus élevée (prévision parfaite : borne optimiste, dite) |
+| Effacement : heures | 0 | 0 à 500 h/an | la consommation ajoutée est nulle pendant les N heures où la charge résiduelle **observée** est la plus élevée (prévision parfaite) ; l'énergie effacée est **perdue**, ni reportée dans le temps ni vers un autre site. Le résultat est circulaire pour l'indicateur des heures au-delà du maximum (ce sont les heures effacées) : il donne une **borne basse** du nombre d'heures à effacer, dite comme telle |
 
 Chaque hypothèse affichée avec sa justification et son défaut ; l'URL
 porte l'état (partage d'un scénario par lien).
@@ -35,15 +35,25 @@ GW, heures de Paris) :
 
 1. énergie ajoutée (Σ heures × X, effacement déduit) ;
 2. part de cette énergie qui tiendrait **au plus** dans le nucléaire
-   disponible non produit (J) ;
-3. heures où charge résiduelle + charge ajoutée dépasse le maximum
-   observé de l'année ; nouveau maximum ;
-4. part de l'énergie ajoutée consommée à prix négatif ou nul, et prix
-   moyen pondéré par la charge ajoutée (prix **observé**, sans effet en
-   retour : le dire) ;
+   disponible non produit (J), en fourchette sans plancher / avec un
+   plancher de 1 GW non mobilisable (hypothèse du site), et l'énergie
+   nucléaire supplémentaire correspondante, mise en regard de la
+   production de l'année et des prévisions de l'exploitant ;
+3. heures où charge résiduelle + charge ajoutée dépasse le maximum de
+   l'année **et** le maximum 2015-2025 ; nouveau maximum ;
+4. part de l'énergie ajoutée consommée à prix négatif ou nul (prix
+   **observé**, sans effet en retour ; pour une consommation plate,
+   c'est la part des heures de l'année). Pas de prix moyen pondéré :
+   comparé entre scénarios, il se lisait comme une économie ;
 5. monotone de la charge résiduelle avant / après ;
-6. rapprochement avec les marges publiées par RTE, présenté comme
-   approximation du site (texte de « Quand ? »).
+6. marge : une consommation plate de X GW retire à peu près X GW de
+   marge (équivalence d'adéquation), mise en regard des marges publiées
+   par RTE ; avec effacement, le simulateur ne sait pas dire combien de
+   marge est rendue.
+
+Qui servirait la consommation ajoutée (nucléaire, EnR moins arrêtées,
+exportations) n'est pas déterminable sans les données des voisins : le
+simulateur ne le dit pas.
 
 ## Architecture
 

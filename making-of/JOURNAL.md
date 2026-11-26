@@ -404,3 +404,9 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   l'avait couvert (charbon, fioul, importations ; prix de 159 €/MWh,
   donc pas « extrêmes » comme en décembre 2022 : la première rédaction
   le disait, corrigée avant commit).
+- la relecture adverse du simulateur rend son verdict : calculs justes
+  (recalculés à l'identique sur 16 scénarios), fond pas encore. Il
+  reprenait les erreurs de « Quand ? », spécifié avant la relecture de
+  celle-ci, et ajoutait un effacement circulaire et un prix moyen qui se
+  lisait comme une économie (consigné). Claude arbitre : spécification
+  révisée, l'agent du simulateur relancé avec son contexte.

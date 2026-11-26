@@ -32,3 +32,5 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 - [ ] REMIT : biais de +0,1 à +0,4 pt du taux reconstruit sur RTE, inexpliqué ; l'heure répétée du passage à l'heure d'hiver est lue comme sa première occurrence (claude, 2026-11-26)
 - [ ] Référentiel : la règle « confiance A = autre éditeur » compare les éditeurs comme des chaînes (« RTE (open data ODRÉ) » ≠ « RTE ») ; normaliser l'éditeur, test à l'appui (claude, 2026-11-26)
 - [ ] éCO2mix : écart de bilan moyen de −65 à −80 MW depuis 2021 (quelques MW avant), et saut du gaz contre ses sous-filières ; cause non établie (batteries ?) (claude, 2026-11-26)
+- [ ] Simulateur : règle d'effacement réaliste (seuil connu à l'avance, ex. celui de l'année précédente, et budget d'heures), à spécifier ; la v1 ne donne qu'une borne basse à prévision parfaite (relecture, 2026-11-26)
+- [ ] Simulateur : les textes `site/src/lib/simulateur/*.md` recopient des passages de « Quand ? » ; tirer les phrases de fond d'une source unique (claude, 2026-11-26)
