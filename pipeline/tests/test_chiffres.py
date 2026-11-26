@@ -95,8 +95,9 @@ def test_marge_certifiee_et_installee_non_comparables():
 
 def test_chiffre_calcule_exige_son_calcul():
     sans = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE)
-    avec = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="Σ J")
-    inconnu = chiffre(produit_par="à la main", calcul="x")
+    avec = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="Σ J", valeur=31.4, valeur_calculee=31.433,
+                   precision=0.1, unite="GW")
+    inconnu = chiffre(produit_par="à la main", calcul="x", valeur_calculee=1, precision=1)
     assert any("sans « calcul »" in e for e in chiffres.valider(ref({"a": sans})))
     assert chiffres.valider(ref({"a": avec})) == []
     assert any("inconnu" in e for e in chiffres.valider(ref({"a": inconnu})))
@@ -105,7 +106,8 @@ def test_chiffre_calcule_exige_son_calcul():
 def test_fusion_refuse_les_collisions_et_les_chiffres_non_marques():
     import pytest
     r = ref({"a": chiffre()})
-    calc = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="x", source="calc")
+    calc = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="x", source="calc", valeur_calculee=1.2,
+                   precision=1)
     src = {"calc": {"editeur": "site", "titre": "t", "date_publication": "2026-11-26", "url": "https://q"}}
     f = chiffres.fusionner(r, src, {"b": calc})
     assert set(f.chiffres) == {"a", "b"} and chiffres.valider(f) == []
@@ -125,3 +127,16 @@ def test_referentiel_saisi_ne_contient_aucun_chiffre_calcule():
     r = chiffres.charger(dossier)
     assert not [k for k, c in r.chiffres.items() if c.get("produit_par")]
     assert not [k for k in r.chiffres if k.startswith("quand_")]
+
+
+def test_valeur_publiee_est_l_arrondi_de_la_valeur_calculee():
+    assert chiffres.arrondi_publie(31.433, 0.1) == 31.4
+    assert chiffres.arrondi_publie(31.45, 0.1) == 31.5  # pas d'arrondi bancaire
+    assert chiffres.arrondi_publie(-3.184, 0.1) == -3.2
+    assert chiffres.arrondi_publie(86.84, 1) == 87 and isinstance(chiffres.arrondi_publie(86.84, 1), int)
+    assert chiffres.arrondi_publie(0.5, 1) == 1 and chiffres.arrondi_publie(-0.5, 1) == -1
+    faux = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="x", valeur=31.433, valeur_calculee=31.433,
+                   precision=0.1, unite="GW")
+    sans_precision = chiffre(produit_par=chiffres.PRODUIT_PAR_PIPELINE, calcul="x")
+    assert any("arrondi" in e for e in chiffres.valider(ref({"a": faux})))
+    assert any("valeur_calculee" in e for e in chiffres.valider(ref({"a": sans_precision})))

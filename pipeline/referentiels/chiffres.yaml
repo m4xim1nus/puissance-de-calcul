@@ -992,6 +992,20 @@ chiffres:
     verification: contre-verification
     note: ne pas comparer aux « capacités d'effacement estimées à 3,7 GW » de la synthèse de l'hiver 2025-2026 (autre grandeur)
 
+  rte_part_defaillance_plages_pointe:
+    libelle: Part du volume de défaillance simulé concentrée sur les pointes du matin et du soir
+    valeur: 50
+    unite: "%"
+    grandeur: part
+    periode: moyen terme (horizons 2026, 2030 et 2035 de la figure 5.20)
+    perimetre: "part du volume d'énergie non distribuée (MWh) simulé, pas du nombre d'heures ; projection conditionnelle dans les trajectoires de décarbonation étudiées, configuration « Décarbonation rapide – R3 » sans bouquet d'équilibrage (fig. 5.19 et 5.20, p. 30-31) ; plages 7 h-10 h et 17 h-20 h"
+    source: rte-bp2025-fonctionnement
+    page: p. 30
+    citation: « Si au sein d'une journée, près de 50 % du volume de défaillance resterait concentré autour des pointes de consommation du matin et du soir, sur les plages 7 h-10 h et 17 h-20 h, les épisodes de défaillance auraient tendance à devenir plus longs et à s'étendre davantage sur les heures en soirée, voire la nuit. […] En revanche, le risque sur les plages méridiennes apparaît dès aujourd'hui très faible »
+    confiance: B
+    verification: contre-verification
+    note: « près de » 50 % ; l'autre moitié glisse vers la soirée et la nuit, ce n'est pas « tout se joue à la pointe » ; section 5.3.4, « à moyen terme » ; les plages coïncident par construction avec les plages PP du mécanisme de capacité 2026/2027 (note 38, même page), ce n'est pas une confirmation indépendante
+
 contraintes:
   - inferieur: [dc_conso_rpt_2024, dc_conso_sites_dedies_2024]
     motif: le transport est une partie des sites dédiés

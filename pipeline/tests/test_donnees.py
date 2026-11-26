@@ -160,6 +160,17 @@ def test_chiffres_calcules_publies(export):
                     f"quand_heures_rn_sup_max_10gw_{an}", f"quand_top100_hiver_{an}", f"quand_top100_plages_{an}"):
             assert c[cle]["produit_par"] == "pc build" and c[cle]["source"]["cle"] == "pdc-quand"
             assert c[cle]["calcul"] and c[cle]["confiance"] in ("B", "C")
-    # ordre de grandeur : RN max entre 20 et 45 GW ; Σ J entre 5 et 50 TWh
+    for an in (2022, 2023, 2024, 2025):
+        for cle in (f"quand_top100_solde_{an}", f"quand_top100_gaz_{an}", f"quand_top100_lacs_step_{an}",
+                    f"quand_top100_fil_eau_{an}", f"quand_solde_j5_{an}"):
+            assert c[cle]["unite"] == "GW" and abs(c[cle]["valeur"]) < 20
+    assert c["quand_j_2025_hors_epr"]["valeur"] < c["quand_j_2025"]["valeur"]
+    assert c["quand_top100_plages_pp_2025"]["valeur"] <= c["quand_top100_plages_2025"]["valeur"]
+    assert c["quand_heures_j5_2025"]["unite"] == "heures"
+    # publié = arrondi : GW et TWh à 0,1, % à l'entier
+    for cle, v in c.items():
+        if v.get("produit_par"):
+            assert {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1}[v["unite"]] == v["precision"]
+        # ordre de grandeur : RN max entre 20 et 45 GW ; Σ J entre 5 et 50 TWh
     assert all(20 < c[f"quand_rn_max_{an}"]["valeur"] < 45 for an in (2022, 2023, 2024, 2025))
     assert all(5 < c[f"quand_j_{an}"]["valeur"] < 50 for an in (2022, 2023, 2024, 2025))

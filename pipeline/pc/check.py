@@ -610,7 +610,9 @@ def _table_arrondie(table: pl.DataFrame) -> pl.DataFrame:
 def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
     """quand.json (Python pur) = recalcul polars : RN max et sa date, Σ J, charges plates, prix."""
     r = Resultat("« Quand ? » : quand.json = recalcul indépendant (polars) — RN max et date, Σ J, parts tenues, "
-                 "heures au-delà du max, heures de prix ≤ 0 et < 0", "OK")
+                 "heures au-delà du max, solde aux heures J ≥ X, couverture des heures tendues (échanges, gaz, "
+                 "hydraulique), heures de "
+                 "prix ≤ 0 et < 0", "OK")
     t = _table_arrondie(table)
     for an, a in q["annees"].items():
         d = t.filter(pl.col("an") == int(an))
@@ -629,6 +631,12 @@ def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
             x = c["x_mw"]
             part = jv.clip(upper_bound=x).sum() / (x * jv.len())
             au_dela = int((rn["rn"] + x > rn_max).sum())
+            hj = d.filter(pl.col("j") >= x).drop_nulls("ech_physiques")["ech_physiques"]
+            solde = hj.mean() if hj.len() else None
+            if (solde is None) != (c["solde_echanges_moyen_heures_j_ge_x_mw"] is None) or (
+                    solde is not None and abs(c["solde_echanges_moyen_heures_j_ge_x_mw"] - solde) > TOL_MW):
+                fautes.append(f"X = {x} MW : solde moyen aux heures J ≥ X {c['solde_echanges_moyen_heures_j_ge_x_mw']} "
+                              f"≠ {solde}")
             if abs(c["part_dans_j"] - part) > TOL_PART or c["heures_rn_plus_x_au_dessus_du_max"] != au_dela \
                     or c["heures_j_superieur_ou_egal_x"] != int((jv >= x).sum()):
                 fautes.append(f"X = {x} MW : part {c['part_dans_j']} / {part:.4f}, au-delà du max "
@@ -636,6 +644,10 @@ def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
         top = rn.head(a["heures_tendues"]["n"])
         if abs(a["heures_tendues"]["rn_moyenne_mw"] - top["rn"].mean()) > TOL_MW:
             fautes.append(f"RN moyenne des heures tendues {a['heures_tendues']['rn_moyenne_mw']} ≠ {top['rn'].mean():.0f}")
+        cm = a["heures_tendues"]["couverture_moyenne_mw"]
+        for c in ("ech_physiques", "gaz", "hydraulique_lacs", "hydraulique_step_turbinage", "hydraulique_fil_eau_eclusee"):
+            if abs(cm[c] - top[c].mean()) > TOL_MW:
+                fautes.append(f"couverture {c} {cm[c]} ≠ {top[c].mean():.0f} MW")
         p = d.drop_nulls("prix")
         neg, nul = int((p["prix"] < 0).sum()), int((p["prix"] <= 0).sum())
         if a["prix"]["heures_negatif"] != neg or a["prix"]["heures_nul_ou_negatif"] != nul:
@@ -773,7 +785,8 @@ def controle_quand_chiffres(q: dict, export: Path) -> Resultat:
     import json
     from . import chiffres
     from .export_quand import MODULATION_PUBLIEE, SOURCE_QUAND, chiffres_calcules
-    r = Resultat("« Quand ? » : chiffres calculés de chiffres.json = quand.json ; référentiel fusionné valide", "OK")
+    r = Resultat("« Quand ? » : chiffres calculés de chiffres.json = quand.json, valeur publiée = arrondi (GW et TWh "
+                 "à 0,1, % à l'entier) de la valeur non arrondie ; référentiel fusionné valide", "OK")
     ref = chiffres.charger()
     modulation = {an: ref.chiffres[c] for an, c in MODULATION_PUBLIEE.items() if c in ref.chiffres}
     attendus = chiffres_calcules(q, modulation)
@@ -788,6 +801,10 @@ def controle_quand_chiffres(q: dict, export: Path) -> Resultat:
         elif ({k: v for k, v in p.items() if k != "source"} != {k: v for k, v in c.items() if k != "source"}
               or p["source"].get("cle") != SOURCE_QUAND):
             erreurs.append(f"{cle} : chiffres.json ≠ quand.json (relancer `pc build`)")
+        else:
+            # la valeur publiée est l'arrondi de la valeur non arrondie de quand.json, à un demi-pas près
+            if abs(p["valeur"] - p["valeur_calculee"]) > p["precision"] / 2 + 1e-9:
+                erreurs.append(f"{cle} : valeur publiée {p['valeur']} à plus d'un demi-pas de {p['valeur_calculee']}")
     orphelins = sorted(k for k, v in publies.items() if v.get("produit_par") and k not in attendus)
     erreurs += [f"{k} : chiffre calculé orphelin" for k in orphelins]
     if erreurs:

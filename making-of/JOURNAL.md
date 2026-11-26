@@ -341,3 +341,13 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   recalcule à part, sur les CSV publiés, la charge résiduelle maximale
   2022-2025 avec sa date, le nucléaire disponible non produit et la
   part tenue pour 5 GW : identiques.
+- texte de « Quand ? » écrit par Claude (`docs/enquetes/quand.md`), sur
+  les identifiants du référentiel. En relisant son premier jet, Claude
+  retire ou source cinq affirmations tapées sans entrée : les causes de
+  la crise nucléaire de 2022 (remplacées par le taux de disponibilité
+  de RTE), « des centaines de scénarios », « l'essentiel du risque »
+  (RTE écrit « près de 50 % », sur des plages plus étroites que celles
+  du site : on prend les siennes), « la France exporte précisément à
+  ces heures » (désormais un chiffre calculé), et Flamanville 3 « en
+  essais » (« en montée en puissance »). Cinq chiffres de plus demandés
+  à l'agent des indicateurs.

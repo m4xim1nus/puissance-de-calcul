@@ -56,13 +56,15 @@ UNITES: dict[str, dict[str, float]] = {
     "marge_adequation": dict(_PUISSANCE),  # marge par rapport au critère de sécurité d'approvisionnement (capacité équivalente, calcul probabiliste)
     "marge_certifiee": dict(_PUISSANCE),  # marge en MW certifiés du mécanisme de capacité
     "puissance_certifiee": dict(_PUISSANCE),  # capacité certifiée ou contractualisée au mécanisme de capacité
+    "puissance_moyenne": dict(_PUISSANCE),  # puissance moyenne observée sur un ensemble d'heures (production, solde d'échanges)
 }
 CONFIANCES = {"A", "B", "C"}
 CHAMPS_SOURCE = ("editeur", "titre", "date_publication", "url")
 CHAMPS_CHIFFRE = ("libelle", "valeur", "unite", "grandeur", "periode", "perimetre",
                   "source", "page", "citation", "confiance")
 #: Valeur du champ `produit_par` d'un chiffre calculé par le pipeline (et non saisi à la main) :
-#: il doit alors décrire son `calcul`, et sa source est l'export qui le porte.
+#: il doit alors décrire son `calcul`, porter sa valeur non arrondie (`valeur_calculee`) et le pas
+#: d'arrondi de la valeur publiée (`precision`), et sa source est l'export qui le porte.
 PRODUIT_PAR_PIPELINE = "pc build"
 
 
@@ -94,6 +96,15 @@ def en_base(chiffre: dict) -> tuple[float, float]:
     facteur = UNITES[chiffre["grandeur"]][chiffre["unite"]]
     lo, hi = bornes(chiffre["valeur"])
     return lo * facteur, hi * facteur
+
+
+def arrondi_publie(x: float, pas: float) -> float | int:
+    """Arrondi au pas (0,1 ; 1…), à la moitié la plus éloignée de zéro : déterministe, sans
+    l'arrondi bancaire de `round`, et reproductible en TypeScript."""
+    from decimal import ROUND_HALF_UP, Decimal
+    q = Decimal(str(pas))
+    v = Decimal(str(x)).quantize(q, rounding=ROUND_HALF_UP)
+    return int(v) if q == q.to_integral() else float(v)
 
 
 def _date(valeur) -> date | None:
@@ -138,6 +149,12 @@ def valider(ref: Referentiel) -> list[str]:
                 erreurs.append(f"chiffre {cle} : produit_par « {c['produit_par']} » inconnu")
             if not c.get("calcul"):
                 erreurs.append(f"chiffre {cle} : chiffre calculé sans « calcul »")
+            # valeur publiée = arrondi de la valeur calculée (non arrondie, lue dans l'export)
+            if c.get("valeur_calculee") is None or not c.get("precision"):
+                erreurs.append(f"chiffre {cle} : chiffre calculé sans « valeur_calculee » ni « precision »")
+            elif c["valeur"] != arrondi_publie(c["valeur_calculee"], c["precision"]):
+                erreurs.append(f"chiffre {cle} : valeur {c['valeur']} ≠ arrondi au pas {c['precision']} de "
+                               f"{c['valeur_calculee']}")
         if c["confiance"] not in CONFIANCES:
             erreurs.append(f"chiffre {cle} : confiance « {c['confiance']} » hors A/B/C")
         recoupements = c.get("recoupements") or []

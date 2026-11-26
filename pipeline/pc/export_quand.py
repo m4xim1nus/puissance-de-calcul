@@ -17,7 +17,7 @@ from pathlib import Path
 import polars as pl
 
 from . import quand
-from .chiffres import PRODUIT_PAR_PIPELINE
+from .chiffres import PRODUIT_PAR_PIPELINE, arrondi_publie
 
 TZ_PARIS = "Europe/Paris"
 
@@ -49,6 +49,9 @@ URL_QUAND = "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/exp
 #: égalité attendue). Identifiants du référentiel saisi.
 MODULATION_PUBLIEE = {2023: "modulation_nucleaire_2023_bp", 2024: "modulation_nucleaire_2024_bp",
                       2025: "modulation_nucleaire_2025_bp"}
+
+#: Disponibilité déclarée de l'EPR au-delà de laquelle Σ J hors EPR est publié à part (TWh).
+SEUIL_EPR_TWH = 0.1
 
 PERIMETRE = ("France continentale hors Corse (éCO2mix national) ; nucléaire disponible déclaré par EDF au titre "
              "de REMIT, Flamanville 3 comprise à partir du 18/12/2024 ; année civile en heure de Paris")
@@ -194,7 +197,9 @@ DEFINITIONS = {
     "charges_plates": "consommation supplémentaire constante de X MW toute l'année. energie_ajoutee_twh = X × heures "
                       "de l'année ; part_dans_j = Σ min(X, J) / (X × heures où J est renseigné) ; "
                       "heures_j_superieur_ou_egal_x = heures où J ≥ X ; heures_rn_plus_x_au_dessus_du_max = heures où "
-                      "RN + X > RN maximal observé de l'année (strictement) ; rn_max_plus_x_mw = RN max + X",
+                      "RN + X > RN maximal observé de l'année (strictement) ; rn_max_plus_x_mw = RN max + X ; "
+                      "solde_echanges_moyen_heures_j_ge_x_mw = solde moyen des échanges physiques (positif = import, "
+                      "négatif = export) aux heures où J ≥ X",
     "heures_tendues": "les N heures de RN la plus élevée de l'année (RN décroissant, puis heure UTC croissante) ; "
                       "répartition par mois et par heure de Paris de début ; couverture_moyenne_mw = moyenne, sur ces "
                       "heures, de chaque terme de RN = hydraulique (3 sous-filières) + gaz + charbon + fioul + "
@@ -337,6 +342,18 @@ def source_quand(date_extraction: str) -> dict:
     }
 
 
+#: Précision des valeurs publiées dans chiffres.json (décision du 26/11/2026) : GW à 0,1, TWh à
+#: 0,1, % à l'entier, heures à l'unité. La valeur non arrondie, lue dans quand.json, est gardée
+#: dans `valeur_calculee` ; `pc check` vérifie que `valeur` en est l'arrondi.
+PRECISION = {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1}
+
+
+def _valeur(x: float, unite: str) -> dict:
+    pas = PRECISION[unite]
+    x = round(x, 6)  # bruit flottant (30,349999… → 30,35) ; quand.json est lui-même arrondi
+    return {"valeur": arrondi_publie(x, pas), "valeur_calculee": x, "precision": pas, "unite": unite}
+
+
 def _fr(x: float, dec: int) -> str:
     return f"{x:.{dec}f}".replace(".", ",")
 
@@ -365,7 +382,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
         out[f"quand_rn_max_{an}"] = {
             **commun,
             "libelle": "Charge résiduelle nette du nucléaire disponible, maximum horaire de l'année",
-            "valeur": round(cr["max"]["valeur_mw"] / 1000, 3), "unite": "GW", "grandeur": "charge_residuelle",
+            **_valeur(cr["max"]["valeur_mw"] / 1000, "GW"), "grandeur": "charge_residuelle",
             "periode": f"{p:%Y-%m-%d}, {p.hour} h-{p.hour + 1} h (heure de Paris)",
             "citation": f"annees.{an}.charge_residuelle.max (heure UTC {cr['max']['heure_utc']})",
             "calcul": "consommation − éolien − solaire − nucléaire disponible déclaré (REMIT), MW moyens horaires ; "
@@ -387,7 +404,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
         out[f"quand_j_{an}"] = {
             **commun,
             "libelle": "Nucléaire déclaré disponible et non produit, somme annuelle (borne haute)",
-            "valeur": round(jeu["somme_twh"], 1), "unite": "TWh", "grandeur": "energie", "periode": str(an),
+            **_valeur(jeu["somme_twh"], "TWh"), "grandeur": "energie", "periode": str(an),
             "citation": f"annees.{an}.jeu_nucleaire.somme_twh",
             "calcul": "Σ max(0, nucléaire disponible déclaré − nucléaire produit) sur les heures de l'année, MW moyens "
                       "horaires × 1 h",
@@ -401,7 +418,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 **commun,
                 "libelle": f"Part de l'énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire "
                            "disponible non produit (au plus)",
-                "valeur": round(c["part_dans_j"] * 100, 1), "unite": "%", "grandeur": "part", "periode": str(an),
+                **_valeur(c["part_dans_j"] * 100, "%"), "grandeur": "part", "periode": str(an),
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].part_dans_j",
                 "calcul": f"Σ min({gw} 000 MW, J) / ({gw} 000 MW × heures où J est renseigné), "
                           "J = max(0, nucléaire disponible − produit)",
@@ -413,7 +430,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
             out[f"quand_heures_rn_sup_max_{gw}gw_{an}"] = {
                 **commun,
                 "libelle": f"Heures où la charge résiduelle augmentée de {gw} GW dépasse son maximum observé de l'année",
-                "valeur": c["heures_rn_plus_x_au_dessus_du_max"], "unite": "heures", "grandeur": "nombre",
+                **_valeur(c["heures_rn_plus_x_au_dessus_du_max"], "heures"), "grandeur": "nombre",
                 "periode": str(an),
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].heures_rn_plus_x_au_dessus_du_max",
                 "calcul": f"nombre d'heures où RN + {gw} 000 MW > RN maximal de l'année "
@@ -423,7 +440,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
         out[f"quand_top100_hiver_{an}"] = {
             **commun,
             "libelle": f"Part des {td['n']} heures de charge résiduelle la plus élevée tombant entre novembre et mars",
-            "valeur": round(td["part_hiver_nov_mars"] * 100, 1), "unite": "%", "grandeur": "part", "periode": str(an),
+            **_valeur(td["part_hiver_nov_mars"] * 100, "%"), "grandeur": "part", "periode": str(an),
             "citation": f"annees.{an}.heures_tendues.part_hiver_nov_mars",
             "calcul": f"heures tendues = les {td['n']} heures de RN la plus élevée ; mois en heure de Paris",
         }
@@ -431,11 +448,99 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
             **commun,
             "libelle": f"Part des {td['n']} heures de charge résiduelle la plus élevée tombant entre 7 h et 11 h ou "
                        "entre 17 h et 21 h (heure de Paris)",
-            "valeur": round(td["part_plages_7_11_17_21"] * 100, 1), "unite": "%", "grandeur": "part",
+            **_valeur(td["part_plages_7_11_17_21"] * 100, "%"), "grandeur": "part",
             "periode": str(an),
             "citation": f"annees.{an}.heures_tendues.part_plages_7_11_17_21",
             "calcul": "heures de Paris de début 7, 8, 9, 10, 17, 18, 19 et 20",
             "note": f"plages PP du mécanisme de capacité ([7 h, 10 h[ et [17 h, 20 h[) : "
-                    f"{_fr(td['part_plages_pp_rte'] * 100, 1)} %",
+                    f"{_fr(td['part_plages_pp_rte'] * 100, 0)} %",
         }
+        out[f"quand_top100_plages_pp_{an}"] = {
+            **commun,
+            "libelle": f"Part des {td['n']} heures de charge résiduelle la plus élevée tombant dans les plages PP du "
+                       "mécanisme de capacité, de 7 h à 10 h et de 17 h à 20 h (heure de Paris)",
+            **_valeur(td["part_plages_pp_rte"] * 100, "%"), "grandeur": "part", "periode": str(an),
+            "citation": f"annees.{an}.heures_tendues.part_plages_pp_rte",
+            "calcul": "heures de Paris de début 7, 8, 9, 17, 18 et 19 ([7 h, 10 h[ et [17 h, 20 h[, plages PP 2026/2027, "
+                      "BP2025, « Fonctionnement », note 38 p. 30)",
+            "note": "une part du nombre d'heures tendues observées, pas du volume de défaillance simulé par RTE",
+        }
+        # Solde des échanges aux heures où J ≥ 5 GW
+        c5 = cp[5000]
+        if c5["solde_echanges_moyen_heures_j_ge_x_mw"] is not None:
+            out[f"quand_solde_j5_{an}"] = {
+                **commun,
+                "libelle": "Solde moyen des échanges physiques aux heures où au moins 5 GW de nucléaire déclaré "
+                           "disponible ne sont pas produits (positif = import, négatif = export)",
+                **_valeur(c5["solde_echanges_moyen_heures_j_ge_x_mw"] / 1000, "GW"), "grandeur": "puissance_moyenne",
+                "periode": str(an),
+                "citation": f"annees.{an}.charges_plates[x_mw = 5000].solde_echanges_moyen_heures_j_ge_x_mw",
+                "calcul": "moyenne de `ech_physiques` d'éCO2mix sur les heures où J = max(0, nucléaire disponible "
+                          "− produit) ≥ 5 000 MW ; signe d'éCO2mix conservé (positif = import)",
+                "note": f"sur {c5['heures_j_superieur_ou_egal_x']} heures (quand_heures_j5_{an}) ; négatif : "
+                        "à ces heures la France exporte déjà, une charge ajoutée y serait d'abord servie en partie "
+                        "par moins d'exports",
+            }
+        out[f"quand_heures_j5_{an}"] = {
+            **commun,
+            "libelle": "Heures où au moins 5 GW de nucléaire déclaré disponible ne sont pas produits",
+            **_valeur(c5["heures_j_superieur_ou_egal_x"], "heures"), "grandeur": "nombre", "periode": str(an),
+            "citation": f"annees.{an}.charges_plates[x_mw = 5000].heures_j_superieur_ou_egal_x",
+            "calcul": "nombre d'heures où J = max(0, nucléaire disponible déclaré − produit) ≥ 5 000 MW",
+            "note": "heures où une consommation plate de 5 GW tiendrait entièrement dans J (borne haute)",
+        }
+        # Couverture moyenne des heures tendues (termes de RN, MW moyens → GW)
+        cm = td["couverture_moyenne_mw"]
+        heures_td = f"les {td['n']} heures de charge résiduelle la plus élevée de l'année"
+        commun_couv = {**commun, "grandeur": "puissance_moyenne", "periode": str(an),
+                       "note": "moyenne observée, pas une capacité disponible ; la somme des termes de couverture "
+                               f"(quand.json) redonne la charge résiduelle moyenne de ces heures, "
+                               f"{_fr(td['rn_moyenne_mw'] / 1000, 1)} GW"}
+        out[f"quand_top100_solde_{an}"] = {
+            **commun_couv,
+            "libelle": f"Solde moyen des échanges physiques sur {heures_td} (positif = import, négatif = export)",
+            **_valeur(cm["ech_physiques"] / 1000, "GW"),
+            "citation": f"annees.{an}.heures_tendues.couverture_moyenne_mw.ech_physiques",
+            "calcul": "moyenne de `ech_physiques` d'éCO2mix sur ces heures ; signe d'éCO2mix conservé : positif = "
+                      "la France importe, négatif = elle exporte (ses moyens couvrent alors aussi les exports)",
+        }
+        out[f"quand_top100_gaz_{an}"] = {
+            **commun_couv,
+            "libelle": f"Production au gaz moyenne sur {heures_td}",
+            **_valeur(cm["gaz"] / 1000, "GW"),
+            "citation": f"annees.{an}.heures_tendues.couverture_moyenne_mw.gaz",
+            "calcul": "moyenne de `gaz` d'éCO2mix (cycles combinés, TAC, cogénération, autres) sur ces heures",
+        }
+        out[f"quand_top100_lacs_step_{an}"] = {
+            **commun_couv,
+            "libelle": f"Hydraulique de lacs et turbinage des STEP, production moyenne sur {heures_td}",
+            **_valeur((cm["hydraulique_lacs"] + cm["hydraulique_step_turbinage"]) / 1000, "GW"),
+            "citation": f"annees.{an}.heures_tendues.couverture_moyenne_mw.hydraulique_lacs + "
+                        "hydraulique_step_turbinage",
+            "calcul": "moyenne de `hydraulique_lacs` + moyenne de `hydraulique_step_turbinage` d'éCO2mix sur ces "
+                      "heures ; le pompage des STEP (consommation) n'est pas déduit, il figure à part dans quand.json "
+                      f"({_fr(cm['pompage'] / 1000, 2)} GW)",
+        }
+        out[f"quand_top100_fil_eau_{an}"] = {
+            **commun_couv,
+            "libelle": f"Hydraulique au fil de l'eau et éclusées, production moyenne sur {heures_td}",
+            **_valeur(cm["hydraulique_fil_eau_eclusee"] / 1000, "GW"),
+            "citation": f"annees.{an}.heures_tendues.couverture_moyenne_mw.hydraulique_fil_eau_eclusee",
+            "calcul": "moyenne de `hydraulique_fil_eau_eclusee` d'éCO2mix sur ces heures",
+        }
+        # Borne basse de Σ J hors EPR, quand l'EPR pèse (≥ 0,1 TWh déclaré disponible)
+        if f3 and f3["disponible_declare_epr_twh"] >= SEUIL_EPR_TWH:
+            out[f"quand_j_{an}_hors_epr"] = {
+                **commun,
+                "libelle": "Nucléaire déclaré disponible et non produit, hors disponibilité de l'EPR de Flamanville 3 "
+                           "(borne basse)",
+                **_valeur(f3["somme_j_sans_disponible_epr_twh"], "TWh"), "grandeur": "energie", "periode": str(an),
+                "citation": f"annees.{an}.jeu_nucleaire.flamanville3.somme_j_sans_disponible_epr_twh",
+                "calcul": "Σ max(0, nucléaire disponible déclaré − disponible déclaré de l'EPR − nucléaire produit) ; "
+                          "la production de l'EPR, non publiée à part, est retranchée avec le reste : c'est une borne "
+                          "basse de Σ J hors EPR",
+                "note": f"Σ J hors EPR est compris entre cette valeur et Σ J ({_fr(jeu['somme_twh'], 1)} TWh, EPR "
+                        f"compris) ; EPR en essais, {_fr(f3['disponible_declare_epr_twh'], 2)} TWh déclarés "
+                        "disponibles sur l'année",
+            }
     return out

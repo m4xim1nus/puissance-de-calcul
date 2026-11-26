@@ -173,7 +173,7 @@ def _instant(heures_utc: list[str], i: int, rn: float) -> dict:
     return {"valeur_mw": rn, "heure_utc": heures_utc[i], "debut_paris": p.isoformat(timespec="minutes")}
 
 
-def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None) -> dict:
+def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, solde: list | None = None) -> dict:
     """Effet d'une consommation supplémentaire constante de `x_mw` MW sur une année.
 
     - `energie_ajoutee_twh` = X × heures de l'année (toutes les heures de la table) ;
@@ -181,7 +181,10 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None) -> d
       qui tiendrait dans le nucléaire disponible non produit (**au plus**, voir `LIMITES_J`) ;
     - `heures_j_superieur_ou_egal_x` : heures où J ≥ X (la charge y tiendrait entièrement) ;
     - `heures_rn_plus_x_au_dessus_du_max` : heures où RN + X > max(RN), max pris sur l'année
-      observée (un écart à l'observé, pas une défaillance) ; `rn_max_plus_x_mw`.
+      observée (un écart à l'observé, pas une défaillance) ; `rn_max_plus_x_mw` ;
+    - `solde_echanges_moyen_heures_j_ge_x_mw` : solde moyen des échanges physiques (`solde`,
+      positif = import, négatif = export) aux heures où J ≥ X et où le solde est renseigné ;
+      None sans solde ou sans telle heure. Négatif : à ces heures, la France exporte déjà.
     """
     if x_mw <= 0:
         raise ValueError("charge plate nulle ou négative")
@@ -190,6 +193,7 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None) -> d
     rnv = [v for v in rn if v is not None]
     tenu = sum(min(x_mw, v) for v in jv)
     rn_max = max(rnv) if rnv else None
+    soldes = [] if solde is None else [e for v, e in zip(j, solde) if v is not None and e is not None and v >= x_mw]
     return {
         "x_mw": x_mw,
         "energie_ajoutee_twh": x_mw * heures / 1e6,
@@ -198,6 +202,7 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None) -> d
         "heures_j_superieur_ou_egal_x": sum(1 for v in jv if v >= x_mw),
         "rn_max_plus_x_mw": None if rn_max is None else rn_max + x_mw,
         "heures_rn_plus_x_au_dessus_du_max": None if rn_max is None else sum(1 for v in rnv if v + x_mw > rn_max),
+        "solde_echanges_moyen_heures_j_ge_x_mw": _moyenne(soldes),
     }
 
 
@@ -309,7 +314,7 @@ def indicateurs_annee(table: dict[str, list], charges_mw=CHARGES_PLATES_MW, n_te
         "charge_residuelle": cr,
         "heures_tendues": tendues,
         "jeu_nucleaire": jeu,
-        "charges_plates": [charge_plate(rn, j, x, n) for x in charges_mw],
+        "charges_plates": [charge_plate(rn, j, x, n, table.get("ech_physiques")) for x in charges_mw],
         "prix": prix_bas,
     }
 

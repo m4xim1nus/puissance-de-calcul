@@ -13,7 +13,7 @@
  "definitions": {
   "charge_residuelle": "RN = consommation − éolien − solaire − nucléaire DISPONIBLE déclaré (REMIT), MW moyens sur l'heure : ce que doivent fournir l'hydraulique, le thermique, les bioénergies, les échanges, le stockage et les effacements. Carte des heures tendues, PAS une marge : la capacité disponible de ces moyens n'est pas observée heure par heure",
   "jeu_nucleaire": "J = max(0, nucléaire disponible déclaré − nucléaire produit), MW moyens ; Σ J en TWh = Σ des MW moyens horaires × 1 h / 10⁶. Nucléaire déclaré disponible et non produit : borne haute, voir `limites.jeu_nucleaire` ; ce n'est PAS la « modulation » publiée par EDF",
-  "charges_plates": "consommation supplémentaire constante de X MW toute l'année. energie_ajoutee_twh = X × heures de l'année ; part_dans_j = Σ min(X, J) / (X × heures où J est renseigné) ; heures_j_superieur_ou_egal_x = heures où J ≥ X ; heures_rn_plus_x_au_dessus_du_max = heures où RN + X > RN maximal observé de l'année (strictement) ; rn_max_plus_x_mw = RN max + X",
+  "charges_plates": "consommation supplémentaire constante de X MW toute l'année. energie_ajoutee_twh = X × heures de l'année ; part_dans_j = Σ min(X, J) / (X × heures où J est renseigné) ; heures_j_superieur_ou_egal_x = heures où J ≥ X ; heures_rn_plus_x_au_dessus_du_max = heures où RN + X > RN maximal observé de l'année (strictement) ; rn_max_plus_x_mw = RN max + X ; solde_echanges_moyen_heures_j_ge_x_mw = solde moyen des échanges physiques (positif = import, négatif = export) aux heures où J ≥ X",
   "heures_tendues": "les N heures de RN la plus élevée de l'année (RN décroissant, puis heure UTC croissante) ; répartition par mois et par heure de Paris de début ; couverture_moyenne_mw = moyenne, sur ces heures, de chaque terme de RN = hydraulique (3 sous-filières) + gaz + charbon + fioul + bioénergies + pompage + solde des échanges + (nucléaire produit − disponible) + écart de bilan éCO2mix ; la somme des termes redonne rn_moyenne_mw",
   "prix": "heures à prix day-ahead France strictement négatif (heures_negatif) et nul ou négatif (heures_nul_ou_negatif) ; après le 01/10/2025, prix horaire = moyenne des 4 quarts d'heure (convention RTE) ; RN et J moyens à ces heures"
  },
@@ -829,7 +829,8 @@
      "part_dans_j": 0.9879,
      "heures_j_superieur_ou_egal_x": 8368,
      "rn_max_plus_x_mw": 29018,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7501
     },
     {
      "x_mw": 1000,
@@ -838,7 +839,8 @@
      "part_dans_j": 0.9466,
      "heures_j_superieur_ou_egal_x": 7481,
      "rn_max_plus_x_mw": 29518,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7661
     },
     {
      "x_mw": 2000,
@@ -847,7 +849,8 @@
      "part_dans_j": 0.844,
      "heures_j_superieur_ou_egal_x": 5493,
      "rn_max_plus_x_mw": 30518,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7960
     },
     {
      "x_mw": 5000,
@@ -856,7 +859,8 @@
      "part_dans_j": 0.5231,
      "heures_j_superieur_ou_egal_x": 1123,
      "rn_max_plus_x_mw": 33518,
-     "heures_rn_plus_x_au_dessus_du_max": 29
+     "heures_rn_plus_x_au_dessus_du_max": 29,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8122
     },
     {
      "x_mw": 10000,
@@ -865,7 +869,8 @@
      "part_dans_j": 0.2875,
      "heures_j_superieur_ou_egal_x": 107,
      "rn_max_plus_x_mw": 38518,
-     "heures_rn_plus_x_au_dessus_du_max": 181
+     "heures_rn_plus_x_au_dessus_du_max": 181,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5399
     },
     {
      "x_mw": 15000,
@@ -874,7 +879,8 @@
      "part_dans_j": 0.1926,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 43518,
-     "heures_rn_plus_x_au_dessus_du_max": 609
+     "heures_rn_plus_x_au_dessus_du_max": 609,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -883,7 +889,8 @@
      "part_dans_j": 0.1444,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 48518,
-     "heures_rn_plus_x_au_dessus_du_max": 1412
+     "heures_rn_plus_x_au_dessus_du_max": 1412,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -1602,7 +1609,8 @@
      "part_dans_j": 0.964,
      "heures_j_superieur_ou_egal_x": 8091,
      "rn_max_plus_x_mw": 31879,
-     "heures_rn_plus_x_au_dessus_du_max": 4
+     "heures_rn_plus_x_au_dessus_du_max": 4,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4905
     },
     {
      "x_mw": 1000,
@@ -1611,7 +1619,8 @@
      "part_dans_j": 0.9034,
      "heures_j_superieur_ou_egal_x": 6702,
      "rn_max_plus_x_mw": 32379,
-     "heures_rn_plus_x_au_dessus_du_max": 7
+     "heures_rn_plus_x_au_dessus_du_max": 7,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5224
     },
     {
      "x_mw": 2000,
@@ -1620,7 +1629,8 @@
      "part_dans_j": 0.7403,
      "heures_j_superieur_ou_egal_x": 3365,
      "rn_max_plus_x_mw": 33379,
-     "heures_rn_plus_x_au_dessus_du_max": 13
+     "heures_rn_plus_x_au_dessus_du_max": 13,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6027
     },
     {
      "x_mw": 5000,
@@ -1629,7 +1639,8 @@
      "part_dans_j": 0.383,
      "heures_j_superieur_ou_egal_x": 391,
      "rn_max_plus_x_mw": 36379,
-     "heures_rn_plus_x_au_dessus_du_max": 58
+     "heures_rn_plus_x_au_dessus_du_max": 58,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6190
     },
     {
      "x_mw": 10000,
@@ -1638,7 +1649,8 @@
      "part_dans_j": 0.2002,
      "heures_j_superieur_ou_egal_x": 21,
      "rn_max_plus_x_mw": 41379,
-     "heures_rn_plus_x_au_dessus_du_max": 306
+     "heures_rn_plus_x_au_dessus_du_max": 306,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5081
     },
     {
      "x_mw": 15000,
@@ -1647,7 +1659,8 @@
      "part_dans_j": 0.1336,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 46379,
-     "heures_rn_plus_x_au_dessus_du_max": 857
+     "heures_rn_plus_x_au_dessus_du_max": 857,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -1656,7 +1669,8 @@
      "part_dans_j": 0.1002,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51379,
-     "heures_rn_plus_x_au_dessus_du_max": 1918
+     "heures_rn_plus_x_au_dessus_du_max": 1918,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -2373,7 +2387,8 @@
      "part_dans_j": 0.9508,
      "heures_j_superieur_ou_egal_x": 7847,
      "rn_max_plus_x_mw": 35741,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5163
     },
     {
      "x_mw": 1000,
@@ -2382,7 +2397,8 @@
      "part_dans_j": 0.8824,
      "heures_j_superieur_ou_egal_x": 6367,
      "rn_max_plus_x_mw": 36241,
-     "heures_rn_plus_x_au_dessus_du_max": 4
+     "heures_rn_plus_x_au_dessus_du_max": 4,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5514
     },
     {
      "x_mw": 2000,
@@ -2391,7 +2407,8 @@
      "part_dans_j": 0.7117,
      "heures_j_superieur_ou_egal_x": 3214,
      "rn_max_plus_x_mw": 37241,
-     "heures_rn_plus_x_au_dessus_du_max": 10
+     "heures_rn_plus_x_au_dessus_du_max": 10,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6027
     },
     {
      "x_mw": 5000,
@@ -2400,7 +2417,8 @@
      "part_dans_j": 0.3628,
      "heures_j_superieur_ou_egal_x": 254,
      "rn_max_plus_x_mw": 40241,
-     "heures_rn_plus_x_au_dessus_du_max": 58
+     "heures_rn_plus_x_au_dessus_du_max": 58,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6091
     },
     {
      "x_mw": 10000,
@@ -2409,7 +2427,8 @@
      "part_dans_j": 0.1857,
      "heures_j_superieur_ou_egal_x": 15,
      "rn_max_plus_x_mw": 45241,
-     "heures_rn_plus_x_au_dessus_du_max": 270
+     "heures_rn_plus_x_au_dessus_du_max": 270,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4855
     },
     {
      "x_mw": 15000,
@@ -2418,7 +2437,8 @@
      "part_dans_j": 0.1239,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 50241,
-     "heures_rn_plus_x_au_dessus_du_max": 709
+     "heures_rn_plus_x_au_dessus_du_max": 709,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -2427,7 +2447,8 @@
      "part_dans_j": 0.0929,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 55241,
-     "heures_rn_plus_x_au_dessus_du_max": 1369
+     "heures_rn_plus_x_au_dessus_du_max": 1369,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -3144,7 +3165,8 @@
      "part_dans_j": 0.9408,
      "heures_j_superieur_ou_egal_x": 7819,
      "rn_max_plus_x_mw": 39082,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7641
     },
     {
      "x_mw": 1000,
@@ -3153,7 +3175,8 @@
      "part_dans_j": 0.8848,
      "heures_j_superieur_ou_egal_x": 6627,
      "rn_max_plus_x_mw": 39582,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8055
     },
     {
      "x_mw": 2000,
@@ -3162,7 +3185,8 @@
      "part_dans_j": 0.733,
      "heures_j_superieur_ou_egal_x": 3514,
      "rn_max_plus_x_mw": 40582,
-     "heures_rn_plus_x_au_dessus_du_max": 3
+     "heures_rn_plus_x_au_dessus_du_max": 3,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8684
     },
     {
      "x_mw": 5000,
@@ -3171,7 +3195,8 @@
      "part_dans_j": 0.381,
      "heures_j_superieur_ou_egal_x": 403,
      "rn_max_plus_x_mw": 43582,
-     "heures_rn_plus_x_au_dessus_du_max": 11
+     "heures_rn_plus_x_au_dessus_du_max": 11,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8907
     },
     {
      "x_mw": 10000,
@@ -3180,7 +3205,8 @@
      "part_dans_j": 0.1991,
      "heures_j_superieur_ou_egal_x": 40,
      "rn_max_plus_x_mw": 48582,
-     "heures_rn_plus_x_au_dessus_du_max": 44
+     "heures_rn_plus_x_au_dessus_du_max": 44,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4158
     },
     {
      "x_mw": 15000,
@@ -3189,7 +3215,8 @@
      "part_dans_j": 0.1335,
      "heures_j_superieur_ou_egal_x": 5,
      "rn_max_plus_x_mw": 53582,
-     "heures_rn_plus_x_au_dessus_du_max": 174
+     "heures_rn_plus_x_au_dessus_du_max": 174,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -384
     },
     {
      "x_mw": 20000,
@@ -3198,7 +3225,8 @@
      "part_dans_j": 0.1001,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 58582,
-     "heures_rn_plus_x_au_dessus_du_max": 438
+     "heures_rn_plus_x_au_dessus_du_max": 438,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -3915,7 +3943,8 @@
      "part_dans_j": 0.9638,
      "heures_j_superieur_ou_egal_x": 8059,
      "rn_max_plus_x_mw": 35692,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7120
     },
     {
      "x_mw": 1000,
@@ -3924,7 +3953,8 @@
      "part_dans_j": 0.9051,
      "heures_j_superieur_ou_egal_x": 6716,
      "rn_max_plus_x_mw": 36192,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7648
     },
     {
      "x_mw": 2000,
@@ -3933,7 +3963,8 @@
      "part_dans_j": 0.7483,
      "heures_j_superieur_ou_egal_x": 3558,
      "rn_max_plus_x_mw": 37192,
-     "heures_rn_plus_x_au_dessus_du_max": 8
+     "heures_rn_plus_x_au_dessus_du_max": 8,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8081
     },
     {
      "x_mw": 5000,
@@ -3942,7 +3973,8 @@
      "part_dans_j": 0.3958,
      "heures_j_superieur_ou_egal_x": 517,
      "rn_max_plus_x_mw": 40192,
-     "heures_rn_plus_x_au_dessus_du_max": 46
+     "heures_rn_plus_x_au_dessus_du_max": 46,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7229
     },
     {
      "x_mw": 10000,
@@ -3951,7 +3983,8 @@
      "part_dans_j": 0.2088,
      "heures_j_superieur_ou_egal_x": 35,
      "rn_max_plus_x_mw": 45192,
-     "heures_rn_plus_x_au_dessus_du_max": 198
+     "heures_rn_plus_x_au_dessus_du_max": 198,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5560
     },
     {
      "x_mw": 15000,
@@ -3960,7 +3993,8 @@
      "part_dans_j": 0.1394,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 50192,
-     "heures_rn_plus_x_au_dessus_du_max": 467
+     "heures_rn_plus_x_au_dessus_du_max": 467,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -3969,7 +4003,8 @@
      "part_dans_j": 0.1046,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 55192,
-     "heures_rn_plus_x_au_dessus_du_max": 972
+     "heures_rn_plus_x_au_dessus_du_max": 972,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -4688,7 +4723,8 @@
      "part_dans_j": 0.9758,
      "heures_j_superieur_ou_egal_x": 8241,
      "rn_max_plus_x_mw": 31558,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5225
     },
     {
      "x_mw": 1000,
@@ -4697,7 +4733,8 @@
      "part_dans_j": 0.9291,
      "heures_j_superieur_ou_egal_x": 7198,
      "rn_max_plus_x_mw": 32058,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5015
     },
     {
      "x_mw": 2000,
@@ -4706,7 +4743,8 @@
      "part_dans_j": 0.7764,
      "heures_j_superieur_ou_egal_x": 3627,
      "rn_max_plus_x_mw": 33058,
-     "heures_rn_plus_x_au_dessus_du_max": 6
+     "heures_rn_plus_x_au_dessus_du_max": 6,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5173
     },
     {
      "x_mw": 5000,
@@ -4715,7 +4753,8 @@
      "part_dans_j": 0.415,
      "heures_j_superieur_ou_egal_x": 683,
      "rn_max_plus_x_mw": 36058,
-     "heures_rn_plus_x_au_dessus_du_max": 38
+     "heures_rn_plus_x_au_dessus_du_max": 38,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4966
     },
     {
      "x_mw": 10000,
@@ -4724,7 +4763,8 @@
      "part_dans_j": 0.2265,
      "heures_j_superieur_ou_egal_x": 96,
      "rn_max_plus_x_mw": 41058,
-     "heures_rn_plus_x_au_dessus_du_max": 145
+     "heures_rn_plus_x_au_dessus_du_max": 145,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -3291
     },
     {
      "x_mw": 15000,
@@ -4733,7 +4773,8 @@
      "part_dans_j": 0.152,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 46058,
-     "heures_rn_plus_x_au_dessus_du_max": 430
+     "heures_rn_plus_x_au_dessus_du_max": 430,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -4742,7 +4783,8 @@
      "part_dans_j": 0.114,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51058,
-     "heures_rn_plus_x_au_dessus_du_max": 1614
+     "heures_rn_plus_x_au_dessus_du_max": 1614,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -5459,7 +5501,8 @@
      "part_dans_j": 0.9797,
      "heures_j_superieur_ou_egal_x": 8116,
      "rn_max_plus_x_mw": 37206,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5698
     },
     {
      "x_mw": 1000,
@@ -5468,7 +5511,8 @@
      "part_dans_j": 0.9074,
      "heures_j_superieur_ou_egal_x": 6450,
      "rn_max_plus_x_mw": 37706,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6881
     },
     {
      "x_mw": 2000,
@@ -5477,7 +5521,8 @@
      "part_dans_j": 0.7156,
      "heures_j_superieur_ou_egal_x": 2774,
      "rn_max_plus_x_mw": 38706,
-     "heures_rn_plus_x_au_dessus_du_max": 6
+     "heures_rn_plus_x_au_dessus_du_max": 6,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8554
     },
     {
      "x_mw": 5000,
@@ -5486,7 +5531,8 @@
      "part_dans_j": 0.3516,
      "heures_j_superieur_ou_egal_x": 278,
      "rn_max_plus_x_mw": 41706,
-     "heures_rn_plus_x_au_dessus_du_max": 34
+     "heures_rn_plus_x_au_dessus_du_max": 34,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7947
     },
     {
      "x_mw": 10000,
@@ -5495,7 +5541,8 @@
      "part_dans_j": 0.1819,
      "heures_j_superieur_ou_egal_x": 24,
      "rn_max_plus_x_mw": 46706,
-     "heures_rn_plus_x_au_dessus_du_max": 222
+     "heures_rn_plus_x_au_dessus_du_max": 222,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4188
     },
     {
      "x_mw": 15000,
@@ -5504,7 +5551,8 @@
      "part_dans_j": 0.1214,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51706,
-     "heures_rn_plus_x_au_dessus_du_max": 568
+     "heures_rn_plus_x_au_dessus_du_max": 568,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -5513,7 +5561,8 @@
      "part_dans_j": 0.0911,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 56706,
-     "heures_rn_plus_x_au_dessus_du_max": 1164
+     "heures_rn_plus_x_au_dessus_du_max": 1164,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -6230,7 +6279,8 @@
      "part_dans_j": 0.9078,
      "heures_j_superieur_ou_egal_x": 7491,
      "rn_max_plus_x_mw": 38573,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": 1679
     },
     {
      "x_mw": 1000,
@@ -6239,7 +6289,8 @@
      "part_dans_j": 0.8492,
      "heures_j_superieur_ou_egal_x": 6178,
      "rn_max_plus_x_mw": 39073,
-     "heures_rn_plus_x_au_dessus_du_max": 3
+     "heures_rn_plus_x_au_dessus_du_max": 3,
+     "solde_echanges_moyen_heures_j_ge_x_mw": 1604
     },
     {
      "x_mw": 2000,
@@ -6248,7 +6299,8 @@
      "part_dans_j": 0.6558,
      "heures_j_superieur_ou_egal_x": 2158,
      "rn_max_plus_x_mw": 40073,
-     "heures_rn_plus_x_au_dessus_du_max": 8
+     "heures_rn_plus_x_au_dessus_du_max": 8,
+     "solde_echanges_moyen_heures_j_ge_x_mw": 343
     },
     {
      "x_mw": 5000,
@@ -6257,7 +6309,8 @@
      "part_dans_j": 0.3035,
      "heures_j_superieur_ou_egal_x": 123,
      "rn_max_plus_x_mw": 43073,
-     "heures_rn_plus_x_au_dessus_du_max": 50
+     "heures_rn_plus_x_au_dessus_du_max": 50,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -2312
     },
     {
      "x_mw": 10000,
@@ -6266,7 +6319,8 @@
      "part_dans_j": 0.1534,
      "heures_j_superieur_ou_egal_x": 1,
      "rn_max_plus_x_mw": 48073,
-     "heures_rn_plus_x_au_dessus_du_max": 230
+     "heures_rn_plus_x_au_dessus_du_max": 230,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5113
     },
     {
      "x_mw": 15000,
@@ -6275,7 +6329,8 @@
      "part_dans_j": 0.1023,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 53073,
-     "heures_rn_plus_x_au_dessus_du_max": 595
+     "heures_rn_plus_x_au_dessus_du_max": 595,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -6284,7 +6339,8 @@
      "part_dans_j": 0.0767,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 58073,
-     "heures_rn_plus_x_au_dessus_du_max": 1465
+     "heures_rn_plus_x_au_dessus_du_max": 1465,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -7001,7 +7057,8 @@
      "part_dans_j": 0.9308,
      "heures_j_superieur_ou_egal_x": 7692,
      "rn_max_plus_x_mw": 37901,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6579
     },
     {
      "x_mw": 1000,
@@ -7010,7 +7067,8 @@
      "part_dans_j": 0.8734,
      "heures_j_superieur_ou_egal_x": 6506,
      "rn_max_plus_x_mw": 38401,
-     "heures_rn_plus_x_au_dessus_du_max": 2
+     "heures_rn_plus_x_au_dessus_du_max": 2,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6944
     },
     {
      "x_mw": 2000,
@@ -7019,7 +7077,8 @@
      "part_dans_j": 0.7152,
      "heures_j_superieur_ou_egal_x": 3214,
      "rn_max_plus_x_mw": 39401,
-     "heures_rn_plus_x_au_dessus_du_max": 4
+     "heures_rn_plus_x_au_dessus_du_max": 4,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7336
     },
     {
      "x_mw": 5000,
@@ -7028,7 +7087,8 @@
      "part_dans_j": 0.3848,
      "heures_j_superieur_ou_egal_x": 702,
      "rn_max_plus_x_mw": 42401,
-     "heures_rn_plus_x_au_dessus_du_max": 30
+     "heures_rn_plus_x_au_dessus_du_max": 30,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6383
     },
     {
      "x_mw": 10000,
@@ -7037,7 +7097,8 @@
      "part_dans_j": 0.2086,
      "heures_j_superieur_ou_egal_x": 50,
      "rn_max_plus_x_mw": 47401,
-     "heures_rn_plus_x_au_dessus_du_max": 110
+     "heures_rn_plus_x_au_dessus_du_max": 110,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5815
     },
     {
      "x_mw": 15000,
@@ -7046,7 +7107,8 @@
      "part_dans_j": 0.1395,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 52401,
-     "heures_rn_plus_x_au_dessus_du_max": 286
+     "heures_rn_plus_x_au_dessus_du_max": 286,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     },
     {
      "x_mw": 20000,
@@ -7055,7 +7117,8 @@
      "part_dans_j": 0.1046,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 57401,
-     "heures_rn_plus_x_au_dessus_du_max": 689
+     "heures_rn_plus_x_au_dessus_du_max": 689,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -7779,7 +7842,8 @@
      "part_dans_j": 0.9832,
      "heures_j_superieur_ou_egal_x": 8271,
      "rn_max_plus_x_mw": 30077,
-     "heures_rn_plus_x_au_dessus_du_max": 6
+     "heures_rn_plus_x_au_dessus_du_max": 6,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10355
     },
     {
      "x_mw": 1000,
@@ -7788,7 +7852,8 @@
      "part_dans_j": 0.9194,
      "heures_j_superieur_ou_egal_x": 6745,
      "rn_max_plus_x_mw": 30577,
-     "heures_rn_plus_x_au_dessus_du_max": 8
+     "heures_rn_plus_x_au_dessus_du_max": 8,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10718
     },
     {
      "x_mw": 2000,
@@ -7797,7 +7862,8 @@
      "part_dans_j": 0.7753,
      "heures_j_superieur_ou_egal_x": 4326,
      "rn_max_plus_x_mw": 31577,
-     "heures_rn_plus_x_au_dessus_du_max": 12
+     "heures_rn_plus_x_au_dessus_du_max": 12,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10516
     },
     {
      "x_mw": 5000,
@@ -7806,7 +7872,8 @@
      "part_dans_j": 0.4735,
      "heures_j_superieur_ou_egal_x": 1314,
      "rn_max_plus_x_mw": 34577,
-     "heures_rn_plus_x_au_dessus_du_max": 42
+     "heures_rn_plus_x_au_dessus_du_max": 42,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7978
     },
     {
      "x_mw": 10000,
@@ -7815,7 +7882,8 @@
      "part_dans_j": 0.2783,
      "heures_j_superieur_ou_egal_x": 338,
      "rn_max_plus_x_mw": 39577,
-     "heures_rn_plus_x_au_dessus_du_max": 130
+     "heures_rn_plus_x_au_dessus_du_max": 130,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -3819
     },
     {
      "x_mw": 15000,
@@ -7824,7 +7892,8 @@
      "part_dans_j": 0.1906,
      "heures_j_superieur_ou_egal_x": 21,
      "rn_max_plus_x_mw": 44577,
-     "heures_rn_plus_x_au_dessus_du_max": 312
+     "heures_rn_plus_x_au_dessus_du_max": 312,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -1510
     },
     {
      "x_mw": 20000,
@@ -7833,7 +7902,8 @@
      "part_dans_j": 0.143,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 49577,
-     "heures_rn_plus_x_au_dessus_du_max": 694
+     "heures_rn_plus_x_au_dessus_du_max": 694,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
@@ -8555,7 +8625,8 @@
      "part_dans_j": 0.9361,
      "heures_j_superieur_ou_egal_x": 7617,
      "rn_max_plus_x_mw": 31933,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10876
     },
     {
      "x_mw": 1000,
@@ -8564,7 +8635,8 @@
      "part_dans_j": 0.8684,
      "heures_j_superieur_ou_egal_x": 6493,
      "rn_max_plus_x_mw": 32433,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10967
     },
     {
      "x_mw": 2000,
@@ -8573,7 +8645,8 @@
      "part_dans_j": 0.7587,
      "heures_j_superieur_ou_egal_x": 4972,
      "rn_max_plus_x_mw": 33433,
-     "heures_rn_plus_x_au_dessus_du_max": 1
+     "heures_rn_plus_x_au_dessus_du_max": 1,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10802
     },
     {
      "x_mw": 5000,
@@ -8582,7 +8655,8 @@
      "part_dans_j": 0.5217,
      "heures_j_superieur_ou_egal_x": 1939,
      "rn_max_plus_x_mw": 36433,
-     "heures_rn_plus_x_au_dessus_du_max": 4
+     "heures_rn_plus_x_au_dessus_du_max": 4,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -9176
     },
     {
      "x_mw": 10000,
@@ -8591,7 +8665,8 @@
      "part_dans_j": 0.3202,
      "heures_j_superieur_ou_egal_x": 483,
      "rn_max_plus_x_mw": 41433,
-     "heures_rn_plus_x_au_dessus_du_max": 36
+     "heures_rn_plus_x_au_dessus_du_max": 36,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5765
     },
     {
      "x_mw": 15000,
@@ -8600,7 +8675,8 @@
      "part_dans_j": 0.2213,
      "heures_j_superieur_ou_egal_x": 50,
      "rn_max_plus_x_mw": 46433,
-     "heures_rn_plus_x_au_dessus_du_max": 145
+     "heures_rn_plus_x_au_dessus_du_max": 145,
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5042
     },
     {
      "x_mw": 20000,
@@ -8609,7 +8685,8 @@
      "part_dans_j": 0.1664,
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51433,
-     "heures_rn_plus_x_au_dessus_du_max": 450
+     "heures_rn_plus_x_au_dessus_du_max": 450,
+     "solde_echanges_moyen_heures_j_ge_x_mw": null
     }
    ],
    "prix": {
