@@ -1235,6 +1235,77 @@
    "verification": "contre-verification",
    "note": "évaluées avec les hypothèses du Bilan prévisionnel 2025, donc avant la synthèse de l'hiver 2026-2027 (novembre 2026), qui ne redonne aucune marge en GW (risque « significativement en dessous du critère », p. 15) et prévoit une disponibilité nucléaire plus basse ; pas un excédent de puissance observable à la pointe"
   },
+  "besoin_capacites_rapide_2030": {
+   "libelle": "Besoin de capacités additionnelles à la pointe, trajectoire « décarbonation rapide », 2030",
+   "valeur": [
+    2,
+    4
+   ],
+   "unite": "GW",
+   "grandeur": "besoin_capacites",
+   "periode": "2030",
+   "perimetre": "France ; calcul d'adéquation au critère public de sécurité d'approvisionnement, toute la consommation de la trajectoire (électrification, industrie, hydrogène, data centers…) ; selon le rythme des EnR ; configuration de référence (disponibilité nucléaire médiane)",
+   "source": {
+    "cle": "rte-bp2025-fonctionnement",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — Fonctionnement du système électrique",
+    "date_publication": "2026-07-15",
+    "url": "https://assets.rte-france.com/prod/public/2026-07/2026-07-15-bilan-previsionnel-fonctionnement-systeme-electrique.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date de l'URL ; PDF créé le 30/06/2026 ; copie locale identique à l'original (SHA-256, contre-vérification du 26/11/2026)"
+   },
+   "page": "p. 26",
+   "citation": "« cette évolution se traduit par un besoin de capacités additionnelles limité, de l'ordre de 2 à 4 GW en 2030, qui varie selon le rythme d'installation des capacités de production renouvelable »",
+   "confiance": "B",
+   "verification": "relecture",
+   "note": "hausse de 5 à 6 GW si la disponibilité hivernale du nucléaire tombe à 46 GW, besoin résorbé à 55 GW (p. 27)"
+  },
+  "besoin_capacites_rapide_2035": {
+   "libelle": "Besoin de capacités additionnelles à la pointe, trajectoire « décarbonation rapide », 2035",
+   "valeur": [
+    1,
+    6
+   ],
+   "unite": "GW",
+   "grandeur": "besoin_capacites",
+   "periode": "2035",
+   "perimetre": "France ; calcul d'adéquation au critère public, toute la consommation de la trajectoire ; 1 GW en mix R3, 6 GW en mix R1 ; marge positive d'environ 1 GW en R4",
+   "source": {
+    "cle": "rte-bp2025-fonctionnement",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — Fonctionnement du système électrique",
+    "date_publication": "2026-07-15",
+    "url": "https://assets.rte-france.com/prod/public/2026-07/2026-07-15-bilan-previsionnel-fonctionnement-systeme-electrique.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date de l'URL ; PDF créé le 30/06/2026 ; copie locale identique à l'original (SHA-256, contre-vérification du 26/11/2026)"
+   },
+   "page": "p. 28",
+   "citation": "« Ce besoin est estimé entre 1 GW et 6 GW, selon les rythmes de développement des énergies renouvelables, respectivement entre R3 et R1. Pour R4, une marge positive de l'ordre de 1 GW pourrait apparaître à cet horizon »",
+   "confiance": "B",
+   "verification": "relecture"
+  },
+  "besoin_capacites_lente_r3_2030_2035": {
+   "libelle": "Besoin de capacités additionnelles à la pointe, trajectoire « décarbonation lente », mix R3, 2030-2035",
+   "valeur": 0,
+   "unite": "GW",
+   "grandeur": "besoin_capacites",
+   "periode": "2030-2035",
+   "perimetre": "France ; calcul d'adéquation au critère public, toute la consommation de la trajectoire ; sous réserve d'EnR au rythme R3 et d'un socle thermique existant proche de 13 GW ; environ 1 GW en mix R1, près de 4 GW en R1-R2 en 2035 (p. 28-29)",
+   "source": {
+    "cle": "rte-bp2025-fonctionnement",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025-2035 — Fonctionnement du système électrique",
+    "date_publication": "2026-07-15",
+    "url": "https://assets.rte-france.com/prod/public/2026-07/2026-07-15-bilan-previsionnel-fonctionnement-systeme-electrique.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date de l'URL ; PDF créé le 30/06/2026 ; copie locale identique à l'original (SHA-256, contre-vérification du 26/11/2026)"
+   },
+   "page": "p. 28",
+   "citation": "« Le besoin de capacités additionnelles à la pointe de consommation dans le mix R3 est nul à l'horizon 2030-2035. »",
+   "confiance": "B",
+   "verification": "relecture",
+   "note": "marges dégradées d'environ 6 GW en 2030 si la disponibilité hivernale du nucléaire avoisine 46 GW (p. 28)"
+  },
   "marge_mc_certifiee_2026_2027": {
    "libelle": "Marge retenue pour dimensionner le besoin du mécanisme de capacité (scénario retenu)",
    "valeur": 9.5,

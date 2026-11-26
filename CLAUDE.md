@@ -60,13 +60,14 @@ toute valeur.** D'où :
 
 ## Making-of
 
-Trois fichiers dans `making-of/`, lus par le site (onglet « Making-of ») :
+Trois fichiers dans `making-of/`, plus un relevé chiffré, lus par le site (onglet « Making-of ») :
 
 | Fichier | Contenu | Quand l'écrire |
 |---|---|---|
 | `JOURNAL.md` | Une entrée par session : demandes de l'auteur **citées telles quelles**, puis explicitées si elles sont elliptiques ; ce qui a été fait ; durée ; agents lancés ; coût (relevé `/cost` si l'auteur le fournit, sinon ordre de grandeur signalé comme estimé). | En début de session (demande), puis au fil de la session. |
 | `DECISIONS.md` | Registre daté : décision, raisons, qui a tranché (l'auteur / Claude). | Au moment où la décision est prise. |
 | `ERREURS.md` | Erreurs de Claude (et de ses agents) : ce qui était faux, comment c'est sorti, la correction, ce qui a changé pour éviter la récidive. | Dès qu'une erreur est repérée, avant de la corriger. |
+| `en-bref.json` | Relevé chiffré de la section « En bref » (durées, jetons, signes, coût équivalent API), produit par `uv run pc bilan` depuis les transcriptions locales de Claude Code : agrégats seulement, jamais de texte ni de chemin. | Au début de chaque session (complète la précédente) et à la fin. |
 
 **Caviardage** (décision de l'auteur, 2026-11-25) : le dépôt et le site sont
 publics, le making-of ne publie pas de détails trop personnels sur l'auteur
@@ -139,6 +140,7 @@ Pipeline (depuis `pipeline/`, Python 3.12 + uv) :
 uv run pc download [clés…] [--force]  # sources → data/raw/ + data/raw/manifeste.json
 uv run pc build                       # data/raw/ → data/export/
 uv run pc check                       # contrôles de cohérence ; code de retour ≠ 0 si échec
+uv run pc bilan                       # relevé « En bref » du making-of → making-of/en-bref.json
 uv run pytest                         # tests (synthétiques + `donnees`, sautés sans data/export/)
 uv run pytest -m "not donnees"        # tests synthétiques seuls, sans réseau ni données
 ```

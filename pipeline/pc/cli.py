@@ -1,10 +1,12 @@
-"""Ligne de commande : pc download | build | check.
+"""Ligne de commande : pc download | build | check | bilan.
 
 - `pc download [clés…] [--force]` : sources → data/raw/ (+ manifeste.json) ;
 - `pc build` : data/raw/ → data/export/ (dont `chiffres.json` : référentiel saisi + chiffres
   calculés par le pipeline) ;
 - `pc check` : contrôles de cohérence sur data/export/ et les références
-  de data/raw/ ; code de retour non nul si un contrôle échoue.
+  de data/raw/ ; code de retour non nul si un contrôle échoue ;
+- `pc bilan` : relevé « En bref » du making-of (transcriptions locales de Claude Code →
+  making-of/en-bref.json, agrégats seulement ; à lancer en fin de session).
 
 Spécification des sources et des contrôles : docs/spike/systeme.md.
 """
@@ -32,6 +34,7 @@ def main(argv=None) -> int:
     c = sub.add_parser("check", help="bilans qui bouclent, recoupements entre sources")
     c.add_argument("--raw", type=Path, default=RAW)
     c.add_argument("--export", type=Path, default=EXPORT)
+    sub.add_parser("bilan", help="relevé « En bref » du making-of → making-of/en-bref.json")
     args = ap.parse_args(argv)
 
     if args.commande == "download":
@@ -59,6 +62,11 @@ def main(argv=None) -> int:
     if args.commande == "check":
         from .check import check
         return check(args.raw, args.export)
+    if args.commande == "bilan":
+        from .bilan import bilan
+        res = bilan(RACINE, RACINE / "making-of/en-bref.json")
+        print(f"{len(res['sessions'])} session(s) → making-of/en-bref.json")
+        return 0
     return 0
 
 

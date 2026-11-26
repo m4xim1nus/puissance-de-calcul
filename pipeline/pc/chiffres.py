@@ -55,6 +55,7 @@ UNITES: dict[str, dict[str, float]] = {
     "disponibilite_moyenne": dict(_PUISSANCE),  # puissance disponible déclarée, moyenne sur une période
     "marge_adequation": dict(_PUISSANCE),  # marge par rapport au critère de sécurité d'approvisionnement (capacité équivalente, calcul probabiliste)
     "marge_certifiee": dict(_PUISSANCE),  # marge en MW certifiés du mécanisme de capacité
+    "besoin_capacites": dict(_PUISSANCE),  # capacités nouvelles nécessaires au critère de sécurité d'approvisionnement (calcul d'adéquation, toute la consommation)
     "puissance_certifiee": dict(_PUISSANCE),  # capacité certifiée ou contractualisée au mécanisme de capacité
     "puissance_moyenne": dict(_PUISSANCE),  # puissance moyenne observée sur un ensemble d'heures (production, solde d'échanges)
 }

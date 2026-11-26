@@ -87,17 +87,18 @@ Ordre de la session 2 :
 5. Relecture adverse « lectrice experte » de chaque page avant
    publication.
 
-## Étape 4 : session 3 — ordre prévu
+## Étape 4 : session 3 — en cours
 
 1. **Retours de l'auteur sur l'étape 3** (backlog, 26/11) :
-   - **éditorial** : proposer à l'auteur un message principal tranché,
-     maintenant que deux enquêtes sont faites (décision du 26/11 : pas
-     de thèse *avant* les enquêtes). L'auteur tranche le fond ; Claude
-     propose, avec ce que les deux enquêtes établissent et ce qu'elles
-     n'établissent pas ;
-   - **simulateur, forme** : l'outil tient sur un écran, sans
-     défilement ; le préambule et la lecture passent en replis ou en
-     page liée. Fond inchangé.
+   - [x] **éditorial** : trois options proposées (`docs/EDITO.md`) ;
+     l'auteur choisit la tranchée, explicitement prudente sur les
+     enquêtes manquantes, révision au backlog. Texte `docs/MESSAGE.md`,
+     sur l'accueil ; relecture adverse en cours ;
+   - [x] **« En bref »** (demande de l'auteur en ouverture de session 3) :
+     section en tête du making-of, relevé `pc bilan` ; relecture
+     adverse en cours ;
+   - [x] **simulateur, forme** : l'outil tient sur un écran (deux
+     colonnes, replis natifs) ; fond inchangé ; spécification révisée.
 2. **ENTSO-E** : le jeton est dans `source/entsoe_token` (arrivé le
    26/11, non testé). Vérification d'accès (agent Sonnet), puis
    branchement dans `pc download` : prix et mix des voisins, flux et
@@ -105,5 +106,25 @@ Ordre de la session 2 :
    energy-charts, et la question laissée ouverte par « Quand ? » (qui
    servirait une consommation ajoutée : nucléaire, EnR moins arrêtées
    ou exportations).
-3. Ensuite : enquête carbone (facteur moyen ≠ marginal), puis « Où ? »
+3. **Limites de « Quand ? » et du simulateur** (« Ce que ce calcul ne
+   dit pas »), selon la règle validée par l'auteur le 26/11 : trois
+   niveaux, *sourcer et afficher* / *estimer nous-mêmes* (méthode
+   écrite, fourchette, « calcul du site ») / *hypothèse réglable* dans
+   le simulateur, ce dernier seulement si l'effet se calcule simplement
+   avec un coefficient sourcé. Après ENTSO-E, dans cet ordre :
+   - **froid extrême** (sourcer + réglable) : pointe record de février
+     2012 et gradient de thermosensibilité d'hiver publiés par RTE, au
+     référentiel ; curseur « vague de froid : X °C sous la normale »
+     qui ajoute X × gradient aux heures d'hiver ;
+   - **écrêtement** (estimer) : borne de la surestimation de la charge
+     résiduelle, production renoncée annuelle publiée par RTE répartie
+     sur les heures à prix négatif ;
+   - **plancher nucléaire non mobilisable** (réglable) : le 1 GW choisi
+     par le site devient un curseur du simulateur ;
+   - **voisins** : servi par le point 2 (sourcer et afficher : exports
+     et saturation des interconnexions), sans réglage ;
+   - restent des limites écrites : le système de 2035, le réseau local
+     (documenté par « Où ? »). La pointe exacte est déjà sourcée.
+   Relecture adverse « lectrice experte » avant publication.
+4. Ensuite : enquête carbone (facteur moyen ≠ marginal), puis « Où ? »
    (enquête courte sur ce qui manque).

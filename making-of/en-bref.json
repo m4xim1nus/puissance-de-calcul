@@ -1,0 +1,163 @@
+{
+  "releve": "2026-11-26T12:52+01:00",
+  "pause_min": 30,
+  "signes_par_feuillet": 1500,
+  "sessions": [
+    {
+      "numero": 1,
+      "date": "2026-11-25",
+      "incomplet": false,
+      "actif_min": 144,
+      "reponse_auteur_min": 33,
+      "messages_auteur": 4,
+      "choix_auteur": 4,
+      "signes_auteur": 1135,
+      "agents": {
+        "opus": 6,
+        "sonnet": 2
+      },
+      "calcul_modeles_min": 160,
+      "commandes_min": 99,
+      "jetons": {
+        "haiku": {
+          "produits": 168424,
+          "dont_reflexion": 104830,
+          "entree": 1852347,
+          "lus_en_cache": 0,
+          "ecrits_en_cache": 0
+        },
+        "opus": {
+          "produits": 828484,
+          "dont_reflexion": 279099,
+          "entree": 7306,
+          "lus_en_cache": 155968187,
+          "ecrits_en_cache": 2416940
+        },
+        "sonnet": {
+          "produits": 70083,
+          "dont_reflexion": 10947,
+          "entree": 208,
+          "lus_en_cache": 10702623,
+          "ecrits_en_cache": 239061
+        }
+      },
+      "cout_api_usd": 64.35
+    },
+    {
+      "numero": 2,
+      "date": "2026-11-26",
+      "incomplet": false,
+      "actif_min": 179,
+      "reponse_auteur_min": 30,
+      "messages_auteur": 2,
+      "choix_auteur": 0,
+      "signes_auteur": 1685,
+      "agents": {
+        "opus": 11
+      },
+      "calcul_modeles_min": 209,
+      "commandes_min": 42,
+      "jetons": {
+        "haiku": {
+          "produits": 99824,
+          "dont_reflexion": 80260,
+          "entree": 1118172,
+          "lus_en_cache": 0,
+          "ecrits_en_cache": 0
+        },
+        "opus": {
+          "produits": 1211534,
+          "dont_reflexion": 404498,
+          "entree": 2194,
+          "lus_en_cache": 217606914,
+          "ecrits_en_cache": 4524121
+        }
+      },
+      "cout_api_usd": 91.74
+    },
+    {
+      "numero": 3,
+      "date": "2026-11-26",
+      "incomplet": true,
+      "actif_min": 41,
+      "reponse_auteur_min": 10,
+      "messages_auteur": 3,
+      "choix_auteur": 1,
+      "signes_auteur": 1114,
+      "agents": {
+        "opus": 3,
+        "sonnet": 1
+      },
+      "calcul_modeles_min": 0,
+      "commandes_min": 0,
+      "jetons": {
+        "opus": {
+          "produits": 298315,
+          "dont_reflexion": 114063,
+          "entree": 604,
+          "lus_en_cache": 47284696,
+          "ecrits_en_cache": 963660
+        },
+        "sonnet": {
+          "produits": 40217,
+          "dont_reflexion": 8893,
+          "entree": 114,
+          "lus_en_cache": 3723099,
+          "ecrits_en_cache": 106267
+        }
+      },
+      "cout_api_usd": null
+    }
+  ],
+  "total": {
+    "incomplet": true,
+    "actif_min": 364,
+    "reponse_auteur_min": 73,
+    "messages_auteur": 9,
+    "choix_auteur": 5,
+    "signes_auteur": 3934,
+    "agents": {
+      "opus": 20,
+      "sonnet": 3
+    },
+    "calcul_modeles_min": 369,
+    "commandes_min": 141,
+    "jetons": {
+      "haiku": {
+        "produits": 268248,
+        "dont_reflexion": 185090,
+        "entree": 2970519,
+        "lus_en_cache": 0,
+        "ecrits_en_cache": 0
+      },
+      "opus": {
+        "produits": 2338333,
+        "dont_reflexion": 797660,
+        "entree": 10104,
+        "lus_en_cache": 420859797,
+        "ecrits_en_cache": 7904721
+      },
+      "sonnet": {
+        "produits": 110300,
+        "dont_reflexion": 19840,
+        "entree": 322,
+        "lus_en_cache": 14425722,
+        "ecrits_en_cache": 345328
+      }
+    },
+    "cout_api_usd": 156.09,
+    "feuillets_auteur": 2.6
+  },
+  "depot": {
+    "commits": 41,
+    "lignes_python": 4923,
+    "lignes_site": 9860,
+    "lignes_tests": 2897,
+    "signes_brief": 6686,
+    "signes_pages_site": 119023,
+    "signes_rapports": 324411,
+    "feuillets_brief": 4.5,
+    "feuillets_pages_site": 79,
+    "feuillets_rapports": 216
+  }
+}

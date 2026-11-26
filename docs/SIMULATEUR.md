@@ -14,7 +14,10 @@ mains de la lectrice.
 Il **ne** modélise **pas** : le dispatch, la formation des prix (le prix
 affiché est celui observé, sans la consommation ajoutée), les échanges
 et les voisins, le réseau local, le risque de défaillance au sens de
-RTE. Il le dit en tête de page, pas en note.
+RTE. Il le dit en tête de page, pas en note : premier élément sous le
+titre, un repli « Ce que fait le simulateur, et ce qu'il ne modélise
+pas », à un clic (révisé le 26/11 : l'outil tient sur un écran, retour
+de l'auteur).
 
 ## Hypothèses réglables (v1)
 
@@ -25,8 +28,10 @@ RTE. Il le dit en tête de page, pas en note.
 | Profil | plat | plat ; plat avec effacement | aucune courbe de charge de data center n'est publiée |
 | Effacement : heures | 0 | 0 à 500 h/an | la consommation ajoutée est nulle pendant les N heures où la charge résiduelle **observée** est la plus élevée (prévision parfaite) ; l'énergie effacée est **perdue**, ni reportée dans le temps ni vers un autre site. Le résultat est circulaire pour l'indicateur des heures au-delà du maximum (ce sont les heures effacées) : il donne une **borne basse** du nombre d'heures à effacer, dite comme telle |
 
-Chaque hypothèse affichée avec sa justification et son défaut ; l'URL
-porte l'état (partage d'un scénario par lien).
+Chaque hypothèse affichée avec son défaut, sa justification dans un
+repli « Raison » ; l'URL porte l'état (partage d'un scénario par lien).
+Chaque résultat montre son qualificatif (« au plus », « à peu près ») et
+sa valeur ; ses réserves et ses sources sont dans son repli « Détail ».
 
 ## Résultats affichés
 

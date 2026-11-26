@@ -2,6 +2,7 @@
   // Making-of : journal compact, décisions et erreurs en fiches filtrables. Le contenu vient des
   // fichiers Markdown du dépôt (analysés au prérendu, $lib/server/makingof.ts) ; sans JavaScript,
   // tout est lisible, seuls les filtres manquent.
+  import EnBref from '$lib/EnBref.svelte';
   import FiltreFiches from '$lib/FiltreFiches.svelte';
   import { formaterDate } from '$lib/format';
   import type { Arbitre, Reperage } from '$lib/server/makingof';
@@ -60,10 +61,25 @@
   tel quel, est replié dans la session 1 du journal.
 </p>
 <nav class="sommaire" aria-label="Sections du making-of">
+  <a href="#en-bref">En bref</a>
   <a href="#journal">Journal</a>
   <a href="#decisions">Décisions</a>
   <a href="#erreurs">Erreurs de Claude</a>
 </nav>
+
+<!-- ============================== En bref ============================== -->
+<EnBref
+  bilan={data.enBref}
+  decisions={{
+    total: decisions.length,
+    auteur: decisions.filter((d) => d.qui.every((t) => t.qui === "l'auteur")).length,
+    claude: decisions.filter((d) => d.qui.every((t) => t.qui === 'Claude')).length,
+    partagees: decisions.filter((d) => new Set(d.qui.map((t) => t.qui)).size > 1).length
+  }}
+  erreurs={erreurs.length}
+  actions={data.actionsAuteur}
+  etapes={sessions.map((s) => ({ numero: s.numero, id: s.id, objet: s.objet }))}
+/>
 
 <!-- ============================== Journal ============================== -->
 <section id="journal" aria-labelledby="journal-titre">

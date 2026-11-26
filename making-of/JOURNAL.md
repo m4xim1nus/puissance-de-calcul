@@ -496,3 +496,135 @@ estimés à partir des transcriptions locales (fil principal et
 11 transcriptions de sous-agents) : Opus, ≈ 1,2 M jetons produits,
 ≈ 216 M jetons lus en cache et ≈ 4,5 M écrits en cache. Comme en
 session 1, la relecture du contexte en cache domine.
+
+---
+
+## Session 3 — 2026-11-26, à partir de 12 h 13 · éditorial, simulateur sur un écran, « En bref », ENTSO-E
+
+**Demande de l'auteur** (citée telle quelle) :
+
+> reprends à la session 3 de ROADMAP.md. en plus de ce qu'il y a déjà, ajoute un retour : il faut une 1ère section dans la page Making Of "En bref", qui donne en 1 coup d'oeil quelques infos à destination de la lectrice non dev mais quanti : outils utilisés, temps de "travail" IA, temps de travail humain, nombre tokens out, nombres "pages" écrites par moi en tout, etc vision d'ensemble. A intégrer à la session.
+
+**Ce qu'elle recouvrait** :
+
+- « reprends à la session 3 » : l'ordre de l'étape 4 de la roadmap
+  (proposition éditoriale, simulateur sur un écran, branchement
+  ENTSO-E, puis enquête carbone) ;
+- « En bref » : une première section du making-of, lisible d'un coup
+  d'œil par une lectrice à l'aise avec les chiffres mais pas avec le
+  développement logiciel : avec quels outils le site est fait, combien
+  de temps l'IA a travaillé, combien de temps l'auteur, combien de
+  jetons le modèle a produits, combien de « pages » l'auteur a écrites
+  au total (ses demandes et retours), et d'autres repères d'ensemble.
+  Les guillemets de l'auteur (« travail », « pages ») signalent des
+  mesures à définir : chaque chiffre dira comment il est compté, et
+  ce qu'il ne compte pas.
+
+**Fait** :
+- deux agents lancés en parallèle : vérification d'accès à ENTSO-E
+  (Sonnet) et simulateur sur un écran (Opus) ;
+- **éditorial** : Claude relit les deux enquêtes et propose trois
+  options (`docs/EDITO.md`) : tranchée, prudente, attendre. Réponse de
+  l'auteur, citée telle quelle : *« Tranchée... mais laisser la place
+  dans le backlog de la révision du message à la fin d'autres enquêtes,
+  voire explicitement prudente sur les enquêtes manquantes à date »*.
+  Explicitation : option A, avec un paragraphe qui dit ce que le message
+  ne sait pas encore, et une révision prévue au backlog. Texte dans
+  `docs/MESSAGE.md`. En le rédigeant, Claude retire de sa propre
+  proposition « la France peut accueillir la vague à une condition » :
+  aucune des deux enquêtes n'établit que l'énergie suffirait. Deux
+  chiffres de la proposition étaient mal arrondis avant envoi à
+  l'auteur (« quart à un peu plus du tiers » pour 24 à 46 %, « au plus
+  la moitié » pour 52 %) ; corrigés avant qu'il la lise ;
+- **« En bref »** : `pc bilan` (`pipeline/pc/bilan.py`, 5 tests) lit
+  les transcriptions locales et écrit `making-of/en-bref.json`
+  (agrégats seulement) ; section en tête du making-of, tuiles en trois
+  groupes (temps, écriture, modèle), tableau par session, outils, et
+  « comment c'est compté » replié. Le relevé de coût que Claude Code
+  enregistre dans ses transcriptions donne, pour les sessions 1 et 2, un
+  coût équivalent API (64 $ et 92 $) que le journal disait « non
+  relevé » : ce n'est toujours pas le montant payé par l'auteur.
+- **message sur l'accueil** : sous la question, titre « Ce
+  qu'établissent les enquêtes, à ce jour », date et enquêtes sur
+  lesquelles il repose, chiffres du référentiel avec leurs notes (même
+  rendu que les enquêtes). Le garde-fou du rendu a refusé une ligne qui
+  commençait par « 2024. » (elle serait devenue une liste numérotée) ;
+- relecture adverse « lectrice experte » du message et de « En bref »
+  lancée (Opus) avant publication.
+- **simulateur sur un écran** : l'agent rend la nouvelle forme (deux
+  colonnes, replis natifs ; 144 tests du site). À 1366×768, réglages et
+  résultats chiffrés tiennent dans l'écran (fin de l'outil à 737 px ;
+  dans une vraie fenêtre, environ 650 px utiles, la ligne des sources et
+  le bas des réglages passent sous la ligne de flottaison). Son build
+  échouait sur l'accueil, à cause du « 2024. » du message, corrigé
+  entre-temps ; tout passe sur l'ensemble des changements. Claude relit
+  les captures et révise la spécification (limites à un clic au lieu
+  d'être dépliées) ;
+- **question de l'auteur en cours de session** (citée telle quelle) :
+  *« en relecture, dans "ce que le calcul ne dit pas", on prévoit de
+  sourcer l'info précise pour la prendre en compte ? De l'estimer
+  nous-mêmes, et/ou de laisser l'utilisateur changer cette hypothèse ?
+  Du front avec toogle on/off ? sur ce point, ne fais rien, dis moi
+  avant de changer la roadmap & implémenter »*. Explicitation : pour
+  chaque limite listée à la fin de « Quand ? », l'auteur demande si on
+  compte la lever, et comment (chiffre publié, estimation du site,
+  réglage dans le simulateur), avant tout changement. Claude propose
+  trois niveaux et un plan limite par limite ; réponse : *« ok pour ta
+  reco, mets à jour roadmap et backlog »*. Roadmap (point 3 de
+  l'étape 4), backlog et décisions mis à jour ; rien d'implémenté.
+- **relecture adverse du message et de « En bref »** (27 points) :
+  message non publiable en l'état ; « En bref » publiable après trois
+  corrections de fond. Claude vérifie les points dans les sources avant
+  de corriger : les trois citations d'adéquation du BP2025 sont exactes
+  (*Fonctionnement*, p. 26 et 28) ; le point 17 (relevé de coût cumulé
+  d'une conversation à l'autre) est réfuté (session 2 : 1 211 534 jetons
+  Opus produits au relevé, 1 211 059 dans ses transcriptions). Erreur de
+  fond consignée. Message réécrit à partir de la proposition de la
+  relectrice. Sa conclusion change : la pointe d'hiver reste la
+  contrainte nationale, mais RTE ne voit pas de besoin de moyens
+  nouveaux d'ici 2035 dans la trajectoire lente. Le texte sera soumis à
+  l'auteur. « En bref » corrigé (décisions sans double compte, libellés,
+  rattachement des conversations, dates sans horaires, recoupement
+  automatique du relevé de coût, textes du site séparés des rapports).
+  La relectrice vérifie les corrections ;
+- **ENTSO-E, accès** (agent Sonnet, `docs/spike/entsoe-acces.md`) : le
+  jeton fonctionne. Prix day-ahead FR et voisins, production par
+  filière, charge et flux physiques depuis 2015 ; capacités d'échange
+  prévues seulement sur certaines frontières (rien pour FR↔BE et
+  FR↔DE-LU, le flow-based Core n'est pas servi par cette API). Prix FR
+  identiques à energy-charts sur deux semaines testées ; charge à
+  −1,6 % d'éCO2mix sur une semaine de 2019, à +0,26 % en 2026, écart non
+  expliqué. Claude vérifie que le jeton n'apparaît dans aucun fichier du
+  dépôt. Branchement dans le pipeline confié à un agent Opus ;
+- **vérification des corrections** (même agent) : « En bref » publiable ;
+  message publiable après trois corrections, dont deux venues de la
+  proposition de la relectrice elle-même (une énergie comparée à une
+  puissance, une borne mal construite) et une conclusion qui allait
+  encore au-delà de RTE. Corrigé, points de forme appliqués, erreur
+  consignée ;
+- **demande de l'auteur en cours de session** (citée telle quelle) :
+  *« j'imagine le "En bref" du making-of comme une recette de
+  cuisine : - Ingrédients : ordi, compte github, compte cloudflare, compte
+  Antrhopic, Claude Code, Internet pour taper les données - Recette :
+  xxh de cuisson (temps session, avec toutes les infos que tu as
+  préparé) dont xxmin de cuisine (message de ma part de lancement,
+  commentaires, tranchage + actions manuelles sur github+cloudflare) tu
+  devrais pouvoir réutiliser ce que tu as fait »*. Explicitation : même
+  contenu chiffré, mis en forme de fiche recette ; « cuisson » = temps
+  actif des sessions, « cuisine » = la part de l'auteur, y compris ce
+  qu'il fait hors conversation (comptes GitHub et Cloudflare). Fait :
+  ingrédients, temps (cuisson, dont préparation par l'auteur, feu des
+  modèles, commandes), étapes par session, valeurs nutritionnelles
+  (jetons, coût), ce que ça donne. Les actions hors conversation ne se
+  mesurent pas : elles sont listées d'après le journal
+  (`making-of/actions-auteur.json`), et leurs minutes seront déclarées
+  par l'auteur ;
+- deux questions à l'auteur. Message révisé : *« Publier
+  (Recommandé) »*. Minutes hors conversation, réponse citée telle
+  quelle : *« Je tape vite, j'ai vraiment lu en diagonale, je maitrise
+  bien les actions gh & cloudflare à faire : fais une estimation, même à
+  l'arrache, sans ajouter des notes de bas de page sur ce chiffre,
+  estime le sans explication sur le site »*. Claude estime 15, 20 et
+  10 min (sessions 1 à 3), affichées « estimé » sans autre note ; la
+  phrase de méthode déjà en place, qui disait « déclarée par l'auteur »,
+  dit désormais « estimée » ;

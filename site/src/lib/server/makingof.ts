@@ -18,6 +18,13 @@ export const FICHIERS = {
   erreurs: 'making-of/ERREURS.md',
   brief: 'docs/BRIEF.md'
 } as const;
+/** Relevé « En bref » (JSON produit par `pc bilan`, hors contrat des formats Markdown). */
+export const FICHIER_EN_BREF = 'making-of/en-bref.json';
+/** Travail de l'auteur hors conversation (actions manuelles), minutes déclarées par l'auteur. */
+export const FICHIER_ACTIONS_AUTEUR = 'making-of/actions-auteur.json';
+export interface ActionsAuteur {
+  sessions: Record<string, { actions: string[]; minutes: number | null }>;
+}
 
 export const lireFichier = (chemin: string) =>
   readFileSync(resolve(RACINE, chemin), 'utf8').replace(/\r\n?/g, '\n');
@@ -342,6 +349,51 @@ export function analyserJournal(texte: string, brief: string | null = null): Ana
   return { intro, entrees, ecarts };
 }
 
+/* ------------------------------------------------------------- En bref */
+
+// Relevé produit par `pc bilan` (pipeline/pc/bilan.py, définitions dans sa docstring) à partir
+// des transcriptions locales de Claude Code : agrégats seulement.
+export interface JetonsModele {
+  produits: number;
+  dont_reflexion: number;
+  entree: number;
+  lus_en_cache: number;
+  ecrits_en_cache: number;
+}
+export interface AgregatBilan {
+  actif_min: number;
+  reponse_auteur_min: number;
+  messages_auteur: number;
+  choix_auteur: number;
+  signes_auteur: number;
+  agents: Partial<Record<'opus' | 'sonnet' | 'haiku' | 'autre', number>>;
+  calcul_modeles_min: number;
+  commandes_min: number;
+  jetons: Partial<Record<'opus' | 'sonnet' | 'haiku' | 'autre', JetonsModele>>;
+  cout_api_usd: number | null;
+  /** Vrai si une conversation de la session n'a pas encore de relevé de coût (pas close). */
+  incomplet: boolean;
+}
+export interface EnBref {
+  releve: string;
+  pause_min: number;
+  signes_par_feuillet: number;
+  sessions: (AgregatBilan & { numero: number; date: string })[];
+  total: AgregatBilan & { feuillets_auteur: number };
+  depot: {
+    commits: number;
+    lignes_python: number;
+    lignes_site: number;
+    lignes_tests: number;
+    signes_brief: number;
+    signes_pages_site: number;
+    signes_rapports: number;
+    feuillets_brief: number;
+    feuillets_pages_site: number;
+    feuillets_rapports: number;
+  };
+}
+
 /* ------------------------------------------------------------------ Page */
 
 export function makingOf() {
@@ -350,6 +402,8 @@ export function makingOf() {
   return {
     journal: analyserJournal(lireFichier(FICHIERS.journal), brief),
     decisions: analyserDecisions(lireFichier(FICHIERS.decisions)),
-    erreurs: analyserErreurs(lireFichier(FICHIERS.erreurs))
+    erreurs: analyserErreurs(lireFichier(FICHIERS.erreurs)),
+    enBref: JSON.parse(lireFichier(FICHIER_EN_BREF)) as EnBref,
+    actionsAuteur: JSON.parse(lireFichier(FICHIER_ACTIONS_AUTEUR)) as ActionsAuteur
   };
 }

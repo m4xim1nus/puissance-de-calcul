@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { formaterDate } from '$lib/format';
   import HeroPrix from '$lib/graphiques/HeroPrix.svelte';
+  import TexteAnnote from '$lib/simulateur/TexteAnnote.svelte';
 
   let { data } = $props();
 </script>
@@ -12,13 +14,22 @@
   />
 </svelte:head>
 
-<!-- La question d'abord, visible sans défiler ; puis ce que fait le site et ce que montre le
-     calendrier. Aucune thèse : la page pose la question (décision de l'auteur, 2026-11-26). -->
+<!-- La question d'abord, visible sans défiler ; puis le message principal, daté, avec ce qu'il ne
+     sait pas encore (décision de l'auteur, 2026-11-26 : option A de docs/EDITO.md) ; puis ce que
+     fait le site et ce que montre le calendrier. -->
 <header class="ouverture">
   <h1>
     Le système électrique français peut-il accueillir la vague de data centers, et à quelles
     conditions&#8239;?
   </h1>
+  <section class="message" aria-labelledby="message-titre">
+    <h2 id="message-titre">{data.message.titre}</h2>
+    <p class="meta">
+      Message du site au {formaterDate(data.message.miseAJour)}, fondé sur les enquêtes
+      {data.message.reposeSur}&#8239;; il sera revu à mesure que les suivantes paraissent.
+    </p>
+    <TexteAnnote blocs={data.message.blocs} />
+  </section>
   <p>
     Ce site vérifie, chiffre et date ce qu’on peut en savoir avec les données publiques&nbsp;:
     combien les data centers consomment et consommeront, à quelles heures, où, et à quel prix. Il
@@ -76,6 +87,21 @@
     margin: 0 0 0.6rem;
     font-size: 1.125rem;
     line-height: 1.55;
+  }
+  .message {
+    margin: 0 0 1.6rem;
+    padding: 0.2rem 0 0.6rem;
+    border-top: 3px solid var(--signal);
+  }
+  .message h2 {
+    margin: 0.7rem 0 0.2rem;
+    font-size: 1.3rem;
+  }
+  .message .meta {
+    margin: 0 0 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    color: var(--encre-2);
   }
   .enquetes h2 {
     margin-top: 0;
