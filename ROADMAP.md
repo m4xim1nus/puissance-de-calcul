@@ -44,7 +44,7 @@ extérieur pour l'instant, jeton ENTSO-E.
       « Méthode » sans remarque ; aucun retour sur un chiffre. Deux
       retours de lisibilité, traités en étape 3 (point 1)
 
-## Étape 3 : « Quand ? » + simulateur — en cours (session 2)
+## Étape 3 : « Quand ? » + simulateur — publiée le 26/11 (session 2)
 
 Ordre de la session 2 :
 
@@ -72,14 +72,14 @@ Ordre de la session 2 :
    branchement dans `pc download` (prix et mix des voisins, flux
    transfrontaliers), pour l'enquête carbone et le recoupement des prix
    energy-charts.
-3. **Enquête « Quand ? »** (`/quand`) : à quelles heures le système a de
+3. ✅ **Enquête « Quand ? »** (`/quand`, en ligne le 26/11 après relecture adverse, corrections et vérification des corrections) : à quelles heures le système a de
    la marge et à quelles heures il n'en a pas. Monotones de charge et de
    prix, heures de tension et heures de surplus, ce qu'une charge plate
    de X GW change à ces heures. Données déjà disponibles : éCO2mix
    horaire 2015-2026 et prix. Spike Opus pour les sources de marge
    (tension, écrêtement, effacements), puis texte, référentiel,
    relecture adverse.
-4. **Simulateur** (`/simulateur`) : un moteur TS dans le navigateur, et
+4. ✅ **Simulateur** (`/simulateur`, v1 en ligne le 26/11, même parcours ; spécification `docs/SIMULATEUR.md`) : un moteur TS dans le navigateur, et
    une référence Python dans `pipeline/` qui doit donner les mêmes
    résultats (test croisé). Profil de charge plat par défaut,
    hypothèses affichées et modifiables. Le simulateur dit ce qu'il ne

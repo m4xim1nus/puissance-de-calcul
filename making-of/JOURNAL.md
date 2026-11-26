@@ -441,3 +441,5 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   « dès quelques GW » ; accord « en les connaissant » pour une heure.
   Le froid extrême chiffré et le jargon du glossaire vont au backlog.
   Erreur consignée.
+- « Quand ? » et le simulateur v1 sont poussés ensemble, après la
+  vérification des corrections et le contrôle de caviardage.
