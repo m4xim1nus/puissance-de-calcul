@@ -367,3 +367,8 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   n'affirme rien sur la météo ; « comme en 2023 et 2024 » sans chiffre ;
   insécables entre heures et « h ». La sixième (pointe horaire plus
   basse que la pointe RTE, non chiffrée) reste qualitative.
+- page `/quand` commitée, relecture adverse « lectrice experte » lancée
+  (Opus) avec recalcul indépendant des chiffres clés. En parallèle,
+  Claude écrit la spécification du simulateur (`docs/SIMULATEUR.md`) et
+  lance un agent (Opus) pour la référence Python, le moteur TypeScript,
+  la parité testée et la page `/simulateur`.
