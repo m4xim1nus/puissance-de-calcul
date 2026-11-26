@@ -183,7 +183,7 @@ def test_chiffres_calcules_publies(export):
     # publié = arrondi : GW et TWh à 0,1, % à l'entier
     for cle, v in c.items():
         if v.get("produit_par"):
-            assert {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1}[v["unite"]] == v["precision"]
+            assert {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1, "°C": 0.1}[v["unite"]] == v["precision"]
         # ordre de grandeur : RN max entre 20 et 45 GW ; Σ J entre 5 et 50 TWh
     assert all(20 < c[f"quand_rn_max_{an}"]["valeur"] < 45 for an in (2022, 2023, 2024, 2025))
     assert all(5 < c[f"quand_j_{an}"]["valeur"] < 50 for an in (2022, 2023, 2024, 2025))

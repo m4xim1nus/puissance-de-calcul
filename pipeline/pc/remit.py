@@ -28,6 +28,14 @@ Méthode (`evenements_nucleaires`, `segments_tranches`, `disponible_horaire`) :
 6. somme nationale des tranches **en exploitation** (`PERIODES_EXPLOITATION`).
 
 Les dates sont lues en heure de Paris (`FUSEAU_REMIT`), hypothèse testée par `pc check`.
+
+Variante « réintégrée » (`reintegrer_modulation="courts"`) : mêmes règles, mais les **arrêts et
+baisses courts pour modulation** (colonne `modulation_courte` : `MOTIF_MODULATION` et
+`DUREE_MAX_COURT_H`) ne retirent rien à la puissance disponible. EDF déclare ces arrêts
+économiques comme des indisponibilités planifiées (« la tranche sera redémarrée si les conditions
+économiques le justifient ») : la série déclarée en dépend. Les arrêts longs pour modulation, qui
+peuvent relever de la gestion du combustible, restent retranchés ; `reintegrer_modulation="tous"` les
+réintègre aussi, pour chiffrer leur énergie seulement.
 """
 
 from __future__ import annotations
@@ -116,6 +124,65 @@ SUPPRESSIONS_ECARTEES: dict[str, str] = {
     "05470_EDF_T_00023936": "Golfech 1, arrêt du 15/08 au 12/12/2020 supprimé après coup, sans remplacement",
 }
 
+#: **Arrêts et baisses pour modulation** : règle d'identification (2026-11-26, rapport
+#: docs/relectures/2026-11-26-modulation-agent.md). Un événement retenu (dernière version active)
+#: est un arrêt ou une baisse pour modulation si :
+#:
+#: 1. le texte libre de sa dernière version contient le mot « modulation » (même mot en français
+#:    et en anglais : « arrêt / baisse / palier / limitation / indisponibilité pour modulation »,
+#:    « baisse avant arrêt pour modulation », « le placement de cette modulation », « unavailability
+#:    for modulation supply », « limitation for power modulation ») ; aucun texte du jeu (2015-2026,
+#:    toutes versions) n'emploie ce mot dans un autre sens que la modulation économique. Le seul
+#:    autre emploi, « imposition suite à une modulation » (Cruas 1, 16/06/2020), est annulé ;
+#: 2. ou, à défaut, si une **version antérieure** du même événement contient ce mot et que le texte
+#:    de la dernière version n'invoque pas une autre cause (`MOTIF_AUTRE_CAUSE`). EDF efface souvent
+#:    le texte à la mise à jour : Chooz 2, 18/04-26/06/2025, « arrêt pour modulation » en versions 1
+#:    à 8, texte vide en version 9 (2,5 TWh). 23 événements sur 2015-2026 ; 2 écartés parce que
+#:    la dernière version donne une autre cause (Gravelines 4, 03/10/2025, « Indisponibilité
+#:    fortuite » ; Cattenom 1, 24/08/2026, « Arrêt pour économie de combustible »).
+#:
+#: Ne sont **pas** comptés (cas examinés à la main, décompte dans le rapport) : la prolongation de
+#: campagne (« Tranche en prolongation de campagne / Ongoing stretch » : baisse physique en fin de
+#: combustible) ; les arrêts « pour économie (de) combustible / Fuel saving outage » sans le mot
+#: modulation (gestion du combustible, c'est-à-dire la contrainte d'énergie elle-même) ; les essais
+#: à puissance stable dont « le niveau pourra être réinterrogé si les conditions économiques le
+#: justifient » ; les arrêts dont « le placement sera réinterrogé si les conditions économiques le
+#: justifient » sans le mot modulation (12 événements, 2019-2021 et 2025, 0,6 TWh au total) ;
+#: les baisses pour contraintes environnementales ; les liens vers la page « optimisation-et-trading » d'EDF (faux positif d'une
+#: recherche sur « optimisation »).
+#:
+#: **Courts et longs** (relecture adverse du 26/11/2026, F2 ; rapport
+#: docs/relectures/2026-11-26-modulation-agent.md) : seuls les arrêts **courts** sont réintégrés.
+#: Un arrêt pour modulation est court si sa dernière version dure **moins de 7 jours**
+#: (`DUREE_MAX_COURT_H`) et si aucune version ne parle de combustible (`MOTIF_COMBUSTIBLE`). Les
+#: autres peuvent relever de la gestion du combustible (déplacer de l'énergie vers l'hiver), c'est-à-dire de
+#: la contrainte d'énergie, comme les arrêts « pour économie de combustible ». Pourquoi la durée, et
+#: pas la clause « la tranche sera redémarrée si les conditions économiques le justifient » : sous
+#: 7 jours, l'arrêt est déclaré en médiane 0,46 jour avant son début (3e quartile 0,8 jour, 357
+#: événements) ; à partir de 7 jours, 14 jours en médiane et 95 jours au 3e quartile (50 événements,
+#: jusqu'à 291 jours : Chooz 2, 2025). La clause, elle, figure aussi dans 26 des 50 arrêts longs,
+#: jusqu'à 61 jours (Chooz 2, avril-juin 2020) : elle ne sépare pas les arrêts décidés au jour le
+#: jour des arrêts planifiés. 7 jours : une semaine, l'horizon d'un arrêt de fin de semaine ou de
+#: semaine creuse. Arrêts de moins de 7 jours qui parlent de combustible : 1 (Blayais 3, 2025).
+MOTIF_MODULATION = r"(?i)\bmodulation\b"
+DUREE_MAX_COURT_H = 168
+MOTIF_COMBUSTIBLE = r"(?i)combustible|\bfuel\b"
+MOTIF_AUTRE_CAUSE = (r"(?i)fortuit|forced|combustible|\bfuel\b|prolongation de campagne|stretch|\bessai|\btests?\b"
+                     r"|environnement|environmental")
+
+
+def est_modulation(info: pl.Expr, mention_anterieure: pl.Expr | None = None) -> pl.Expr:
+    """Vrai si l'événement est un arrêt ou une baisse pour modulation (`MOTIF_MODULATION`).
+
+    `info` : texte libre de la dernière version ; `mention_anterieure` : vrai si une version
+    antérieure du même événement contient le mot (règle 2), None pour la règle 1 seule.
+    """
+    texte = info.fill_null("")
+    r1 = texte.str.contains(MOTIF_MODULATION)
+    if mention_anterieure is None:
+        return r1
+    return r1 | (mention_anterieure.fill_null(False) & ~texte.str.contains(MOTIF_AUTRE_CAUSE))
+
 
 # --------------------------------------------------------------------------
 # Lecture
@@ -188,8 +255,11 @@ def evenements_nucleaires(brut: pl.DataFrame) -> pl.DataFrame:
     """Dernière version de chaque événement nucléaire Planifié/Fortuit, si elle est `Active`.
 
     Colonnes : `id`, `version`, `tranche`, `type`, `debut`, `fin` (UTC), `pmax`, `pdispo`
-    (bornée à [0, pmax]), `publication`, `info`. Les événements de durée nulle ou négative sont
-    écartés (aucun parmi les dernières versions actives en 2026).
+    (bornée à [0, pmax]), `publication`, `info`, `modulation` (arrêt ou baisse pour modulation,
+    `est_modulation`), `modulation_par` (« texte » : la dernière version le dit ; « version
+    antérieure » : règle 2 de `MOTIF_MODULATION` ; null sinon) et `modulation_courte` (arrêt pour
+    modulation de moins de `DUREE_MAX_COURT_H` heures, sans mention du combustible). Les événements de durée nulle ou
+    négative sont écartés (aucun parmi les dernières versions actives en 2026).
     """
     nuc = brut.filter((pl.col("filiere") == "Nucléaire") & pl.col("id").str.starts_with(PREFIXE_EDF_SA))
     inconnues = set(nuc["tranche"].unique().to_list()) - TRANCHES_NUCLEAIRES
@@ -205,10 +275,20 @@ def evenements_nucleaires(brut: pl.DataFrame) -> pl.DataFrame:
     dernieres = n.sort("id", "version").group_by("id", maintain_order=True).last()
     dernieres = dernieres.with_columns(
         pl.when(pl.col("id").is_in(ecartees)).then(pl.lit("Active")).otherwise(pl.col("statut")).alias("statut"))
+    # Mention de la modulation dans une version quelconque de l'événement (règle 2 de MOTIF_MODULATION).
+    mention = n.group_by("id").agg(est_modulation(pl.col("info")).any().alias("_mention"),
+                                   pl.col("info").fill_null("").str.contains(MOTIF_COMBUSTIBLE).any().alias("_comb"))
+    dernieres = dernieres.join(mention, on="id", how="left")
+    r1 = est_modulation(pl.col("info"))
+    r12 = est_modulation(pl.col("info"), pl.col("_mention"))
     return (dernieres.filter((pl.col("statut") == "Active") & (pl.col("fin") > pl.col("debut")))
-                     .with_columns(pl.col("pdispo").clip(0, pl.col("pmax")))
+                     .with_columns(pl.col("pdispo").clip(0, pl.col("pmax")), r12.alias("modulation"),
+                                   pl.when(r1).then(pl.lit("texte")).when(r12).then(pl.lit("version antérieure"))
+                                     .otherwise(pl.lit(None, dtype=pl.Utf8)).alias("modulation_par"),
+                                   (r12 & ((pl.col("fin") - pl.col("debut")) < pl.duration(hours=DUREE_MAX_COURT_H))
+                                    & ~pl.col("_comb").fill_null(False)).alias("modulation_courte"))
                      .select("id", "version", "tranche", "type", "debut", "fin", "pmax", "pdispo",
-                             "publication", "info")
+                             "publication", "info", "modulation", "modulation_par", "modulation_courte")
                      .sort("tranche", "debut"))
 
 
@@ -238,11 +318,17 @@ def puissance_max_tranches(ev: pl.DataFrame) -> pl.DataFrame:
 
 
 def segments_tranches(ev: pl.DataFrame, debut: datetime, fin: datetime,
-                      periodes: dict | None = None) -> pl.DataFrame:
+                      periodes: dict | None = None, reintegrer_modulation: str | None = None) -> pl.DataFrame:
     """Puissance disponible de chaque tranche en escalier sur [debut, fin) (UTC).
 
     Une ligne par segment élémentaire où la puissance est constante : `tranche`, `t0`, `t1`,
     `dispo` (MW), `pmax` (MW). Les segments hors exploitation sont absents.
+
+    `reintegrer_modulation` : « courts », les événements `modulation_courte`, « tous », tous les
+    événements `modulation`, ne comptent pas dans le minimum des puissances disponibles (ils ne
+    retirent rien) ; tout le reste est identique : mêmes tranches,
+    mêmes périodes d'exploitation, même puissance maximale (lue sur tous les événements), même
+    minimum des autres événements qui se superposent.
     """
     per = periodes_exploitation_utc(periodes)
     debut, fin = debut.astimezone(timezone.utc), fin.astimezone(timezone.utc)
@@ -267,7 +353,11 @@ def segments_tranches(ev: pl.DataFrame, debut: datetime, fin: datetime,
                  .with_columns(pl.col("t").shift(-1).over("tranche").alias("t1"))
                  .drop_nulls("t1").rename({"t": "t0"}))
     # minimum des puissances disponibles des événements couvrant le segment
-    couv = (seg.join(ev.select("tranche", "debut", "fin", "pdispo"), on="tranche")
+    if reintegrer_modulation not in (None, "courts", "tous"):
+        raise ValueError(f"reintegrer_modulation : « {reintegrer_modulation} » (None, « courts » ou « tous »)")
+    col = {"courts": "modulation_courte", "tous": "modulation"}.get(reintegrer_modulation or "")
+    ev_couv = ev.filter(~pl.col(col)) if col else ev
+    couv = (seg.join(ev_couv.select("tranche", "debut", "fin", "pdispo"), on="tranche")
                .filter((pl.col("debut") <= pl.col("t0")) & (pl.col("fin") >= pl.col("t1")))
                .group_by("tranche", "t0").agg(pl.col("pdispo").min()))
     seg = (seg.join(couv, on=["tranche", "t0"], how="left").sort("tranche", "t0")
@@ -298,9 +388,11 @@ def horaire_depuis_segments(seg: pl.DataFrame, debut: datetime, fin: datetime) -
 
 
 def disponible_horaire(ev: pl.DataFrame, debut: datetime, fin: datetime,
-                       periodes: dict | None = None) -> pl.DataFrame:
-    """Puissance disponible déclarée par tranche et par heure UTC sur [debut, fin)."""
-    return horaire_depuis_segments(segments_tranches(ev, debut, fin, periodes), debut, fin)
+                       periodes: dict | None = None, reintegrer_modulation: str | None = None) -> pl.DataFrame:
+    """Puissance disponible déclarée par tranche et par heure UTC sur [debut, fin) ; avec
+    `reintegrer_modulation` (« courts » ou « tous »), en réintégrant les arrêts courts ou tous les
+    arrêts pour modulation."""
+    return horaire_depuis_segments(segments_tranches(ev, debut, fin, periodes, reintegrer_modulation), debut, fin)
 
 
 def national(par_tranche: pl.DataFrame, exclure: set[str] | None = None) -> pl.DataFrame:

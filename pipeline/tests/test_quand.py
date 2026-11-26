@@ -40,6 +40,8 @@ def executer(cas: dict):
         return quand.quantile(e["tries"], e["q"])
     if cas["fonction"] == "simuler":
         return quand.simuler(e, **p)
+    if cas["fonction"] == "episode_froid":
+        return quand.episode_froid(e["rn"], **p)
     raise ValueError(cas["fonction"])
 
 
@@ -192,3 +194,87 @@ def test_simuler_refuse_les_parametres_invalides():
         quand.simuler(t, 1000, -1)
     with pytest.raises(ValueError):
         quand.simuler(t, 1000, 1.5)
+
+
+# --------------------------------------------------------------------------
+# Froid supplémentaire et plancher réglable (limites de « Quand ? », 26/11/2026)
+# --------------------------------------------------------------------------
+
+#: Clés de la sortie de `simuler` antérieures au froid : elles ne changent pas quand le froid est nul.
+CLES_AVANT_FROID = ("energie_ajoutee_twh", "energie_dans_j_twh", "part_dans_j", "part_dans_j_plancher",
+                    "heures_j_couvre_charge", "solde_echanges_moyen_heures_j_couvre_mw", "rn_max_mw", "max_apres",
+                    "heures_au_dessus_du_max", "heures_au_dessus_du_max_reference", "part_prix_negatif",
+                    "part_prix_nul_ou_negatif", "prix_moyen_pondere_eur_mwh", "heures_prix_nul_ou_negatif_charge",
+                    "heures_prix_nul_ou_negatif_j_couvre", "monotone_avant", "monotone_apres", "heures_effacees",
+                    "rn_seuil_effacement_mw", "energie_effacee_twh")
+
+
+@pytest.mark.parametrize("x_mw, n", [(1000, 0), (5000, 30)])
+def test_froid_nul_ne_change_rien(x_mw, n):
+    """Froid nul (avec ou sans gradient) : résultats identiques à l'appel sans froid, et à
+    `effet_charge` sans supplément ; aucun chiffre publié ne bouge."""
+    t = table_aleatoire(5)
+    s0 = quand.simuler(t, x_mw, n, rn_max_reference_mw=45000)
+    s1 = quand.simuler(t, x_mw, n, rn_max_reference_mw=45000, froid_c=0, gradient_mw_par_c=2400)
+    for k in CLES_AVANT_FROID:
+        assert s0[k] == s1[k], k
+    assert s1["froid_heures"] == 0 and s1["energie_froid_twh"] == 0 and s1["froid_debut_utc"] is None
+
+
+def test_froid_proprietes():
+    """Le froid s'ajoute à RN « après » sur l'épisode seulement, laisse les seuils observés, et réduit
+    J pour la charge ; plus il fait froid, plus d'heures au-delà du maximum."""
+    t = table_aleatoire(9, 600)
+    s0 = quand.simuler(t, 2000, rn_max_reference_mw=45000)
+    sf = quand.simuler(t, 2000, rn_max_reference_mw=45000, froid_c=4, gradient_mw_par_c=2400, duree_froid_h=48)
+    assert sf["froid_heures"] == 48 and sf["froid_ajout_mw"] == 9600
+    assert sf["energie_froid_twh"] == pytest.approx(9600 * 48 / 1e6)
+    assert sf["rn_max_mw"] == s0["rn_max_mw"] and sf["monotone_avant"] == s0["monotone_avant"]
+    assert sf["heures_au_dessus_du_max"] >= s0["heures_au_dessus_du_max"]
+    assert sf["max_apres"]["valeur_mw"] >= s0["max_apres"]["valeur_mw"]
+    assert sf["part_dans_j"] <= s0["part_dans_j"] and sf["energie_ajoutee_twh"] == s0["energie_ajoutee_twh"]
+    assert sf["consommation_max_apres"]["valeur_mw"] >= s0["consommation_max_apres"]["valeur_mw"]
+    # L'épisode est la fenêtre de RN observée moyenne la plus élevée.
+    rn = [quand.charge_residuelle(*v) for v in zip(t["consommation"], t["eolien"], t["solaire"],
+                                                     t["nucleaire_disponible"])]
+    ep = quand.episode_froid(rn, 48)
+    assert t["heure_utc"][ep[0]] == sf["froid_debut_utc"] and t["heure_utc"][ep[-1]] == sf["froid_fin_utc"]
+    moyennes = []
+    for d in range(len(rn) - 47):
+        v = [x for x in rn[d:d + 48] if x is not None]
+        moyennes.append(sum(v) / len(v))
+    assert moyennes[ep[0]] == max(moyennes)
+    plus = [quand.simuler(t, 2000, froid_c=f, gradient_mw_par_c=2400, duree_froid_h=48)["heures_au_dessus_du_max"]
+            for f in (0, 2, 4, 8)]
+    assert plus == sorted(plus)
+
+
+def test_froid_effacement_suffisant_si_le_froid_seul_ne_depasse_pas():
+    """Avec froid, effacer les N* heures (N* = sans effacement) ramène à zéro quand le froid seul ne
+    dépasse pas le maximum ; sinon, les heures dues au froid seul restent (le simulateur le dit)."""
+    t = table_aleatoire(11)
+    for f in (0.5, 6):
+        seul = quand.simuler(t, 0, froid_c=f, gradient_mw_par_c=2400, duree_froid_h=24)["heures_au_dessus_du_max"]
+        n_etoile = quand.simuler(t, 6000, froid_c=f, gradient_mw_par_c=2400, duree_froid_h=24)["heures_au_dessus_du_max"]
+        reste = quand.simuler(t, 6000, n_etoile, froid_c=f, gradient_mw_par_c=2400,
+                              duree_froid_h=24)["heures_au_dessus_du_max"]
+        assert reste == seul
+    assert seul > 0  # le cas « froid seul au-delà du maximum » est bien exercé
+
+
+def test_plancher_reglable():
+    """La part avec plancher décroît quand le plancher croît ; plancher nul = part sans plancher."""
+    t = table_aleatoire(13)
+    parts = [quand.simuler(t, 3000, plancher_mw=p)["part_dans_j_plancher"] for p in (0, 500, 1000, 2000, 3000)]
+    assert parts[0] == quand.simuler(t, 3000)["part_dans_j"]
+    assert parts == sorted(parts, reverse=True)
+
+
+def test_froid_refuse_les_parametres_invalides():
+    t = table_aleatoire(1, 10)
+    with pytest.raises(ValueError):
+        quand.simuler(t, 1000, froid_c=-1, gradient_mw_par_c=2400)
+    with pytest.raises(ValueError):
+        quand.simuler(t, 1000, froid_c=2)
+    with pytest.raises(ValueError):
+        quand.episode_froid([1.0, 2.0], 0)

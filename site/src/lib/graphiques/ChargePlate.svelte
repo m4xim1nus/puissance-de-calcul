@@ -1,8 +1,10 @@
 <script lang="ts">
   // Consommation plate de X GW ajoutée aux années observées 2022 à 2025.
-  // (a) Part de son énergie qui tiendrait, au plus, dans le nucléaire disponible non produit :
-  //     fourchette entre « sans plancher » (borne haute) et « avec un plancher non mobilisable »
-  //     (hypothèse du site), une barre par année, décalées à chaque valeur de X.
+  // (a) Part de son énergie qui tiendrait, au plus, dans le nucléaire disponible non produit, avec la
+  //     disponibilité déclarée par EDF : fourchette entre « sans plancher » (borne haute) et « avec
+  //     un plancher non mobilisable » (hypothèse du site), une barre par année, décalées à chaque
+  //     valeur de X ; cercle creux : sans plancher, en réintégrant les arrêts courts (moins de
+  //     7 jours) qu'EDF déclare indisponibles pour modulation.
   // (b) Heures où la charge résiduelle + X dépasserait le maximum observé : de l'année (au moins 1,
   //     l'heure du maximum elle-même), et de 2015-2025 (peut valoir 0). Même axe pour les deux
   //     panneaux, en échelle log(1 + heures), qui garde le zéro.
@@ -72,14 +74,16 @@
         const c = charge(a, xMw);
         return {
           valeur: `${pourcent(c.partDansJ)} au plus`,
-          libelle: `${a.annee} ; ${pourcent(c.partDansJPlancher)} avec plancher`
+          libelle:
+            `${a.annee} ; ${pourcent(c.partDansJPlancher)} avec plancher ; ` +
+            `${pourcent(c.partDansJReintegre)} en réintégrant les arrêts courts déclarés pour modulation`
         };
       }
       return { valeur: h(heures(p, a, xMw)), libelle: String(a.annee) };
     });
 
   const TITRES: Record<Panneau, string> = $derived({
-    part: 'Part de l’énergie ajoutée qui tiendrait, au plus, dans le nucléaire disponible non produit',
+    part: 'Part de l’énergie ajoutée qui tiendrait, au plus, dans le nucléaire disponible non produit (disponibilité déclarée par EDF)',
     annee: 'Heures au-delà du maximum de l’année',
     reference: `Heures au-delà du maximum ${reference.annees}`
   });
@@ -89,7 +93,7 @@
   id="charge-plate"
   titre="Une consommation plate de X GW ajoutée aux années 2022 à 2025"
   sousTitre="X GW consommés à toutes les heures de l’année, ajoutés aux données observées de chaque année. Deux grandeurs différentes, panneaux séparés, chacun son axe ; X en échelle logarithmique."
-  remarques="« Au plus » : une partie du nucléaire disponible est réservée aux services système, et une baisse de production pour économiser le combustible déplace de l’énergie dans le temps ; le plancher, hypothèse du site, retranche une part qui ne serait mobilisable à aucune heure. Qui servirait réellement la charge ajoutée (nucléaire inemployé, moins d’exportations, autres moyens) dépend de la saturation des interconnexions, que ces données ne disent pas. Dépasser un maximum observé n’est pas une défaillance : au-delà du maximum de l’année, c’est plus que cette année-là ; au-delà du maximum 2015-2025, plus que toutes les années observées. Une charge plate n’est pas le profil d’un data center réel."
+  remarques="« Au plus », avec la disponibilité déclarée par EDF : une partie du nucléaire disponible est réservée aux services système, et une baisse de production pour économiser le combustible déplace de l’énergie dans le temps ; le plancher, hypothèse du site, retranche une part qui ne serait mobilisable à aucune heure. EDF déclare aussi indisponibles des arrêts « pour modulation » : le cercle creux réintègre ceux de moins de 7 jours, décidés au jour le jour, qui sont économiques ; les arrêts plus longs, d’une semaine à plusieurs mois, qui pèsent surtout en 2020, 2022 et 2024, peuvent relever de la gestion du combustible et restent retranchés. Ce n’est pas une capacité physique : le combustible et le calendrier des arrêts limitent toujours l’énergie. Qui servirait réellement la charge ajoutée (nucléaire inemployé, moins d’exportations, autres moyens) dépend de la saturation des interconnexions, que ces données ne disent pas. Dépasser un maximum observé n’est pas une défaillance : au-delà du maximum de l’année, c’est plus que cette année-là ; au-delà du maximum 2015-2025, plus que toutes les années observées. Une charge plate n’est pas le profil d’un data center réel."
   sources={sourcesRn(q)}
   titreTableau="Tableau des données : consommation plate de X GW, 2022 à 2025"
 >
@@ -127,7 +131,8 @@
     <table>
       <caption class="lecteur"
         >Consommation plate de X GW, par année : part au plus dans le nucléaire disponible non
-        produit, avec et sans plancher, et heures au-delà des maximums observés</caption
+        produit, avec la disponibilité déclarée par EDF puis en réintégrant ses arrêts courts pour
+        modulation, avec et sans plancher, et heures au-delà des maximums observés</caption
       >
       <thead>
         <tr>
@@ -135,6 +140,8 @@
           <th scope="col" class="num">X</th>
           <th scope="col" class="num">Part, au plus (sans plancher)</th>
           <th scope="col" class="num">Part avec plancher de {xGw(plancher)}</th>
+          <th scope="col" class="num">Part, en réintégrant les arrêts courts pour modulation</th>
+          <th scope="col" class="num">Même part, avec plancher</th>
           <th scope="col" class="num">Heures au-delà du max. de l’année</th>
           <th scope="col" class="num">Heures au-delà du max. {reference.annees}</th>
         </tr>
@@ -148,6 +155,8 @@
               <td class="num">{xGw(xm)}</td>
               <td class="num">{pourcent(c.partDansJ)}</td>
               <td class="num">{pourcent(c.partDansJPlancher)}</td>
+              <td class="num">{pourcent(c.partDansJReintegre)}</td>
+              <td class="num">{pourcent(c.partDansJPlancherReintegre)}</td>
               <td class="num">{formaterNombre(c.heuresAuDessusDuMax)}</td>
               <td class="num">{formaterNombre(c.heuresAuDessusDuMaxReference)}</td>
             </tr>
@@ -158,10 +167,12 @@
     <p class="note-tableau">
       Part : Σ min(X, J) / (X × heures où J est renseigné), J = nucléaire disponible déclaré −
       nucléaire produit, borné à zéro ; avec plancher, J est d’abord diminué de {xGw(plancher)}
-      (hypothèse du site). Heures : heures où charge résiduelle + X dépasse strictement le maximum de
-      l’année, ou le maximum {reference.annees} ({gw(reference.valeurMw)}, {heureParis(
-        reference.debutParis
-      )}).
+      (hypothèse du site). En réintégrant les arrêts courts pour modulation : même calcul, avec une disponibilité
+      reconstruite sans les arrêts et baisses de moins de 7 jours qu’EDF déclare indisponibles « pour
+      modulation » (aucun avant 2019) ; les plus longs restent retranchés. Heures : heures où charge résiduelle
+      + X dépasse strictement le maximum de l’année, ou le maximum {reference.annees} ({gw(
+        reference.valeurMw
+      )}, {heureParis(reference.debutParis)}).
     </p>
   {/snippet}
 </Figure>
@@ -181,7 +192,7 @@
   <div class="panneau">
     <p class="titre-panneau" id="charge-plate-part">
       (a) Part de l’énergie ajoutée qui tiendrait, <strong>au plus</strong>, dans le nucléaire
-      disponible non produit
+      disponible non produit, avec la disponibilité déclarée par EDF
     </p>
     <p class="aide">
       <svg width="14" height="26" aria-hidden="true"
@@ -193,9 +204,19 @@
         /><line x1="2" x2="12" y1="22" y2="22" stroke="var(--encre-2)" stroke-width="2" /></svg
       >
       Point : sans plancher, <strong>au plus</strong>. Trait du bas : avec un plancher de
-      {xGw(plancher)} non mobilisable (hypothèse du site). À chaque X, de gauche à droite : {annees
-        .map((a) => a.annee)
-        .join(', ')}.
+      {xGw(plancher)} non mobilisable (hypothèse du site).
+      <svg width="10" height="10" aria-hidden="true"
+        ><circle
+          cx="5"
+          cy="5"
+          r="3.5"
+          fill="none"
+          stroke="var(--encre-2)"
+          stroke-width="1.5"
+        /></svg
+      >
+      Cercle creux : sans plancher, en réintégrant les arrêts courts qu’EDF déclare indisponibles pour
+      modulation. À chaque X, de gauche à droite : {annees.map((a) => a.annee).join(', ')}.
     </p>
     <div class="trace-panneau">
       <svg
@@ -242,6 +263,17 @@
               stroke={couleur(i)}
             />
             <circle class="point" {cx} cy={y(c.partDansJ)} r="4" fill={couleur(i)} />
+            {#if c.partDansJReintegre > c.partDansJ}
+              <circle
+                class="reintegre"
+                {cx}
+                cy={y(c.partDansJReintegre)}
+                r="3.5"
+                fill="none"
+                stroke={couleur(i)}
+                stroke-width="1.5"
+              />
+            {/if}
           {/each}
         {/each}
         {@render colonnes('part', x, L, M, H)}

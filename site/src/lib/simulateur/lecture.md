@@ -3,7 +3,8 @@ Texte de lecture de la page /simulateur (après les résultats), rendu au prére
 chaîne que les enquêtes (src/lib/server/enquetes.ts, rendreCorps), notes comprises. Aucun
 nombre issu d'une source n'est tapé à la main : {{identifiant}} du référentiel, ou
 {{source:clé|page}}. Reprend les définitions, les formulations et les limites de docs/enquetes/quand.md (version
-corrigée après relecture) ; à réaligner si ce texte change.
+corrigée après relecture) ; à réaligner si ce texte change. Une ligne `- ::: inclure nom :::` est
+remplacée par docs/enquetes/partage/nom.md, texte commun avec « Quand ? » (pas de recopie à la main).
 -->
 
 ## Lire ces résultats
@@ -16,20 +17,26 @@ n'est pas une marge : la puissance disponible de ces moyens n'est pas observée 
 Ce n'est pas non plus la « consommation résiduelle » des publications de RTE.
 
 **« Au plus », et une fourchette.** La part de l'énergie ajoutée qui tiendrait dans le
-nucléaire disponible et non produit est un plafond, et un plafond lâche. Même aux heures les
+nucléaire disponible et non produit est un plafond, avec la disponibilité déclarée par EDF, et
+un plafond lâche. Même aux heures les
 plus chères, ce nucléaire reste le plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait 150 €/MWh. Une part de ce
 « reste » n'est pas mobilisable (réserves de services système, rampes, fins de cycle). D'où la
-fourchette affichée : sans plancher, et en retranchant 1 GW à toute heure, un ordre de grandeur
-choisi par ce site.
+fourchette affichée : sans plancher, et en retranchant un plancher à toute heure, 1 GW par défaut,
+un ordre de grandeur choisi par ce site, que le réglage « Nucléaire non mobilisable » fait varier.
+Sous cette fourchette, le résultat en donne une seconde, en réintégrant les arrêts courts (moins de
+sept jours) qu'EDF déclare indisponibles pour modulation.
+
+::: inclure arrets-modulation :::
 
 **En énergie, la limite est plus nette encore.** Servir ainsi la consommation ajoutée
 demanderait autant de production nucléaire en plus sur l'année : le résultat la met en regard
 de la production observée et, pour 2025, de ce que prévoit l'exploitant. La puissance restée
 inemployée heure par heure ne dit pas que le combustible et le calendrier des arrêts
 suivraient : une baisse de production pour économiser le combustible déplace de l'énergie dans
-le temps, elle ne la perd pas. La frontière entre « indisponible » et « modulé » est fixée par
-EDF : ce calcul n'est pas la modulation publiée par EDF ou par RTE.
+le temps, elle ne la perd pas. Réintégrer les arrêts courts pour modulation ne lève pas cette
+limite : la production nucléaire supplémentaire nécessaire n'en est que plus haute. La frontière entre « indisponible »
+et « modulé » est fixée par EDF : ce calcul n'est pas la modulation publiée par EDF ou par RTE.
 
 **Qui servirait cette consommation** (plus de nucléaire, moins d'éolien et de solaire
 arrêtés, ou moins d'exportations) dépend, heure par heure, de la saturation des
@@ -48,8 +55,8 @@ importantes ; en décembre 2022, des importations massives à des prix extrêmes
 maximum observé n'est pas une défaillance ; c'est demander au système de couvrir ce qu'il n'a
 couvert que dans ses pires années, voire davantage.
 
-**L'effacement** tombe exactement sur les heures les plus tendues de l'année observée, comme si
-on les connaissait à l'avance. Prévoir la charge résiduelle du lendemain est une chose ; savoir
+**L'effacement** tombe exactement sur les heures les plus tendues de l'année observée (froid
+supplémentaire compris, s'il est réglé), comme si on les connaissait à l'avance. Prévoir la charge résiduelle du lendemain est une chose ; savoir
 en janvier si une heure sera parmi les plus tendues de l'année en est une autre. Le nombre
 d'heures d'effacement qu'il faudrait est donc une **borne basse**. Le calcul est aussi
 circulaire : les heures effacées sont, par construction, celles que compte l'indicateur du
@@ -91,17 +98,14 @@ calcul probabiliste, comme celui de RTE, le dirait.
 
 ## Ce que ce calcul ne dit pas
 
-- **Le froid extrême.** Onze années observées ne contiennent pas forcément les froids les plus
-  sévères que RTE place dans ses scénarios. Une année observée n'est pas une distribution de
-  risque ; RTE simule, ce site observe.
+- ::: inclure limite-froid :::
 - **Le système change.** Les années observées ne sont pas le système dans lequel arriveraient
   ces consommations : d'autres usages s'électrifient, le charbon ferme, le solaire grandit et
   déplace les heures de surplus.
 - **Les stocks.** L'hydraulique de lac et les stations de pompage apportent de la puissance aux
   heures tendues, mais sur une quantité d'eau limitée : sur un épisode long, leur puissance
   n'est pas disponible à toute heure.
-- **L'écrêtement.** L'éolien et le solaire observés sont ce qui a été produit, après les arrêts
-  à prix négatif : aux heures de surplus, la charge résiduelle est surestimée.
+- ::: inclure limite-ecretement :::
 - **La pointe exacte.** Les calculs sont à l'heure, hors Corse. RTE donne une pointe de
   {{pointe_conso_2025}} pour 2025, Corse comprise, au pas de la demi-heure ; la moyenne horaire
   de la même matinée est plus basse.

@@ -23,10 +23,14 @@ export interface AnneeQuand {
   heuresNegatives: number;
   chargesPlates: {
     xMw: number;
-    /** Part entre 0 et 1, borne haute (sans plancher). */
+    /** Part entre 0 et 1, borne haute (sans plancher), avec la disponibilité déclarée par EDF. */
     partDansJ: number;
     /** Même part, J diminué d'un plancher non mobilisable (hypothèse du site). */
     partDansJPlancher: number;
+    /** Part sans plancher, en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation. */
+    partDansJReintegre: number;
+    /** Même part réintégrée, avec le plancher. */
+    partDansJPlancherReintegre: number;
     plancherMw: number;
     /** Heures où RN + X dépasse le maximum de l'année (au moins 1 : l'heure du maximum). */
     heuresAuDessusDuMax: number;

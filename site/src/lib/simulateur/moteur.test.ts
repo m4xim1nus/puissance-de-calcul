@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { lireCsvHoraire } from './csv';
 import {
   debutParis,
+  episodeFroid,
   maxPluriannuel,
   quantile,
   resumeAnnee,
@@ -77,8 +78,13 @@ function executer(cas: Cas): unknown {
         p.n_exact as number | undefined,
         p.pas_monotone as number | undefined,
         p.plancher_mw as number | undefined,
-        (p.rn_max_reference_mw as number | undefined) ?? null
+        (p.rn_max_reference_mw as number | undefined) ?? null,
+        p.froid_c as number | undefined,
+        (p.gradient_mw_par_c as number | undefined) ?? null,
+        p.duree_froid_h as number | undefined
       );
+    case 'episode_froid':
+      return episodeFroid(e.rn as (number | null)[], p.duree_h as number);
     case 'max_pluriannuel':
       return maxPluriannuel(e.maxima as Record<string, Instant | null>);
     case 'quantile':
@@ -223,6 +229,26 @@ describe('parité avec data/export/quand.json sur les années réelles', () => {
     expect(proche4(simuler(table, 0).production_nucleaire_twh, ref.production_nucleaire_twh)).toBe(
       true
     );
+
+    // Variante réintégrant les arrêts courts pour modulation : lue dans le CSV, mêmes valeurs que quand.json.
+    const rr = ref.jeu_nucleaire_reintegre;
+    const mr = r.jeu_nucleaire_reintegre;
+    expect(mr).toBeDefined();
+    expect(mr!.heures_valides).toBe(rr.heures_valides);
+    expect(proche4(mr!.somme_twh, rr.somme_twh)).toBe(true);
+    expect(proche4(mr!.arrets_modulation_courts_twh, rr.arrets_modulation_courts_twh)).toBe(true);
+    expect(mr!.somme_twh).toBeGreaterThanOrEqual(r.jeu_nucleaire.somme_twh);
+    mr!.charges_plates.forEach((c, i) => {
+      const e = rr.charges_plates[i];
+      expect(c.x_mw).toBe(e.x_mw);
+      expect(proche4(c.part_dans_j, e.part_dans_j)).toBe(true);
+      expect(proche4(c.part_dans_j_plancher, e.part_dans_j_plancher)).toBe(true);
+      expect(c.heures_j_superieur_ou_egal_x).toBe(e.heures_j_superieur_ou_egal_x);
+      const s = simuler(table, e.x_mw);
+      expect(proche4(s.reintegre!.part_dans_j, e.part_dans_j)).toBe(true);
+      expect(proche4(s.reintegre!.part_dans_j_plancher, e.part_dans_j_plancher)).toBe(true);
+      expect(s.reintegre!.part_dans_j!).toBeGreaterThanOrEqual(s.part_dans_j!);
+    });
   });
 
   it('maximum pluriannuel de quand.json = maximum des CSV servis', () => {
@@ -237,5 +263,47 @@ describe('parité avec data/export/quand.json sur les années réelles', () => {
     const m = maxPluriannuel(maxima as Record<string, Instant | null>);
     expect(m?.valeur_mw).toBe(quand.rn_max_pluriannuel.valeur_mw);
     expect(m?.heure_utc).toBe(quand.rn_max_pluriannuel.heure_utc);
+  });
+});
+
+describe('simulateur : froid supplémentaire et plancher réglable, sur 2025', () => {
+  const table = lireCsvHoraire(
+    readFileSync(resolve(RACINE, 'data/export/horaire/2025.csv'), 'utf8')
+  );
+
+  it('froid nul : mêmes résultats qu’avant le réglage', () => {
+    const a = simuler(table, 3000, 20, 1, 1e9, undefined, 38000);
+    const b = simuler(table, 3000, 20, 1, 1e9, undefined, 38000, 0, 2400);
+    for (const k of [
+      'part_dans_j',
+      'part_dans_j_plancher',
+      'heures_au_dessus_du_max',
+      'heures_au_dessus_du_max_reference',
+      'max_apres',
+      'heures_effacees',
+      'monotone_apres'
+    ] as const)
+      expect(b[k]).toEqual(a[k]);
+    expect(b.froid_heures).toBe(0);
+  });
+
+  it('épisode d’une semaine en hiver ; effacer N* suffit quand le froid seul ne dépasse pas', () => {
+    const s = simuler(table, 2000, 0, 1, 1e9, undefined, null, 2, 2400);
+    expect(s.froid_heures).toBe(168);
+    expect(s.froid_ajout_mw).toBe(4800);
+    const mois = Number(s.froid_debut_utc?.slice(5, 7));
+    expect([1, 2, 3, 11, 12]).toContain(mois);
+    const seul = simuler(table, 0, 0, 1, 1e9, undefined, null, 2, 2400);
+    const nEtoile = s.heures_au_dessus_du_max as number;
+    const efface = simuler(table, 2000, nEtoile, 1, 1e9, undefined, null, 2, 2400);
+    expect(efface.heures_au_dessus_du_max).toBe(seul.heures_au_dessus_du_max);
+  });
+
+  it('plancher : part décroissante, plancher nul = part sans plancher', () => {
+    const parts = [0, 500, 1000, 2000, 3000].map(
+      (p) => simuler(table, 5000, 0, 1, 1e9, p).part_dans_j_plancher as number
+    );
+    expect(parts[0]).toBe(simuler(table, 5000, 0, 1, 1e9).part_dans_j);
+    expect([...parts].sort((a, b) => b - a)).toEqual(parts);
   });
 });

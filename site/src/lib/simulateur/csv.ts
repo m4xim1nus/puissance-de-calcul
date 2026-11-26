@@ -15,6 +15,11 @@ const COLONNES = {
   solde_echanges: 'ech_physiques'
 } as const;
 
+/** Colonnes facultatives : lues si l'en-tête les porte (CSV antérieurs : absentes). */
+const FACULTATIVES = {
+  nucleaire_disponible_reintegre: 'nucleaire_disponible_reintegre'
+} as const;
+
 const HEURE = 3_600_000;
 
 function nombre(cellule: string, ligne: number, colonne: string): number | null {
@@ -37,6 +42,9 @@ export function lireCsvHoraire(texte: string): TableHoraire {
       return [c, i];
     })
   ) as Record<keyof typeof COLONNES, number>;
+  const facultatives = Object.entries(FACULTATIVES)
+    .map(([csv, nom]) => [csv, nom, entete.indexOf(csv)] as const)
+    .filter(([, , i]) => i >= 0);
 
   const table: TableHoraire = {
     heure_utc: [],
@@ -48,6 +56,7 @@ export function lireCsvHoraire(texte: string): TableHoraire {
     prix: [],
     ech_physiques: []
   };
+  for (const [, nom] of facultatives) table[nom] = [];
   let precedente = NaN;
   for (let k = 1; k < lignes.length; k++) {
     const c = lignes[k].split(',');
@@ -65,6 +74,8 @@ export function lireCsvHoraire(texte: string): TableHoraire {
         nombre(c[indices[csv as keyof typeof COLONNES]] ?? '', k + 1, csv)
       );
     }
+    for (const [csv, nom, i] of facultatives)
+      (table[nom] as (number | null)[]).push(nombre(c[i] ?? '', k + 1, csv));
   }
   return table;
 }

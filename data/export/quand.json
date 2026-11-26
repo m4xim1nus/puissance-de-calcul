@@ -12,7 +12,8 @@
  "unites": "puissances en MW moyens sur l'heure (= MWh de l'heure) ; énergies en TWh ; parts entre 0 et 1 ; heures en nombre d'heures ; `heure_utc` = début de l'heure en UTC ; `debut_paris` = même instant en heure légale de Paris ; mois et heures de Paris indexés à partir de 0 (janvier = 0, 0 h = 0)",
  "definitions": {
   "charge_residuelle": "RN = consommation − éolien − solaire − nucléaire DISPONIBLE déclaré (REMIT), MW moyens sur l'heure : ce que doivent fournir l'hydraulique, le thermique, les bioénergies, les échanges, le stockage et les effacements. Carte des heures tendues, PAS une marge : la capacité disponible de ces moyens n'est pas observée heure par heure",
-  "jeu_nucleaire": "J = max(0, nucléaire disponible déclaré − nucléaire produit), MW moyens ; Σ J en TWh = Σ des MW moyens horaires × 1 h / 10⁶. Nucléaire déclaré disponible et non produit : borne haute, voir `limites.jeu_nucleaire` ; ce n'est PAS la « modulation » publiée par EDF",
+  "jeu_nucleaire": "J = max(0, nucléaire disponible déclaré − nucléaire produit), MW moyens ; Σ J en TWh = Σ des MW moyens horaires × 1 h / 10⁶. Nucléaire déclaré disponible et non produit : borne haute AVEC LA DISPONIBILITÉ DÉCLARÉE PAR EDF, voir `limites.jeu_nucleaire` et `jeu_nucleaire_reintegre` ; ce n'est PAS la « modulation » publiée par EDF",
+  "jeu_nucleaire_reintegre": "J_r = max(0, nucléaire disponible réintégré − nucléaire produit), MW moyens : même calcul que J, avec une disponibilité reconstruite en ignorant les arrêts et baisses COURTS (moins de 7 jours, sans mention du combustible) qu'EDF déclare indisponibles POUR MODULATION (arrêts économiques décidés au jour le jour ; règle : pc/remit.py, MOTIF_MODULATION, DUREE_MAX_COURT_H ; aucun avant 2019) ; les arrêts longs pour modulation, qui peuvent relever de la gestion du combustible, restent retranchés. J_r ≥ J à toute heure. arrets_modulation_courts_twh = Σ (disponible réintégré − disponible déclaré) : énergie que les arrêts courts retirent de la disponibilité déclarée, chevauchements traités ; arrets_modulation_longs_twh : même chose pour les arrêts longs (calculé par le build sur la reconstruction REMIT ; la série qui les réintègre n'est pas exportée). charges_plates : part_dans_j et part_dans_j_plancher recalculées avec J_r. Sensibilité au choix d'EDF, pas une capacité physique : la contrainte d'énergie (combustible, calendrier des arrêts) reste la limite nette",
   "charges_plates": "consommation supplémentaire constante de X MW toute l'année. energie_ajoutee_twh = X × heures de l'année ; part_dans_j = Σ min(X, J) / (X × heures où J est renseigné) ; heures_j_superieur_ou_egal_x = heures où J ≥ X ; heures_rn_plus_x_au_dessus_du_max = heures où RN + X > RN maximal observé de l'année (strictement) ; rn_max_plus_x_mw = RN max + X ; solde_echanges_moyen_heures_j_ge_x_mw = solde moyen des échanges physiques (positif = import, négatif = export) aux heures où J ≥ X",
   "heures_tendues": "les N heures de RN la plus élevée de l'année (RN décroissant, puis heure UTC croissante) ; répartition par mois et par heure de Paris de début ; couverture_moyenne_mw = moyenne, sur ces heures, de chaque terme de RN = hydraulique (3 sous-filières) + gaz + charbon + fioul + bioénergies + pompage + solde des échanges + (nucléaire produit − disponible) + écart de bilan éCO2mix ; la somme des termes redonne rn_moyenne_mw",
   "prix": "heures à prix day-ahead France strictement négatif (heures_negatif) et nul ou négatif (heures_nul_ou_negatif) ; après le 01/10/2025, prix horaire = moyenne des 4 quarts d'heure (convention RTE) ; RN et J moyens à ces heures"
@@ -25,9 +26,9 @@
   "ecart_bilan_eco2mix": "consommation − Σ filières − pompage − solde des échanges, tel que publié (cause non établie)"
  },
  "limites": {
-  "charge_residuelle": ["observé, pas simulé : 2015-2025 ne contient aucune vague de froid du type de février 2012 ; une monotone observée n'est pas une distribution de risque (RTE simule des centaines de scénarios climatiques)", "éolien et solaire observés = après écrêtement : aux heures de prix négatif, RN est surestimée", "nucléaire disponible DÉCLARÉ (REMIT), pas une capacité physique garantie ; réserves de services système comprises", "hydraulique de lac et STEP : contraintes d'énergie (stock) ; leur puissance n'est pas disponible à toute heure", "les imports ne sont pas une marge ferme (vagues de froid communes à l'Europe)", "pointe horaire ≠ pointe à la demi-heure ou au quart d'heure ; consommation hors Corse"],
-  "jeu_nucleaire": ["borne haute : une partie du nucléaire disponible est réservée aux services système (réserves primaire et secondaire), elle n'est pas mobilisable pour une charge ajoutée", "plancher : J ne tombe pas à zéro, même aux heures les plus chères (réserves, rampes de redémarrage, fins de cycle, décalage entre déclaration et puissance réelle) ; cette part n'est pas mobilisable. `part_dans_j_plancher` retranche à J un plancher uniforme (`PLANCHER_J_MW`, hypothèse du site) ; `jeu_nucleaire.prix_chers` donne J moyen aux heures où le prix dépasse `SEUIL_PRIX_CHER_EUR_MWH`", "contrainte d'énergie : J est une marge en puissance heure par heure, pas un gisement d'énergie annuel. Le combustible et le calendrier des arrêts plafonnent la production de l'année ; une baisse de production pour économiser le combustible déplace de l'énergie dans le temps. `energie_dans_j_twh` serait du nucléaire produit EN PLUS de la production observée, à comparer aux prévisions de production de l'exploitant et de RTE", "qui servirait la charge ajoutée (nucléaire inemployé, moins d'exports, autres moyens) dépend de la saturation des interconnexions : non déterminable sans les données des voisins", "disponibilité DÉCLARÉE par EDF (REMIT) : la frontière entre indisponibilité et modulation est fixée par EDF ; un arrêt pour économie de combustible peut être déclaré indisponible et sortir de J", "J n'est pas la « modulation » publiée par EDF ou RTE (périmètre et méthode différents) : seul l'ordre de grandeur se compare", "plancher, chiffré (2025) : J moyen 0,54 GW aux 278 heures où le prix day-ahead dépasse 150 EUR/MWh (seuil choisi par le site) ; avec un plancher de 1,0 GW, la part tenue pour 5 GW passe de 52 % à 39 %", "énergie, chiffrée (2025) : 5 GW plats tenus dans J, ce serait 22,8 TWh de nucléaire en plus de la production observée (372,9 TWh, somme éCO2mix), soit 396 TWh sur l'année, à comparer aux prévisions de production (référentiel : prod_nucleaire_prevision_*)"],
-  "charges_plates": ["heures_rn_plus_x_au_dessus_du_max compte des heures au-delà du maximum OBSERVÉ de l'année : un écart à l'observé, pas une défaillance ni un risque de défaillance. Le seuil est UNE heure : le compte vaut au moins 1 (l'heure du maximum se dépasse elle-même) et dépend de la forme du sommet de la monotone, pas de la tension ; d'où le seuil pluriannuel (heures_rn_plus_x_au_dessus_du_max_reference, maximum 2015-2025, `rn_max_pluriannuel`), que le système a couvert avec d'autres moyens (charbon, imports massifs, prix extrêmes)", "part_dans_j est un plafond (voir limites.jeu_nucleaire), lâche : part_dans_j_plancher en donne la sensibilité à un plancher non mobilisable (hypothèse du site) ; qui servirait le reste de l'énergie dépend de la saturation des interconnexions, non déterminable sans les données des voisins", "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du 26/11/2026, n° 13)"]
+  "charge_residuelle": ["observé, pas simulé : 2015-2025 ne contient aucune vague de froid du type de février 2012 ; une monotone observée n'est pas une distribution de risque (RTE simule des centaines de scénarios climatiques)", "éolien et solaire observés = après écrêtement : aux heures de prix négatif, RN est plus haute que sans la production renoncée", "nucléaire disponible DÉCLARÉ (REMIT), pas une capacité physique garantie ; réserves de services système comprises", "hydraulique de lac et STEP : contraintes d'énergie (stock) ; leur puissance n'est pas disponible à toute heure", "les imports ne sont pas une marge ferme (vagues de froid communes à l'Europe)", "pointe horaire ≠ pointe à la demi-heure ou au quart d'heure ; consommation hors Corse"],
+  "jeu_nucleaire": ["borne haute : une partie du nucléaire disponible est réservée aux services système (réserves primaire et secondaire), elle n'est pas mobilisable pour une charge ajoutée", "plancher : J ne tombe pas à zéro, même aux heures les plus chères (réserves, rampes de redémarrage, fins de cycle, décalage entre déclaration et puissance réelle) ; cette part n'est pas mobilisable. `part_dans_j_plancher` retranche à J un plancher uniforme (`PLANCHER_J_MW`, hypothèse du site) ; `jeu_nucleaire.prix_chers` donne J moyen aux heures où le prix dépasse `SEUIL_PRIX_CHER_EUR_MWH`", "contrainte d'énergie : J est une marge en puissance heure par heure, pas un gisement d'énergie annuel. Le combustible et le calendrier des arrêts plafonnent la production de l'année ; une baisse de production pour économiser le combustible déplace de l'énergie dans le temps. `energie_dans_j_twh` serait du nucléaire produit EN PLUS de la production observée, à comparer aux prévisions de production de l'exploitant et de RTE", "qui servirait la charge ajoutée (nucléaire inemployé, moins d'exports, autres moyens) dépend de la saturation des interconnexions : non déterminable sans les données des voisins", "disponibilité DÉCLARÉE par EDF (REMIT) : la frontière entre indisponibilité et modulation est fixée par EDF. Depuis 2019, EDF déclare indisponibles des arrêts et baisses « pour modulation », qui sortent de J. J est donc une borne haute AVEC LA DISPONIBILITÉ DÉCLARÉE. Les arrêts courts (moins de 7 jours), décidés au jour le jour (« la tranche sera redémarrée si les conditions économiques le justifient »), sont économiques : `jeu_nucleaire_reintegre` recalcule J en les réintégrant (J_r ≥ J), sensibilité au choix de déclaration d'EDF, pas une capacité physique. Les arrêts longs pour modulation (une semaine à plusieurs mois, souvent annoncés des semaines ou des mois à l'avance) et les arrêts pour économie de combustible peuvent relever de la gestion du combustible : ils restent retranchés", "J n'est pas la « modulation » publiée par EDF ou RTE (périmètre et méthode différents) : seul l'ordre de grandeur se compare", "plancher, chiffré (2025) : J moyen 0,54 GW aux 278 heures où le prix day-ahead dépasse 150 EUR/MWh (seuil choisi par le site) ; avec un plancher de 1,0 GW, la part tenue pour 5 GW passe de 52 % à 39 %", "disponibilité déclarée, chiffrée (2025) : les arrêts qu'EDF déclare indisponibles pour modulation retirent 3,9 TWh à la disponibilité pour les arrêts courts, 3,9 TWh pour les arrêts longs (gestion du combustible, non réintégrés) ; en réintégrant les courts, Σ J passe de 29,1 à 33,0 TWh et la part tenue pour 5 GW de 52 % à 55 % (39 % à 43 % avec le plancher)", "énergie, chiffrée (2025) : 5 GW plats tenus dans J, ce serait 22,8 TWh de nucléaire en plus de la production observée (372,9 TWh, somme éCO2mix), soit 396 TWh sur l'année, à comparer aux prévisions de production (référentiel : prod_nucleaire_prevision_*) ; en réintégrant les arrêts courts pour modulation, 24,1 TWh en plus, soit 397 TWh : la contrainte d'énergie reste la limite nette"],
+  "charges_plates": ["heures_rn_plus_x_au_dessus_du_max compte des heures au-delà du maximum OBSERVÉ de l'année : un écart à l'observé, pas une défaillance ni un risque de défaillance. Le seuil est UNE heure : le compte vaut au moins 1 (l'heure du maximum se dépasse elle-même) et dépend de la forme du sommet de la monotone, pas de la tension ; d'où le seuil pluriannuel (heures_rn_plus_x_au_dessus_du_max_reference, maximum 2015-2025, `rn_max_pluriannuel`), que le système a couvert avec d'autres moyens (charbon, imports massifs, prix extrêmes)", "part_dans_j est un plafond AVEC LA DISPONIBILITÉ DÉCLARÉE PAR EDF (voir limites.jeu_nucleaire), lâche : part_dans_j_plancher en donne la sensibilité à un plancher non mobilisable (hypothèse du site) ; jeu_nucleaire_reintegre.charges_plates, la valeur en réintégrant les arrêts qu'EDF déclare indisponibles pour modulation ; qui servirait le reste de l'énergie dépend de la saturation des interconnexions, non déterminable sans les données des voisins", "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du 26/11/2026, n° 13)"]
  },
  "parametres": {
   "charges_plates_mw": [500, 1000, 2000, 5000, 10000, 15000, 20000],
@@ -40,12 +41,21 @@
   "plancher_j_mw": "1000 : HYPOTHÈSE DU SITE, retranchée à J pour part_dans_j_plancher et energie_dans_j_plancher_twh (J' = max(0, J − plancher))",
   "seuil_prix_cher_eur_mwh": "150 : CHOISI PAR LE SITE ; jeu_nucleaire.prix_chers = J moyen aux heures où le prix day-ahead est strictement supérieur",
   "rn_max_reference": "maximum de RN sur les années pleines (rn_max_pluriannuel) ; heures_rn_plus_x_au_dessus_du_max_reference = heures où RN + X le dépasse (strictement)",
-  "production_nucleaire_twh": "somme de la production nucléaire éCO2mix de l'année (MW moyens horaires × 1 h)"
+  "production_nucleaire_twh": "somme de la production nucléaire éCO2mix de l'année (MW moyens horaires × 1 h)",
+  "froid": "épisode de froid du simulateur (quand.episode_froid : les 168 heures consécutives de charge résiduelle observée moyenne la plus élevée) et consommation horaire maximale dans l'épisode et hors de l'épisode ; avec F °C et un gradient G, maximum du scénario = max(épisode + F × G, hors épisode)",
+  "consommation_max_pluriannuelle": "consommation horaire maximale (MW moyens sur l'heure, hors Corse) sur les années pleines ; repère de la limite « froid extrême », à comparer à la pointe historique de février 2012, publiée à la demi-heure"
  },
  "rn_max_pluriannuel": {
   "valeur_mw": 38582,
   "heure_utc": "2018-02-27T18:00Z",
   "debut_paris": "2018-02-27T19:00+01:00",
+  "annee": "2018",
+  "annees": "2015-2025"
+ },
+ "consommation_max_pluriannuelle": {
+  "valeur_mw": 95699,
+  "heure_utc": "2018-02-28T10:00Z",
+  "debut_paris": "2018-02-28T11:00+01:00",
   "annee": "2018",
   "annees": "2015-2025"
  },
@@ -945,7 +955,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": null,
     "j_moyenne_prix_negatif_mw": null
    },
-   "production_nucleaire_twh": 416.3594
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 25.3011,
+    "heures_positif": 8755,
+    "moyenne_mw": 2889,
+    "arrets_modulation_courts_twh": 0.0,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.326,
+      "part_dans_j": 0.9879,
+      "heures_j_superieur_ou_egal_x": 8368,
+      "energie_dans_j_plancher_twh": 3.4914,
+      "part_dans_j_plancher": 0.7973
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 8.2902,
+      "part_dans_j": 0.9466,
+      "heures_j_superieur_ou_egal_x": 7481,
+      "energie_dans_j_plancher_twh": 6.4929,
+      "part_dans_j_plancher": 0.7414
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 14.7832,
+      "part_dans_j": 0.844,
+      "heures_j_superieur_ou_egal_x": 5493,
+      "energie_dans_j_plancher_twh": 10.7425,
+      "part_dans_j_plancher": 0.6133
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 22.9068,
+      "part_dans_j": 0.5231,
+      "heures_j_superieur_ou_egal_x": 1123,
+      "energie_dans_j_plancher_twh": 15.5258,
+      "part_dans_j_plancher": 0.3546
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 25.1768,
+      "part_dans_j": 0.2875,
+      "heures_j_superieur_ou_egal_x": 107,
+      "energie_dans_j_plancher_twh": 16.9626,
+      "part_dans_j_plancher": 0.1937
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 25.3011,
+      "part_dans_j": 0.1926,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 17.0109,
+      "part_dans_j_plancher": 0.1295
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 25.3011,
+      "part_dans_j": 0.1444,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 17.0109,
+      "part_dans_j_plancher": 0.0971
+     }
+    ],
+    "arrets_modulation_longs_twh": 0.0
+   },
+   "production_nucleaire_twh": 416.3594,
+   "froid": {
+    "episode_debut_utc": "2015-02-02T12:00Z",
+    "episode_fin_utc": "2015-02-09T11:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 91542,
+    "consommation_max_hors_episode_mw": 85852
+   }
   },
   "2016": {
    "heures": 8784,
@@ -1759,7 +1842,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -6362,
     "j_moyenne_prix_negatif_mw": 8787
    },
-   "production_nucleaire_twh": 383.6235
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8782,
+    "somme_twh": 17.6044,
+    "heures_positif": 8700,
+    "moyenne_mw": 2005,
+    "arrets_modulation_courts_twh": 0.0,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.2331,
+      "part_dans_j": 0.964,
+      "heures_j_superieur_ou_egal_x": 8091,
+      "energie_dans_j_plancher_twh": 2.9671,
+      "part_dans_j_plancher": 0.6757
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.9333,
+      "part_dans_j": 0.9034,
+      "heures_j_superieur_ou_egal_x": 6702,
+      "energie_dans_j_plancher_twh": 5.0696,
+      "part_dans_j_plancher": 0.5773
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 13.0029,
+      "part_dans_j": 0.7403,
+      "heures_j_superieur_ou_egal_x": 3365,
+      "energie_dans_j_plancher_twh": 7.3515,
+      "part_dans_j_plancher": 0.4186
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 16.8181,
+      "part_dans_j": 0.383,
+      "heures_j_superieur_ou_egal_x": 391,
+      "energie_dans_j_plancher_twh": 9.2048,
+      "part_dans_j_plancher": 0.2096
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 17.5827,
+      "part_dans_j": 0.2002,
+      "heures_j_superieur_ou_egal_x": 21,
+      "energie_dans_j_plancher_twh": 9.6669,
+      "part_dans_j_plancher": 0.1101
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 17.6044,
+      "part_dans_j": 0.1336,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 9.6711,
+      "part_dans_j_plancher": 0.0734
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 17.6044,
+      "part_dans_j": 0.1002,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 9.6711,
+      "part_dans_j_plancher": 0.0551
+     }
+    ],
+    "arrets_modulation_longs_twh": 0.0
+   },
+   "production_nucleaire_twh": 383.6235,
+   "froid": {
+    "episode_debut_utc": "2016-11-29T06:00Z",
+    "episode_fin_utc": "2016-12-06T05:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 81466,
+    "consommation_max_hors_episode_mw": 87944
+   }
   },
   "2017": {
    "heures": 8760,
@@ -2571,7 +2727,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -9598,
     "j_moyenne_prix_negatif_mw": 9880
    },
-   "production_nucleaire_twh": 378.7983
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 16.2786,
+    "heures_positif": 8635,
+    "moyenne_mw": 1859,
+    "arrets_modulation_courts_twh": 0.0,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.1635,
+      "part_dans_j": 0.9508,
+      "heures_j_superieur_ou_egal_x": 7847,
+      "energie_dans_j_plancher_twh": 2.7792,
+      "part_dans_j_plancher": 0.6347
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.7277,
+      "part_dans_j": 0.8824,
+      "heures_j_superieur_ou_egal_x": 6367,
+      "energie_dans_j_plancher_twh": 4.7378,
+      "part_dans_j_plancher": 0.541
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 12.4655,
+      "part_dans_j": 0.7117,
+      "heures_j_superieur_ou_egal_x": 3214,
+      "energie_dans_j_plancher_twh": 6.8894,
+      "part_dans_j_plancher": 0.3933
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 15.8856,
+      "part_dans_j": 0.3628,
+      "heures_j_superieur_ou_egal_x": 254,
+      "energie_dans_j_plancher_twh": 8.3345,
+      "part_dans_j_plancher": 0.1903
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 16.2655,
+      "part_dans_j": 0.1857,
+      "heures_j_superieur_ou_egal_x": 15,
+      "energie_dans_j_plancher_twh": 8.5478,
+      "part_dans_j_plancher": 0.0976
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 16.2786,
+      "part_dans_j": 0.1239,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 8.5509,
+      "part_dans_j_plancher": 0.0651
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 16.2786,
+      "part_dans_j": 0.0929,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 8.5509,
+      "part_dans_j_plancher": 0.0488
+     }
+    ],
+    "arrets_modulation_longs_twh": 0.0
+   },
+   "production_nucleaire_twh": 378.7983,
+   "froid": {
+    "episode_debut_utc": "2017-01-19T11:00Z",
+    "episode_fin_utc": "2017-01-26T10:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 94162,
+    "consommation_max_hors_episode_mw": 93565
+   }
   },
   "2018": {
    "heures": 8760,
@@ -3383,7 +3612,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -7744,
     "j_moyenne_prix_negatif_mw": 13583
    },
-   "production_nucleaire_twh": 392.9078
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 17.5401,
+    "heures_positif": 8601,
+    "moyenne_mw": 2003,
+    "arrets_modulation_courts_twh": 0.0,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.1198,
+      "part_dans_j": 0.9408,
+      "heures_j_superieur_ou_egal_x": 7819,
+      "energie_dans_j_plancher_twh": 2.9422,
+      "part_dans_j_plancher": 0.6719
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.7487,
+      "part_dans_j": 0.8848,
+      "heures_j_superieur_ou_egal_x": 6627,
+      "energie_dans_j_plancher_twh": 5.0897,
+      "part_dans_j_plancher": 0.5812
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 12.8385,
+      "part_dans_j": 0.733,
+      "heures_j_superieur_ou_egal_x": 3514,
+      "energie_dans_j_plancher_twh": 7.3912,
+      "part_dans_j_plancher": 0.422
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 16.6859,
+      "part_dans_j": 0.381,
+      "heures_j_superieur_ou_egal_x": 403,
+      "energie_dans_j_plancher_twh": 9.2552,
+      "part_dans_j_plancher": 0.2114
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 17.4408,
+      "part_dans_j": 0.1991,
+      "heures_j_superieur_ou_egal_x": 40,
+      "energie_dans_j_plancher_twh": 9.7253,
+      "part_dans_j_plancher": 0.111
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 17.5382,
+      "part_dans_j": 0.1335,
+      "heures_j_superieur_ou_egal_x": 5,
+      "energie_dans_j_plancher_twh": 9.7913,
+      "part_dans_j_plancher": 0.0745
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 17.5401,
+      "part_dans_j": 0.1001,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 9.7913,
+      "part_dans_j_plancher": 0.0559
+     }
+    ],
+    "arrets_modulation_longs_twh": 0.0
+   },
+   "production_nucleaire_twh": 392.9078,
+   "froid": {
+    "episode_debut_utc": "2018-02-22T19:00Z",
+    "episode_fin_utc": "2018-03-01T18:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 95699,
+    "consommation_max_hors_episode_mw": 87470
+   }
   },
   "2019": {
    "heures": 8760,
@@ -4195,7 +4497,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -8632,
     "j_moyenne_prix_negatif_mw": 9339
    },
-   "production_nucleaire_twh": 379.1454
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 19.8517,
+    "heures_positif": 8735,
+    "moyenne_mw": 2267,
+    "arrets_modulation_courts_twh": 1.5341,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.2205,
+      "part_dans_j": 0.9638,
+      "heures_j_superieur_ou_egal_x": 8059,
+      "energie_dans_j_plancher_twh": 3.0056,
+      "part_dans_j_plancher": 0.6864
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.9308,
+      "part_dans_j": 0.9056,
+      "heures_j_superieur_ou_egal_x": 6736,
+      "energie_dans_j_plancher_twh": 5.2281,
+      "part_dans_j_plancher": 0.5969
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 13.1589,
+      "part_dans_j": 0.7513,
+      "heures_j_superieur_ou_egal_x": 3636,
+      "energie_dans_j_plancher_twh": 7.7622,
+      "part_dans_j_plancher": 0.4432
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 17.8726,
+      "part_dans_j": 0.4081,
+      "heures_j_superieur_ou_egal_x": 709,
+      "energie_dans_j_plancher_twh": 10.5532,
+      "part_dans_j_plancher": 0.241
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 19.6375,
+      "part_dans_j": 0.2242,
+      "heures_j_superieur_ou_egal_x": 128,
+      "energie_dans_j_plancher_twh": 11.8082,
+      "part_dans_j_plancher": 0.1348
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 19.85,
+      "part_dans_j": 0.1511,
+      "heures_j_superieur_ou_egal_x": 3,
+      "energie_dans_j_plancher_twh": 11.9208,
+      "part_dans_j_plancher": 0.0907
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 19.8517,
+      "part_dans_j": 0.1133,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 11.9209,
+      "part_dans_j_plancher": 0.0681
+     }
+    ],
+    "arrets_modulation_longs_twh": 0.2223
+   },
+   "production_nucleaire_twh": 379.1454,
+   "froid": {
+    "episode_debut_utc": "2019-11-14T09:00Z",
+    "episode_fin_utc": "2019-11-21T08:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 78669,
+    "consommation_max_hors_episode_mw": 87596
+   }
   },
   "2020": {
    "heures": 8784,
@@ -5009,7 +5384,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -5015,
     "j_moyenne_prix_negatif_mw": 8418
    },
-   "production_nucleaire_twh": 335.1477
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8782,
+    "somme_twh": 22.0175,
+    "heures_positif": 8756,
+    "moyenne_mw": 2507,
+    "arrets_modulation_courts_twh": 1.9999,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.2849,
+      "part_dans_j": 0.9758,
+      "heures_j_superieur_ou_egal_x": 8241,
+      "energie_dans_j_plancher_twh": 3.2542,
+      "part_dans_j_plancher": 0.7411
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 8.1612,
+      "part_dans_j": 0.9293,
+      "heures_j_superieur_ou_egal_x": 7216,
+      "energie_dans_j_plancher_twh": 5.6015,
+      "part_dans_j_plancher": 0.6378
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 13.7627,
+      "part_dans_j": 0.7836,
+      "heures_j_superieur_ou_egal_x": 3903,
+      "energie_dans_j_plancher_twh": 8.4754,
+      "part_dans_j_plancher": 0.4825
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 19.248,
+      "part_dans_j": 0.4384,
+      "heures_j_superieur_ou_egal_x": 876,
+      "energie_dans_j_plancher_twh": 11.8592,
+      "part_dans_j_plancher": 0.2701
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 21.5997,
+      "part_dans_j": 0.246,
+      "heures_j_superieur_ou_egal_x": 193,
+      "energie_dans_j_plancher_twh": 13.5972,
+      "part_dans_j_plancher": 0.1548
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 21.9914,
+      "part_dans_j": 0.1669,
+      "heures_j_superieur_ou_egal_x": 19,
+      "energie_dans_j_plancher_twh": 13.8473,
+      "part_dans_j_plancher": 0.1051
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 22.0175,
+      "part_dans_j": 0.1254,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 13.8563,
+      "part_dans_j_plancher": 0.0789
+     }
+    ],
+    "arrets_modulation_longs_twh": 4.3873
+   },
+   "production_nucleaire_twh": 335.1477,
+   "froid": {
+    "episode_debut_utc": "2020-12-04T13:00Z",
+    "episode_fin_utc": "2020-12-11T12:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 79828,
+    "consommation_max_hors_episode_mw": 83214
+   }
   },
   "2021": {
    "heures": 8760,
@@ -5821,7 +6269,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -9185,
     "j_moyenne_prix_negatif_mw": 8862
    },
-   "production_nucleaire_twh": 360.4295
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 16.4411,
+    "heures_positif": 8750,
+    "moyenne_mw": 1877,
+    "arrets_modulation_courts_twh": 0.4881,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.2902,
+      "part_dans_j": 0.9797,
+      "heures_j_superieur_ou_egal_x": 8116,
+      "energie_dans_j_plancher_twh": 2.7869,
+      "part_dans_j_plancher": 0.6364
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.9494,
+      "part_dans_j": 0.9077,
+      "heures_j_superieur_ou_egal_x": 6464,
+      "energie_dans_j_plancher_twh": 4.6392,
+      "part_dans_j_plancher": 0.5297
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 12.5886,
+      "part_dans_j": 0.7187,
+      "heures_j_superieur_ou_egal_x": 2887,
+      "energie_dans_j_plancher_twh": 6.5375,
+      "part_dans_j_plancher": 0.3732
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 15.7848,
+      "part_dans_j": 0.3605,
+      "heures_j_superieur_ou_egal_x": 324,
+      "energie_dans_j_plancher_twh": 8.1006,
+      "part_dans_j_plancher": 0.185
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 16.4131,
+      "part_dans_j": 0.1874,
+      "heures_j_superieur_ou_egal_x": 28,
+      "energie_dans_j_plancher_twh": 8.4857,
+      "part_dans_j_plancher": 0.0969
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 16.4411,
+      "part_dans_j": 0.1252,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 8.4917,
+      "part_dans_j_plancher": 0.0646
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 16.4411,
+      "part_dans_j": 0.0939,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 8.4917,
+      "part_dans_j_plancher": 0.0485
+     }
+    ],
+    "arrets_modulation_longs_twh": 3.786
+   },
+   "production_nucleaire_twh": 360.4295,
+   "froid": {
+    "episode_debut_utc": "2021-01-04T11:00Z",
+    "episode_fin_utc": "2021-01-11T10:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 87648,
+    "consommation_max_hors_episode_mw": 87697
+   }
   },
   "2022": {
    "heures": 8760,
@@ -6633,7 +7154,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -4289,
     "j_moyenne_prix_negatif_mw": 7100
    },
-   "production_nucleaire_twh": 278.7435
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 14.9227,
+    "heures_positif": 8368,
+    "moyenne_mw": 1704,
+    "arrets_modulation_courts_twh": 1.4842,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 3.9756,
+      "part_dans_j": 0.9079,
+      "heures_j_superieur_ou_egal_x": 7492,
+      "energie_dans_j_plancher_twh": 2.6277,
+      "part_dans_j_plancher": 0.6001
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.4446,
+      "part_dans_j": 0.85,
+      "heures_j_superieur_ou_egal_x": 6228,
+      "energie_dans_j_plancher_twh": 4.3339,
+      "part_dans_j_plancher": 0.4949
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 11.7785,
+      "part_dans_j": 0.6724,
+      "heures_j_superieur_ou_egal_x": 2701,
+      "energie_dans_j_plancher_twh": 6.0175,
+      "part_dans_j_plancher": 0.3435
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 14.4356,
+      "part_dans_j": 0.3297,
+      "heures_j_superieur_ou_egal_x": 222,
+      "energie_dans_j_plancher_twh": 7.1622,
+      "part_dans_j_plancher": 0.1636
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 14.8669,
+      "part_dans_j": 0.1698,
+      "heures_j_superieur_ou_egal_x": 31,
+      "energie_dans_j_plancher_twh": 7.4474,
+      "part_dans_j_plancher": 0.085
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 14.9227,
+      "part_dans_j": 0.1136,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 7.4782,
+      "part_dans_j_plancher": 0.0569
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 14.9227,
+      "part_dans_j": 0.0852,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 7.4782,
+      "part_dans_j_plancher": 0.0427
+     }
+    ],
+    "arrets_modulation_longs_twh": 5.3292
+   },
+   "production_nucleaire_twh": 278.7435,
+   "froid": {
+    "episode_debut_utc": "2022-12-07T15:00Z",
+    "episode_fin_utc": "2022-12-14T14:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 83577,
+    "consommation_max_hors_episode_mw": 86726
+   }
   },
   "2023": {
    "heures": 8760,
@@ -7445,7 +8039,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -5456,
     "j_moyenne_prix_negatif_mw": 7466
    },
-   "production_nucleaire_twh": 320.1395
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8758,
+    "somme_twh": 19.1263,
+    "heures_positif": 8596,
+    "moyenne_mw": 2184,
+    "arrets_modulation_courts_twh": 0.7995,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.0773,
+      "part_dans_j": 0.9311,
+      "heures_j_superieur_ou_egal_x": 7707,
+      "energie_dans_j_plancher_twh": 2.8976,
+      "part_dans_j_plancher": 0.6617
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.6638,
+      "part_dans_j": 0.8751,
+      "heures_j_superieur_ou_egal_x": 6538,
+      "energie_dans_j_plancher_twh": 4.942,
+      "part_dans_j_plancher": 0.5643
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 12.6058,
+      "part_dans_j": 0.7197,
+      "heures_j_superieur_ou_egal_x": 3329,
+      "energie_dans_j_plancher_twh": 7.3252,
+      "part_dans_j_plancher": 0.4182
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 17.2165,
+      "part_dans_j": 0.3932,
+      "heures_j_superieur_ou_egal_x": 775,
+      "energie_dans_j_plancher_twh": 10.2128,
+      "part_dans_j_plancher": 0.2332
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 18.9753,
+      "part_dans_j": 0.2167,
+      "heures_j_superieur_ou_egal_x": 93,
+      "energie_dans_j_plancher_twh": 11.3793,
+      "part_dans_j_plancher": 0.1299
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 19.1263,
+      "part_dans_j": 0.1456,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 11.4626,
+      "part_dans_j_plancher": 0.0873
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 19.1263,
+      "part_dans_j": 0.1092,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 11.4626,
+      "part_dans_j_plancher": 0.0654
+     }
+    ],
+    "arrets_modulation_longs_twh": 2.9292
+   },
+   "production_nucleaire_twh": 320.1395,
+   "froid": {
+    "episode_debut_utc": "2023-01-19T03:00Z",
+    "episode_fin_utc": "2023-01-26T02:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 82826,
+    "consommation_max_hors_episode_mw": 81369
+   }
   },
   "2024": {
    "heures": 8784,
@@ -8264,7 +8931,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -8358,
     "j_moyenne_prix_negatif_mw": 9409
    },
-   "production_nucleaire_twh": 361.6224
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8782,
+    "somme_twh": 28.2556,
+    "heures_positif": 8778,
+    "moyenne_mw": 3217,
+    "arrets_modulation_courts_twh": 3.136,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.3172,
+      "part_dans_j": 0.9832,
+      "heures_j_superieur_ou_egal_x": 8271,
+      "energie_dans_j_plancher_twh": 3.0897,
+      "part_dans_j_plancher": 0.7037
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 8.076,
+      "part_dans_j": 0.9196,
+      "heures_j_superieur_ou_egal_x": 6754,
+      "energie_dans_j_plancher_twh": 5.6161,
+      "part_dans_j_plancher": 0.6395
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 13.6921,
+      "part_dans_j": 0.7796,
+      "heures_j_superieur_ou_egal_x": 4522,
+      "energie_dans_j_plancher_twh": 9.3173,
+      "part_dans_j_plancher": 0.5305
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 21.8302,
+      "part_dans_j": 0.4972,
+      "heures_j_superieur_ou_egal_x": 1630,
+      "energie_dans_j_plancher_twh": 15.1947,
+      "part_dans_j_plancher": 0.346
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 26.6363,
+      "part_dans_j": 0.3033,
+      "heures_j_superieur_ou_egal_x": 510,
+      "energie_dans_j_plancher_twh": 19.0084,
+      "part_dans_j_plancher": 0.2164
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 28.0383,
+      "part_dans_j": 0.2128,
+      "heures_j_superieur_ou_egal_x": 126,
+      "energie_dans_j_plancher_twh": 20.0647,
+      "part_dans_j_plancher": 0.1523
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 28.2556,
+      "part_dans_j": 0.1609,
+      "heures_j_superieur_ou_egal_x": 0,
+      "energie_dans_j_plancher_twh": 20.1796,
+      "part_dans_j_plancher": 0.1149
+     }
+    ],
+    "arrets_modulation_longs_twh": 7.2991
+   },
+   "production_nucleaire_twh": 361.6224,
+   "froid": {
+    "episode_debut_utc": "2024-01-08T11:00Z",
+    "episode_fin_utc": "2024-01-15T10:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 84681,
+    "consommation_max_hors_episode_mw": 82728
+   }
   },
   "2025": {
    "heures": 8760,
@@ -9081,7 +9821,80 @@
     "rn_moyenne_prix_nul_ou_negatif_mw": -11116,
     "j_moyenne_prix_negatif_mw": 9169
    },
-   "production_nucleaire_twh": 372.9099
+   "jeu_nucleaire_reintegre": {
+    "heures_valides": 8757,
+    "somme_twh": 33.0089,
+    "heures_positif": 8574,
+    "moyenne_mw": 3769,
+    "arrets_modulation_courts_twh": 3.8654,
+    "charges_plates": [
+     {
+      "x_mw": 500,
+      "energie_dans_j_twh": 4.0989,
+      "part_dans_j": 0.9361,
+      "heures_j_superieur_ou_egal_x": 7621,
+      "energie_dans_j_plancher_twh": 3.0768,
+      "part_dans_j_plancher": 0.7027
+     },
+     {
+      "x_mw": 1000,
+      "energie_dans_j_twh": 7.617,
+      "part_dans_j": 0.8698,
+      "heures_j_superieur_ou_egal_x": 6545,
+      "energie_dans_j_plancher_twh": 5.8199,
+      "part_dans_j_plancher": 0.6646
+     },
+     {
+      "x_mw": 2000,
+      "energie_dans_j_twh": 13.4369,
+      "part_dans_j": 0.7672,
+      "heures_j_superieur_ou_egal_x": 5186,
+      "energie_dans_j_plancher_twh": 10.3548,
+      "part_dans_j_plancher": 0.5912
+     },
+     {
+      "x_mw": 5000,
+      "energie_dans_j_twh": 24.1374,
+      "part_dans_j": 0.5513,
+      "heures_j_superieur_ou_egal_x": 2374,
+      "energie_dans_j_plancher_twh": 18.6195,
+      "part_dans_j_plancher": 0.4252
+     },
+     {
+      "x_mw": 10000,
+      "energie_dans_j_twh": 30.9796,
+      "part_dans_j": 0.3538,
+      "heures_j_superieur_ou_egal_x": 699,
+      "energie_dans_j_plancher_twh": 23.98,
+      "part_dans_j_plancher": 0.2738
+     },
+     {
+      "x_mw": 15000,
+      "energie_dans_j_twh": 32.8105,
+      "part_dans_j": 0.2498,
+      "heures_j_superieur_ou_egal_x": 117,
+      "energie_dans_j_plancher_twh": 25.2791,
+      "part_dans_j_plancher": 0.1924
+     },
+     {
+      "x_mw": 20000,
+      "energie_dans_j_twh": 33.0081,
+      "part_dans_j": 0.1885,
+      "heures_j_superieur_ou_egal_x": 3,
+      "energie_dans_j_plancher_twh": 25.3919,
+      "part_dans_j_plancher": 0.145
+     }
+    ],
+    "arrets_modulation_longs_twh": 3.9486
+   },
+   "production_nucleaire_twh": 372.9099,
+   "froid": {
+    "episode_debut_utc": "2025-01-13T17:00Z",
+    "episode_fin_utc": "2025-01-20T16:00Z",
+    "heures": 168,
+    "consommation_max_episode_mw": 87438,
+    "consommation_max_hors_episode_mw": 82749
+   }
   }
  },
  "matrices_rn": {

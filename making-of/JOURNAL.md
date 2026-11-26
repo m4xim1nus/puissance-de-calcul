@@ -651,3 +651,78 @@ session 1, la relecture du contexte en cache domine.
   Recours proposés si un jeu le justifie un jour : agrégats, lien,
   autorisation, annexe privée en dernier ressort. Plan inchangé ;
   l'auteur : *« ok, continue le plan »* ;
+- **limites de « Quand ? »** (point 3 de la roadmap) : agent Opus
+  lancé pour le froid extrême (pointe record et gradient de
+  thermosensibilité sourcés chez RTE, réglage « vague de froid » dans le
+  simulateur), l'écrêtement (borne calculée par le site) et le plancher
+  nucléaire en réglage ; relecture adverse prévue avant publication ;
+- **question de l'auteur** (citée telle quelle) : *« ça fait donc 2
+  enquêtes bridées par la licence ? Possible que ces enquêtes soient
+  cachées derrière un mdp perso juste pour moi : le site reste top en
+  public, mais avec le mdp il va plus loin ? Où en fait, ce qu'on rate
+  avec pieds nuage et prix/production/consommation est négligeable ? »*.
+  Explicitation : « pieds nuage » désigne la carte « Le nuage était sous
+  nos pieds ». Réponse de Claude : aucune enquête n'est bridée. Pour le
+  carbone, on publie des résultats calculés à partir des séries
+  ENTSO-E, pas les séries brutes des voisins. Pour « Où ? », les sources
+  primaires de la carte sont publiques, on perd du temps de collecte, pas
+  du contenu. Un usage réservé à l'auteur est déjà possible en local,
+  sans mot de passe. L'auteur : *« ok, choix compris & validé, continue
+  le plan »* ;
+- **spike carbone** lancé (agent Opus, `docs/spike/carbone.md`) :
+  état de l'art moyen / marginal, méthodes faisables avec éCO2mix et
+  ENTSO-E, prototypes jetables, proposition d'indicateurs compatibles
+  avec la licence (agrégats seulement) ;
+- **spike carbone rendu** (`docs/spike/carbone.md`, non relu de façon
+  adverse) : aucun facteur marginal français récent publié ; méthode
+  proposée : un plancher mesuré en France (0,06 à 0,10 tCO2eq/MWh pour
+  1 MW de plus en 2023-2025, selon le spike, à vérifier) et des cas
+  bornés pour les exportations perdues ; les émissions chez les voisins
+  ne sont pas robustes (trois méthodes, de 0,08 à 0,90 t/MWh). Il signale
+  que la disponibilité nucléaire déclarée par EDF contient des arrêts
+  « pour modulation ». Claude le vérifie dans le fichier d'EDF : c'est
+  exact, et cela touche « Quand ? », déjà publiée (erreur consignée,
+  correction inscrite en priorité à la roadmap) ;
+- **limites de « Quand ? » rendues** (agent Opus,
+  `docs/relectures/2026-11-26-limites-agent.md`) : pointe record de
+  février 2012 (102 098 MW) et gradient de 2 400 MW/°C saisis depuis
+  RTE ; réglage « froid supplémentaire » appliqué aux 7 jours les plus
+  tendus de l'année observée ; écrêtement estimé (5,8 GW en moyenne aux
+  heures à prix négatif de 2025, borne haute) ; plancher nucléaire
+  réglable de 0 à 3 GW. Doute signalé par l'agent : à 8 °C de froid
+  supplémentaire, la consommation maximale dépasse le record de 2012
+  dans 7 années sur 11 (double compte du froid déjà présent, gradient
+  linéaire). Non publié : relecture adverse à venir, commune avec la
+  correction des arrêts pour modulation, confiée à un agent Opus sur les
+  mêmes fichiers ;
+- **arrêts pour modulation** (agent Opus,
+  `docs/relectures/2026-11-26-modulation-agent.md`) : 407 événements
+  identifiés (règle testée), variante J_r et 88 chiffres ajoutés, aucun
+  chiffre publié modifié, « au plus » requalifié dans « Quand ? », le
+  simulateur, les notes et le graphique ; 29 contrôles, 185 tests du
+  pipeline, 173 du site. Claude recoupe avec son estimation (10,4 contre
+  ≈ 10 TWh en 2024) et requalifie lui-même le message d'accueil (« au
+  plus 52 % selon la disponibilité déclarée par EDF ; 58 % en
+  réintégrant les arrêts pour modulation »). Deux erreurs de plus
+  consignées (note des exports, décompte du spike) ;
+- **relecture adverse des limites et de la modulation**
+  (`docs/relectures/2026-11-26-limites-modulation.md`) : publiable après
+  trois corrections de fond. Repère de froid démenti par sa source, arrêts
+  longs réintégrés comme réversibles, tournure de l'accueil. Claude
+  vérifie les deux premiers à la source. Erreur consignée. Corrections
+  renvoyées à l'agent de la modulation ; l'accueil est corrigé par
+  Claude ;
+- **corrections et vérification** : l'agent de la modulation traite
+  F1, F2 et la forme. Les arrêts courts pour modulation (moins de 7
+  jours, sans mention du combustible) sont réintégrés, les longs
+  retranchés : J_r 2025 = 33,0 TWh, part 5 GW 55 % (43 % avec le
+  plancher). Les repères de froid sont exprimés en consommation (5,5 °C
+  de froid supplémentaire pour atteindre 100 GW en 2025). Claude réécrit
+  le paragraphe d'accueil (F3). Vérification des corrections par la
+  relectrice : publiable après une dernière correction, « relèvent de la
+  gestion du combustible » écrit comme un fait alors que personne n'a lu
+  les messages d'EDF. Claude la fait partout (sources, phrases du
+  simulateur, notes générées), relance `pc build` : 29 contrôles,
+  187 tests du pipeline, 173 du site. Un champ « Révision » ajouté par
+  Claude à une erreur du registre cassait son format imposé, et le test
+  de fidélité l'a vu : fondu dans « Correction » ;

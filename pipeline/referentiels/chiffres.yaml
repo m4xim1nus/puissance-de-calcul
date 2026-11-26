@@ -920,6 +920,141 @@ chiffres:
         independant: false
     verification: contre-verification
 
+  # ------------------------------------------------------- froid extrême
+  # Saisis le 26/11/2026 par un agent (rapport docs/relectures/2026-11-26-limites-agent.md),
+  # passages relus dans les PDF et dans l'API ODRÉ ; contre-vérification à faire avant publication.
+
+  pointe_conso_record_2012:
+    libelle: Pointe historique de consommation d'électricité (vague de froid de février 2012)
+    valeur: 102.1
+    unite: GW
+    precision: 0.1
+    grandeur: pointe_consommation
+    periode: 2012-02-08, 19 h
+    perimetre: consommation France continentale hors Corse (éCO2mix national), point demi-horaire de données définitives horodaté 19 h 00, heure de Paris (18 h 00 UTC), soit la demi-heure qui se termine à 19 h selon la convention d'horodatage retenue par le site ; 102 098 MW, arrondi au dixième de GW
+    source: rte-eco2mix-odre
+    page: jeu eco2mix-national-cons-def, enregistrement date_heure 2012-02-08T18:00:00+00:00 (API ODRÉ, tri par consommation décroissante sur tout le jeu, 2012 à 2026)
+    citation: "date_heure : 2012-02-08T18:00:00+00:00 ; consommation : 102098 ; nature : Données définitives — valeur la plus élevée de tout le jeu ; suivie de 101 201 MW à 18 h 30 UTC le même jour"
+    confiance: B
+    recoupements:
+      - source: rte-hiver-2024-2025
+        valeur: « vague de froid de février 2012 (températures moyennes France inférieures de 8 °C à la normale saisonnière durant une vague de froid longue, ayant conduit à une pointe historique de consommation de 102 GW) » (p. 18)
+        note: même éditeur ; ni date, ni heure, ni périmètre
+        independant: false
+      - source: rte-hiver-2018-2019
+        valeur: « une valeur proche du pic historique de consommation à 102 000 MW » (p. 4), figure « Les 3 pointes historiques de consommation électrique en France » (2012)
+        note: même éditeur
+        independant: false
+      - source: cre-2012-pics-prix
+        valeur: « Le 8 février, soit la veille du pic de prix, le pic de consommation est atteint avec 102,1 GW pour la pointe du soir. » (p. 1)
+        note: autre éditeur, mais même donnée (comptage de RTE) ; pas un recoupement indépendant
+        independant: false
+    verification: spike
+    note: une pointe à la demi-heure, plus haute que la moyenne horaire de la même soirée (le site calcule à l'heure) ; observée avec le parc et les usages de 2012
+
+  pointe_froids_2010_hiver_2026_2027:
+    libelle: Pointe de consommation de l'hiver 2026-2027 estimée par RTE avec la météo des vagues de froid du début des années 2010 (borne supérieure)
+    valeur: 100
+    unite: GW
+    grandeur: pointe_consommation
+    periode: hiver 2026-2027 (prévision)
+    perimetre: "pointes de consommation de la France simulées par RTE pour l'hiver 2026-2027 avec des conditions météorologiques similaires aux vagues de froid du début des années 2010 ; « sensiblement inférieures » à cette valeur, « sauf cas très exceptionnels » ; une borne, pas une estimation centrale"
+    source: rte-hiver-2026-2027
+    page: p. 14
+    citation: "« À titre d'exemple, même en simulant des conditions météorologiques similaires aux vagues de froid du début des années 2010 (qui conduisaient alors à des pointes de consommation supérieures à 90 GW), les pointes de consommation pour l'hiver 2026-2027 devraient rester sensiblement inférieures à 100 GW (sauf cas très exceptionnels) et seraient a priori largement couvertes par le parc de production français et les capacités d'imports disponibles. »"
+    confiance: B
+    recoupements:
+      - source: rte-hiver-2024-2025
+        valeur: "« dans des conditions météorologiques similaires à la vague de froid de février 2012 […], la pointe de demande électrique devrait demeurer sensiblement inférieure à 100 GW cet hiver » (p. 18, hiver 2024-2025)"
+        note: même éditeur, autre hiver, même ordre de grandeur
+        independant: false
+    verification: contre-verification
+    note: "pointe (pas de pas de temps précisé), estimée par simulation sur le système de l'hiver 2026-2027 ; la synthèse ajoute qu'« une pointe de plus de 100 GW en France, telle qu'observée en 2012, ne se matérialiserait qu'en cas de vague de froid très extrême » (p. 7) ; repère du simulateur, qui ajoute des degrés à une année observée sans simuler de météo"
+
+  pointe_conso_record_2012_horaire:
+    libelle: Consommation horaire maximale de 2012 (moyenne des deux demi-heures de l'heure)
+    valeur: 100.6
+    unite: GW
+    precision: 0.1
+    grandeur: pointe_consommation
+    periode: 2012-02-08, 18 h-19 h (heure de Paris)
+    perimetre: "consommation France continentale hors Corse (éCO2mix national, données définitives) ; moyenne des points demi-horaires de 17 h 30 et 18 h 00 UTC, selon la convention horaire du site (heure h = moyenne des points h:30 et h+1:00) : même pas de temps que le simulateur"
+    source: rte-eco2mix-odre
+    page: jeu eco2mix-national-cons-def, enregistrements du 2012-02-08 de 16 h 00 à 20 h 00 UTC (API ODRÉ, requête du 26/11/2026)
+    citation: "17:30 UTC : 99 166 MW ; 18:00 UTC : 102 098 MW ; 18:30 UTC : 101 201 MW ; 19:00 UTC : 99 330 MW — (99 166 + 102 098) / 2 = 100 632 MW (calcul du site) ; heure suivante : (101 201 + 99 330) / 2 = 100 266 MW"
+    confiance: B
+    verification: spike
+    note: "maximum de l'année : les douze points demi-horaires les plus hauts de 2012 (requête triée du même jeu) ne laissent aucune autre heure au-dessus de 100 GW ; la pointe à la demi-heure, 102,1 GW, est plus haute de 1,5 GW"
+
+  froid_2012_ecart_normale:
+    libelle: Écart des températures à la normale saisonnière pendant la vague de froid de février 2012
+    valeur: 8
+    unite: °C
+    grandeur: ecart_temperature
+    periode: février 2012 (vague de froid)
+    perimetre: « températures moyennes France », sous la normale saisonnière, pendant la vague de froid ; RTE ne précise ni les dates ni la durée de l'épisode
+    source: rte-hiver-2024-2025
+    page: p. 18
+    citation: "« À titre d'exemple, dans des conditions météorologiques similaires à la vague de froid de février 2012 (températures moyennes France inférieures de 8 °C à la normale saisonnière durant une vague de froid longue, ayant conduit à une pointe historique de consommation de 102 GW), la pointe de demande électrique devrait demeurer sensiblement inférieure à 100 GW cet hiver et pourrait ainsi être satisfaite par le parc de production français et les capacités d'imports du pays. »"
+    confiance: B
+    verification: spike
+    note: "RTE ne précise pas sur quelle période porte cet écart (moyenne de l'épisode ou jours les plus froids) ; vague de froid « longue » ; la même phrase conclut qu'un tel froid donnerait, sur le système de l'hiver 2024-2025, une pointe « sensiblement inférieure à 100 GW » : ces degrés sous les normales ne sont pas des degrés à ajouter à une année observée"
+
+  froid_decennal_ecart_normale:
+    libelle: Écart à la normale d'une vague de froid décennale, selon RTE
+    valeur: 6.5
+    unite: °C
+    grandeur: ecart_temperature
+    periode: hiver 2018-2019 (repère de prévision)
+    perimetre: températures en moyenne sous les normales de saison, en janvier et février ; repère de RTE pour la pointe de consommation (100 000 MW) de l'hiver 2018-2019
+    source: rte-hiver-2018-2019
+    page: p. 4
+    citation: « 100 000 MW en cas de vague de froid décennale à 6,5°C en moyenne sous les normales de saison en janvier et février, au coeur de l'hiver »
+    confiance: B
+    verification: spike
+    note: "trois repères dans le même passage : « 85 000 MW aux températures moyennes de saison », 100 000 MW (décennale), « 109 000 MW en cas de vague de froid centennale à 12°C en moyenne sous les normales »"
+
+  froid_centennal_ecart_normale:
+    libelle: Écart à la normale d'une vague de froid centennale, selon RTE
+    valeur: 12
+    unite: °C
+    grandeur: ecart_temperature
+    periode: hiver 2018-2019 (repère de prévision)
+    perimetre: températures en moyenne sous les normales de saison, en janvier et février ; repère de RTE pour la pointe de consommation (109 000 MW) de l'hiver 2018-2019
+    source: rte-hiver-2018-2019
+    page: p. 4
+    citation: « 109 000 MW en cas de vague de froid centennale à 12°C en moyenne sous les normales de saison en janvier et février, au coeur de l'hiver »
+    confiance: B
+    verification: spike
+    note: "avec les deux autres repères du passage (85 000 MW à températures de saison, 100 000 MW à 6,5 °C sous les normales), la pointe gagne environ 2,3 GW par degré jusqu'au froid décennal et 1,6 GW par degré au-delà (calcul du site) : moins que le gradient moyen de 2 400 MW/°C"
+
+  thermosensibilite_hiver_rte:
+    libelle: Gradient hivernal de la consommation d'électricité (hausse par degré de baisse de la température)
+    valeur: 2400
+    unite: MW/°C
+    grandeur: gradient_thermosensibilite
+    periode: estimation de 2022 (« aujourd'hui », pour l'hiver 2022-2023)
+    perimetre: consommation française en hiver ; « sensibilité de la consommation à la baisse de température en hiver » ; moyenne (le passage ne précise ni la température de référence, ni le domaine de températures, ni l'heure)
+    source: rte-hiver-2022-2023
+    page: p. 59-60
+    citation: « le gradient hivernal (sensibilité de la consommation à la baisse de température en hiver) est aujourd'hui estimé à 2 400 MW/°C. »
+    confiance: B
+    recoupements:
+      - source: rte-be2017
+        valeur: « Cette sensibilité à la température de la consommation d'électricité est variable au cours de la journée. Elle est estimée en moyenne à environ 2 400 MW par degré Celsius en hiver. » (p. 15)
+        note: même éditeur ; même valeur cinq ans plus tôt
+        independant: false
+      - source: rte-hiver-2018-2019
+        valeur: « pour chaque degré en moins, la consommation peut augmenter jusqu'à 2 400 MW » (p. 4)
+        note: "même éditeur ; « jusqu'à » : formulée comme un plafond, pas comme une moyenne"
+        independant: false
+      - source: rte-be2025
+        valeur: « L'augmentation de la consommation par degré perdu pour les basses températures est restée quasiment constante au cours des dix dernières années pour les pays analysés » (p. 126, cinq pays dont la France)
+        note: même éditeur ; qualitatif, sans valeur en MW/°C
+        independant: false
+    verification: spike
+    note: dernière valeur chiffrée trouvée dans les publications de RTE (aucune dans les synthèses des hivers 2023-2024 à 2026-2027 ni dans le Bilan prévisionnel 2025) ; « variable au cours de la journée » (BE2017) ; pendant une vague de froid, « le profil journalier est relativement peu affecté » et le niveau de la demande croît (même document, p. 59)
+
   enr_renoncees_prix_negatifs_2025:
     libelle: Production solaire et éolienne non produite lors des épisodes de prix négatifs
     valeur: 3

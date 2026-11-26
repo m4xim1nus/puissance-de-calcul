@@ -52,8 +52,29 @@ export function verifierDebutsDeLigne(corps: string): void {
   });
 }
 
+/** Fragments partagés entre plusieurs textes (enquêtes, simulateur) : docs/enquetes/partage/. */
+const PARTAGE = resolve(RACINE, 'docs/enquetes/partage');
+
+/**
+ * Remplace chaque ligne `::: inclure nom :::`, ou `- ::: inclure nom :::` dans une liste (un item
+ * de liste que Prettier laisse en place), par le contenu de docs/enquetes/partage/nom.md, tel quel
+ * (même place ; un fragment inclus dans une liste commence lui-même par « - »). Une phrase de fond écrite une fois vit
+ * ainsi dans « Quand ? » et dans le simulateur sans être recopiée à la main (garde-fou de
+ * making-of/ERREURS.md : une correction se reporte partout où la phrase vit). Un fragment n'en
+ * inclut pas d'autre ; un fragment inconnu lève une erreur.
+ */
+export function inclureFragments(corps: string, dossier: string = PARTAGE): string {
+  return corps.replace(/^(?:- )?::: inclure ([a-z0-9-]+) :::[ \t]*$/gm, (_, nom: string) => {
+    const texte = readFileSync(resolve(dossier, `${nom}.md`), 'utf8').replace(/\s+$/, '');
+    if (/^(?:- )?::: inclure /m.test(texte))
+      throw new Error(`Fragment « ${nom} » : un fragment n’en inclut pas d’autre`);
+    return texte;
+  });
+}
+
 /** Rend le corps d'une enquête en blocs HTML (avec notes marginales) et emplacements de graphiques. */
 export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
+  corps = inclureFragments(corps);
   verifierDebutsDeLigne(corps);
   const sources = sourcesDe(chiffres);
   const notes = new Map<number, string>();

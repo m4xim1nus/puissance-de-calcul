@@ -30,6 +30,7 @@ COLONNES = {
     "nucleaire": ("nucleaire", 0),
     "nucleaire_disponible": ("nucleaire_disponible", 0),
     "nucleaire_disponible_flamanville3": ("nucleaire_disponible_flamanville3", 0),
+    "nucleaire_disponible_reintegre": (quand.COLONNE_REINTEGRE, 0),
     "prix_eur_mwh": ("prix", 4),
     **{c: (c, 0) for c in quand.COMPOSANTES},
 }
@@ -49,6 +50,36 @@ URL_QUAND = "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/exp
 #: égalité attendue). Identifiants du référentiel saisi.
 MODULATION_PUBLIEE = {2023: "modulation_nucleaire_2023_bp", 2024: "modulation_nucleaire_2024_bp",
                       2025: "modulation_nucleaire_2025_bp"}
+
+#: Production éolienne et solaire renoncée lors des prix négatifs, publiée par RTE (TWh), et
+#: production écrêtée à la demande de RTE (recouvrement probable avec la première) : identifiants du
+#: référentiel saisi, par année. Servent à `quand_ecretement_prix_negatif_AAAA` (limite « écrêtement »).
+ECRETEMENT_PUBLIE = {2025: ("enr_renoncees_prix_negatifs_2025", "enr_ecretees_rte_2025")}
+#: Détail de la production renoncée donné par RTE en note (TWh) : BE2025, note 19, « 1,3 TWh de
+#: production éolienne terrestre et 1,6 TWh de production solaire », soit 2,9 TWh, que le texte
+#: arrondit à « environ 3 TWh » (citation du référentiel, `enr_renoncees_prix_negatifs_2025`).
+DETAIL_RENONCEE_TWH = {2025: (1.3, 1.6)}
+
+
+
+#: Repères du réglage de froid du simulateur : gradient hivernal de RTE et pointe de consommation
+#: estimée par RTE pour un froid comparable à ceux du début des années 2010 (identifiants du
+#: référentiel saisi). Servent à `quand_froid_100gw_AAAA`.
+FROID_PUBLIE = ("thermosensibilite_hiver_rte", "pointe_froids_2010_hiver_2026_2027")
+
+
+def froid_du_referentiel(chiffres_saisis: dict[str, dict]) -> tuple[dict, dict] | None:
+    """(gradient, pointe repère) du référentiel saisi, avec leur identifiant, ou None."""
+    if not all(c in chiffres_saisis for c in FROID_PUBLIE):
+        return None
+    return tuple({**chiffres_saisis[c], "id": c} for c in FROID_PUBLIE)
+
+
+def ecretement_du_referentiel(chiffres_saisis: dict[str, dict]) -> dict[int, tuple[dict, dict]]:
+    """Paires (production renoncée, production écrêtée par RTE) du référentiel saisi, par année."""
+    return {an: ({**chiffres_saisis[a], "id": a}, {**chiffres_saisis[b], "id": b})
+            for an, (a, b) in ECRETEMENT_PUBLIE.items() if a in chiffres_saisis and b in chiffres_saisis}
+
 
 #: Disponibilité déclarée de l'EPR au-delà de laquelle Σ J hors EPR est publié à part (TWh).
 SEUIL_EPR_TWH = 0.1
@@ -192,8 +223,23 @@ DEFINITIONS = {
                          "le stockage et les effacements. Carte des heures tendues, PAS une marge : la capacité "
                          "disponible de ces moyens n'est pas observée heure par heure",
     "jeu_nucleaire": "J = max(0, nucléaire disponible déclaré − nucléaire produit), MW moyens ; Σ J en TWh = Σ des MW "
-                     "moyens horaires × 1 h / 10⁶. Nucléaire déclaré disponible et non produit : borne haute, voir "
-                     "`limites.jeu_nucleaire` ; ce n'est PAS la « modulation » publiée par EDF",
+                     "moyens horaires × 1 h / 10⁶. Nucléaire déclaré disponible et non produit : borne haute AVEC LA "
+                     "DISPONIBILITÉ DÉCLARÉE PAR EDF, voir `limites.jeu_nucleaire` et `jeu_nucleaire_reintegre` ; ce "
+                     "n'est PAS la « modulation » publiée par EDF",
+    "jeu_nucleaire_reintegre": "J_r = max(0, nucléaire disponible réintégré − nucléaire produit), MW moyens : même calcul "
+                               "que J, avec une disponibilité reconstruite en ignorant les arrêts et baisses COURTS "
+                               "(moins de 7 jours, sans mention du combustible) qu'EDF déclare indisponibles POUR "
+                               "MODULATION (arrêts économiques décidés au jour le jour ; règle : pc/remit.py, "
+                               "MOTIF_MODULATION, DUREE_MAX_COURT_H ; aucun avant 2019) ; les arrêts longs pour "
+                               "modulation, qui peuvent relever de la gestion du combustible, restent retranchés. J_r ≥ J à toute heure. "
+                               "arrets_modulation_courts_twh = Σ (disponible réintégré − disponible déclaré) : énergie "
+                               "que les arrêts courts retirent de la disponibilité déclarée, chevauchements traités ; "
+                               "arrets_modulation_longs_twh : même chose pour les arrêts longs (calculé par le build "
+                               "sur la reconstruction REMIT ; la série qui les réintègre n'est pas exportée). "
+                               "charges_plates : part_dans_j et "
+                               "part_dans_j_plancher recalculées avec J_r. Sensibilité au choix d'EDF, pas une capacité "
+                               "physique : la contrainte d'énergie (combustible, calendrier des arrêts) reste la limite "
+                               "nette",
     "charges_plates": "consommation supplémentaire constante de X MW toute l'année. energie_ajoutee_twh = X × heures "
                       "de l'année ; part_dans_j = Σ min(X, J) / (X × heures où J est renseigné) ; "
                       "heures_j_superieur_ou_egal_x = heures où J ≥ X ; heures_rn_plus_x_au_dessus_du_max = heures où "
@@ -224,7 +270,8 @@ LIMITES = {
     "charge_residuelle": [
         "observé, pas simulé : 2015-2025 ne contient aucune vague de froid du type de février 2012 ; une monotone "
         "observée n'est pas une distribution de risque (RTE simule des centaines de scénarios climatiques)",
-        "éolien et solaire observés = après écrêtement : aux heures de prix négatif, RN est surestimée",
+        "éolien et solaire observés = après écrêtement : aux heures de prix négatif, RN est plus haute que sans la "
+        "production renoncée",
         "nucléaire disponible DÉCLARÉ (REMIT), pas une capacité physique garantie ; réserves de services système "
         "comprises",
         "hydraulique de lac et STEP : contraintes d'énergie (stock) ; leur puissance n'est pas disponible à toute heure",
@@ -239,9 +286,11 @@ LIMITES = {
         "tension ; d'où le seuil pluriannuel (heures_rn_plus_x_au_dessus_du_max_reference, maximum 2015-2025, "
         "`rn_max_pluriannuel`), que le système a couvert avec d'autres moyens (charbon, imports massifs, prix "
         "extrêmes)",
-        "part_dans_j est un plafond (voir limites.jeu_nucleaire), lâche : part_dans_j_plancher en donne la "
-        "sensibilité à un plancher non mobilisable (hypothèse du site) ; qui servirait le reste de l'énergie dépend "
-        "de la saturation des interconnexions, non déterminable sans les données des voisins",
+        "part_dans_j est un plafond AVEC LA DISPONIBILITÉ DÉCLARÉE PAR EDF (voir limites.jeu_nucleaire), lâche : "
+        "part_dans_j_plancher en donne la sensibilité à un plancher non mobilisable (hypothèse du site) ; "
+        "jeu_nucleaire_reintegre.charges_plates, la valeur en réintégrant les arrêts qu'EDF déclare indisponibles pour "
+        "modulation ; qui servirait le reste de l'énergie dépend de la saturation des interconnexions, non "
+        "déterminable sans les données des voisins",
         "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; "
         "RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du "
         "26/11/2026, n° 13)",
@@ -270,6 +319,42 @@ def encadrement_flamanville3(t: dict[str, list]) -> dict | None:
     }
 
 
+def froid_annee(t: dict[str, list]) -> dict | None:
+    """Épisode de froid du simulateur pour une année (`quand.episode_froid`, sur la RN des colonnes
+    arrondies) et consommation horaire maximale dans l'épisode et hors de l'épisode (MW moyens, hors
+    Corse). Avec un froid de F °C et un gradient G, la consommation maximale du scénario vaut
+    max(consommation_max_episode_mw + F × G, consommation_max_hors_episode_mw)."""
+    rn = [quand.charge_residuelle(*v) for v in zip(t["consommation"], t["eolien"], t["solaire"],
+                                                     t["nucleaire_disponible"])]
+    ep = quand.episode_froid(rn)
+    if not ep:
+        return None
+    dedans = set(ep)
+    c = t["consommation"]
+    cep = [c[i] for i in ep if c[i] is not None]
+    hors = [c[i] for i in range(len(c)) if i not in dedans and c[i] is not None]
+    return {
+        "episode_debut_utc": t["heure_utc"][ep[0]],
+        "episode_fin_utc": t["heure_utc"][ep[-1]],
+        "heures": len(ep),
+        "consommation_max_episode_mw": max(cep) if cep else None,
+        "consommation_max_hors_episode_mw": max(hors) if hors else None,
+    }
+
+
+#: Pas du réglage de froid du simulateur (°C), pour `froid_pour_depasser`.
+PAS_FROID_C = 0.5
+
+
+def froid_pour_depasser(f: dict, seuil_mw: float, gradient_mw_par_c: float, pas: float = PAS_FROID_C) -> float:
+    """Plus petit froid réglable (multiple de `pas`, ≥ 0) qui porte la consommation horaire maximale
+    du scénario strictement au-delà de `seuil_mw` (0 si l'année observée le dépasse déjà)."""
+    if max(f["consommation_max_episode_mw"], f["consommation_max_hors_episode_mw"] or 0) > seuil_mw:
+        return 0.0
+    k = int((seuil_mw - f["consommation_max_episode_mw"]) // (pas * gradient_mw_par_c)) + 1
+    return k * pas
+
+
 def limites_chiffrees(annees: dict[str, dict]) -> list[str]:
     """Les limites de J, chiffrées sur la dernière année pleine (quand.json arrondi)."""
     an = max(annees)
@@ -283,20 +368,40 @@ def limites_chiffrees(annees: dict[str, dict]) -> list[str]:
                       f"heures où le prix day-ahead dépasse {pc['seuil_eur_mwh']} EUR/MWh (seuil choisi par le site) ; "
                       f"avec un plancher de {_fr(c5['plancher_mw'] / 1000, 1)} GW, la part tenue pour 5 GW passe de "
                       f"{_fr(c5['part_dans_j'] * 100, 0)} % à {_fr(c5['part_dans_j_plancher'] * 100, 0)} %")
+    r = a.get("jeu_nucleaire_reintegre")
+    if r:
+        c5r = next(c for c in r["charges_plates"] if c["x_mw"] == 5000)
+        lignes.append(f"disponibilité déclarée, chiffrée ({an}) : les arrêts qu'EDF déclare indisponibles pour modulation "
+                      f"retirent {_fr(r['arrets_modulation_courts_twh'], 1)} TWh à la disponibilité pour les arrêts "
+                      f"courts, {_fr(r.get('arrets_modulation_longs_twh', 0.0), 1)} TWh pour les arrêts longs (gestion "
+                      f"du combustible, non réintégrés) ; en réintégrant les courts, Σ J "
+                      f"passe de {_fr(a['jeu_nucleaire']['somme_twh'], 1)} à {_fr(r['somme_twh'], 1)} TWh et la part "
+                      f"tenue pour 5 GW de {_fr(c5['part_dans_j'] * 100, 0)} % à {_fr(c5r['part_dans_j'] * 100, 0)} % "
+                      f"({_fr(c5['part_dans_j_plancher'] * 100, 0)} % à {_fr(c5r['part_dans_j_plancher'] * 100, 0)} % "
+                      "avec le plancher)")
     lignes.append(f"énergie, chiffrée ({an}) : 5 GW plats tenus dans J, ce serait {_fr(c5['energie_dans_j_twh'], 1)} TWh "
                   f"de nucléaire en plus de la production observée ({_fr(prod, 1)} TWh, somme éCO2mix), soit "
                   f"{_fr(prod + c5['energie_dans_j_twh'], 0)} TWh sur l'année, à comparer aux prévisions de production "
-                  "(référentiel : prod_nucleaire_prevision_*)")
+                  "(référentiel : prod_nucleaire_prevision_*)"
+                  + (f" ; en réintégrant les arrêts courts pour modulation, {_fr(c5r['energie_dans_j_twh'], 1)} TWh en plus, "
+                     f"soit {_fr(prod + c5r['energie_dans_j_twh'], 0)} TWh : la contrainte d'énergie reste la limite nette"
+                     if r else ""))
     return lignes
 
 
-def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
-    """Contenu de quand.json (arrondi) à partir de la table horaire exportée."""
+def construire_quand(table: pl.DataFrame, extractions: dict, arrets_longs: dict[int, float] | None = None) -> dict:
+    """Contenu de quand.json (arrondi) à partir de la table horaire exportée.
+
+    `arrets_longs` : énergie (TWh) que les arrêts longs pour modulation retirent de la disponibilité
+    déclarée, par année (calculée par le build sur la reconstruction REMIT, `build.arrets_modulation` ;
+    la série qui les réintègre n'est pas exportée) ; recopiée dans
+    `jeu_nucleaire_reintegre.arrets_modulation_longs_twh`, recalculée par `pc check`."""
     pleines, exclues = annees_pleines(table)
     tables = {an: table_annee(table, an) for an in pleines}
     # 1. maximum pluriannuel de RN (seuil extérieur à chaque année)
     pluri = quand.max_pluriannuel({str(an): quand.max_charge_residuelle(t) for an, t in tables.items()})
     reference = pluri["valeur_mw"] if pluri else None
+    conso_pluri = quand.max_pluriannuel({str(an): quand.max_consommation(t) for an, t in tables.items()})
     # 2. indicateurs de chaque année
     annees = {}
     for an, t in tables.items():
@@ -306,6 +411,9 @@ def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
             a["jeu_nucleaire"]["flamanville3"] = f3
         prod = [v for v in t["nucleaire"] if v is not None]
         a["production_nucleaire_twh"] = sum(prod) / 1e6
+        a["froid"] = froid_annee(t)
+        if "jeu_nucleaire_reintegre" in a and arrets_longs is not None and an in arrets_longs:
+            a["jeu_nucleaire_reintegre"]["arrets_modulation_longs_twh"] = arrets_longs[an]
         annees[str(an)] = arrondir(a)
     matrices = {}
     for an in sorted({ANNEE_CRISE, pleines[-1]} & set(pleines)):
@@ -348,8 +456,17 @@ def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
             "rn_max_reference": "maximum de RN sur les années pleines (rn_max_pluriannuel) ; "
                                 "heures_rn_plus_x_au_dessus_du_max_reference = heures où RN + X le dépasse (strictement)",
             "production_nucleaire_twh": "somme de la production nucléaire éCO2mix de l'année (MW moyens horaires × 1 h)",
+            "froid": "épisode de froid du simulateur (quand.episode_froid : les 168 heures consécutives de charge "
+                     "résiduelle observée moyenne la plus élevée) et consommation horaire maximale dans l'épisode et "
+                     "hors de l'épisode ; avec F °C et un gradient G, maximum du scénario = max(épisode + F × G, hors "
+                     "épisode)",
+            "consommation_max_pluriannuelle": "consommation horaire maximale (MW moyens sur l'heure, hors Corse) sur "
+                                              "les années pleines ; repère de la limite « froid extrême », à comparer "
+                                              "à la pointe historique de février 2012, publiée à la demi-heure",
         },
         "rn_max_pluriannuel": {**arrondir(pluri), "annees": f"{pleines[0]}-{pleines[-1]}"} if pluri else None,
+        "consommation_max_pluriannuelle": ({**arrondir(conso_pluri), "annees": f"{pleines[0]}-{pleines[-1]}"}
+                                           if conso_pluri else None),
         "colonnes_eco2mix": verifier_colonnes_eco2mix(table, pleines),
         "annees_exclues": {str(a): m for a, m in exclues.items()},
         "annees": annees,
@@ -384,7 +501,7 @@ def source_quand(date_extraction: str) -> dict:
 #: Précision des valeurs publiées dans chiffres.json (décision du 26/11/2026) : GW à 0,1, TWh à
 #: 0,1, % à l'entier, heures à l'unité. La valeur non arrondie, lue dans quand.json, est gardée
 #: dans `valeur_calculee` ; `pc check` vérifie que `valeur` en est l'arrondi.
-PRECISION = {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1}
+PRECISION = {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1, "°C": 0.1}
 
 
 def _valeur(x: float, unite: str) -> dict:
@@ -401,13 +518,20 @@ def _paris(iso: str) -> datetime:
     return datetime.fromisoformat(iso)
 
 
-def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dict[str, dict]:
+def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None,
+                      ecretement: dict[int, tuple[dict, dict]] | None = None,
+                      froid: tuple[dict, dict] | None = None) -> dict[str, dict]:
     """Chiffres que le texte cite, lus dans quand.json (déjà arrondi), au schéma du référentiel.
 
     `modulation` : chiffres saisis de la modulation publiée, par année (recoupement d'ordre de
     grandeur de Σ J, non indépendant et d'une autre grandeur).
+    `ecretement` : par année, les chiffres saisis (production renoncée lors des prix négatifs,
+    production écrêtée à la demande de RTE), pour `ecretement_reparti`.
+    `froid` : (gradient hivernal, pointe repère) saisis (`froid_du_referentiel`), pour
+    `quand_froid_100gw_AAAA`.
     """
     modulation = modulation or {}
+    ecretement = ecretement or {}
     pleines = sorted(int(a) for a in q["annees"])
     annees = [a for a in pleines if a == ANNEE_CRISE or a >= PREMIERE_ANNEE_CHIFFRES]
     commun = {"source": SOURCE_QUAND, "page": "data/export/quand.json", "confiance": "B",
@@ -441,30 +565,39 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
         note_f3 = (f" ; comprend Flamanville 3 (EPR en essais, {_fr(f3['disponible_declare_epr_twh'], 2)} TWh "
                    f"déclarés disponibles) : hors EPR, entre {_fr(f3['somme_j_sans_disponible_epr_twh'], 1)} et "
                    f"{_fr(jeu['somme_twh'], 1)} TWh") if f3 else ""
+        jr = a.get("jeu_nucleaire_reintegre")
+        cpr = {c["x_mw"]: c for c in jr["charges_plates"]} if jr else {}
+        note_jr = (f" ; en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation, "
+                   f"{_fr(jr['somme_twh'], 1)} TWh") if jr else ""
         out[f"quand_j_{an}"] = {
             **commun,
-            "libelle": "Nucléaire déclaré disponible et non produit, somme annuelle (borne haute)",
+            "libelle": "Nucléaire déclaré disponible et non produit, somme annuelle (borne haute, avec la disponibilité "
+                       "déclarée par EDF)",
             **_valeur(jeu["somme_twh"], "TWh"), "grandeur": "energie", "periode": str(an),
             "citation": f"annees.{an}.jeu_nucleaire.somme_twh",
             "calcul": "Σ max(0, nucléaire disponible déclaré − nucléaire produit) sur les heures de l'année, MW moyens "
                       "horaires × 1 h",
             **({"recoupements": recoupements} if recoupements else {}),
-            "note": "au plus : réserves de services système (plancher non mobilisable) et contrainte d'énergie "
-                    "(combustible, calendrier des arrêts) non déduites ; ce n'est pas la modulation publiée par EDF"
-                    + note_f3,
+            "note": "au plus, avec la disponibilité déclarée par EDF : réserves de services système (plancher non "
+                    "mobilisable) et contrainte d'énergie (combustible, calendrier des arrêts) non déduites ; ce n'est pas "
+                    "la modulation publiée par EDF" + note_jr + note_f3,
         }
         for gw in (1, 5, 10):
             c = cp[gw * 1000]
             out[f"quand_part_j_{gw}gw_{an}"] = {
                 **commun,
                 "libelle": f"Part de l'énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire "
-                           "disponible non produit (au plus)",
+                           "disponible non produit (au plus, avec la disponibilité déclarée par EDF)",
                 **_valeur(c["part_dans_j"] * 100, "%"), "grandeur": "part", "periode": str(an),
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].part_dans_j",
                 "calcul": f"Σ min({gw} 000 MW, J) / ({gw} 000 MW × heures où J est renseigné), "
                           "J = max(0, nucléaire disponible − produit)",
-                "note": f"borne haute, lâche : avec un plancher non mobilisable de {_fr(c['plancher_mw'] / 1000, 0)} GW "
-                        f"(hypothèse du site), {_fr(c['part_dans_j_plancher'] * 100, 0)} % ; énergie ajoutée "
+                "note": f"borne haute avec la disponibilité déclarée par EDF, lâche : avec un plancher non mobilisable "
+                        f"de {_fr(c['plancher_mw'] / 1000, 0)} GW (hypothèse du site), "
+                        f"{_fr(c['part_dans_j_plancher'] * 100, 0)} % ; "
+                        + (f"en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation, "
+                           f"{_fr(cpr[gw * 1000]['part_dans_j'] * 100, 0)} % ; " if cpr else "")
+                        + f"énergie ajoutée "
                         f"{_fr(c['energie_ajoutee_twh'], 2)} TWh sur l'année ; qui servirait le reste dépend de la "
                         "saturation des interconnexions, non déterminable sans les données des voisins",
             }
@@ -531,7 +664,8 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
             **_valeur(c5["heures_j_superieur_ou_egal_x"], "heures"), "grandeur": "nombre", "periode": str(an),
             "citation": f"annees.{an}.charges_plates[x_mw = 5000].heures_j_superieur_ou_egal_x",
             "calcul": "nombre d'heures où J = max(0, nucléaire disponible déclaré − produit) ≥ 5 000 MW",
-            "note": "heures où une consommation plate de 5 GW tiendrait entièrement dans J (borne haute)",
+            "note": "heures où une consommation plate de 5 GW tiendrait entièrement dans J (borne haute, avec la "
+                    "disponibilité déclarée par EDF)",
         }
         # Couverture moyenne des heures tendues (termes de RN, MW moyens → GW)
         cm = td["couverture_moyenne_mw"]
@@ -588,7 +722,105 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                         "disponibles sur l'année",
             }
     out.update(chiffres_calcules_toutes_annees(q, commun))
+    if froid:
+        out.update(chiffres_froid(q, froid, commun))
+    for an, (renoncee, ecretee) in sorted(ecretement.items()):
+        if str(an) in q["annees"]:
+            out[f"quand_ecretement_prix_negatif_{an}"] = ecretement_reparti(q, an, renoncee, ecretee, commun)
     return out
+
+
+def chiffres_froid(q: dict, froid: tuple[dict, dict], commun: dict) -> dict[str, dict]:
+    """Repère du réglage de froid (relecture adverse du 26/11/2026, F1) : pour chaque année pleine, le
+    plus petit froid réglable (pas de 0,5 °C) qui porte la consommation horaire maximale du scénario
+    au-delà de la pointe que RTE estime pour un froid comparable à ceux du début des années 2010."""
+    gradient, pointe = froid
+    if gradient["unite"] != "MW/°C" or pointe["unite"] != "GW":
+        raise ValueError("froid : unités attendues MW/°C et GW")
+    g, seuil = float(gradient["valeur"]), float(pointe["valeur"]) * 1000
+    out: dict[str, dict] = {}
+    for an_s, a in q["annees"].items():
+        f = a.get("froid")
+        if not f or f["consommation_max_episode_mw"] is None:
+            continue
+        x = froid_pour_depasser(f, seuil, g)
+        ep0, ep1 = _paris_utc(f["episode_debut_utc"]), _paris_utc(f["episode_fin_utc"])
+        out[f"quand_froid_100gw_{an_s}"] = {
+            **commun,
+            "libelle": f"Froid supplémentaire du simulateur à partir duquel la consommation horaire maximale de {an_s} "
+                       f"dépasse {_fr(seuil / 1000, 0)} GW",
+            **_valeur(x, "°C"), "grandeur": "ecart_temperature", "periode": an_s,
+            "perimetre": f"épisode de froid du simulateur de {an_s} : les {f['heures']} heures consécutives de charge "
+                         f"résiduelle observée la plus élevée, du {ep0:%d/%m} au {ep1:%d/%m/%Y} ; consommation hors Corse, "
+                         "moyenne horaire ; degrés AJOUTÉS au froid de ces jours, pas un écart aux normales",
+            "citation": f"annees.{an_s}.froid (consommation maximale dans l'épisode "
+                        f"{f['consommation_max_episode_mw']} MW, hors de l'épisode {f['consommation_max_hors_episode_mw']} "
+                        f"MW) ; gradient {gradient['id']} ; seuil {pointe['id']}",
+            "calcul": f"plus petit multiple de {_fr(PAS_FROID_C, 1)} °C tel que consommation maximale de l'épisode + froid × "
+                      f"{_fr(g, 0)} MW/°C > {_fr(seuil, 0)} MW (strictement)",
+            "note": f"repère : RTE estime que les pointes de l'hiver 2026-2027 resteraient « sensiblement inférieures » à "
+                    f"{_fr(seuil / 1000, 0)} GW avec des froids comparables à ceux du début des années 2010 ; le même "
+                    "réglage ne représente pas le même froid d'une année à l'autre (l'épisode a déjà son propre froid)",
+        }
+    return out
+
+
+def _paris_utc(iso: str) -> datetime:
+    """Heure UTC ISO (« 2025-01-13T07:00Z ») → même instant en heure de Paris."""
+    from zoneinfo import ZoneInfo
+    return datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(ZoneInfo(TZ_PARIS))
+
+
+def ecretement_reparti(q: dict, an: int, renoncee: dict, ecretee: dict, commun: dict) -> dict:
+    """Limite « écrêtement » de « Quand ? » (niveau « estimer », décision du 26/11/2026) : la production
+    éolienne et solaire renoncée lors des prix négatifs, publiée par RTE pour l'année, répartie sur
+    les heures à prix day-ahead strictement négatif de la même année. MWh ÷ heures = MW moyens.
+
+    Sens de la borne : à ces heures, l'éolien et le solaire observés sont nets de la production
+    renoncée, donc RN observée = RN sans écrêtement + production renoncée de l'heure ≥ RN sans
+    écrêtement. La moyenne de l'écart sur ces heures est au plus la production renoncée ÷ heures,
+    si l'estimation de RTE est complète : une partie a pu être renoncée hors de ces heures (quarts
+    d'heure négatifs d'une heure positive depuis le passage au pas de 15 min), ce qui ne peut que
+    baisser la moyenne. Ce n'est pas une borne heure par heure.
+    """
+    if renoncee["unite"] != "TWh" or ecretee["unite"] != "TWh":
+        raise ValueError("production renoncée ou écrêtée : unité attendue TWh")
+    a = q["annees"][str(an)]
+    n = a["prix"]["heures_negatif"]
+    e_twh = float(renoncee["valeur"])
+    gw = e_twh * 1e6 / n / 1000
+    rn_neg = a["prix"]["rn_moyenne_prix_negatif_mw"]
+    return {
+        **commun,
+        "libelle": "Écart moyen de la charge résiduelle observée aux heures à prix négatif dû à la production "
+                   "éolienne et solaire renoncée (borne haute)",
+        **_valeur(gw, "GW"), "grandeur": "puissance_moyenne", "periode": str(an),
+        "perimetre": f"heures à prix day-ahead France strictement négatif de {an} ; production renoncée estimée par "
+                     "RTE (éolien terrestre et solaire) ; charge résiduelle du site (France continentale hors Corse)",
+        "citation": f"{renoncee['libelle']} ({_fr(e_twh, 1)} TWh, référentiel {renoncee['id']}) ; "
+                    f"annees.{an}.prix.heures_negatif ({n} h)",
+        "calcul": f"production éolienne et solaire renoncée lors des épisodes de prix négatifs (estimation RTE, "
+                  f"{_fr(e_twh, 1)} TWh, × 10⁶ en MWh) ÷ {n} heures à prix day-ahead strictement négatif "
+                  "de l'année = MW moyens sur ces heures ; la charge résiduelle observée est plus haute d'autant, en "
+                  "moyenne, que sans la production renoncée",
+        "note": "borne haute d'une moyenne, pas une valeur heure par heure (la production renoncée se concentre sur les "
+                "heures de forte production) ; borne si toute la production renoncée tombe à ces heures : une partie a "
+                "pu l'être à des quarts d'heure négatifs d'heures dont la moyenne ne l'est pas, ce qui baisse la "
+                f"moyenne ; RTE donne « environ » {f'{e_twh:g}'.replace('.', ',')} TWh : 0,1 TWh de plus ou de moins déplace la "
+                f"moyenne de {_fr(0.1e6 / n / 1000, 1)} GW"
+                + (f" ; le détail de la note 19 de RTE ({' + '.join(_fr(x, 1) for x in DETAIL_RENONCEE_TWH[an])} TWh, "
+                   f"éolien terrestre et solaire) donne {_fr(sum(DETAIL_RENONCEE_TWH[an]), 1)} TWh, soit "
+                   f"{_fr(sum(DETAIL_RENONCEE_TWH[an]) * 1e6 / n / 1000, 1)} GW ; l'éolien en mer n'est pas dans "
+                   "l'estimation de RTE, alors qu'il est dans l'éolien observé (effet probablement négligeable)"
+                   if an in DETAIL_RENONCEE_TWH else "")
+                + f" ; les {_fr(float(ecretee['valeur']), 1)} TWh "
+                "écrêtés à la demande de RTE, qui recouvrent probablement en partie ce volume, ajouteraient au plus "
+                f"{_fr(float(ecretee['valeur']) * 1e6 / n / 1000, 1)} GW ; charge résiduelle moyenne observée à ces "
+                f"heures : {_fr(rn_neg / 1000, 1).replace('-', '−')} GW, soit de l'ordre de "
+                f"{_fr(rn_neg / 1000 - gw, 1).replace('-', '−')} GW sans la "
+                "production renoncée : le surplus réel de ces heures est plus grand que celui que montre la charge "
+                "résiduelle, pas plus petit",
+    }
 
 
 def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
@@ -609,6 +841,21 @@ def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
                       "déclaré ; à égalité, l'heure la plus ancienne",
             "note": "couvert à l'époque avec d'autres moyens que ceux d'aujourd'hui (charbon, imports, prix) ; une "
                     "valeur observée, pas un risque",
+        }
+    cmax = q.get("consommation_max_pluriannuelle")
+    if cmax:
+        p = _paris(cmax["debut_paris"])
+        out["quand_conso_max_pluri"] = {
+            **commun,
+            "libelle": f"Consommation d'électricité, maximum horaire sur {cmax['annees']}",
+            **_valeur(cmax["valeur_mw"] / 1000, "GW"), "grandeur": "pointe_consommation",
+            "periode": f"{p:%Y-%m-%d}, {p.hour} h-{p.hour + 1} h (heure de Paris)",
+            "perimetre": PERIMETRE.replace("année civile en heure de Paris", f"années pleines {cmax['annees']}"),
+            "citation": f"consommation_max_pluriannuelle (heure UTC {cmax['heure_utc']})",
+            "calcul": "maximum des consommations horaires éCO2mix (moyenne des deux demi-heures de l'heure) sur les "
+                      "années pleines ; à égalité, l'heure la plus ancienne",
+            "note": "moyenne horaire : une pointe à la demi-heure est plus haute (la pointe historique de février 2012 "
+                    "est publiée à la demi-heure) ; consommation hors Corse",
         }
     for an_s, a in q["annees"].items():
         an = int(an_s)
@@ -660,6 +907,8 @@ def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
                 "note": "J ne tombe pas à zéro même quand l'énergie est chère : réserves, rampes, fins de cycle, "
                         "décalage entre déclaration et puissance réelle ; cette part n'est pas mobilisable",
             }
+        jr = a.get("jeu_nucleaire_reintegre")
+        cpr = {c["x_mw"]: c for c in jr["charges_plates"]} if jr else {}
         for gw in (5, 10):
             c = cp[gw * 1000]
             out[f"quand_part_j_plancher_{gw}gw_{an}"] = {
@@ -671,13 +920,15 @@ def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].part_dans_j_plancher",
                 "calcul": f"Σ min({gw} 000 MW, max(0, J − {c['plancher_mw']} MW)) / ({gw} 000 MW × heures où J est "
                           "renseigné)",
-                "note": f"sans plancher : {_fr(c['part_dans_j'] * 100, 0)} % ; le plancher est une hypothèse du site, "
-                        "pas une donnée publiée",
+                "note": f"sans plancher : {_fr(c['part_dans_j'] * 100, 0)} % ; avec la disponibilité déclarée par EDF"
+                        + (f" (en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation : "
+                           f"{_fr(cpr[gw * 1000]['part_dans_j_plancher'] * 100, 0)} %)" if cpr else "")
+                        + " ; le plancher est une hypothèse du site, pas une donnée publiée",
             }
             out[f"quand_energie_j_{gw}gw_{an}"] = {
                 **commun,
                 "libelle": f"Énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire disponible non "
-                           "produit (nucléaire produit en plus, au plus)",
+                           "produit (nucléaire produit en plus, au plus, avec la disponibilité déclarée par EDF)",
                 **_valeur(c["energie_dans_j_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].energie_dans_j_twh",
                 "calcul": f"Σ min({gw} 000 MW, J) sur les heures de l'année, MW moyens horaires × 1 h",
@@ -685,4 +936,108 @@ def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
                         f"ce serait {_fr(a['production_nucleaire_twh'] + c['energie_dans_j_twh'], 0)} TWh sur l'année, "
                         "si le combustible et le calendrier des arrêts le permettaient",
             }
+        if jr:
+            out.update(chiffres_reintegres(an, a, jr, commun))
+    return out
+
+
+#: Formule commune des chiffres réintégrés (définition de J_r).
+J_REINTEGRE = ("J_r = max(0, nucléaire disponible réintégré − nucléaire produit), le disponible réintégré étant reconstruit "
+               "depuis REMIT avec les mêmes règles que le disponible déclaré, en ignorant les arrêts et baisses de moins "
+               "de 7 jours, sans mention du combustible, qu'EDF déclare pour modulation (pc/remit.py, MOTIF_MODULATION, "
+               "DUREE_MAX_COURT_H)")
+NOTE_REINTEGRE = ("EDF déclare ces arrêts courts, décidés au jour le jour, comme indisponibles (le plus souvent : « la "
+                  "tranche sera redémarrée si les conditions économiques le justifient ») ; les arrêts longs pour "
+                  "modulation, qui peuvent relever de la gestion du combustible, restent retranchés ; réintégrer les courts "
+                  "mesure la sensibilité au choix de déclaration d'EDF, ce n'est pas une capacité physique : le "
+                  "combustible et le calendrier des arrêts limitent toujours l'énergie")
+
+
+def chiffres_reintegres(an: int, a: dict, jr: dict, commun: dict) -> dict[str, dict]:
+    """Variantes réintégrant les arrêts courts pour modulation (quand.json, `jeu_nucleaire_reintegre`) :
+    Σ J_r, énergie retirée par les arrêts courts et par les arrêts longs (non réintégrés), parts et
+    énergie d'une charge plate de 5 et 10 GW. Les chiffres avec la disponibilité déclarée ne changent pas."""
+    an_s = str(an)
+    cp = {c["x_mw"]: c for c in a["charges_plates"]}
+    cpr = {c["x_mw"]: c for c in jr["charges_plates"]}
+    jeu = a["jeu_nucleaire"]
+    out: dict[str, dict] = {
+        f"quand_arrets_modulation_courts_{an}": {
+            **commun,
+            "libelle": "Énergie retirée de la disponibilité nucléaire déclarée par les arrêts et baisses courts (moins de "
+                       "7 jours) qu'EDF déclare indisponibles pour modulation",
+            **_valeur(jr["arrets_modulation_courts_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire_reintegre.arrets_modulation_courts_twh",
+            "calcul": "Σ (disponible réintégré − disponible déclaré) sur les heures de l'année, MW moyens horaires × 1 h ; "
+                      "chevauchements traités (règle du minimum d'EDF) ; identification : pc/remit.py, MOTIF_MODULATION, "
+                      "DUREE_MAX_COURT_H",
+            "note": "déclarés comme indisponibilités planifiées ; aucun avant 2019 ; réintégrés dans J_r ; "
+                    + (f"arrêts longs de la même année, non réintégrés : {_fr(jr['arrets_modulation_longs_twh'], 1)} TWh ; "
+                       if "arrets_modulation_longs_twh" in jr else "")
+                    + NOTE_REINTEGRE,
+        },
+    }
+    if "arrets_modulation_longs_twh" in jr:
+        out[f"quand_arrets_modulation_longs_{an}"] = {
+            **commun,
+            "libelle": "Énergie retirée de la disponibilité nucléaire déclarée par les arrêts longs (7 jours ou plus, ou "
+                       "parlant de combustible) qu'EDF déclare indisponibles pour modulation",
+            **_valeur(jr["arrets_modulation_longs_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire_reintegre.arrets_modulation_longs_twh",
+            "calcul": "Σ (disponible réintégrant tous les arrêts pour modulation − disponible réintégrant les arrêts courts) "
+                      "sur les heures de l'année, MW moyens horaires × 1 h ; chevauchements traités ; calculé par `pc "
+                      "build` sur la reconstruction REMIT (meta.json, nucleaire_disponible.arrets_modulation), "
+                      "recalculé par `pc check`",
+            "note": "non réintégrés dans J_r : ces arrêts, d'une semaine à plusieurs mois et souvent annoncés des semaines "
+                    "ou des mois à l'avance, peuvent relever de la gestion du combustible (contrainte d'énergie), comme les "
+                    "arrêts « pour économie de combustible » ; aucun avant 2019",
+        }
+    out[f"quand_j_reintegre_{an}"] = {
+        **commun,
+        "libelle": "Nucléaire disponible non produit, en réintégrant les arrêts courts qu'EDF déclare indisponibles "
+                   "pour modulation, somme annuelle",
+        **_valeur(jr["somme_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
+        "citation": f"annees.{an}.jeu_nucleaire_reintegre.somme_twh",
+        "calcul": f"Σ J_r sur les heures de l'année, MW moyens horaires × 1 h ; {J_REINTEGRE}",
+        "note": f"avec la disponibilité déclarée : {_fr(jeu['somme_twh'], 1)} TWh ; " + NOTE_REINTEGRE
+                + " ; ce n'est pas la modulation publiée par EDF",
+    }
+    for gw in (5, 10):
+        c, cr = cp[gw * 1000], cpr[gw * 1000]
+        out[f"quand_part_j_reintegre_{gw}gw_{an}"] = {
+            **commun,
+            "libelle": f"Part de l'énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire "
+                       "disponible non produit, en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation "
+                       "(au plus)",
+            **_valeur(cr["part_dans_j"] * 100, "%"), "grandeur": "part", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire_reintegre.charges_plates[x_mw = {gw * 1000}].part_dans_j",
+            "calcul": f"Σ min({gw} 000 MW, J_r) / ({gw} 000 MW × heures où J_r est renseigné) ; {J_REINTEGRE}",
+            "note": f"avec la disponibilité déclarée : {_fr(c['part_dans_j'] * 100, 0)} % ; avec un plancher non "
+                    f"mobilisable de {_fr(c['plancher_mw'] / 1000, 0)} GW (hypothèse du site) : "
+                    f"{_fr(cr['part_dans_j_plancher'] * 100, 0)} % ; " + NOTE_REINTEGRE,
+        }
+        out[f"quand_part_j_plancher_reintegre_{gw}gw_{an}"] = {
+            **commun,
+            "libelle": f"Part de l'énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire "
+                       "disponible non produit, en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation, "
+                       f"après un plancher non mobilisable de {_fr(c['plancher_mw'] / 1000, 0)} GW (hypothèse du site)",
+            **_valeur(cr["part_dans_j_plancher"] * 100, "%"), "grandeur": "part", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire_reintegre.charges_plates[x_mw = {gw * 1000}].part_dans_j_plancher",
+            "calcul": f"Σ min({gw} 000 MW, max(0, J_r − {c['plancher_mw']} MW)) / ({gw} 000 MW × heures où J_r est "
+                      f"renseigné) ; {J_REINTEGRE}",
+            "note": f"avec la disponibilité déclarée : {_fr(c['part_dans_j_plancher'] * 100, 0)} % ; le plancher est une "
+                    "hypothèse du site, pas une donnée publiée ; " + NOTE_REINTEGRE,
+        }
+        out[f"quand_energie_j_reintegre_{gw}gw_{an}"] = {
+            **commun,
+            "libelle": f"Énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire disponible non "
+                       "produit, en réintégrant les arrêts courts qu'EDF déclare indisponibles pour modulation (nucléaire "
+                       "produit en plus, au plus)",
+            **_valeur(cr["energie_dans_j_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire_reintegre.charges_plates[x_mw = {gw * 1000}].energie_dans_j_twh",
+            "calcul": f"Σ min({gw} 000 MW, J_r) sur les heures de l'année, MW moyens horaires × 1 h ; {J_REINTEGRE}",
+            "note": f"production nucléaire observée {_fr(a['production_nucleaire_twh'], 1)} TWh (somme éCO2mix) : ce "
+                    f"serait {_fr(a['production_nucleaire_twh'] + cr['energie_dans_j_twh'], 0)} TWh sur l'année, si le "
+                    "combustible et le calendrier des arrêts le permettaient",
+        }
     return out

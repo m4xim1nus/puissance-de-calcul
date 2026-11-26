@@ -46,23 +46,40 @@ export function lireQuand(brut: any): DonneesQuand {
           ])
         ) as AnneeQuand['quantilesMw'],
         heuresNegatives: nombre(rn.heures_negatives, `${c}.charge_residuelle.heures_negatives`),
-        chargesPlates: (exiger(d.charges_plates, `${c}.charges_plates`) as any[]).map((p, i) => ({
-          xMw: nombre(p.x_mw, `${c}.charges_plates[${i}].x_mw`),
-          partDansJ: nombre(p.part_dans_j, `${c}.charges_plates[${i}].part_dans_j`),
-          partDansJPlancher: nombre(
-            p.part_dans_j_plancher,
-            `${c}.charges_plates[${i}].part_dans_j_plancher`
-          ),
-          plancherMw: nombre(p.plancher_mw, `${c}.charges_plates[${i}].plancher_mw`),
-          heuresAuDessusDuMax: nombre(
-            p.heures_rn_plus_x_au_dessus_du_max,
-            `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max`
-          ),
-          heuresAuDessusDuMaxReference: nombre(
-            p.heures_rn_plus_x_au_dessus_du_max_reference,
-            `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max_reference`
-          )
-        }))
+        chargesPlates: (exiger(d.charges_plates, `${c}.charges_plates`) as any[]).map((p, i) => {
+          // Variante réintégrant les arrêts courts pour modulation : même ordre des X que charges_plates.
+          const r = (
+            exiger(
+              d.jeu_nucleaire_reintegre?.charges_plates,
+              `${c}.jeu_nucleaire_reintegre.charges_plates`
+            ) as any[]
+          )[i];
+          const cr = `${c}.jeu_nucleaire_reintegre.charges_plates[${i}]`;
+          if (nombre(r?.x_mw, `${cr}.x_mw`) !== p.x_mw)
+            throw new Error(`quand.json : ${cr}.x_mw ≠ ${c}.charges_plates[${i}].x_mw`);
+          return {
+            xMw: nombre(p.x_mw, `${c}.charges_plates[${i}].x_mw`),
+            partDansJReintegre: nombre(r.part_dans_j, `${cr}.part_dans_j`),
+            partDansJPlancherReintegre: nombre(
+              r.part_dans_j_plancher,
+              `${cr}.part_dans_j_plancher`
+            ),
+            partDansJ: nombre(p.part_dans_j, `${c}.charges_plates[${i}].part_dans_j`),
+            partDansJPlancher: nombre(
+              p.part_dans_j_plancher,
+              `${c}.charges_plates[${i}].part_dans_j_plancher`
+            ),
+            plancherMw: nombre(p.plancher_mw, `${c}.charges_plates[${i}].plancher_mw`),
+            heuresAuDessusDuMax: nombre(
+              p.heures_rn_plus_x_au_dessus_du_max,
+              `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max`
+            ),
+            heuresAuDessusDuMaxReference: nombre(
+              p.heures_rn_plus_x_au_dessus_du_max_reference,
+              `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max_reference`
+            )
+          };
+        })
       };
     })
     .sort((a, b) => a.annee - b.annee);

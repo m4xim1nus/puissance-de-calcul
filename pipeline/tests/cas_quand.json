@@ -357,7 +357,8 @@
     "rn_max_reference_mw": null,
     "heures_au_dessus_du_max_reference": null,
     "heures_prix_nul_ou_negatif_charge": 2,
-    "heures_prix_nul_ou_negatif_j_couvre": 2
+    "heures_prix_nul_ou_negatif_j_couvre": 2,
+    "reintegre": null
    }
   },
   {
@@ -519,6 +520,349 @@
     "production_nucleaire_twh": 0.13,
     "heures_prix_nul_ou_negatif_charge": 0,
     "heures_prix_nul_ou_negatif_j_couvre": 0
+   }
+  },
+  {
+   "nom": "simuler : froid supplémentaire (épisode avec une heure absente), effacement classé froid compris, J entamé par le froid, plancher de 500 MW",
+   "explication": "Table commune aux cas « froid » : 8 heures du 13/01/2025 (0 h à 7 h UTC, 1 h à 8 h à Paris), éolien et solaire nuls, nucléaire disponible 50 000 MW ; consommation 60 000, 75 000, 80 000, 70 000, 55 000, 78 000, absente, 80 000 MW, d'où RN = 10 000, 25 000, 30 000, 20 000, 5 000, 28 000, absente, 30 000 MW ; production nucléaire 50 000, 49 000, 50 000, 46 000, 41 000, 47 500, 45 000, 44 000 MW, d'où J = 0, 1 000, 0, 4 000, 9 000, 2 500, 5 000, 6 000 MW ; prix 50, 60, 70, 0, −5, 80, 90, 100 EUR/MWh ; pas de solde des échanges. Épisode de froid de 3 heures : fenêtres de 3 heures, moyenne des RN renseignées : 0-2 → 65 000 / 3 ; 1-3 → 25 000 ; 2-4 → 55 000 / 3 ; 3-5 → 53 000 / 3 ; 4-6 → (5 000 + 28 000) / 2 = 16 500 ; 5-7 → (28 000 + 30 000) / 2 = 29 000 (l'heure absente ne compte pas) : épisode = heures 5, 6, 7. Froid 1,5 °C × 2 000 MW/°C = 3 000 MW aux heures 5, 6, 7 : 9 000 MWh = 0,009 TWh. RN + froid = 10 000, 25 000, 30 000, 20 000, 5 000, 31 000, absente, 33 000 : l'heure effacée est 7 h UTC (33 000, seuil 33 000), pas 2 h (30 000, la plus tendue sans froid à égalité avec 7 h). Charge X = 2 000 sauf à 7 h : 7 × 2 000 = 14 000 MWh = 0,014 TWh ; énergie effacée 0,002 TWh. J laissé à la charge : J − 3 000 borné à 0 aux heures 5, 6, 7 → 0, 1 000, 0, 4 000, 9 000, 0, 2 000, 3 000. Σ min(charge, J) = 0 + 1 000 + 0 + 2 000 + 2 000 + 0 + 2 000 + 0 = 7 000 → 0,5 ; plancher 500 : max(0, J − 500) = 0, 500, 0, 3 500, 8 500, 0, 1 500, 2 500 → Σ min = 0 + 500 + 0 + 2 000 + 2 000 + 0 + 1 500 + 0 = 6 000 → 3/7. J ≥ charge > 0 aux heures 3, 4, 6 (2 000 ≥ 2 000) : 3 heures. RN max observé 30 000 (sans froid). RN + froid + charge = 12 000, 27 000, 32 000, 22 000, 7 000, 33 000, absente, 33 000 : au-dessus de 30 000 aux heures 2, 5, 7 (3) ; au-dessus du seuil extérieur 32 500 aux heures 5 et 7 (2) ; maximum 33 000, à égalité 5 h et 7 h UTC → 5 h (6 h à Paris). Prix : charge à prix < 0 = 2 000 (heure 4) → 1/7 ; ≤ 0 = 4 000 (heures 3, 4) → 2/7 ; pondéré = 2 000 × (50 + 60 + 70 + 0 − 5 + 80 + 90) / 14 000 = 345/7 ; moyenne simple 445/8 ; heures à prix ≤ 0 avec charge : 3 et 4, où J laissé (4 000 ; 9 000) ≥ 2 000 : 2 et 2. Monotone avant = RN observée : 30 000, 30 000, 28 000, 25 000, 20 000, 10 000, 5 000 ; après : 33 000, 33 000, 32 000, 27 000, 22 000, 12 000, 7 000. Consommation maximale observée 80 000 (2 h et 7 h, → 2 h UTC) ; avec froid et charge : 62 000, 77 000, 82 000, 72 000, 57 000, 83 000, absente, 83 000 → 83 000 à 5 h UTC. Production nucléaire : 372 500 MWh = 0,3725 TWh.",
+   "fonction": "simuler",
+   "parametres": {
+    "x_mw": 2000,
+    "heures_effacement": 1,
+    "plancher_mw": 500,
+    "rn_max_reference_mw": 32500,
+    "froid_c": 1.5,
+    "gradient_mw_par_c": 2000,
+    "duree_froid_h": 3
+   },
+   "entree": {
+    "heure_utc": ["2025-01-13T00:00Z", "2025-01-13T01:00Z", "2025-01-13T02:00Z", "2025-01-13T03:00Z", "2025-01-13T04:00Z", "2025-01-13T05:00Z", "2025-01-13T06:00Z", "2025-01-13T07:00Z"],
+    "consommation": [60000, 75000, 80000, 70000, 55000, 78000, null, 80000],
+    "eolien": [0, 0, 0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50000, 46000, 41000, 47500, 45000, 44000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [50, 60, 70, 0, -5, 80, 90, 100]
+   },
+   "attendu": {
+    "x_mw": 2000,
+    "heures_effacement": 1,
+    "heures": 8,
+    "heures_effacees": ["2025-01-13T07:00Z"],
+    "rn_seuil_effacement_mw": 33000,
+    "energie_effacee_twh": 0.002,
+    "heures_charge_nulle": 1,
+    "energie_ajoutee_twh": 0.014,
+    "froid_c": 1.5,
+    "gradient_mw_par_c": 2000,
+    "froid_ajout_mw": 3000,
+    "froid_heures": 3,
+    "froid_debut_utc": "2025-01-13T05:00Z",
+    "froid_fin_utc": "2025-01-13T07:00Z",
+    "energie_froid_twh": 0.009,
+    "heures_j_valides": 8,
+    "energie_dans_j_twh": 0.007,
+    "part_dans_j": 0.5,
+    "plancher_mw": 500,
+    "energie_dans_j_plancher_twh": 0.006,
+    "part_dans_j_plancher": 0.42857142857142855,
+    "heures_j_couvre_charge": 3,
+    "solde_echanges_moyen_heures_j_couvre_mw": null,
+    "heures_rn_valides": 7,
+    "rn_max_mw": 30000,
+    "max_apres.valeur_mw": 33000,
+    "max_apres.heure_utc": "2025-01-13T05:00Z",
+    "max_apres.debut_paris": "2025-01-13T06:00+01:00",
+    "heures_au_dessus_du_max": 3,
+    "rn_max_reference_mw": 32500,
+    "heures_au_dessus_du_max_reference": 2,
+    "heures_prix_valides": 8,
+    "energie_prix_valide_twh": 0.014,
+    "part_prix_negatif": 0.14285714285714285,
+    "part_prix_nul_ou_negatif": 0.2857142857142857,
+    "prix_moyen_pondere_eur_mwh": 49.285714285714285,
+    "prix_moyen_eur_mwh": 55.625,
+    "heures_prix_nul_ou_negatif_charge": 2,
+    "heures_prix_nul_ou_negatif_j_couvre": 2,
+    "monotone_avant": [
+     [1, 30000],
+     [2, 30000],
+     [3, 28000],
+     [4, 25000],
+     [5, 20000],
+     [6, 10000],
+     [7, 5000]
+    ],
+    "monotone_apres": [
+     [1, 33000],
+     [2, 33000],
+     [3, 32000],
+     [4, 27000],
+     [5, 22000],
+     [6, 12000],
+     [7, 7000]
+    ],
+    "consommation_max_observee.valeur_mw": 80000,
+    "consommation_max_observee.heure_utc": "2025-01-13T02:00Z",
+    "consommation_max_observee.debut_paris": "2025-01-13T03:00+01:00",
+    "consommation_max_apres.valeur_mw": 83000,
+    "consommation_max_apres.heure_utc": "2025-01-13T05:00Z",
+    "consommation_max_apres.debut_paris": "2025-01-13T06:00+01:00",
+    "production_nucleaire_twh": 0.3725
+   }
+  },
+  {
+   "nom": "simuler : froid supplémentaire seul (X nul)",
+   "explication": "Table commune aux cas « froid » : 8 heures du 13/01/2025 (0 h à 7 h UTC, 1 h à 8 h à Paris), éolien et solaire nuls, nucléaire disponible 50 000 MW ; consommation 60 000, 75 000, 80 000, 70 000, 55 000, 78 000, absente, 80 000 MW, d'où RN = 10 000, 25 000, 30 000, 20 000, 5 000, 28 000, absente, 30 000 MW ; production nucléaire 50 000, 49 000, 50 000, 46 000, 41 000, 47 500, 45 000, 44 000 MW, d'où J = 0, 1 000, 0, 4 000, 9 000, 2 500, 5 000, 6 000 MW ; prix 50, 60, 70, 0, −5, 80, 90, 100 EUR/MWh ; pas de solde des échanges. Épisode de froid de 3 heures : fenêtres de 3 heures, moyenne des RN renseignées : 0-2 → 65 000 / 3 ; 1-3 → 25 000 ; 2-4 → 55 000 / 3 ; 3-5 → 53 000 / 3 ; 4-6 → (5 000 + 28 000) / 2 = 16 500 ; 5-7 → (28 000 + 30 000) / 2 = 29 000 (l'heure absente ne compte pas) : épisode = heures 5, 6, 7. Froid 1,5 °C × 2 000 MW/°C = 3 000 MW aux heures 5, 6, 7 ; aucune charge. RN + froid = 10 000, 25 000, 30 000, 20 000, 5 000, 31 000, absente, 33 000 : au-dessus du maximum observé (30 000) aux heures 5 et 7 (2), au-dessus de 32 500 à 7 h (1) ; maximum 33 000 à 7 h UTC (8 h à Paris). Parts et prix pondéré sans objet (charge nulle) ; moyenne simple des prix 445/8. Consommation + froid : 81 000 à 5 h, 83 000 à 7 h → 83 000 à 7 h UTC.",
+   "fonction": "simuler",
+   "parametres": {
+    "x_mw": 0,
+    "rn_max_reference_mw": 32500,
+    "froid_c": 1.5,
+    "gradient_mw_par_c": 2000,
+    "duree_froid_h": 3
+   },
+   "entree": {
+    "heure_utc": ["2025-01-13T00:00Z", "2025-01-13T01:00Z", "2025-01-13T02:00Z", "2025-01-13T03:00Z", "2025-01-13T04:00Z", "2025-01-13T05:00Z", "2025-01-13T06:00Z", "2025-01-13T07:00Z"],
+    "consommation": [60000, 75000, 80000, 70000, 55000, 78000, null, 80000],
+    "eolien": [0, 0, 0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50000, 46000, 41000, 47500, 45000, 44000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [50, 60, 70, 0, -5, 80, 90, 100]
+   },
+   "attendu": {
+    "x_mw": 0,
+    "heures": 8,
+    "heures_effacees": [],
+    "rn_seuil_effacement_mw": null,
+    "energie_effacee_twh": 0,
+    "heures_charge_nulle": 8,
+    "energie_ajoutee_twh": 0,
+    "part_dans_j": null,
+    "part_dans_j_plancher": null,
+    "heures_j_couvre_charge": 0,
+    "froid_ajout_mw": 3000,
+    "froid_heures": 3,
+    "energie_froid_twh": 0.009,
+    "rn_max_mw": 30000,
+    "max_apres.valeur_mw": 33000,
+    "max_apres.heure_utc": "2025-01-13T07:00Z",
+    "max_apres.debut_paris": "2025-01-13T08:00+01:00",
+    "heures_au_dessus_du_max": 2,
+    "heures_au_dessus_du_max_reference": 1,
+    "part_prix_negatif": null,
+    "part_prix_nul_ou_negatif": null,
+    "prix_moyen_pondere_eur_mwh": null,
+    "prix_moyen_eur_mwh": 55.625,
+    "heures_prix_nul_ou_negatif_charge": 0,
+    "monotone_apres": [
+     [1, 33000],
+     [2, 31000],
+     [3, 30000],
+     [4, 25000],
+     [5, 20000],
+     [6, 10000],
+     [7, 5000]
+    ],
+    "consommation_max_apres.valeur_mw": 83000,
+    "consommation_max_apres.heure_utc": "2025-01-13T07:00Z"
+   }
+  },
+  {
+   "nom": "simuler : plancher réglé à 0 (part avec plancher = part sans plancher), sans froid",
+   "explication": "Table commune aux cas « froid » : 8 heures du 13/01/2025 (0 h à 7 h UTC, 1 h à 8 h à Paris), éolien et solaire nuls, nucléaire disponible 50 000 MW ; consommation 60 000, 75 000, 80 000, 70 000, 55 000, 78 000, absente, 80 000 MW, d'où RN = 10 000, 25 000, 30 000, 20 000, 5 000, 28 000, absente, 30 000 MW ; production nucléaire 50 000, 49 000, 50 000, 46 000, 41 000, 47 500, 45 000, 44 000 MW, d'où J = 0, 1 000, 0, 4 000, 9 000, 2 500, 5 000, 6 000 MW ; prix 50, 60, 70, 0, −5, 80, 90, 100 EUR/MWh ; pas de solde des échanges. Épisode de froid de 3 heures : fenêtres de 3 heures, moyenne des RN renseignées : 0-2 → 65 000 / 3 ; 1-3 → 25 000 ; 2-4 → 55 000 / 3 ; 3-5 → 53 000 / 3 ; 4-6 → (5 000 + 28 000) / 2 = 16 500 ; 5-7 → (28 000 + 30 000) / 2 = 29 000 (l'heure absente ne compte pas) : épisode = heures 5, 6, 7. Sans froid : aucun épisode, J inchangé. X = 1 000 MW partout : 8 000 MWh. Σ min(1 000, J) = 0 + 1 000 + 0 + 1 000 + 1 000 + 1 000 + 1 000 + 1 000 = 6 000 → 0,75, et la même chose avec un plancher nul. RN + 1 000 > 30 000 aux heures 2 et 7 (2) ; maximum 31 000 à égalité 2 h et 7 h UTC → 2 h. Consommation + 1 000 : maximum 81 000 à 2 h UTC (égalité avec 7 h).",
+   "fonction": "simuler",
+   "parametres": {
+    "x_mw": 1000,
+    "plancher_mw": 0
+   },
+   "entree": {
+    "heure_utc": ["2025-01-13T00:00Z", "2025-01-13T01:00Z", "2025-01-13T02:00Z", "2025-01-13T03:00Z", "2025-01-13T04:00Z", "2025-01-13T05:00Z", "2025-01-13T06:00Z", "2025-01-13T07:00Z"],
+    "consommation": [60000, 75000, 80000, 70000, 55000, 78000, null, 80000],
+    "eolien": [0, 0, 0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50000, 46000, 41000, 47500, 45000, 44000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [50, 60, 70, 0, -5, 80, 90, 100]
+   },
+   "attendu": {
+    "energie_ajoutee_twh": 0.008,
+    "part_dans_j": 0.75,
+    "part_dans_j_plancher": 0.75,
+    "plancher_mw": 0,
+    "energie_dans_j_twh": 0.006,
+    "energie_dans_j_plancher_twh": 0.006,
+    "froid_c": 0,
+    "froid_ajout_mw": 0,
+    "froid_heures": 0,
+    "froid_debut_utc": null,
+    "froid_fin_utc": null,
+    "energie_froid_twh": 0,
+    "heures_au_dessus_du_max": 2,
+    "max_apres.valeur_mw": 31000,
+    "max_apres.heure_utc": "2025-01-13T02:00Z",
+    "consommation_max_apres.valeur_mw": 81000,
+    "consommation_max_apres.heure_utc": "2025-01-13T02:00Z",
+    "consommation_max_observee.valeur_mw": 80000
+   }
+  },
+  {
+   "nom": "simuler : X = 4 GW sans effacement, disponible réintégrant les arrêts courts pour modulation",
+   "explication": "Table commune des cas « simuler » (6 heures du 14/01/2025, disponible déclaré 50 000 MW, J = 0, 1 000, 0, 3 000, 6 000, 12 000 MW), plus le disponible réintégrant les arrêts courts pour modulation : 50 000, 52 000, 51 000, 52 000, 54 000, 50 000 MW (≥ déclaré) ; production 50 000, 49 000, 50 500, 47 000, 44 000, 38 000 MW → J_r = max(0, réintégré − produit) = 0, 3 000, 500, 5 000, 10 000, 12 000 MW. Charge 4 000 MW partout (24 000 MWh). Σ min(4 000, J_r) = 0 + 3 000 + 500 + 4 000 + 4 000 + 4 000 = 15 500 → 15 500 / 24 000 = 0,6458333… ; plancher 1 000 MW : J_r' = 0, 2 000, 0, 4 000, 9 000, 11 000 → Σ min = 0 + 2 000 + 0 + 4 000 + 4 000 + 4 000 = 14 000 → 0,5833333… ; J_r ≥ 4 000 à 8 h, 9 h, 10 h → 3 heures. Les sorties avec J (part 12 000 / 24 000 = 0,5 ; plancher 10 000 / 24 000) ne changent pas : RN reste calculée avec le disponible déclaré.",
+   "fonction": "simuler",
+   "parametres": {
+    "x_mw": 4000
+   },
+   "entree": {
+    "heure_utc": ["2025-01-14T05:00Z", "2025-01-14T06:00Z", "2025-01-14T07:00Z", "2025-01-14T08:00Z", "2025-01-14T09:00Z", "2025-01-14T10:00Z"],
+    "consommation": [60000, 70000, 80000, 70000, 55000, 42000],
+    "eolien": [0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50500, 47000, 44000, 38000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [80, 120, 200, 100, 0, -10],
+    "ech_physiques": [1000, 2000, 3000, -1000, -4000, -6000],
+    "nucleaire_disponible_reintegre": [50000, 52000, 51000, 52000, 54000, 50000]
+   },
+   "attendu": {
+    "part_dans_j": 0.5,
+    "part_dans_j_plancher": 0.4166666666666667,
+    "heures_j_couvre_charge": 2,
+    "max_apres.valeur_mw": 34000,
+    "reintegre.energie_dans_j_twh": 0.0155,
+    "reintegre.part_dans_j": 0.6458333333333334,
+    "reintegre.energie_dans_j_plancher_twh": 0.014,
+    "reintegre.part_dans_j_plancher": 0.5833333333333334,
+    "reintegre.heures_j_couvre_charge": 3
+   }
+  },
+  {
+   "nom": "simuler : froid supplémentaire et disponible réintégré (le froid passe d'abord, dans J_r aussi)",
+   "explication": "Table commune des cas « simuler » (6 heures du 14/01/2025, disponible déclaré 50 000 MW, J = 0, 1 000, 0, 3 000, 6 000, 12 000 MW), plus le disponible réintégrant les arrêts courts pour modulation : 50 000, 52 000, 51 000, 52 000, 54 000, 50 000 MW (≥ déclaré) ; production 50 000, 49 000, 50 500, 47 000, 44 000, 38 000 MW → J_r = max(0, réintégré − produit) = 0, 3 000, 500, 5 000, 10 000, 12 000 MW. Froid de 2 °C × 1 000 MW/°C sur 2 heures : RN = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 ; fenêtres de 2 heures : moyennes 15 000, 25 000, 25 000, 12 500, −1 500 → la plus ancienne des deux à 25 000, 6 h et 7 h UTC ; supplément 0, 2 000, 2 000, 0, 0, 0. J_r laissé à la charge = max(0, J_r − supplément) = 0, 1 000, 0, 5 000, 10 000, 12 000 ; Σ min(4 000, ·) = 0 + 1 000 + 0 + 4 000 + 4 000 + 4 000 = 13 000 → 13 000 / 24 000 = 0,5416666… ; plancher : 0, 0, 0, 4 000, 9 000, 11 000 → 12 000 → 0,5 ; couvre 3 heures. Avec J : max(0, J − supplément) = 0, 0, 0, 3 000, 6 000, 12 000 → 11 000 / 24 000 = 0,4583333…. RN maximale observée : 30 000 MW à 7 h UTC, dans l'épisode (6 h et 7 h).",
+   "fonction": "simuler",
+   "parametres": {
+    "x_mw": 4000,
+    "froid_c": 2,
+    "gradient_mw_par_c": 1000,
+    "duree_froid_h": 2
+   },
+   "entree": {
+    "heure_utc": ["2025-01-14T05:00Z", "2025-01-14T06:00Z", "2025-01-14T07:00Z", "2025-01-14T08:00Z", "2025-01-14T09:00Z", "2025-01-14T10:00Z"],
+    "consommation": [60000, 70000, 80000, 70000, 55000, 42000],
+    "eolien": [0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50500, 47000, 44000, 38000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [80, 120, 200, 100, 0, -10],
+    "ech_physiques": [1000, 2000, 3000, -1000, -4000, -6000],
+    "nucleaire_disponible_reintegre": [50000, 52000, 51000, 52000, 54000, 50000]
+   },
+   "attendu": {
+    "froid_heures": 2,
+    "froid_debut_utc": "2025-01-14T06:00Z",
+    "part_dans_j": 0.4583333333333333,
+    "reintegre.energie_dans_j_twh": 0.013,
+    "reintegre.part_dans_j": 0.5416666666666666,
+    "reintegre.energie_dans_j_plancher_twh": 0.012,
+    "reintegre.part_dans_j_plancher": 0.5,
+    "reintegre.heures_j_couvre_charge": 3,
+    "rn_max_heure_utc": "2025-01-14T07:00Z"
+   }
+  },
+  {
+   "nom": "indicateurs_annee : variante réintégrant les arrêts courts pour modulation",
+   "explication": "Table commune des cas « simuler » (6 heures du 14/01/2025, disponible déclaré 50 000 MW, J = 0, 1 000, 0, 3 000, 6 000, 12 000 MW), plus le disponible réintégrant les arrêts courts pour modulation : 50 000, 52 000, 51 000, 52 000, 54 000, 50 000 MW (≥ déclaré) ; production 50 000, 49 000, 50 500, 47 000, 44 000, 38 000 MW → J_r = max(0, réintégré − produit) = 0, 3 000, 500, 5 000, 10 000, 12 000 MW. Σ J_r = 30 500 MWh = 0,0305 TWh ; 5 heures positives ; moyenne 30 500 / 6. Énergie des arrêts courts = Σ (réintégré − déclaré) = 0 + 2 000 + 1 000 + 2 000 + 4 000 + 0 = 9 000 MWh = 0,009 TWh. X = 4 GW : 15 500 / 24 000 ; J_r ≥ 4 000 pendant 3 heures ; plancher 14 000 / 24 000. X = 10 GW : Σ min(10 000, J_r) = 0 + 3 000 + 500 + 5 000 + 10 000 + 10 000 = 28 500 → 28 500 / 60 000 = 0,475 ; J_r ≥ 10 000 pendant 2 heures ; plancher : Σ min(10 000, J_r') = 0 + 2 000 + 0 + 4 000 + 9 000 + 10 000 = 25 000 → 0,4166666… (0,025 TWh). Σ J avec le déclaré, inchangé : 22 000 MWh. Avec J, X = 10 GW : Σ min(10 000, J) = 0 + 1 000 + 0 + 3 000 + 6 000 + 10 000 = 20 000 → 0,333…",
+   "fonction": "indicateurs_annee",
+   "parametres": {
+    "charges_mw": [4000, 10000],
+    "n_tendues": 2
+   },
+   "entree": {
+    "heure_utc": ["2025-01-14T05:00Z", "2025-01-14T06:00Z", "2025-01-14T07:00Z", "2025-01-14T08:00Z", "2025-01-14T09:00Z", "2025-01-14T10:00Z"],
+    "consommation": [60000, 70000, 80000, 70000, 55000, 42000],
+    "eolien": [0, 0, 0, 0, 0, 0],
+    "solaire": [0, 0, 0, 0, 0, 0],
+    "nucleaire": [50000, 49000, 50500, 47000, 44000, 38000],
+    "nucleaire_disponible": [50000, 50000, 50000, 50000, 50000, 50000],
+    "prix": [80, 120, 200, 100, 0, -10],
+    "ech_physiques": [1000, 2000, 3000, -1000, -4000, -6000],
+    "nucleaire_disponible_reintegre": [50000, 52000, 51000, 52000, 54000, 50000]
+   },
+   "attendu": {
+    "jeu_nucleaire.somme_twh": 0.022,
+    "jeu_nucleaire_reintegre.heures_valides": 6,
+    "jeu_nucleaire_reintegre.somme_twh": 0.0305,
+    "jeu_nucleaire_reintegre.heures_positif": 5,
+    "jeu_nucleaire_reintegre.moyenne_mw": 5083.333333333333,
+    "jeu_nucleaire_reintegre.arrets_modulation_courts_twh": 0.009,
+    "jeu_nucleaire_reintegre.charges_plates.0.x_mw": 4000,
+    "jeu_nucleaire_reintegre.charges_plates.0.energie_dans_j_twh": 0.0155,
+    "jeu_nucleaire_reintegre.charges_plates.0.part_dans_j": 0.6458333333333334,
+    "jeu_nucleaire_reintegre.charges_plates.0.heures_j_superieur_ou_egal_x": 3,
+    "jeu_nucleaire_reintegre.charges_plates.0.energie_dans_j_plancher_twh": 0.014,
+    "jeu_nucleaire_reintegre.charges_plates.0.part_dans_j_plancher": 0.5833333333333334,
+    "jeu_nucleaire_reintegre.charges_plates.1.part_dans_j": 0.475,
+    "jeu_nucleaire_reintegre.charges_plates.1.heures_j_superieur_ou_egal_x": 2,
+    "jeu_nucleaire_reintegre.charges_plates.1.energie_dans_j_plancher_twh": 0.025,
+    "jeu_nucleaire_reintegre.charges_plates.1.part_dans_j_plancher": 0.4166666666666667,
+    "charges_plates.1.part_dans_j": 0.3333333333333333
+   }
+  },
+  {
+   "nom": "épisode de froid : heure absente dans une fenêtre, égalité (la plus ancienne)",
+   "explication": "RN = 5, absente, 9, 1, 9, 9 ; fenêtres de 2 : (5) → 5 ; (9) → 9 ; (9, 1) → 5 ; (1, 9) → 5 ; (9, 9) → 9. Égalité à 9 entre les fenêtres 1-2 et 4-5 : la plus ancienne, 1-2.",
+   "fonction": "episode_froid",
+   "parametres": {
+    "duree_h": 2
+   },
+   "entree": {
+    "rn": [5, null, 9, 1, 9, 9]
+   },
+   "attendu": {
+    "": [1, 2]
+   }
+  },
+  {
+   "nom": "épisode de froid : table plus courte que la durée",
+   "explication": "2 heures pour une durée de 5 : toute la table.",
+   "fonction": "episode_froid",
+   "parametres": {
+    "duree_h": 5
+   },
+   "entree": {
+    "rn": [3, -2]
+   },
+   "attendu": {
+    "": [0, 1]
+   }
+  },
+  {
+   "nom": "épisode de froid : fenêtre sans RN écartée, valeurs négatives",
+   "explication": "RN = absente, absente, −4, −6 ; fenêtres de 2 : (aucune) écartée ; (−4) → −4 ; (−4, −6) → −5 : fenêtre 1-2.",
+   "fonction": "episode_froid",
+   "parametres": {
+    "duree_h": 2
+   },
+   "entree": {
+    "rn": [null, null, -4, -6]
+   },
+   "attendu": {
+    "": [1, 2]
+   }
+  },
+  {
+   "nom": "épisode de froid : aucune RN renseignée",
+   "explication": "Aucune fenêtre n'a de RN : épisode vide.",
+   "fonction": "episode_froid",
+   "parametres": {
+    "duree_h": 1
+   },
+   "entree": {
+    "rn": [null, null]
+   },
+   "attendu": {
+    "": []
    }
   },
   {

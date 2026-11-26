@@ -11,6 +11,8 @@ ce fichier ; les nombres en clair sont des paramètres (X = 1, 5, 10 GW)
 ou des calculs expliqués dans la phrase. Les chiffres `quand_*` sont
 calculés par `pc build` (pipeline/pc/quand.py) sur les séries publiées
 dans data/export/horaire/, et contrôlés par `pc check`.
+Une ligne `- ::: inclure nom :::` est remplacée par docs/enquetes/partage/nom.md :
+le même texte sert au simulateur (site/src/lib/simulateur/lecture.md).
 -->
 
 Un data center consomme jour et nuit. Sa consommation tombe donc aussi
@@ -138,10 +140,15 @@ C'est le même ordre de grandeur que la modulation publiée par EDF
 ({{modulation_nucleaire_2023_bp}}, {{modulation_nucleaire_2024_bp}} et
 {{modulation_nucleaire_2025_bp}}) ou par RTE pour 2025
 ({{modulation_nucleaire_2025_be}}), mais ce n'est pas la même grandeur.
-La frontière entre « indisponible » et « modulé » est fixée par EDF : un
-réacteur arrêté pour économiser son combustible peut être déclaré
-indisponible, et sortir de ce calcul. Ce site ne l'appelle donc pas
-« modulation ».
+La frontière entre « indisponible » et « modulé » est fixée par EDF, et
+elle compte : EDF déclare indisponibles des arrêts « pour modulation »,
+qui sortent de ce calcul (voir plus bas). En réintégrant ceux de moins
+de sept jours, économiques, le nucléaire disponible et non produit
+représente {{quand_j_reintegre_2024}} en 2024 et
+{{quand_j_reintegre_2025}} en 2025. Les arrêts pour modulation plus
+longs et les arrêts déclarés « pour économie de combustible » restent
+retranchés dans les deux calculs. Ce site n'appelle donc ni l'un ni
+l'autre « modulation ».
 
 ## Ce qu'une consommation continue de plus y changerait
 
@@ -157,18 +164,26 @@ un chiffre que RTE donne en exemple sans en préciser le calcul. X GW consommés
 **Aux heures de surplus**, une partie de cette énergie trouverait du
 nucléaire disponible et non produit. Avec les données de 2025, ce
 serait au plus {{quand_part_j_5gw_2025}} de l'énergie pour 5 GW et
-{{quand_part_j_10gw_2025}} pour 10 GW. Ce plafond est lâche. Même aux
+{{quand_part_j_10gw_2025}} pour 10 GW, avec la disponibilité déclarée
+par EDF ; {{quand_part_j_reintegre_5gw_2025}} et
+{{quand_part_j_reintegre_10gw_2025}} en réintégrant les arrêts courts
+qu'EDF déclare indisponibles pour modulation (voir plus bas). Le plafond
+avec la disponibilité déclarée est lâche. Même aux
 heures les plus chères, le nucléaire disponible non produit reste le
 plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait
 150 €/MWh. Une part de ce « reste » n'est pas mobilisable (réserves de
 services système, rampes, fins de cycle). En retranchant 1 GW à toute
 heure, un ordre de grandeur choisi par ce site, les parts tombent à
-{{quand_part_j_plancher_5gw_2025}} et {{quand_part_j_plancher_10gw_2025}}.
+{{quand_part_j_plancher_5gw_2025}} et {{quand_part_j_plancher_10gw_2025}} ; le
+[simulateur](/simulateur) permet de régler ce plancher.
+
+::: inclure arrets-modulation :::
 
 En énergie, la limite est plus nette encore. Servir de cette façon une
 consommation plate de 5 GW demanderait {{quand_energie_j_5gw_2025}} de
-production nucléaire en plus sur l'année, pour un parc qui a produit
+production nucléaire en plus sur l'année ({{quand_energie_j_reintegre_5gw_2025}}
+en réintégrant les arrêts courts pour modulation), pour un parc qui a produit
 {{prod_nucleaire_2025}} en 2025 et dont l'exploitant prévoit
 {{prod_nucleaire_prevision_2026_2027}} par an pour 2026-2027. La
 puissance restée inemployée heure par heure ne dit pas que le
@@ -221,10 +236,7 @@ ce que le simulateur permet d'explorer.
 
 ## Ce que ce calcul ne dit pas
 
-- **Le froid extrême.** Onze années observées ne contiennent pas
-  forcément les froids les plus sévères que RTE place dans ses
-  scénarios. Une année observée n'est pas une distribution de risque ;
-  RTE simule, ce site observe.
+- ::: inclure limite-froid :::
 - **Les voisins.** Aux heures tendues comme aux heures de surplus, les
   échanges comptent. Dire ce que deviennent les exportations déplacées,
   et à quelles émissions, demande les données des pays voisins
@@ -241,9 +253,7 @@ ce que le simulateur permet d'explorer.
   apportent de la puissance aux heures tendues, mais sur une quantité
   d'eau limitée : sur un épisode long, leur puissance n'est pas
   disponible à toute heure.
-- **L'écrêtement.** L'éolien et le solaire observés sont ce qui a été
-  produit, après les arrêts à prix négatif : aux heures de surplus, la
-  charge résiduelle est surestimée.
+- ::: inclure limite-ecretement :::
 - **La pointe exacte.** Les calculs sont à l'heure, hors Corse. RTE
   donne une pointe de {{pointe_conso_2025}} pour 2025, Corse comprise,
   au pas de la demi-heure ; la moyenne horaire de la même matinée est

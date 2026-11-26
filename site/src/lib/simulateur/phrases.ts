@@ -8,9 +8,19 @@
 // en regard de la production (SF2), deux maxima de référence et cas trivial de l'heure du maximum
 // (SF3), effacement présenté comme borne basse et circulaire, énergie effacée perdue (SF4), pas de
 // prix moyen pondéré (SF5), rapprochement avec les marges de RTE (SF6).
+//
+// Limites traitées le 26/11/2026 (docs/SIMULATEUR.md) : froid supplémentaire sur un épisode (pas un
+// écart aux normales, double compte dit), plancher de J réglable. Puis (ERREURS.md, « un plafond qui
+// dépend de ce qu'EDF déclare indisponible ») : le « au plus » du nucléaire disponible non produit
+// vaut avec la disponibilité déclarée par EDF ; la tuile donne aussi la valeur en réintégrant les
+// arrêts courts qu'EDF déclare indisponibles pour modulation (seconde valeur, `complement` ; arrêts
+// de moins de 7 jours seulement, relecture du 26/11/2026, F2). Repère du froid en consommation, pas
+// en degrés sous les normales (même relecture, F1). Avec du froid, les phrases
+// « effacer N* heures suffit » ne valent que si le froid seul ne dépasse pas le maximum (`seul`).
 import { typographier } from '$lib/markdown';
 import { gw, heureParis } from '$lib/quand';
 import type { Etat } from './etat';
+import { FINE, INSECABLE, dateParis, formaterDate, formaterNombre } from '$lib/format';
 import { heures, part, puissanceReglee, twh } from './format';
 import type { Simulation } from './moteur';
 import type { References } from './references';
@@ -20,6 +30,8 @@ export interface Tuile {
   /** Qualificatif avant la valeur (« au plus »), le cas échéant. */
   qualif?: string;
   valeur: string;
+  /** Seconde valeur, plus petite, sous la valeur (variante), le cas échéant. */
+  complement?: string;
   detail: string;
   /** Notes HTML des chiffres du référentiel cités dans le détail. */
   notes?: string[];
@@ -37,32 +49,67 @@ export interface OptionsPhrases {
   derniereAnnee: number;
 }
 
+/** « 39 à 52 % », ou « 52 % » si les deux bornes s'écrivent pareil. */
+const fourchette = (bas: number, haut: number) => {
+  const b = part(bas);
+  const h = part(haut);
+  return b === h ? h : `${b.replace(/\s%$/, '')} à ${h}`;
+};
+
+/** « 1,5 °C » (pas de 0,5). */
+const degres = (c: number) => `${formaterNombre(c, 1)}${FINE}°C`;
+
+/** Période d'heures UTC (début de la première, début de la dernière) en dates de Paris :
+ * « du 13 au 20 janv. 2025 », « du 28 févr. au 7 mars 2025 », « du 28 déc. 2024 au 4 janv. 2025 ». */
+function periodeParis(debutUtc: string, derniereUtc: string): string {
+  const fin = new Date(Date.parse(derniereUtc) + 3_600_000).toISOString().slice(0, 16) + 'Z';
+  const [a, b] = [debutUtc, fin].map((h) => formaterDate(dateParis(h), true).split(INSECABLE));
+  const debut =
+    a[2] !== b[2] ? a.join(INSECABLE) : a[1] !== b[1] ? `${a[0]}${INSECABLE}${a[1]}` : a[0];
+  return `du ${debut} au ${b.join(INSECABLE)}`;
+}
+
+/** Durée d'un épisode : « 7 jours » si elle tombe juste, sinon en heures. */
+const duree = (h: number) => (h % 24 === 0 ? `${h / 24}${INSECABLE}jours` : heures(h));
+
 /**
  * @param sim simulation avec les hypothèses choisies (seuil de référence = maximum pluriannuel)
  * @param plate même puissance sans effacement (= `sim` si l'effacement est nul)
+ * @param seul froid seul : X nul, sans effacement, même froid (null sans froid)
  */
 export function phrases(
   etat: Etat,
   sim: Simulation,
   plate: Simulation,
   refs: References,
-  options: OptionsPhrases
+  options: OptionsPhrases,
+  seul: Simulation | null = null
 ): { scenario: string; tuiles: Tuile[] } {
   const x = puissanceReglee(etat.xGw);
   const aucune = sim.x_mw === 0;
+  const froid = sim.froid_heures > 0 && sim.froid_ajout_mw > 0;
   const nEff = aucune ? 0 : sim.heures_effacees.length;
   const pluri = refs.maxPluriannuel;
   const datePluri = heureParis(pluri.debut_paris);
+  // Heures au-delà des maxima dues au froid seul : aucun effacement de la charge ne les supprime.
+  const seulAu = froid && seul ? (seul.heures_au_dessus_du_max ?? 0) : 0;
+  const seulRef = froid && seul ? (seul.heures_au_dessus_du_max_reference ?? 0) : 0;
 
-  const scenario = aucune
-    ? `${etat.annee} : aucune consommation ajoutée (X = 0)` +
-      (etat.effacement ? ' ; l’effacement est sans objet.' : '.')
-    : `${etat.annee} : consommation ajoutée de ${x} à toutes les heures` +
-      (nEff
-        ? ` sauf pendant ${lesHeures(nEff)} de charge résiduelle observée la plus élevée ` +
-          `(au moins ${gw(sim.rn_seuil_effacement_mw as number)})`
-        : '') +
-      '.';
+  const partFroid = froid
+    ? ` Froid supplémentaire de ${degres(sim.froid_c)} pendant les ${duree(sim.froid_heures)} les ` +
+      `plus tendus, ${periodeParis(sim.froid_debut_utc as string, sim.froid_fin_utc as string)} : ` +
+      `${gw(sim.froid_ajout_mw)} de consommation en plus à chaque heure.`
+    : '';
+  const scenario =
+    (aucune
+      ? `${etat.annee} : aucune consommation ajoutée (X = 0)` +
+        (etat.effacement ? ' ; l’effacement est sans objet.' : '.')
+      : `${etat.annee} : consommation ajoutée de ${x} à toutes les heures` +
+        (nEff
+          ? ` sauf pendant ${lesHeures(nEff)} de charge résiduelle ${froid ? 'la plus élevée, froid compris' : 'observée la plus élevée'} ` +
+            `(au moins ${gw(sim.rn_seuil_effacement_mw as number)})`
+          : '') +
+        '.') + partFroid;
 
   /* ---------- 1. Énergie ---------- */
   const energie: Tuile = {
@@ -112,21 +159,48 @@ export function phrases(
   const nEtoile = plate.heures_au_dessus_du_max ?? 0;
   const au = sim.heures_au_dessus_du_max ?? 0;
   const m: string[] = [];
-  if (aucune) m.push(`Aucune consommation ajoutée : le maximum reste ${gw(sim.rn_max_mw ?? 0)}.`);
+  if (aucune && !froid)
+    m.push(`Aucune consommation ajoutée : le maximum reste ${gw(sim.rn_max_mw ?? 0)}.`);
   else if (sim.max_apres && sim.rn_max_mw !== null) {
     m.push(`Maximum observé de ${etat.annee} : ${gw(sim.rn_max_mw)}.`);
-    if (!nEff)
+    if (!nEff && !aucune)
       m.push(
         'Ce compte vaut au moins 1 dès que X est positif : l’heure du maximum se dépasse ' +
           'elle-même' +
           (au === 1 ? ', et c’est la seule ici.' : '.')
+      );
+    // L'heure du maximum est-elle dans l'épisode ? Alors le moindre froid la fait se dépasser elle-même.
+    const maxDansEpisode =
+      froid &&
+      sim.rn_max_heure_utc !== null &&
+      sim.froid_debut_utc !== null &&
+      sim.froid_fin_utc !== null &&
+      sim.rn_max_heure_utc >= sim.froid_debut_utc &&
+      sim.rn_max_heure_utc <= sim.froid_fin_utc;
+    if (froid)
+      m.push(
+        seulAu > 0
+          ? `Le froid supplémentaire, à lui seul, porte la charge résiduelle au-delà de ce maximum ` +
+              `pendant ${heures(seulAu)}` +
+              (maxDansEpisode
+                ? ' (l’heure du maximum, dans l’épisode, se dépasse elle-même dès le moindre froid)'
+                : '') +
+              ` : aucun effacement de la consommation ajoutée ne ${seulAu > 1 ? 'les' : 'la'} supprime.`
+          : 'Le froid supplémentaire, à lui seul, ne dépasse pas ce maximum.'
       );
     if (sim.max_apres.valeur_mw > sim.rn_max_mw)
       m.push(
         `Nouveau maximum : ${gw(sim.max_apres.valeur_mw)} (${heureParis(sim.max_apres.debut_paris)}).`
       );
     if (nEff && nEtoile > 0) m.push(`Sans effacement : ${heures(nEtoile)}.`);
-    if (nEtoile > nEff)
+    if (aucune) {
+      // Froid seul : pas de consommation ajoutée à effacer.
+    } else if (nEtoile > nEff && seulAu > 0)
+      m.push(
+        `En effaçant les ${heures(nEtoile)} les plus tendues, en les connaissant à l’avance, il ` +
+          `resterait ${seulAu > 1 ? `les ${heures(seulAu)} dues` : 'l’heure due'} au froid seul.`
+      );
+    else if (nEtoile > nEff)
       m.push(
         `Pour ne jamais dépasser ce maximum, il faudrait effacer au moins ${heures(nEtoile)}, en ` +
           (nEtoile > 1 ? 'les' : 'la') +
@@ -135,7 +209,7 @@ export function phrases(
             ? ` (plus que les ${options.maxReglable} heures que propose le réglage).`
             : '.')
       );
-    else if (nEff && nEtoile > 0)
+    else if (nEff && nEtoile > 0 && seulAu === 0)
       m.push(
         'Par construction, les heures effacées sont celles que compte cet indicateur : avec ' +
           `${heures(nEtoile)} ou plus, il tombe à zéro. Cela ne dit rien d’un effacement réel, ` +
@@ -160,9 +234,14 @@ export function phrases(
     r.push(
       'Le système l’a couvert avec d’autres moyens : du charbon et du fioul, et des importations importantes.'
     );
-  if (!aucune && sim.max_apres && sim.max_apres.valeur_mw > pluri.valeur_mw)
+  if ((!aucune || froid) && sim.max_apres && sim.max_apres.valeur_mw > pluri.valeur_mw)
     r.push(`Le nouveau maximum le dépasse de ${gw(sim.max_apres.valeur_mw - pluri.valeur_mw)}.`);
-  if (!aucune && nEtoileRef > nEff)
+  if (froid && seulRef > 0)
+    r.push(
+      `Le froid supplémentaire, à lui seul, le dépasse pendant ${heures(seulRef)} : aucun ` +
+        `effacement de la consommation ajoutée ne ${seulRef > 1 ? 'les' : 'la'} supprime.`
+    );
+  else if (!aucune && nEtoileRef > nEff)
     r.push(
       `Pour ne jamais le dépasser, il faudrait effacer au moins ${heures(nEtoileRef)}, en ` +
         (nEtoileRef > 1 ? 'les' : 'la') +
@@ -190,6 +269,11 @@ export function phrases(
   } else {
     const haut = part(sim.part_dans_j);
     const bas = part(sim.part_dans_j_plancher);
+    const r = sim.reintegre;
+    const avecR = r !== null && r.part_dans_j !== null && r.part_dans_j_plancher !== null;
+    const valR = avecR ? fourchette(r.part_dans_j_plancher as number, r.part_dans_j as number) : '';
+    const valD = fourchette(sim.part_dans_j_plancher, sim.part_dans_j);
+    const memes = avecR && valR === valD;
     const prodAnnee = sim.production_nucleaire_twh;
     const publiee = refs.productionPubliee[etat.annee];
     let comparaison =
@@ -205,15 +289,43 @@ export function phrases(
       notesJ.push(refs.productionPrevue.note);
     }
     comparaison += '.';
+    const declare =
+      'Ces parts valent avec la disponibilité déclarée par EDF. EDF déclare indisponibles, comme ' +
+      'des arrêts planifiés, des arrêts et baisses « pour modulation ». Ceux de moins de 7 jours, ' +
+      'décidés au jour le jour, sont économiques : le plus souvent, la tranche sera redémarrée « si ' +
+      'les conditions économiques le justifient ». Les plus longs peuvent relever de la gestion du ' +
+      'combustible et restent retranchés. ' +
+      (!avecR
+        ? ''
+        : memes
+          ? `En ${etat.annee}, réintégrer les arrêts courts ne change pas ces parts. `
+          : `En réintégrant les arrêts courts, ce serait ${valR}, et au plus ` +
+            `${twh((r as NonNullable<typeof r>).energie_dans_j_twh)} de production nucléaire en plus. `);
     nucleaire = {
       titre: 'Dans le nucléaire disponible non produit',
       qualif: 'au plus',
-      valeur: haut === bas ? haut : `${bas.replace(/\s%$/, '')} à ${haut}`,
+      valeur: valD,
+      complement: avecR
+        ? memes
+          ? 'disponibilité déclarée par EDF ; même valeur en réintégrant ses arrêts courts pour modulation'
+          : `disponibilité déclarée par EDF ; ${valR} en réintégrant ses arrêts courts pour modulation`
+        : 'avec la disponibilité déclarée par EDF',
       detail:
-        `de l’énergie ajoutée : ${haut} sans plancher, ${bas} en retranchant ` +
-        `${gw(sim.plancher_mw)} de ce nucléaire à toute heure (hypothèse du site : une part n’est ` +
-        `pas mobilisable). ${comparaison} La puissance restée inemployée heure par heure ne dit pas ` +
-        'que le combustible et le calendrier des arrêts suivraient.',
+        (sim.plancher_mw > 0
+          ? `de l’énergie ajoutée : ${haut} sans plancher, ${bas} en retranchant ` +
+            `${gw(sim.plancher_mw)} de ce nucléaire à toute heure (plancher réglable, hypothèse du ` +
+            'site : une part n’est pas mobilisable). '
+          : `de l’énergie ajoutée, sans plancher (réglé à 0) : borne haute seule, qui compte ` +
+            'comme mobilisable tout le nucléaire disponible non produit. ') +
+        (froid
+          ? 'Pendant l’épisode de froid, la consommation due au froid passe d’abord : la ' +
+            'consommation ajoutée ne trouve que ce qu’elle laisse. La production nucléaire en plus ' +
+            'affichée ne compte que la consommation ajoutée : celle que le froid prend d’abord s’y ' +
+            'ajouterait. '
+          : '') +
+        `${comparaison} ${declare}La puissance restée inemployée heure par heure ne dit pas ` +
+        'que le combustible et le calendrier des arrêts suivraient : en énergie, la limite est ' +
+        'plus nette.',
       notes: notesJ
     };
   }
@@ -265,9 +377,43 @@ export function phrases(
               : '')
         };
 
-  const tuiles = [energie, marge, maxAnnee, maxPluri, nucleaire, echanges, prixBas];
+  /* ---------- 8. Consommation maximale (avec un froid supplémentaire seulement) ---------- */
+  // Les prix avant le nucléaire : la tuile du nucléaire, avec sa seconde valeur, partage ainsi sa
+  // rangée avec celle des prix, dont le titre tient sur deux lignes (l'outil tient sur un écran).
+  const tuiles = [energie, marge, maxAnnee, maxPluri, prixBas, nucleaire, echanges];
+  const cMax = sim.consommation_max_apres;
+  const cObs = sim.consommation_max_observee;
+  if (froid && cMax && cObs) {
+    // Même pas de temps que le scénario : la moyenne horaire de 2012, pas la demi-heure.
+    const record = refs.recordHoraire.valeur_mw;
+    tuiles.push({
+      titre: 'Consommation horaire maximale',
+      valeur: gw(cMax.valeur_mw),
+      detail:
+        `${heureParis(cMax.debut_paris)}, moyenne horaire hors Corse, froid supplémentaire ` +
+        `${aucune ? '' : 'et consommation ajoutée '}compris ; ${gw(cObs.valeur_mw)} observés en ` +
+        `${etat.annee}. Pointe de février 2012 : ${refs.recordHoraire.texte} en moyenne horaire ` +
+        `(${refs.record.texte} à la demi-heure). ` +
+        (cMax.valeur_mw > record ? 'Le scénario la dépasse. ' : '') +
+        'Ce n’est pas le froid de février 2012 : les degrés réglés s’ajoutent à ceux de jours ' +
+        'déjà froids, et RTE estime qu’avec des froids comparables à ceux du début des années ' +
+        `2010, les pointes de l’hiver 2026-2027 resteraient « sensiblement inférieures à ` +
+        `${refs.pointeFroids2010.texte} » (sauf cas très exceptionnels). Au-delà de quelques ` +
+        'degrés, le gradient moyen est en outre prolongé hors de ce que RTE publie.',
+      notes: [
+        refs.recordHoraire.note,
+        refs.record.note,
+        refs.pointeFroids2010.note,
+        refs.gradient.note
+      ]
+    });
+  }
   return {
     scenario: typographier(scenario),
-    tuiles: tuiles.map((u) => ({ ...u, detail: typographier(u.detail) }))
+    tuiles: tuiles.map((u) => ({
+      ...u,
+      detail: typographier(u.detail),
+      ...(u.complement ? { complement: typographier(u.complement) } : {})
+    }))
   };
 }

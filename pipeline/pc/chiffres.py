@@ -58,6 +58,10 @@ UNITES: dict[str, dict[str, float]] = {
     "besoin_capacites": dict(_PUISSANCE),  # capacités nouvelles nécessaires au critère de sécurité d'approvisionnement (calcul d'adéquation, toute la consommation)
     "puissance_certifiee": dict(_PUISSANCE),  # capacité certifiée ou contractualisée au mécanisme de capacité
     "puissance_moyenne": dict(_PUISSANCE),  # puissance moyenne observée sur un ensemble d'heures (production, solde d'échanges)
+    # Froid extrême (« Quand ? », simulateur) : hausse de la consommation par degré de baisse de
+    # la température en hiver, et écart de température à la normale saisonnière.
+    "gradient_thermosensibilite": {"MW/°C": 1.0, "GW/°C": 1000.0},
+    "ecart_temperature": {"°C": 1.0},
 }
 CONFIANCES = {"A", "B", "C"}
 CHAMPS_SOURCE = ("editeur", "titre", "date_publication", "url")

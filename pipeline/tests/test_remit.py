@@ -249,3 +249,129 @@ def test_entete_inattendu_refuse(tmp_path):
     ecrire(p, ["Status;Identifiant;Autre", "Active;1;2"])
     with pytest.raises(ValueError, match="en-têtes"):
         remit.lire_csv(p, "historique")
+
+
+# --------------------------------------------------------------------------
+# Arrêts et baisses pour modulation (MOTIF_MODULATION) et disponibilité réintégrée
+# --------------------------------------------------------------------------
+
+#: Textes réels du jeu d'EDF (abrégés), classés à la main (rapport du 26/11/2026).
+MODULATION_OUI = [
+    "Le placement et la durée de cet arrêt pour modulation seront réinterrogés et la tranche sera redémarrée si les "
+    "conditions économiques le justifient -------- The planning and duration of this unavailability for modulation "
+    "supply will be reassessed",
+    "Le placement de cette baisse pour modulation est susceptible d?être modifié si les conditions économiques le "
+    "justifient. La durée indiquée est la durée minimale de palier.",
+    "Le placement et la durée de ce palier pour modulation seront réinterrogés",
+    "The planning and duration of this unavailability for modulation supply will be reassessed if economically "
+    "justified.",  # anglais seul
+    "The duration of this limitation for power modulation  may be reassessed for economic reasons",
+    "Baisse avant arrêt pour modulation Baisse à 600 MW : 30min",
+    "Informations complémentaires :  Le placement de cette modulation sera réinterrogé",
+    "Arrêt pour économie combustible. Le placement et la durée de cet arrêt pour modulation seront réinterrogés",
+    "baisse pour modulation  ------  unavaiability for modulation",
+]
+MODULATION_NON = [
+    "Tranche en prolongation de campagne ----- Ongoing stretch",
+    "Arrêt pour économie combustible ------------ Fuel saving outage",
+    "Essai à puissance stable. Le niveau de puissance pourra être réinterrogé si les conditions économiques le "
+    "justifient. -------- Test at stable power.",
+    "Le placement et la durée de cet arrêt seront réinterrogés et la tranche sera redémarrée si les conditions "
+    "économiques le justifient",  # même gabarit, sans le mot : non compté (cas examinés, 2019-2021)
+    "Pour plus d'informations / for more information : https://www.edf.fr/groupe-edf/qui-sommes-nous/activites/"
+    "optimisation-et-trading/listes-des-indisponibilites-et-des-messages",
+    "Le placement et la durée de cette baisse pour contraintes environnementales seront réinterrogés",
+    "Modulations de puissance",  # pas le mot entier « modulation »
+    "",
+]
+
+
+@pytest.mark.parametrize("texte", MODULATION_OUI)
+def test_modulation_reconnue_francais_et_anglais(texte):
+    assert pl.select(remit.est_modulation(pl.lit(texte))).item() is True
+
+
+@pytest.mark.parametrize("texte", MODULATION_NON)
+def test_cas_ambigus_non_comptes(texte):
+    assert pl.select(remit.est_modulation(pl.lit(texte))).item() is False
+
+
+def test_mention_dans_une_version_anterieure():
+    """Règle 2 : texte effacé à la mise à jour → hérité ; autre cause donnée → pas hérité."""
+    lignes = []
+    for k, (dernier, attendu) in enumerate([
+            ("", True), (None, True), ("Pour plus d'informations / for more information : https://x", True),
+            ("La remontée se fera en 16 heures", True), ("Indisponibilité fortuite -------- Forced unavailability.", False),
+            ("Arrêt pour économie de combustible -------- Fuel saving outage", False)]):
+        idt = f"05470_EDF_T_M{k}"
+        base = {"id": idt, "type": "Planifiée", "debut": u(2024, 1, 10, k), "fin": u(2024, 1, 10, k + 1)}
+        lignes += [{**base, "version": 1, "statut": "Inactive", "info": "arrêt pour modulation"},
+                   {**base, "version": 2, "statut": "Active", "info": dernier, "attendu": attendu}]
+    attendus = {l["id"]: l.pop("attendu") for l in lignes if "attendu" in l}
+    ev = remit.evenements_nucleaires(brut(lignes))
+    obtenu = dict(ev.select("id", "modulation").iter_rows())
+    assert obtenu == attendus
+    assert ev.filter(pl.col("modulation"))["modulation_par"].unique().to_list() == ["version antérieure"]
+
+
+def test_disponibilite_reintegree_memes_regles():
+    """Un arrêt pour modulation qui chevauche une maintenance : le réintégré garde la maintenance
+    (minimum des autres événements), la puissance maximale et les heures hors arrêt sont identiques."""
+    lignes = [
+        {"debut": u(2024, 1, 10, 2), "fin": u(2024, 1, 10, 10), "pdispo": 0.0, "type": "Planifiée",
+         "info": "Le placement et la durée de cet arrêt pour modulation seront réinterrogés"},
+        {"debut": u(2024, 1, 10, 6), "fin": u(2024, 1, 10, 12), "pdispo": 400.0, "type": "Planifiée",
+         "info": "Maintenance"},
+        {"tranche": "BUGEY 3", "debut": u(2024, 1, 10, 3, 30), "fin": u(2024, 1, 10, 4), "pdispo": 455.0,
+         "type": "Planifiée", "info": "baisse pour modulation"},
+    ]
+    ev = remit.evenements_nucleaires(brut(lignes))
+    assert ev["modulation"].sum() == 2
+    d = remit.disponible_horaire(ev, T0, T1, {})
+    r = remit.disponible_horaire(ev, T0, T1, {}, reintegrer_modulation="courts")
+    assert valeur(d, u(2024, 1, 10, 3)) == 0 and valeur(r, u(2024, 1, 10, 3)) == 910
+    assert valeur(d, u(2024, 1, 10, 7)) == 0 and valeur(r, u(2024, 1, 10, 7)) == 400  # la maintenance reste
+    assert valeur(d, u(2024, 1, 10, 11)) == 400 and valeur(r, u(2024, 1, 10, 11)) == 400
+    assert valeur(d, u(2024, 1, 10, 3), "BUGEY 3") == pytest.approx(682.5)  # demi-heure à 455 MW
+    assert valeur(r, u(2024, 1, 10, 3), "BUGEY 3") == 910
+    j = d.join(r, on=["tranche", "heure_utc"], suffix="_r")
+    assert (j["dispo_r"] >= j["dispo"]).all() and (j["pmax_r"] == j["pmax"]).all()
+    hors = j.filter(~pl.col("heure_utc").is_between(u(2024, 1, 10, 2), u(2024, 1, 10, 9)))
+    assert (hors["dispo_r"] == hors["dispo"]).all()
+
+
+def test_arrets_courts_et_longs():
+    """Courts : moins de 7 jours et aucune version ne parle de combustible ; seuls eux sont réintégrés
+    par « courts », tous par « tous ». La clause de redémarrage ne suffit pas à rendre un arrêt court."""
+    clause = ("Le placement et la durée de cet arrêt pour modulation seront réinterrogés et la tranche sera "
+              "redémarrée si les conditions économiques le justifient")
+    lignes = [
+        # 2 jours, avec la clause : court
+        {"tranche": "BUGEY 2", "debut": u(2024, 1, 1), "fin": u(2024, 1, 3), "type": "Planifiée", "info": clause},
+        # 6 jours 23 h, sans la clause : court
+        {"tranche": "BUGEY 3", "debut": u(2024, 1, 1), "fin": u(2024, 1, 7, 23), "type": "Planifiée",
+         "info": "baisse pour modulation", "pdispo": 400.0},
+        # exactement 7 jours, avec la clause : long
+        {"tranche": "BUGEY 4", "debut": u(2024, 1, 1), "fin": u(2024, 1, 8), "type": "Planifiée", "info": clause},
+        # 2 jours mais « économie combustible » : long (gestion du combustible)
+        {"tranche": "BUGEY 5", "debut": u(2024, 1, 1), "fin": u(2024, 1, 3), "type": "Planifiée",
+         "info": "Arrêt pour économie combustible. " + clause},
+        # deux mois, texte effacé ensuite (règle 2) : long
+        {"id": "05470_EDF_T_L1", "version": 1, "statut": "Inactive", "tranche": "CHOOZ 1", "debut": u(2024, 1, 1),
+         "fin": u(2024, 3, 1), "type": "Planifiée", "info": "arrêt pour modulation", "pmax": 1500.0},
+        {"id": "05470_EDF_T_L1", "version": 2, "tranche": "CHOOZ 1", "debut": u(2024, 1, 1), "fin": u(2024, 3, 1),
+         "type": "Planifiée", "info": None, "pmax": 1500.0},
+    ]
+    ev = remit.evenements_nucleaires(brut(lignes)).sort("tranche")
+    assert dict(ev.select("tranche", "modulation_courte").iter_rows()) == {
+        "BUGEY 2": True, "BUGEY 3": True, "BUGEY 4": False, "BUGEY 5": False, "CHOOZ 1": False}
+    assert ev["modulation"].all()
+    h = u(2024, 1, 2)
+    d = remit.disponible_horaire(ev, u(2024, 1, 1), u(2024, 1, 4), {})
+    c = remit.disponible_horaire(ev, u(2024, 1, 1), u(2024, 1, 4), {}, reintegrer_modulation="courts")
+    t = remit.disponible_horaire(ev, u(2024, 1, 1), u(2024, 1, 4), {}, reintegrer_modulation="tous")
+    for tranche, attendu_c in (("BUGEY 2", 910), ("BUGEY 3", 910), ("BUGEY 4", 0), ("BUGEY 5", 0), ("CHOOZ 1", 0)):
+        assert valeur(d, h, tranche) < valeur(t, h, tranche)
+        assert valeur(c, h, tranche) == attendu_c
+    with pytest.raises(ValueError):
+        remit.disponible_horaire(ev, u(2024, 1, 1), u(2024, 1, 2), {}, reintegrer_modulation=True)

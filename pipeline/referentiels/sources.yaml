@@ -220,6 +220,47 @@ rte-enchere-mc-2026:
   consulte_le: 2026-11-26
   note: date de couverture ; lu par la contre-vérification du 26/11/2026, copie non versionnée
 
+# Froid extrême (« Quand ? », simulateur), saisi le 26/11/2026 : copies locales vérifiées
+# (SHA-256 dans docs/relectures/2026-11-26-limites-agent.md), non versionnées.
+rte-hiver-2022-2023:
+  editeur: RTE
+  titre: Perspectives pour le système électrique pour l'automne et l'hiver 2022-2023
+  date_publication: 2022-09-14
+  url: https://assets.rte-france.com/prod/public/2022-09/Analyse%20passage%20hiver%202022-2023.pdf
+  consulte_le: 2026-11-26
+  note: date de création du PDF (14/09/2022), URL datée 2022-09
+
+rte-hiver-2024-2025:
+  editeur: RTE
+  titre: Perspectives pour le système électrique pour l'hiver 2024-2025 (novembre 2024) — synthèse
+  date_publication: 2024-11-13
+  url: https://assets.rte-france.com/prod/public/2024-11/RTE-synthese-passage-hiver-2024-2025.pdf
+  consulte_le: 2026-11-26
+  note: date de création du PDF ; couverture « novembre 2024 »
+
+rte-hiver-2018-2019:
+  editeur: RTE
+  titre: Synthèse — L'équilibre offre-demande d'électricité pour l'hiver 2018-2019
+  date_publication: 2018-11-19
+  url: https://assets.rte-france.com/prod/public/2020-06/synthese_passage_hiver_2018-2019_1.pdf
+  consulte_le: 2026-11-26
+  note: date de création du PDF ; URL datée 2020-06 (republication sur le site actuel)
+
+rte-be2017:
+  editeur: RTE
+  titre: Bilan électrique 2017 (« Mon bilan électrique 2017 », version imprimable du site)
+  date_publication: 2018-02-21
+  url: https://assets.rte-france.com/prod/public/2024-07/bilan_electrique-2017.pdf
+  consulte_le: 2026-11-26
+  note: date de création du PDF ; page = page du PDF (sans folio imprimé) ; URL datée 2024-07 (republication)
+
+cre-2012-pics-prix:
+  editeur: CRE
+  titre: Délibération du 10 mai 2012 portant communication sur les pics de prix de l'électricité des 9 et 10 février 2012
+  date_publication: 2012-05-10
+  url: https://www.cre.fr/fileadmin/Documents/Deliberations/import/120510_pics_de_prix.pdf
+  consulte_le: 2026-11-26
+
 # Pas encore citée par un chiffre : ajoutée avec le branchement d'ENTSO-E dans le pipeline
 # (docs/spike/entsoe-pipeline.md) pour que la licence soit écrite une seule fois. Licence propre
 # à chaque donnée : voir la note et pipeline/pc/entsoe.py (LICENCES).

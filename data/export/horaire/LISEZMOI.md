@@ -19,6 +19,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 | `pompage` | MW moyen | consommation des STEP en pompage, **négative** |
 | `prix` | EUR/MWh | prix day-ahead zone France ; après le 2025-10-01, moyenne simple des 4 quarts d'heure (convention RTE) |
 | `taux_co2` | gCO2eq/kWh | intensité **moyenne de la production** française (émissions directes, imports exclus), moyenne des demi-heures pondérée par la production. **Pas un facteur marginal**, pas l'intensité de la consommation |
+| `nucleaire_disponible_reintegre` | MW moyen | variante de `nucleaire_disponible` : mêmes règles, en **réintégrant** les arrêts et baisses **courts** (moins de 7 jours) qu'EDF déclare indisponibles **pour modulation** (arrêts économiques) ; toujours ≥ `nucleaire_disponible`. Voir la note ci-dessous |
 
 - Une puissance moyenne horaire en MW vaut l'énergie de l'heure en MWh (× 1 h) :
   pour un total annuel en TWh, sommer la colonne et diviser par 10⁶.
@@ -41,5 +42,13 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
   La production peut le dépasser de quelques centaines de MW (eau froide en
   hiver, déclarations en escalier pendant les grèves ou les essais). Méthode,
   limites et taux annuels : `../meta.json`, clé `nucleaire_disponible`.
+- `nucleaire_disponible_reintegre` : même reconstruction, sauf que les
+  arrêts et baisses de moins de 7 jours qu'EDF déclare « pour modulation »
+  (texte libre de l'événement, le plus souvent : « la tranche sera redémarrée
+  si les conditions économiques le justifient ») ne retirent rien. Les arrêts
+  pour modulation plus longs, qui peuvent relever de la gestion du combustible,
+  restent retranchés. Règles et décompte par année (courts et longs) :
+  `../meta.json`, clé `nucleaire_disponible`, `arrets_modulation`. Aucun de ces
+  événements avant 2019.
 - Les données de l'année en cours mêlent **consolidé** et **temps réel**
   (puissance instantanée, moins précise) : voir `natures` dans `../meta.json`.

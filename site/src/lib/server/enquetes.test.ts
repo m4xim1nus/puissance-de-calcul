@@ -139,3 +139,50 @@ describe('enquêtes du dépôt', () => {
     }
   });
 });
+
+describe('fragments partagés (::: inclure nom :::)', () => {
+  it('remplace la ligne par le fragment, et refuse un fragment inconnu', async () => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { inclureFragments } = await import('./enquetes');
+    const d = mkdtempSync(join(tmpdir(), 'fragments-'));
+    writeFileSync(join(d, 'essai.md'), '- **Essai.** {{conso}}\n  suite\n');
+    expect(inclureFragments('- a\n- ::: inclure essai :::\n- b', d)).toBe(
+      '- a\n- **Essai.** {{conso}}\n  suite\n- b'
+    );
+    expect(inclureFragments('::: inclure essai :::', d)).toBe('- **Essai.** {{conso}}\n  suite');
+    expect(() => inclureFragments('::: inclure absent :::', d)).toThrow();
+    writeFileSync(join(d, 'boucle.md'), '::: inclure essai :::');
+    expect(() => inclureFragments('::: inclure boucle :::', d)).toThrow(/n’en inclut pas/);
+  });
+
+  it('« Quand ? » et le simulateur partagent les limites froid et écrêtement, sans recopie', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const racine = resolve(process.cwd(), '..');
+    for (const f of ['docs/enquetes/quand.md', 'site/src/lib/simulateur/lecture.md']) {
+      const t = readFileSync(resolve(racine, f), 'utf8');
+      expect(t, f).toMatch(/^- ::: inclure limite-froid :::$/m);
+      expect(t, f).toMatch(/^- ::: inclure limite-ecretement :::$/m);
+      expect(t, f).not.toMatch(/\*\*Le froid extrême\.\*\*|\*\*L'écrêtement\.\*\*/);
+    }
+    const q = chargerEnquete('quand', chargerChiffres());
+    const html = q.blocs.map((b) => (b.type === 'html' ? b.html : '')).join('');
+    expect(html).toContain('Le froid extrême.');
+    expect(html).toContain('L’écrêtement.');
+    expect(html).not.toContain('inclure');
+  });
+
+  it('le texte de lecture du simulateur rend les deux limites partagées, sans directive restante', async () => {
+    const { textesSimulateur } = await import('./simulateur');
+    const { lecture } = textesSimulateur(chargerChiffres());
+    const html = lecture.join('');
+    expect(html).toContain('Le froid extrême.');
+    expect(html).toContain('L’écrêtement.');
+    expect(html).not.toContain('inclure');
+    // Les deux restent dans la même liste que les autres limites.
+    const liste = html.slice(html.indexOf('Ce que ce calcul ne dit pas'));
+    expect(liste.match(/<ul>/g)?.length).toBe(1);
+  });
+});

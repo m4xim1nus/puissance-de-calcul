@@ -18,6 +18,7 @@ def table_synthetique(debut: datetime, heures: int, **valeurs) -> pl.DataFrame:
             "nature": "definitif", "gaz_ccg": 0.0, "gaz_tac": 0.0, "gaz_cogen": 0.0, "gaz_autres": 0.0,
             "hydraulique": 0.0, "bioenergies": 0.0}
     base.update(valeurs)
+    base.setdefault("nucleaire_disponible_reintegre", base["nucleaire_disponible"])
     for c in quand.COMPOSANTES:
         base.setdefault(c, 0.0)
     return t.with_columns([pl.lit(v).alias(k) for k, v in base.items()])
@@ -76,10 +77,15 @@ def test_chiffres_calcules_au_schema_du_referentiel():
            "quand_top100_hiver_2023", "quand_top100_plages_2023", "quand_top100_solde_2023",
            "quand_top100_gaz_2023", "quand_top100_lacs_step_2023", "quand_top100_fil_eau_2023",
            "quand_top100_plages_pp_2023", "quand_heures_j5_2023", "quand_solde_j5_2023"}
-    toutes = {"quand_rn_max_pluri", "quand_top100_rn_moyenne_2023", "quand_heures_rn_sup_max_pluri_5gw_2023",
+    toutes = {"quand_rn_max_pluri", "quand_conso_max_pluri", "quand_top100_rn_moyenne_2023", "quand_heures_rn_sup_max_pluri_5gw_2023",
               "quand_heures_rn_sup_max_pluri_10gw_2023", "quand_heures_prix_chers_2023",
               "quand_part_j_plancher_5gw_2023", "quand_part_j_plancher_10gw_2023", "quand_energie_j_5gw_2023",
               "quand_energie_j_10gw_2023"}
+    # variantes réintégrant les arrêts courts pour modulation (la table a la colonne, ici égale au déclaré)
+    toutes |= {"quand_arrets_modulation_courts_2023", "quand_j_reintegre_2023", "quand_part_j_reintegre_5gw_2023",
+               "quand_part_j_reintegre_10gw_2023", "quand_part_j_plancher_reintegre_5gw_2023",
+               "quand_part_j_plancher_reintegre_10gw_2023", "quand_energie_j_reintegre_5gw_2023",
+               "quand_energie_j_reintegre_10gw_2023"}
     # pas d'EPR : pas de quand_j_2023_hors_epr ; aucun prix > 150 €/MWh : pas de quand_j_heures_cheres_2023
     assert set(calc) == ids | toutes
     # RN = 70 000 − 5 000 − 1 000 − 45 000 à 17 h UTC (18 h à Paris en hiver)
@@ -88,10 +94,45 @@ def test_chiffres_calcules_au_schema_du_referentiel():
     assert calc["quand_j_2023"]["valeur"] == 43.8 and calc["quand_j_2023"]["valeur_calculee"] == 43.8
     assert calc["quand_part_j_1gw_2023"]["valeur"] == 100 and calc["quand_part_j_10gw_2023"]["valeur"] == 50
     assert calc["quand_top100_gaz_2023"]["valeur"] == 0.0 and calc["quand_top100_gaz_2023"]["grandeur"] == "puissance_moyenne"
+    # Consommation horaire maximale : 70 000 MW à 17 h UTC, la première heure à ce niveau (1er janvier)
+    assert calc["quand_conso_max_pluri"]["valeur"] == 70.0
+    assert calc["quand_conso_max_pluri"]["periode"] == "2023-01-01, 18 h-19 h (heure de Paris)"
     vide = chiffres.Referentiel(sources={}, chiffres={})
     fusion = chiffres.fusionner(vide, {export_quand.SOURCE_QUAND: export_quand.source_quand("2026-11-26")}, calc)
     assert chiffres.valider(fusion) == []
     assert all(c["confiance"] != "A" for c in calc.values())  # pas de A sans recoupement indépendant
+
+
+def test_chiffres_reintegrant_les_arrets_pour_modulation():
+    """Disponible déclaré 45 000 MW, réintégrant les arrêts courts 47 000 MW, produit 40 000 MW : J = 5 000,
+    J_r = 7 000 MW toute l'année ; arrêts longs (non réintégrés) 8,76 TWh, fournis par le build ;
+    les chiffres déclarés ne bougent pas, les variantes s'ajoutent."""
+    debut = datetime(2022, 12, 31, 23, tzinfo=timezone.utc)
+    t = table_synthetique(debut, 8760, nucleaire_disponible_reintegre=47000.0)
+    q = json.loads(export_quand._dumps(export_quand.construire_quand(t, {}, {2023: 8.76})))
+    r = q["annees"]["2023"]["jeu_nucleaire_reintegre"]
+    assert r["somme_twh"] == 61.32 and r["arrets_modulation_courts_twh"] == 17.52 and r["heures_valides"] == 8760
+    assert r["arrets_modulation_longs_twh"] == 8.76  # fourni par le build (1 000 MW toute l'année)
+    calc = export_quand.chiffres_calcules(q)
+    assert calc["quand_j_2023"]["valeur"] == 43.8 and calc["quand_part_j_10gw_2023"]["valeur"] == 50
+    assert calc["quand_j_reintegre_2023"]["valeur"] == 61.3
+    assert calc["quand_arrets_modulation_courts_2023"]["valeur"] == 17.5
+    assert calc["quand_arrets_modulation_longs_2023"]["valeur"] == 8.8
+    assert "8,8 TWh" in calc["quand_arrets_modulation_courts_2023"]["note"]
+    assert calc["quand_part_j_reintegre_5gw_2023"]["valeur"] == 100
+    assert calc["quand_part_j_reintegre_10gw_2023"]["valeur"] == 70
+    # plancher 1 000 MW : J' = 4 000 → 40 % ; J_r' = 6 000 → 60 %
+    assert calc["quand_part_j_plancher_10gw_2023"]["valeur"] == 40
+    assert calc["quand_part_j_plancher_reintegre_10gw_2023"]["valeur"] == 60
+    assert calc["quand_energie_j_reintegre_10gw_2023"]["valeur_calculee"] == 61.32
+    # la note du chiffre déclaré cite la variante ; le libellé dit de quelle disponibilité il s'agit
+    assert "70 %" in calc["quand_part_j_10gw_2023"]["note"]
+    assert "disponibilité déclarée par EDF" in calc["quand_part_j_10gw_2023"]["libelle"]
+    assert any(l.startswith("disponibilité déclarée, chiffrée (2023)") and "50 % à 70 %" not in l
+               for l in q["limites"]["jeu_nucleaire"])  # la ligne chiffrée cite 5 GW : 100 % à 100 %
+    vide = chiffres.Referentiel(sources={}, chiffres={})
+    fusion = chiffres.fusionner(vide, {export_quand.SOURCE_QUAND: export_quand.source_quand("2026-11-26")}, calc)
+    assert chiffres.valider(fusion) == []
 
 
 def test_couverture_et_borne_hors_epr_publiees():
@@ -145,3 +186,60 @@ def test_chiffres_du_plancher_du_seuil_pluriannuel_et_des_prix_chers():
     for c in calc.values():
         assert "quand_" not in c.get("note", ""), "identifiant interne dans une note (relecture Fo2)"
         assert "servie en partie par moins d'exports" not in c.get("note", "")
+
+
+def test_ecretement_reparti_sur_les_heures_a_prix_negatif():
+    """Limite « écrêtement » : production renoncée (TWh) ÷ heures à prix < 0 = MW moyens, borne haute.
+    Synthèse : 2023 à prix −10 €/MWh une heure sur quatre (2 190 h) ; 2,19 TWh renoncés → 1 000 MW."""
+    debut = datetime(2022, 12, 31, 23, tzinfo=timezone.utc)
+    t = table_synthetique(debut, 8760)
+    t = t.with_columns(pl.when(pl.col("heure_utc").dt.hour() % 4 == 0).then(-10.0).otherwise(50.0)
+                       .alias("prix_eur_mwh"))
+    q = json.loads(export_quand._dumps(export_quand.construire_quand(t, {})))
+    assert q["annees"]["2023"]["prix"]["heures_negatif"] == 2190
+    renoncee = {"id": "renoncee_2023", "libelle": "Production renoncée", "valeur": 2.19, "unite": "TWh"}
+    ecretee = {"id": "ecretee_2023", "libelle": "Production écrêtée par RTE", "valeur": 0.1, "unite": "TWh"}
+    calc = export_quand.chiffres_calcules(q, {}, {2023: (renoncee, ecretee)})
+    c = calc["quand_ecretement_prix_negatif_2023"]
+    assert c["valeur"] == 1.0 and c["valeur_calculee"] == 1.0 and c["unite"] == "GW"
+    assert c["grandeur"] == "puissance_moyenne" and "borne haute" in c["libelle"]
+    # RN = 60 000 − 5 000 − 1 000 − 45 000 = 9 000 MW à ces heures ; sans la production renoncée : 8 000
+    assert "9,0 GW" in c["note"] and "8,0 GW" in c["note"] and "renoncee_2023" in c["citation"]
+    vide = chiffres.Referentiel(sources={}, chiffres={})
+    fusion = chiffres.fusionner(vide, {export_quand.SOURCE_QUAND: export_quand.source_quand("2026-11-26")}, calc)
+    assert chiffres.valider(fusion) == []
+    # Sans chiffre saisi, rien n'est calculé ; une unité inattendue est refusée.
+    assert "quand_ecretement_prix_negatif_2023" not in export_quand.chiffres_calcules(q)
+    import pytest
+    with pytest.raises(ValueError):
+        export_quand.chiffres_calcules(q, {}, {2023: ({**renoncee, "unite": "GWh"}, ecretee)})
+
+
+def test_ecretement_du_referentiel():
+    ref = chiffres.charger()
+    e = export_quand.ecretement_du_referentiel(ref.chiffres)
+    assert set(e) == {2025}
+    assert e[2025][0]["valeur"] == 3 and e[2025][1]["valeur"] == 0.1
+    assert e[2025][0]["id"] == "enr_renoncees_prix_negatifs_2025"
+
+
+def test_froid_pour_depasser_et_chiffre_du_froid():
+    """Plus petit froid au pas de 0,5 °C qui porte le maximum du scénario strictement au-delà du seuil
+    (2025 : 87 438 MW dans l'épisode, 2 400 MW/°C, 100 GW → 5,5 °C ; 5 °C donnent 99 438 MW)."""
+    f = {"consommation_max_episode_mw": 87438, "consommation_max_hors_episode_mw": 82749}
+    assert export_quand.froid_pour_depasser(f, 100000, 2400) == 5.5
+    assert export_quand.froid_pour_depasser({**f, "consommation_max_episode_mw": 88000}, 100000, 2400) == 5.5
+    assert export_quand.froid_pour_depasser({**f, "consommation_max_episode_mw": 88001}, 100000, 2400) == 5.0
+    assert export_quand.froid_pour_depasser({**f, "consommation_max_hors_episode_mw": 100001}, 100000, 2400) == 0.0
+    debut = datetime(2022, 12, 31, 23, tzinfo=timezone.utc)
+    t = table_synthetique(debut, 8760)
+    q = json.loads(export_quand._dumps(export_quand.construire_quand(t, {})))
+    assert q["annees"]["2023"]["froid"]["heures"] == 168
+    gradient = {"valeur": 2400, "unite": "MW/°C", "id": "g"}
+    pointe = {"valeur": 100, "unite": "GW", "id": "p"}
+    calc = export_quand.chiffres_calcules(q, froid=(gradient, pointe))
+    # consommation 60 000 MW partout : (100 000 − 60 000) / 1 200 = 33,3 pas → 34 pas de 0,5 °C
+    assert calc["quand_froid_100gw_2023"]["valeur"] == 17.0 and calc["quand_froid_100gw_2023"]["unite"] == "°C"
+    vide = chiffres.Referentiel(sources={}, chiffres={})
+    fusion = chiffres.fusionner(vide, {export_quand.SOURCE_QUAND: export_quand.source_quand("2026-11-26")}, calc)
+    assert chiffres.valider(fusion) == []

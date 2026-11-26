@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-26T12:40:17+00:00",
+  "genere_le": "2026-11-26T15:12:28+00:00",
   "conventions": {
     "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
     "horodatage_eco2mix": "fin",
@@ -217,7 +217,7 @@
       "dates REMIT lues en heure de Paris (testé par `pc check` : chute de production éCO2mix à l'heure déclarée des arrêts fortuits, hiver comme été ; aucune heure inexistante du passage à l'heure d'été)"
     ],
     "limites": [
-      "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système, modulation économique et baisses non déclarées n'y figurent pas",
+      "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système et baisses non déclarées n'en sont pas retranchées ; à l'inverse, EDF y retranche depuis 2019 des arrêts et baisses économiques, déclarés indisponibles « pour modulation » (`nucleaire_disponible_reintegre` réintègre ceux de moins de 7 jours ; décompte des courts et des longs dans `arrets_modulation`) ; le reste de la modulation n'est pas déclaré",
       "la production peut dépasser le disponible déclaré : surcroît de puissance nette par eau froide en hiver (jusqu'à environ 2 % du parc), déclarations en escalier (grèves, essais) alors que la puissance varie en rampe ; voir `pc check`",
       "frontière modulation / indisponibilité fixée par EDF et invisible de l'extérieur (RTE, BE2025, fig. 2.5)",
       "les dernières heures reflètent les déclarations au moment de l'extraction, révisables ; aucune heure postérieure à l'extraction de la liste courante (pas de prévision)",
@@ -227,6 +227,7 @@
     "unites": "MW moyens sur l'heure (= MWh de l'heure)",
     "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens sur l'heure) : dénominateur d'un taux de disponibilité",
     "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW moyens ; 0 avant le 18/12/2024) ; sa production n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)",
+    "nucleaire_disponible_reintegre": "variante de `nucleaire_disponible` (MW moyens) : mêmes règles, mais les arrêts et baisses COURTS (moins de 7 jours, sans mention du combustible) qu'EDF déclare POUR MODULATION ne retirent rien (règles : `arrets_modulation.regle` et `arrets_modulation.courts`, pc/remit.py MOTIF_MODULATION). Ce sont des arrêts économiques décidés au jour le jour (« la tranche sera redémarrée si les conditions économiques le justifient ») ; aucun avant 2019. Les arrêts longs pour modulation, qui peuvent relever de la gestion du combustible, restent retranchés. Toujours ≥ `nucleaire_disponible`. Ce n'est pas une capacité physique garantie non plus : le combustible et le calendrier des arrêts limitent l'énergie",
     "evenements_retenus": 13695,
     "tranches": [
       "BELLEVILLE 1",
@@ -306,6 +307,89 @@
       "2024": 71.76,
       "2025": 74.31
     },
+    "arrets_modulation": {
+      "regle": "remit.MOTIF_MODULATION : le texte de la dernière version contient « modulation » (français et anglais), ou une version antérieure du même événement le contient et la dernière n'invoque pas une autre cause (fortuit, combustible, prolongation de campagne, essai, environnement)",
+      "courts": "moins de 168 heures (7 jours) et aucune version ne parle de combustible : réintégrés dans nucleaire_disponible_reintegre ; les autres (longs) peuvent relever de la gestion du combustible et restent retranchés",
+      "evenements": 407,
+      "courts_nombre": 356,
+      "longs_nombre": 51,
+      "par_texte": 384,
+      "par_version_anterieure": 23,
+      "par_annee": {
+        "2015": {
+          "evenements_courts": 0,
+          "evenements_longs": 0,
+          "energie_courts_twh": 0.0,
+          "energie_longs_twh": 0.0
+        },
+        "2016": {
+          "evenements_courts": 0,
+          "evenements_longs": 0,
+          "energie_courts_twh": 0.0,
+          "energie_longs_twh": 0.0
+        },
+        "2017": {
+          "evenements_courts": 0,
+          "evenements_longs": 0,
+          "energie_courts_twh": 0.0,
+          "energie_longs_twh": 0.0
+        },
+        "2018": {
+          "evenements_courts": 0,
+          "evenements_longs": 0,
+          "energie_courts_twh": 0.0,
+          "energie_longs_twh": 0.0
+        },
+        "2019": {
+          "evenements_courts": 38,
+          "evenements_longs": 1,
+          "energie_courts_twh": 1.5341,
+          "energie_longs_twh": 0.2223
+        },
+        "2020": {
+          "evenements_courts": 42,
+          "evenements_longs": 6,
+          "energie_courts_twh": 1.9999,
+          "energie_longs_twh": 4.3873
+        },
+        "2021": {
+          "evenements_courts": 14,
+          "evenements_longs": 10,
+          "energie_courts_twh": 0.4882,
+          "energie_longs_twh": 3.786
+        },
+        "2022": {
+          "evenements_courts": 33,
+          "evenements_longs": 11,
+          "energie_courts_twh": 1.4842,
+          "energie_longs_twh": 5.3292
+        },
+        "2023": {
+          "evenements_courts": 33,
+          "evenements_longs": 9,
+          "energie_courts_twh": 0.7995,
+          "energie_longs_twh": 2.9292
+        },
+        "2024": {
+          "evenements_courts": 86,
+          "evenements_longs": 13,
+          "energie_courts_twh": 3.136,
+          "energie_longs_twh": 7.2991
+        },
+        "2025": {
+          "evenements_courts": 80,
+          "evenements_longs": 7,
+          "energie_courts_twh": 3.8654,
+          "energie_longs_twh": 3.9486
+        },
+        "2026": {
+          "evenements_courts": 39,
+          "evenements_longs": 0,
+          "energie_courts_twh": 1.6969,
+          "energie_longs_twh": 0.0
+        }
+      }
+    },
     "extractions": {
       "edf_remit/courante": {
         "extrait_le": "2026-11-26T08:51:44+00:00",
@@ -336,7 +420,7 @@
       "url_licence": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
-      "donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3",
+      "donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3, nucleaire_disponible_reintegre",
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "attribution": "EDF — indisponibilités des moyens de production d'EDF SA (REMIT), via opendata.edf.fr",
       "url_licence": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
@@ -682,7 +766,7 @@
     }
   },
   "fichiers": {
-    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3)",
+    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3, nucleaire_disponible_reintegre)",
     "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
     "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
     "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; définitions, unités et limites dans le fichier"

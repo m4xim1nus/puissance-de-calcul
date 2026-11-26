@@ -310,6 +310,8 @@ COLONNES_CSV = [
     ("pompage", "pompage", 0),
     ("prix_eur_mwh", "prix", 4),  # moyenne de quarts d'heure au centime : exacte à 4 décimales
     ("taux_co2", "taux_co2", 1),
+    # en dernier : colonne ajoutée le 2026-11-26, les lecteurs par position ne changent pas
+    ("nucleaire_disponible_reintegre", "nucleaire_disponible_reintegre", 0),
 ]
 
 
@@ -324,7 +326,8 @@ def debut_grille() -> datetime:
 
 
 #: Colonnes REMIT de la table (MW moyens).
-COLONNES_NUCLEAIRE_DISPONIBLE = ("nucleaire_disponible", "nucleaire_puissance_max", "nucleaire_disponible_flamanville3")
+COLONNES_NUCLEAIRE_DISPONIBLE = ("nucleaire_disponible", "nucleaire_puissance_max", "nucleaire_disponible_flamanville3",
+                                 "nucleaire_disponible_reintegre")
 
 
 def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame, nuc_h: pl.DataFrame | None = None) -> pl.DataFrame:
@@ -337,7 +340,8 @@ def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame, nuc_h: pl.DataFrame | N
     if nuc_h is None:
         nuc_h = pl.DataFrame(schema={"heure_utc": DATETIME_UTC, "nucleaire_disponible": pl.Float64,
                                      "nucleaire_puissance_max": pl.Float64,
-                                     "nucleaire_disponible_flamanville3": pl.Float64})
+                                     "nucleaire_disponible_flamanville3": pl.Float64,
+                                     "nucleaire_disponible_reintegre": pl.Float64})
     t = (g.join(eco_h, on="heure_utc", how="left")
           .join(prix_h.select("heure_utc", "prix_eur_mwh", "quarts_negatifs"), on="heure_utc", how="left")
           .join(nuc_h.select("heure_utc", *COLONNES_NUCLEAIRE_DISPONIBLE), on="heure_utc", how="left"))
@@ -369,6 +373,13 @@ def nucleaire_disponible(raw: Path, fin: datetime) -> tuple[pl.DataFrame | None,
                       .group_by("heure_utc").agg(pl.col("dispo").sum().alias("nucleaire_disponible_flamanville3")))
     nat = (nat.join(epr, on="heure_utc", how="left")
               .with_columns(pl.col("nucleaire_disponible_flamanville3").fill_null(0.0)))
+    # Variantes : mêmes règles, arrêts courts pour modulation réintégrés (remit.MOTIF_MODULATION,
+    # DUREE_MAX_COURT_H), publiée ; tous les arrêts pour modulation réintégrés, en mémoire seulement
+    # (pas exportée : plafond de taille des exports), pour chiffrer l'énergie des arrêts longs.
+    for quoi, nom in (("courts", "nucleaire_disponible_reintegre"), ("tous", "nucleaire_disponible_reintegre_tous")):
+        reint = (remit.national(remit.disponible_horaire(ev, debut_grille(), horizon, reintegrer_modulation=quoi))
+                      .select("heure_utc", pl.col("nucleaire_disponible").alias(nom)))
+        nat = nat.join(reint, on="heure_utc", how="left")
     taux = remit.taux_annuels(par_tranche, remit.HORS_TAUX_RTE)
     info = {
         "evenements_retenus": ev.height,
@@ -379,8 +390,47 @@ def nucleaire_disponible(raw: Path, fin: datetime) -> tuple[pl.DataFrame | None,
         "derniere_heure_utc": (horizon - timedelta(hours=1)).isoformat(),
         "taux_disponibilite_hors_flamanville3": {
             int(a): round(float(x) * 100, 2) for a, x, h in taux.iter_rows() if h >= 8760},
+        "arrets_modulation": arrets_modulation(ev, nat),
     }
     return nat, info
+
+
+def arrets_modulation(ev: pl.DataFrame, nat: pl.DataFrame) -> dict:
+    """Décompte des arrêts et baisses pour modulation (remit.MOTIF_MODULATION) : événements retenus
+    identifiés, par règle et par durée (courts : remit.DUREE_MAX_COURT_H), et, par année civile
+    (heure de Paris), le nombre d'événements qui la touchent et l'énergie qu'ils retirent de la
+    disponibilité déclarée, chevauchements traités : courts = Σ (nucleaire_disponible_reintegre −
+    nucleaire_disponible), longs = Σ (nucleaire_disponible_reintegre_tous − nucleaire_disponible_reintegre),
+    MWh → TWh. Les deux s'additionnent en l'énergie de tous les arrêts pour modulation."""
+    m = ev.filter(pl.col("modulation"))
+    an = annee_paris("heure_utc")
+    d, r, t = (pl.col(c) for c in ("nucleaire_disponible", "nucleaire_disponible_reintegre",
+                                   "nucleaire_disponible_reintegre_tous"))
+    energie = {int(a): (c, l) for a, c, l in nat.drop_nulls("nucleaire_disponible").group_by(an.alias("an"))
+               .agg(((r - d).sum() / 1e6).alias("c"), ((t - r).sum() / 1e6).alias("l")).iter_rows()}
+    par_an = {}
+    for a in sorted(energie):
+        debut = pl.select(remit.local_vers_utc(pl.lit(datetime(a, 1, 1)))).item()
+        fin = pl.select(remit.local_vers_utc(pl.lit(datetime(a + 1, 1, 1)))).item()
+        x = m.filter((pl.col("debut") < fin) & (pl.col("fin") > debut))
+        par_an[a] = {"evenements_courts": x.filter("modulation_courte").height,
+                     "evenements_longs": x.filter(~pl.col("modulation_courte")).height,
+                     "energie_courts_twh": round(float(energie[a][0]), 4),
+                     "energie_longs_twh": round(float(energie[a][1]), 4)}
+    return {
+        "regle": "remit.MOTIF_MODULATION : le texte de la dernière version contient « modulation » (français et "
+                 "anglais), ou une version antérieure du même événement le contient et la dernière n'invoque pas "
+                 "une autre cause (fortuit, combustible, prolongation de campagne, essai, environnement)",
+        "courts": f"moins de {remit.DUREE_MAX_COURT_H} heures (7 jours) et aucune version ne parle de combustible : "
+                  "réintégrés dans nucleaire_disponible_reintegre ; les autres (longs) peuvent relever de la gestion du "
+                  "combustible et restent retranchés",
+        "evenements": m.height,
+        "courts_nombre": m.filter("modulation_courte").height,
+        "longs_nombre": m.filter(~pl.col("modulation_courte")).height,
+        "par_texte": m.filter(pl.col("modulation_par") == "texte").height,
+        "par_version_anterieure": m.filter(pl.col("modulation_par") == "version antérieure").height,
+        "par_annee": par_an,
+    }
 
 
 def _fmt_heure(col: str) -> pl.Expr:
@@ -431,8 +481,11 @@ NUCLEAIRE_DISPONIBLE_META = {
         "déclarée des arrêts fortuits, hiver comme été ; aucune heure inexistante du passage à l'heure d'été)",
     ],
     "limites": [
-        "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système, "
-        "modulation économique et baisses non déclarées n'y figurent pas",
+        "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système et "
+        "baisses non déclarées n'en sont pas retranchées ; à l'inverse, EDF y retranche depuis 2019 des arrêts et "
+        "baisses économiques, déclarés indisponibles « pour modulation » (`nucleaire_disponible_reintegre` "
+        "réintègre ceux de moins de 7 jours ; décompte des courts et des longs dans `arrets_modulation`) ; le reste "
+        "de la modulation n'est pas déclaré",
         "la production peut dépasser le disponible déclaré : surcroît de puissance nette par eau froide en hiver "
         "(jusqu'à environ 2 % du parc), déclarations en escalier (grèves, essais) alors que la puissance varie "
         "en rampe ; voir `pc check`",
@@ -448,6 +501,16 @@ NUCLEAIRE_DISPONIBLE_META = {
                                "sur l'heure) : dénominateur d'un taux de disponibilité",
     "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW "
                                          "moyens ; 0 avant le 18/12/2024) ; sa production n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)",
+    "nucleaire_disponible_reintegre": "variante de `nucleaire_disponible` (MW moyens) : mêmes règles, mais les "
+                                      "arrêts et baisses COURTS (moins de 7 jours, sans mention du combustible) qu'EDF "
+                                      "déclare POUR MODULATION ne retirent rien (règles : `arrets_modulation.regle` et "
+                                      "`arrets_modulation.courts`, pc/remit.py MOTIF_MODULATION). Ce sont des arrêts "
+                                      "économiques décidés au jour le jour (« la tranche sera redémarrée si les "
+                                      "conditions économiques le justifient ») ; aucun avant 2019. Les arrêts longs "
+                                      "pour modulation, qui peuvent relever de la gestion du combustible, restent retranchés. "
+                                      "Toujours ≥ `nucleaire_disponible`. Ce n'est pas une capacité physique garantie "
+                                      "non plus : le combustible et le calendrier des arrêts limitent l'énergie",
+
 }
 
 
@@ -473,6 +536,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 | `pompage` | MW moyen | consommation des STEP en pompage, **négative** |
 | `prix` | EUR/MWh | prix day-ahead zone France ; après le 2025-10-01, moyenne simple des 4 quarts d'heure (convention RTE) |
 | `taux_co2` | gCO2eq/kWh | intensité **moyenne de la production** française (émissions directes, imports exclus), moyenne des demi-heures pondérée par la production. **Pas un facteur marginal**, pas l'intensité de la consommation |
+| `nucleaire_disponible_reintegre` | MW moyen | variante de `nucleaire_disponible` : mêmes règles, en **réintégrant** les arrêts et baisses **courts** (moins de 7 jours) qu'EDF déclare indisponibles **pour modulation** (arrêts économiques) ; toujours ≥ `nucleaire_disponible`. Voir la note ci-dessous |
 
 - Une puissance moyenne horaire en MW vaut l'énergie de l'heure en MWh (× 1 h) :
   pour un total annuel en TWh, sommer la colonne et diviser par 10⁶.
@@ -495,6 +559,14 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
   La production peut le dépasser de quelques centaines de MW (eau froide en
   hiver, déclarations en escalier pendant les grèves ou les essais). Méthode,
   limites et taux annuels : `../meta.json`, clé `nucleaire_disponible`.
+- `nucleaire_disponible_reintegre` : même reconstruction, sauf que les
+  arrêts et baisses de moins de 7 jours qu'EDF déclare « pour modulation »
+  (texte libre de l'événement, le plus souvent : « la tranche sera redémarrée
+  si les conditions économiques le justifient ») ne retirent rien. Les arrêts
+  pour modulation plus longs, qui peuvent relever de la gestion du combustible,
+  restent retranchés. Règles et décompte par année (courts et longs) :
+  `../meta.json`, clé `nucleaire_disponible`, `arrets_modulation`. Aucun de ces
+  événements avant 2019.
 - Les données de l'année en cours mêlent **consolidé** et **temps réel**
   (puissance instantanée, moins précise) : voir `natures` dans `../meta.json`.
 """
@@ -519,11 +591,14 @@ def extractions_quand(manifeste: dict) -> tuple[dict, str]:
     return par_famille, jour.isoformat()
 
 
-def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) -> tuple[dict, dict]:
+def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None,
+          ecretement: dict[int, tuple[dict, dict]] | None = None,
+          froid: tuple[dict, dict] | None = None) -> tuple[dict, dict]:
     """Construit les exports ; renvoie (sources, chiffres) calculés pour `chiffres.json`.
 
     `modulation` : chiffres saisis de la modulation nucléaire publiée, par année (recoupement
-    d'ordre de grandeur des chiffres calculés de Σ J).
+    d'ordre de grandeur des chiffres calculés de Σ J). `ecretement` : production renoncée et
+    écrêtée publiée par RTE, par année (`export_quand.ecretement_du_referentiel`).
     """
     export.mkdir(parents=True, exist_ok=True)
     eco, rapports = charger_eco2mix(raw)
@@ -579,7 +654,8 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) ->
         "attributions": [
             {"donnees": "consommation, production, échanges, taux_co2", **LICENCE_ODRE},
             {"donnees": "prix day-ahead France", **LICENCE_PRIX},
-            {"donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3", **LICENCE_EDF},
+            {"donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3, "
+                        "nucleaire_disponible_reintegre", **LICENCE_EDF},
         ],
         # ENTSO-E exclu : rien de ce qui est exporté ici n'en vient (data/derive/entsoe/meta.json le décrit).
         "sources": {k: {c: v[c] for c in ("url", "extrait_le", "nature", "sha256", "lignes", "natures",
@@ -588,7 +664,7 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) ->
         "fichiers": {
             "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, "
                                        "nucleaire_disponible, nucleaire_puissance_max, "
-                                       "nucleaire_disponible_flamanville3)",
+                                       "nucleaire_disponible_flamanville3, nucleaire_disponible_reintegre)",
             "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
             "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
             "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire "
@@ -599,9 +675,10 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) ->
     (export / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
 
     extractions, date_extraction = extractions_quand(manifeste)
-    q = export_quand.construire_quand(table, extractions)
+    longs = {a: v["energie_longs_twh"] for a, v in (nuc_info.get("arrets_modulation") or {}).get("par_annee", {}).items()}
+    q = export_quand.construire_quand(table, extractions, longs)
     export_quand.ecrire_quand(q, export / "quand.json")
-    calcules = export_quand.chiffres_calcules(q, modulation)
+    calcules = export_quand.chiffres_calcules(q, modulation, ecretement, froid)
     print(f"quand.json : années {', '.join(q['annees'])} ; exclues : {', '.join(q['annees_exclues']) or 'aucune'} ; "
           f"{len(calcules)} chiffres calculés", file=sys.stderr)
     taille = sum(p.stat().st_size for p in export.rglob("*") if p.is_file())

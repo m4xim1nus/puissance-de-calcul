@@ -107,7 +107,7 @@ Ordre de la session 2 :
    energy-charts, et la question laissée ouverte par « Quand ? » (qui
    servirait une consommation ajoutée : nucléaire, EnR moins arrêtées
    ou exportations).
-3. **Limites de « Quand ? » et du simulateur** (« Ce que ce calcul ne
+3. ✅ **Limites de « Quand ? » et du simulateur** (publiées le 26/11 après relecture adverse et vérification des corrections) (« Ce que ce calcul ne
    dit pas »), selon la règle validée par l'auteur le 26/11 : trois
    niveaux, *sourcer et afficher* / *estimer nous-mêmes* (méthode
    écrite, fourchette, « calcul du site ») / *hypothèse réglable* dans
@@ -127,5 +127,11 @@ Ordre de la session 2 :
    - restent des limites écrites : le système de 2035, le réseau local
      (documenté par « Où ? »). La pointe exacte est déjà sourcée.
    Relecture adverse « lectrice experte » avant publication.
-4. Ensuite : enquête carbone (facteur moyen ≠ marginal), puis « Où ? »
+4. ✅ **« Quand ? » : arrêts pour modulation déclarés indisponibles** (publié le 26/11 : variante J_r, arrêts courts seuls)
+   (`ERREURS.md`, 26/11) : variante de J réintégrant ces arrêts,
+   sensibilité publiée, « au plus » requalifié, report dans le
+   simulateur et les notes ; relecture adverse. Prioritaire : la page est
+   en ligne.
+5. Ensuite : enquête carbone (spike fait : `docs/spike/carbone.md`,
+   à relire de façon adverse avant toute écriture), puis « Où ? »
    (enquête courte sur ce qui manque).

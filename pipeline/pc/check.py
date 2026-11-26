@@ -462,6 +462,71 @@ def controle_taux_rte(par_tranche: pl.DataFrame, table: pl.DataFrame) -> Resulta
     return r
 
 
+def controle_remit_reintegre(ev: pl.DataFrame, par_tranche: pl.DataFrame, table: pl.DataFrame,
+                             fin: datetime, q: dict | None = None) -> Resultat:
+    """Variantes réintégrant les arrêts pour modulation (courts : publiée ; tous : parquet) : export =
+    recalcul, déclaré ≤ réintégré courts ≤ réintégré tous à toute heure, égalité hors des heures
+    touchées, règles d'identification et de durée appliquées telles qu'écrites
+    (remit.MOTIF_MODULATION, remit.DUREE_MAX_COURT_H, remit.MOTIF_COMBUSTIBLE)."""
+    r = Resultat("REMIT, disponibilité réintégrant les arrêts pour modulation (courts, exportée ; tous, recalculée) : "
+                 "export = recalcul ; déclaré ≤ courts ≤ tous à toute heure ; égal hors des heures d'arrêt concernées ; "
+                 "énergie des arrêts longs de quand.json = recalcul ; règles d'identification et de durée appliquées",
+                 "OK")
+    decl = remit.national(par_tranche).select("heure_utc", pl.col("nucleaire_disponible").alias("decl"))
+    t = table.select("heure_utc", "nucleaire_disponible_reintegre")
+    for quoi in ("courts", "tous"):
+        nat = remit.national(remit.disponible_horaire(ev, debut_grille(), fin, reintegrer_modulation=quoi))
+        t = t.join(nat.select("heure_utc", pl.col("nucleaire_disponible").alias(quoi)), on="heure_utc", how="full",
+                   coalesce=True)
+    t = t.join(decl, on="heure_utc", how="left")
+    fautes = []
+    col = "nucleaire_disponible_reintegre"
+    diff = t.select((pl.col(col) - pl.col("courts")).abs().max()).item()
+    nuls = t.filter(pl.col(col).is_null() != pl.col("courts").is_null()).height
+    if diff is None or diff > 0.05 + 1e-9 or nuls:
+        fautes.append(f"export contre recalcul, écart max {diff} MW, {nuls} heure(s) d'un seul côté (`pc build`)")
+    # énergie des arrêts longs (série « tous » non exportée) : recalcul = quand.json
+    if q is not None:
+        longs = dict(t.drop_nulls(["decl", "courts", "tous"]).group_by(annee_paris("heure_utc").alias("an"))
+                      .agg(((pl.col("tous") - pl.col("courts")).sum() / 1e6).alias("l")).iter_rows())
+        for an, a in q["annees"].items():
+            v = (a.get("jeu_nucleaire_reintegre") or {}).get("arrets_modulation_longs_twh")
+            if v is None or abs(v - longs.get(int(an), 0.0)) > TOL_TWH:
+                fautes.append(f"{an} : énergie des arrêts longs {v} (quand.json) ≠ {longs.get(int(an), 0.0):.4f} TWh (recalcul)")
+    ordre = t.filter((pl.col("courts") < pl.col("decl") - 1e-6) | (pl.col("tous") < pl.col("courts") - 1e-6)).height
+    if ordre:
+        fautes.append(f"{ordre} heure(s) où déclaré ≤ courts ≤ tous n'est pas vérifié")
+
+    def heures(evts: pl.DataFrame) -> pl.DataFrame:
+        return (evts.select(pl.datetime_ranges(pl.col("debut").dt.truncate("1h"), pl.col("fin") - pl.duration(microseconds=1),
+                                               "1h").alias("heure_utc")).explode("heure_utc").unique())
+    m = ev.filter(pl.col("modulation"))
+    courts = m.filter(pl.col("modulation_courte"))
+    hors_c = t.join(heures(courts), on="heure_utc", how="anti").filter((pl.col("courts") - pl.col("decl")).abs() > 1e-6).height
+    hors_t = t.join(heures(m), on="heure_utc", how="anti").filter((pl.col("tous") - pl.col("decl")).abs() > 1e-6).height
+    if hors_c or hors_t:
+        fautes.append(f"{hors_c} heure(s) hors arrêt court et {hors_t} hors arrêt pour modulation où la variante ≠ déclaré")
+    texte = ev.filter(pl.col("modulation_par") == "texte")
+    faux = texte.filter(~pl.col("info").fill_null("").str.contains(remit.MOTIF_MODULATION)).height
+    autre = ev.filter((pl.col("modulation_par") == "version antérieure")
+                      & pl.col("info").fill_null("").str.contains(remit.MOTIF_AUTRE_CAUSE)).height
+    duree = pl.col("fin") - pl.col("debut")
+    trop_longs = courts.filter(duree >= pl.duration(hours=remit.DUREE_MAX_COURT_H)).height
+    comb = courts.filter(pl.col("info").fill_null("").str.contains(remit.MOTIF_COMBUSTIBLE)).height
+    hors_modulation = ev.filter(pl.col("modulation_courte") & ~pl.col("modulation")).height
+    if faux or autre or trop_longs or comb or hors_modulation:
+        fautes.append(f"règle mal appliquée : {faux} « texte » sans le mot, {autre} « version antérieure » avec une autre "
+                      f"cause, {trop_longs} courts de 7 jours ou plus, {comb} courts parlant de combustible, "
+                      f"{hors_modulation} courts hors modulation")
+    if fautes:
+        r.statut = "ÉCHEC"
+    r.lignes.append(f"{m.height} événements identifiés ({texte.height} par leur texte, "
+                    f"{m.height - texte.height} par une version antérieure), dont {courts.height} courts (moins de "
+                    f"{remit.DUREE_MAX_COURT_H} h, sans mention du combustible) et {m.height - courts.height} longs")
+    r.lignes += [f"← {f}" for f in fautes]
+    return r
+
+
 def controle_production_sous_disponible(table: pl.DataFrame) -> Resultat:
     r = Resultat("Production nucléaire éCO2mix ≤ disponible REMIT + 2,5 % (toutes heures, toutes années)", "OK")
     t = (table.drop_nulls(["nucleaire", "nucleaire_disponible"])
@@ -611,7 +676,7 @@ def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
     """quand.json (Python pur) = recalcul polars : RN max et sa date, Σ J, charges plates, prix."""
     r = Resultat("« Quand ? » : quand.json = recalcul indépendant (polars) — RN max et date, Σ J, parts tenues, "
                  "heures au-delà du max (annuel et pluriannuel), part avec plancher, J aux prix chers, production, "
-                 "solde aux heures J ≥ X, couverture des heures tendues (échanges, gaz, "
+                 "solde aux heures J ≥ X, consommation horaire maximale, couverture des heures tendues (échanges, gaz, "
                  "hydraulique), heures de "
                  "prix ≤ 0 et < 0", "OK")
     t = _table_arrondie(table)
@@ -656,6 +721,12 @@ def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
         pc_ = a["jeu_nucleaire"]["prix_chers"]
         if pc_["heures"] != ch.len() or (ch.len() and abs(pc_["j_moyenne_mw"] - ch.mean()) > TOL_MW):
             fautes.append(f"J aux prix > {SEUIL_PRIX_CHER_EUR_MWH} : {pc_} ≠ {ch.len()} h, {ch.mean()}")
+        if an == (q.get("consommation_max_pluriannuelle") or {}).get("annee"):
+            cm = d.drop_nulls("consommation").sort(["consommation", "heure_utc"], descending=[True, False])
+            cq = q["consommation_max_pluriannuelle"]
+            if abs(cq["valeur_mw"] - cm["consommation"][0]) > TOL_MW \
+                    or cq["heure_utc"] != cm["heure_utc"][0].strftime("%Y-%m-%dT%H:%MZ"):
+                fautes.append(f"consommation max {cq} ≠ {cm['consommation'][0]} à {cm['heure_utc'][0]}")
         prod = d["nucleaire"].drop_nulls().sum() / 1e6
         if abs(a["production_nucleaire_twh"] - prod) > TOL_TWH:
             fautes.append(f"production nucléaire {a['production_nucleaire_twh']} ≠ {prod:.4f} TWh")
@@ -681,7 +752,8 @@ def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
     """Propriétés internes : J ≥ 0, profil mensuel = total, part tenue décroissante et ≤ 1,
     Σ min(X, J) ≤ Σ J, monotone cohérente avec le maximum et les heures tendues, couverture qui boucle."""
     r = Resultat("« Quand ? » : J ≥ 0 ; Σ mois = Σ année ; part tenue décroissante en X et ≤ 1 ; Σ min(X, J) ≤ Σ J ; "
-                 "monotone ↔ max ↔ heures tendues ; couverture des heures tendues = RN moyenne", "OK")
+                 "monotone ↔ max ↔ heures tendues ; couverture des heures tendues = RN moyenne ; consommation horaire "
+                 "maximale sous la pointe historique (référentiel)", "OK")
     if sorted(int(a) for a in q["annees"]) != annees_pleines:
         r.statut = "ÉCHEC"
         r.lignes.append(f"années de quand.json {sorted(q['annees'])} ≠ années pleines {annees_pleines}")
@@ -737,6 +809,16 @@ def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
         r.lignes.append(f"{an} : parts tenues {', '.join(_f(p * 100, 1) for p in parts)} % ; couverture "
                         f"{_f(somme, 0)} MW pour RN moyenne {_f(td['rn_moyenne_mw'], 0)} MW (écart de bilan "
                         f"{_f(cm['ecart_bilan_eco2mix'], 0)} MW)" + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    cmax = q.get("consommation_max_pluriannuelle")
+    record = chiffres_saisis().get("pointe_conso_record_2012")
+    if not cmax or not record or not cmax["valeur_mw"] < float(record["valeur"]) * 1000:
+        r.statut = "ÉCHEC"
+        r.lignes.append(f"consommation horaire maximale {cmax} absente ou au-dessus de la pointe historique "
+                        f"(référentiel pointe_conso_record_2012)")
+    else:
+        r.lignes.append(f"consommation horaire maximale {cmax['annees']} : {_f(cmax['valeur_mw'], 0)} MW "
+                        f"({cmax['debut_paris']}), sous la pointe historique de {_f(float(record['valeur']), 1)} GW "
+                        "(février 2012, demi-heure)")
     pluri = q.get("rn_max_pluriannuel") or {}
     origine = q["annees"].get(str(pluri.get("annee")), {}).get("charge_residuelle", {}).get("max")
     if not origine or {k: origine[k] for k in ("valeur_mw", "heure_utc")} != {k: pluri[k] for k in ("valeur_mw", "heure_utc")}:
@@ -748,6 +830,11 @@ def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
     for an, motif in q["annees_exclues"].items():
         r.lignes.append(f"{an} exclue : {motif}")
     return r
+
+
+def chiffres_saisis() -> dict:
+    from . import chiffres
+    return chiffres.charger().chiffres
 
 
 def controle_quand_heures_negatives(q: dict, table: pl.DataFrame) -> Resultat:
@@ -800,6 +887,73 @@ def controle_quand_modulation(q: dict) -> Resultat:
     return r
 
 
+def controle_quand_reintegre(q: dict, table: pl.DataFrame) -> Resultat:
+    """Variante J_r (arrêts courts pour modulation réintégrés) : J_r ≥ J à toute heure (colonnes arrondies
+    comme les CSV) ; recalcul polars de Σ J_r, de l'énergie des arrêts et des parts 5 et 10 GW (avec et
+    sans plancher) = quand.json ; parts réintégrées ≥ déclarées ; Σ J_r comparé à la modulation publiée
+    par EDF (autre grandeur : ordre de grandeur seulement, écart affiché)."""
+    from . import chiffres
+    from .export_quand import MODULATION_PUBLIEE
+    from .quand import PLANCHER_J_MW
+    lo, hi = RAPPORT_MODULATION
+    r = Resultat("« Quand ? » : J réintégrant les arrêts courts pour modulation (J_r) ≥ J à toute heure ; Σ J_r, énergie "
+                 "des arrêts courts et des arrêts longs, parts 5 et 10 GW avec et sans plancher = recalcul polars ; Σ J_r comparé à la modulation "
+                 f"publiée par EDF (rapport dans [{_f(lo, 1)} ; {_f(hi, 0)}]), écart affiché", "OK")
+    ref = chiffres.charger().chiffres
+    t = _table_arrondie(table).with_columns(
+        (pl.col("nucleaire_disponible_reintegre") - pl.col("nucleaire")).clip(lower_bound=0).alias("jr"))
+    for an, a in q["annees"].items():
+        jr_q = a.get("jeu_nucleaire_reintegre")
+        if jr_q is None:
+            r.statut = "ÉCHEC"
+            r.lignes.append(f"{an} : jeu_nucleaire_reintegre absent de quand.json (`pc build`)")
+            continue
+        d = t.filter(pl.col("an") == int(an))
+        fautes = []
+        sous = d.filter(pl.col("jr") < pl.col("j")).height
+        nuls = d.filter(pl.col("jr").is_null() != pl.col("j").is_null()).height
+        if sous or nuls:
+            fautes.append(f"J_r < J à {sous} heure(s), renseigné d'un seul côté à {nuls}")
+        jv = d.drop_nulls("jr")["jr"]
+        arrets = d.drop_nulls(["nucleaire_disponible", "nucleaire_disponible_reintegre"]).select(
+            (pl.col("nucleaire_disponible_reintegre") - pl.col("nucleaire_disponible")).sum()).item() / 1e6
+        if (jr_q.get("arrets_modulation_longs_twh") or 0) < 0:
+            fautes.append(f"arrêts longs négatifs : {jr_q.get('arrets_modulation_longs_twh')}")
+        if abs(jr_q["somme_twh"] - jv.sum() / 1e6) > TOL_TWH or abs(jr_q["arrets_modulation_courts_twh"] - arrets) > TOL_TWH:
+            fautes.append(f"Σ J_r {jr_q['somme_twh']} / {jv.sum() / 1e6:.4f}, arrêts courts {jr_q['arrets_modulation_courts_twh']} / "
+                          f"{arrets:.4f}")
+        cp = {c["x_mw"]: c for c in a["charges_plates"]}
+        for c in jr_q["charges_plates"]:
+            x = c["x_mw"]
+            part = jv.clip(upper_bound=x).sum() / (x * jv.len())
+            part_p = (jv - PLANCHER_J_MW).clip(lower_bound=0).clip(upper_bound=x).sum() / (x * jv.len())
+            if abs(c["part_dans_j"] - part) > TOL_PART or abs(c["part_dans_j_plancher"] - part_p) > TOL_PART:
+                fautes.append(f"X = {x} MW : parts {c['part_dans_j']} / {part:.4f}, avec plancher "
+                              f"{c['part_dans_j_plancher']} / {part_p:.4f}")
+            if c["part_dans_j"] < cp[x]["part_dans_j"] - TOL_PART or c["part_dans_j_plancher"] < cp[x]["part_dans_j_plancher"] - TOL_PART:
+                fautes.append(f"X = {x} MW : part réintégrée sous la part déclarée")
+        j = a["jeu_nucleaire"]["somme_twh"]
+        ligne = (f"{an} : Σ J {_f(j, 1)} → Σ J_r {_f(jr_q['somme_twh'], 1)} TWh (arrêts pour modulation "
+                 f"{_f(jr_q['arrets_modulation_courts_twh'], 1)} TWh réintégrés ; arrêts longs "
+                 f"{_f(jr_q['arrets_modulation_longs_twh'], 1)} TWh, non réintégrés) ; 5 GW : "
+                 f"{_f(cp[5000]['part_dans_j'] * 100, 0)} → "
+                 f"{_f(next(c for c in jr_q['charges_plates'] if c['x_mw'] == 5000)['part_dans_j'] * 100, 0)} %")
+        cle = MODULATION_PUBLIEE.get(int(an))
+        if cle and cle in ref:
+            mod = float(ref[cle]["valeur"])
+            rapport = jr_q["somme_twh"] / mod
+            if not lo <= rapport <= hi:
+                fautes.append("Σ J_r hors de l'ordre de grandeur de la modulation publiée")
+            ligne += (f" ; modulation EDF {_f(mod, 0)} TWh ({cle}) : écart Σ J {_f(j - mod, 1)}, Σ J_r "
+                      f"{_f(jr_q['somme_twh'] - mod, 1)} TWh ({_pct(rapport - 1, 0)})")
+        if fautes:
+            r.statut = "ÉCHEC"
+        r.lignes.append(ligne + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    r.lignes.append("la modulation d'EDF est une autre grandeur (sa propre frontière, toutes causes) : Σ J_r ne doit pas "
+                    "l'égaler ; J_r reste une sensibilité, pas une capacité physique")
+    return r
+
+
 #: Production nucléaire publiée (BE2025) contre la somme éCO2mix : même éditeur, périmètres proches
 #: (la phrase de RTE ne précise pas l'EPR) ; une erreur d'unité ou d'heures donnerait bien plus.
 TOL_PRODUCTION_RELATIVE = 0.005
@@ -844,16 +998,55 @@ def controle_colonnes_eco2mix(table: pl.DataFrame, annees: list[int]) -> Resulta
     return r
 
 
+def controle_quand_ecretement(q: dict, table: pl.DataFrame) -> Resultat:
+    """Limite « écrêtement » : production renoncée publiée (référentiel) ÷ heures à prix < 0 recomptées
+    sur la table (polars, indépendamment de quand.json) = chiffre calculé ; et, garde-fou d'unité
+    (TWh pris pour des GWh, heures mal comptées), la moyenne répartie reste sous la production
+    éolienne + solaire observée moyenne de ces heures. Ce n'est pas une loi physique (une production
+    renoncée pourrait dépasser la production restante), seulement un ordre de grandeur attendu."""
+    from . import chiffres
+    from .export_quand import ECRETEMENT_PUBLIE, chiffres_calcules, ecretement_du_referentiel
+    r = Resultat("« Quand ? » : écrêtement réparti = production renoncée (RTE) ÷ heures à prix < 0 (recompte "
+                 "polars) ; inférieur à l'éolien + solaire observé moyen de ces heures (garde-fou d'unité)", "OK")
+    ref = chiffres.charger()
+    ecr = ecretement_du_referentiel(ref.chiffres)
+    calc = chiffres_calcules(q, {}, ecr)
+    t = _table_arrondie(table)
+    for an in ECRETEMENT_PUBLIE:
+        cle = f"quand_ecretement_prix_negatif_{an}"
+        if an not in ecr or cle not in calc:
+            r.statut = "ÉCHEC"
+            r.lignes.append(f"{an} : référentiel ou quand.json incomplet ({cle} non calculé)")
+            continue
+        neg = t.filter((pl.col("an") == an) & (pl.col("prix") < 0))
+        e_mwh = float(ecr[an][0]["valeur"]) * 1e6
+        moyenne_mw = e_mwh / neg.height
+        observe_mw = (neg["eolien"] + neg["solaire"]).mean()
+        c = calc[cle]
+        fautes = []
+        if abs(c["valeur_calculee"] * 1000 - moyenne_mw) > TOL_MW:
+            fautes.append(f"chiffre {c['valeur_calculee']} GW ≠ {moyenne_mw / 1000:.4f} GW")
+        if not moyenne_mw < observe_mw:
+            fautes.append("au-delà de l'éolien + solaire observé : unité ou décompte à vérifier")
+        if fautes:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : {_f(e_mwh / 1e6, 1)} TWh ÷ {neg.height} h = {_f(moyenne_mw / 1000, 2)} GW en moyenne ; "
+                        f"éolien + solaire observé à ces heures {_f(observe_mw / 1000, 1)} GW"
+                        + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    return r
+
+
 def controle_quand_chiffres(q: dict, export: Path) -> Resultat:
     """chiffres.json porte exactement les chiffres calculés depuis quand.json, au schéma du référentiel."""
     import json
     from . import chiffres
-    from .export_quand import MODULATION_PUBLIEE, SOURCE_QUAND, chiffres_calcules
+    from .export_quand import (MODULATION_PUBLIEE, SOURCE_QUAND, chiffres_calcules, ecretement_du_referentiel,
+                               froid_du_referentiel)
     r = Resultat("« Quand ? » : chiffres calculés de chiffres.json = quand.json, valeur publiée = arrondi (GW et TWh "
                  "à 0,1, % à l'entier) de la valeur non arrondie ; référentiel fusionné valide", "OK")
     ref = chiffres.charger()
     modulation = {an: ref.chiffres[c] for an, c in MODULATION_PUBLIEE.items() if c in ref.chiffres}
-    attendus = chiffres_calcules(q, modulation)
+    attendus = chiffres_calcules(q, modulation, ecretement_du_referentiel(ref.chiffres), froid_du_referentiel(ref.chiffres))
     publies = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
     source = (publies.get(next(iter(attendus)), {}).get("source") or {})
     fusion = chiffres.fusionner(ref, {SOURCE_QUAND: {k: v for k, v in source.items() if k != "cle"}}, attendus)
@@ -891,7 +1084,9 @@ def controles_quand(export: Path, table: pl.DataFrame) -> list:
         lambda: controle_quand_recalcul(q, table),
         lambda: controle_quand_heures_negatives(q, table),
         lambda: controle_quand_modulation(q),
+        lambda: controle_quand_reintegre(q, table),
         lambda: controle_quand_production(q),
+        lambda: controle_quand_ecretement(q, table),
         lambda: controle_quand_chiffres(q, export),
     ]
 
@@ -923,6 +1118,9 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None, derive: Path
         controles_remit = [
             lambda: controle_remit_jonction(bornes),
             lambda: controle_taux_rte(par_tranche, table),
+            lambda: controle_remit_reintegre(ev, par_tranche, table,
+                                             min(bornes["horizon"], table["heure_utc"].max() + timedelta(hours=1)),
+                                             _quand(export) if (export / "quand.json").exists() else None),
             lambda: controle_production_sous_disponible(table),
             lambda: controle_fuseau_remit(raw, natif, brut, ev, bornes),
         ]

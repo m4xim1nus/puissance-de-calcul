@@ -46,3 +46,4 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 - [ ] ENTSO-E : biais du solde des flux physiques contre éCO2mix (+600 à +800 MW selon les années) et écart de charge (−0,4 à −2,4 %) non expliqués (claude, 2026-11-26)
 - [ ] ENTSO-E : licence des flux et capacités FR↔GB (exception « Interconnexion France-Angleterre » de la liste CC BY 4.0) à trancher avant toute publication sur cette frontière (claude, 2026-11-26)
 - [ ] Enquête carbone : production des voisins (ENTSO-E 16.1, hors CC BY 4.0) publiée seulement en agrégats calculés, source citée ; ou energy-charts si sa licence couvre les voisins (à vérifier) (claude, 2026-11-26)
+- [ ] Simulateur, froid : une série de température (Météo-France, open data) pour placer le froid supplémentaire par rapport aux normales au lieu des 7 jours les plus tendus ; avec du froid réglé, l'outil déborde de l'écran à 1366×768 (relecture, 2026-11-26)

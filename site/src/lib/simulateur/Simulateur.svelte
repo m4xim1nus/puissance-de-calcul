@@ -7,8 +7,17 @@
   import { typographier } from '$lib/markdown';
   import { afterNavigate, replaceState } from '$app/navigation';
   import { dateParis, formaterDate, formaterNombre } from '$lib/format';
+  import { gw } from '$lib/quand';
   import { lireCsvHoraire } from './csv';
-  import { BORNES, DEFAUTS, arrondirGw, ecrireEtat, lireEtat, type Etat } from './etat';
+  import {
+    BORNES,
+    DEFAUTS,
+    arrondirFroid,
+    arrondirGw,
+    ecrireEtat,
+    lireEtat,
+    type Etat
+  } from './etat';
   import { heures, part, puissanceReglee, twh } from './format';
   import { phrases } from './phrases';
   import MonotoneAvantApres from './MonotoneAvantApres.svelte';
@@ -98,19 +107,41 @@
     if (q !== location.search) replaceState(`${location.pathname}${q}`, {});
   });
 
-  function regler(champ: 'xGw' | 'effacement', brut: number) {
+  function regler(champ: 'xGw' | 'effacement' | 'froidC' | 'plancherGw', brut: number) {
     if (!Number.isFinite(brut)) return;
     const b = BORNES[champ];
     const v = Math.min(b.max, Math.max(b.min, brut));
-    etat[champ] = champ === 'xGw' ? arrondirGw(v) : Math.round(v);
+    etat[champ] =
+      champ === 'effacement'
+        ? Math.round(v)
+        : champ === 'froidC'
+          ? arrondirFroid(v)
+          : arrondirGw(v);
     ecarts = [];
   }
 
+  /** « 1,5 °C ». */
+  const degres = (c: number) => `${formaterNombre(c, 1)} °C`;
+
   const pret = $derived(table !== null && anneeTable === etat.annee);
   const xMw = $derived(Math.round(etat.xGw * 1000));
+  const plancherMw = $derived(Math.round(etat.plancherGw * 1000));
+  const gradient = $derived(references.gradient.mw_par_c);
   const reference = $derived(references.maxPluriannuel.valeur_mw);
   const sim = $derived(
-    pret && table ? simuler(table, xMw, etat.effacement, ZOOM, PAS, undefined, reference) : null
+    pret && table
+      ? simuler(
+          table,
+          xMw,
+          etat.effacement,
+          ZOOM,
+          PAS,
+          plancherMw,
+          reference,
+          etat.froidC,
+          gradient
+        )
+      : null
   );
   /** Même puissance sans effacement : comparaison des heures au-delà des maxima. */
   const plate = $derived(
@@ -118,10 +149,17 @@
       ? null
       : etat.effacement === 0
         ? sim
-        : simuler(table, xMw, 0, 1, 1e9, undefined, reference)
+        : simuler(table, xMw, 0, 1, 1e9, plancherMw, reference, etat.froidC, gradient)
+  );
+  /** Froid seul (X nul) : les heures qu'aucun effacement de la consommation ajoutée ne supprime. */
+  const seul = $derived(
+    !sim || !table || etat.froidC === 0
+      ? null
+      : simuler(table, 0, 0, 1, 1e9, plancherMw, reference, etat.froidC, gradient)
   );
   const libelle = $derived(
-    `${puissanceReglee(etat.xGw)}${etat.effacement && xMw > 0 ? `, effacés ${heures(etat.effacement)}` : ''}`
+    `${puissanceReglee(etat.xGw)}${etat.effacement && xMw > 0 ? `, effacés ${heures(etat.effacement)}` : ''}` +
+      (etat.froidC ? `, froid supplémentaire de ${degres(etat.froidC)}` : '')
   );
 
   const NOMS: Record<string, string> = {
@@ -148,9 +186,13 @@
     if (!s) return;
     const texte =
       `${etat.annee}, ${libelle} : ${twh(s.energie_ajoutee_twh)} ajoutés ; ` +
+      (s.froid_heures ? `${gw(s.froid_ajout_mw)} de plus pendant l’épisode de froid ; ` : '') +
       (s.part_dans_j === null || s.part_dans_j_plancher === null
         ? ''
-        : `au plus ${part(s.part_dans_j_plancher)} à ${part(s.part_dans_j)} dans le nucléaire disponible non produit ; `) +
+        : `au plus ${part(s.part_dans_j_plancher)} à ${part(s.part_dans_j)} dans le nucléaire disponible non produit, avec la disponibilité déclarée par EDF` +
+          (s.reintegre?.part_dans_j != null && s.reintegre.part_dans_j_plancher != null
+            ? `, ${part(s.reintegre.part_dans_j_plancher)} à ${part(s.reintegre.part_dans_j)} en réintégrant ses arrêts courts pour modulation ; `
+            : ' ; ')) +
       `${heures(s.heures_au_dessus_du_max ?? 0)} au-delà du maximum de l’année, ` +
       `${heures(s.heures_au_dessus_du_max_reference ?? 0)} au-delà du maximum ${references.maxPluriannuel.annees}` +
       (s.part_prix_nul_ou_negatif === null
@@ -167,10 +209,7 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
 <div class="outil">
   <section class="hypotheses" aria-labelledby="hypotheses-titre">
     <h2 id="hypotheses-titre">Hypothèses</h2>
-    <p class="consigne">
-      Trois réglages, chacun avec sa valeur par défaut et sa raison. L’adresse de la page porte le
-      scénario : on la copie pour le partager.
-    </p>
+    <p class="consigne">Le lien de la page porte le scénario.</p>
 
     <div class="hypothese">
       <div class="ligne-nom">
@@ -189,15 +228,17 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
           {/each}
         </select>
       </div>
-      <p class="defaut">
-        Défaut : {DEFAUTS.annee}, dernière année close. Choix : {annees[0]} à {annees.at(-1)}.
-      </p>
       <details class="pourquoi">
-        <summary>Raison</summary>
+        <summary
+          ><span class="defaut"
+            >Défaut : {DEFAUTS.annee} ; choix : {annees[0]} à {annees.at(-1)}.</span
+          > <span class="raison-lien">Raison</span></summary
+        >
         <p class="raison">
           Une année observée, avec sa météo, sa disponibilité nucléaire et ses prix : 2022, année de
-          faible disponibilité du parc nucléaire et de prix de crise, ne ressemble pas à 2025.
-          L’année en cours n’est pas proposée tant qu’elle n’est pas close.
+          faible disponibilité du parc nucléaire et de prix de crise, ne ressemble pas à 2025. Par
+          défaut, la dernière année close ; l’année en cours n’est pas proposée tant qu’elle n’est
+          pas close.
         </p>
       </details>
     </div>
@@ -231,12 +272,12 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
         aria-valuetext={puissanceReglee(etat.xGw)}
         oninput={(e) => regler('xGw', Number((e.currentTarget as HTMLInputElement).value))}
       />
-      <p class="defaut">
-        Défaut : {formaterNombre(DEFAUTS.xGw)} GW. Plage : {BORNES.xGw.min} à {BORNES.xGw.max} GW, par
-        pas de 0,1 GW.
-      </p>
       <details class="pourquoi">
-        <summary>Raison</summary>
+        <summary
+          ><span class="defaut"
+            >Défaut : {formaterNombre(DEFAUTS.xGw)} GW ; {BORNES.xGw.min} à {BORNES.xGw.max} GW.</span
+          > <span class="raison-lien">Raison</span></summary
+        >
         <p class="raison">
           Puissance <strong>consommée</strong> en moyenne sur chaque heure, au périmètre de la
           consommation nationale (pertes de réseau comprises), pas puissance réservée ni raccordée :
@@ -276,20 +317,132 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
         aria-valuetext={heures(etat.effacement)}
         oninput={(e) => regler('effacement', Number((e.currentTarget as HTMLInputElement).value))}
       />
-      <p class="defaut">
-        Défaut : 0 heure (consommation plate toute l’année). Plage : 0 à {BORNES.effacement.max} heures
-        par an.
-      </p>
       <details class="pourquoi">
-        <summary>Raison</summary>
+        <summary
+          ><span class="defaut">Défaut : 0 h (plat) ; 0 à {BORNES.effacement.max} h par an.</span>
+          <span class="raison-lien">Raison</span></summary
+        >
         <p class="raison">
           Aucune courbe de charge de data center n’est publiée, à notre connaissance : la
           consommation est supposée constante. L’effacement la met à zéro pendant les heures où la
           charge résiduelle
-          <strong>observée</strong> est la plus élevée, comme si on les connaissait à l’avance. Les heures
-          d’effacement qu’il faudrait sont donc une borne basse. L’énergie effacée est perdue : elle n’est
-          reportée ni sur d’autres heures ni sur un autre site.
+          <strong>observée</strong> est la plus élevée (froid supplémentaire compris), comme si on les
+          connaissait à l’avance. Les heures d’effacement qu’il faudrait sont donc une borne basse. L’énergie
+          effacée est perdue : elle n’est reportée ni sur d’autres heures ni sur un autre site.
         </p>
+      </details>
+    </div>
+
+    <div class="hypothese">
+      <div class="ligne-nom">
+        <label class="nom" for="sim-froid">Froid supplémentaire</label>
+        <span class="saisie"
+          ><input
+            id="sim-froid"
+            type="number"
+            inputmode="decimal"
+            min={BORNES.froidC.min}
+            max={BORNES.froidC.max}
+            step={BORNES.froidC.pas}
+            value={etat.froidC}
+            disabled={!monte}
+            onchange={(e) => regler('froidC', Number((e.currentTarget as HTMLInputElement).value))}
+          /> °C</span
+        >
+      </div>
+      <input
+        id="sim-froid-curseur"
+        type="range"
+        min={BORNES.froidC.min}
+        max={BORNES.froidC.max}
+        step={BORNES.froidC.pas}
+        value={etat.froidC}
+        disabled={!monte}
+        aria-label="Froid supplémentaire sur l’épisode, en degrés (curseur)"
+        aria-valuetext={degres(etat.froidC)}
+        oninput={(e) => regler('froidC', Number((e.currentTarget as HTMLInputElement).value))}
+      />
+      <details class="pourquoi">
+        <summary
+          ><span class="defaut">Défaut : 0 °C ; 0 à {BORNES.froidC.max} °C, sur 7 jours.</span>
+          <span class="raison-lien">Raison</span></summary
+        >
+        <p class="raison">
+          Pendant les 7 jours consécutifs où la charge résiduelle observée est la plus élevée, la
+          consommation gagne à chaque heure ce froid multiplié par le gradient hivernal moyen publié
+          par RTE, {references.gradient.texte}. Ce n’est <strong>pas</strong> un écart aux normales
+          : ces jours ont déjà leur propre froid, que le site ne mesure pas, et ces degrés s’y
+          ajoutent ; le même réglage ne représente donc pas le même froid d’une année à l’autre.
+          Repère, en consommation plutôt qu’en degrés : selon RTE, avec des froids comparables à
+          ceux du début des années 2010, les pointes de l’hiver 2026-2027 resteraient « sensiblement
+          inférieures à {references.pointeFroids2010.texte} » (sauf cas très exceptionnels) ; avec les
+          données de {references.froidPointe.annee}, la consommation horaire du simulateur dépasse
+          ce niveau dès {references.froidPointe.texte} de plus. La borne de la plage est un choix du site.
+          Le gradient est une moyenne nationale, variable dans la journée : ajouté uniformément à toutes
+          les heures, il sous-estime probablement l’effet aux heures de pointe et le surestime la nuit
+          ; RTE n’en publie pas la valeur aux froids extrêmes. La consommation due au froid passe avant
+          la consommation ajoutée dans le nucléaire disponible non produit ; les prix restent ceux observés.
+        </p>
+        <div class="notes-raison">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html references.gradient.note}{@html references.pointeFroids2010.note}{@html references
+            .froidPointe.note}
+        </div>
+      </details>
+    </div>
+
+    <div class="hypothese">
+      <div class="ligne-nom">
+        <label class="nom" for="sim-plancher">Nucléaire non mobilisable</label>
+        <span class="saisie"
+          ><input
+            id="sim-plancher"
+            type="number"
+            inputmode="decimal"
+            min={BORNES.plancherGw.min}
+            max={BORNES.plancherGw.max}
+            step={BORNES.plancherGw.pas}
+            value={etat.plancherGw}
+            disabled={!monte}
+            onchange={(e) =>
+              regler('plancherGw', Number((e.currentTarget as HTMLInputElement).value))}
+          /> GW</span
+        >
+      </div>
+      <input
+        id="sim-plancher-curseur"
+        type="range"
+        min={BORNES.plancherGw.min}
+        max={BORNES.plancherGw.max}
+        step={BORNES.plancherGw.pas}
+        value={etat.plancherGw}
+        disabled={!monte}
+        aria-label="Plancher de nucléaire non mobilisable, en GW (curseur)"
+        aria-valuetext={puissanceReglee(etat.plancherGw)}
+        oninput={(e) => regler('plancherGw', Number((e.currentTarget as HTMLInputElement).value))}
+      />
+      <details class="pourquoi">
+        <summary
+          ><span class="defaut"
+            >Défaut : {formaterNombre(DEFAUTS.plancherGw)} GW ; 0 à {BORNES.plancherGw.max} GW.</span
+          > <span class="raison-lien">Raison</span></summary
+        >
+        <p class="raison">
+          Une part du nucléaire disponible non produit n’est pas mobilisable pour une consommation
+          ajoutée (réserves de services système, rampes, fins de cycle). Le plancher est retranché à
+          toute heure pour la borne basse de la fourchette ; à 0, il ne reste que la borne haute. 1
+          GW est un ordre de grandeur choisi par le site, pas une donnée publiée. Repère : aux
+          heures où le prix dépassait 150 €/MWh en {references.jHeuresCheres.annee}, ce nucléaire
+          valait encore en moyenne {references.jHeuresCheres.texte}. La moyenne annuelle la plus
+          haute de {references.maxPluriannuel.annees}, {references.jHeuresCheresMax.texte} en {references
+            .jHeuresCheresMax.annee} (sur {heures(references.jHeuresCheresMax.heures)}), reste sous
+          le haut de la plage. C’est un indice, pas une mesure de la part non mobilisable : à ces
+          heures, une partie de ce nucléaire peut aussi être retenue pour garder du combustible.
+        </p>
+        <div class="notes-raison">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html references.jHeuresCheres.note}{@html references.jHeuresCheresMax.note}
+        </div>
       </details>
     </div>
 
@@ -329,10 +482,17 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
       {:else if !sim || !plate}
         <p class="etat-calcul" role="status">Chargement des séries horaires de {etat.annee}…</p>
       {:else}
-        {@const ph = phrases(etat, sim, plate, references, {
-          maxReglable: BORNES.effacement.max,
-          derniereAnnee: annees[annees.length - 1]
-        })}
+        {@const ph = phrases(
+          etat,
+          sim,
+          plate,
+          references,
+          {
+            maxReglable: BORNES.effacement.max,
+            derniereAnnee: annees[annees.length - 1]
+          },
+          seul
+        )}
         <p class="scenario">{ph.scenario}</p>
 
         <dl class="tuiles">
@@ -343,6 +503,7 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
                 {#if tu.qualif}<span class="qualif">{tu.qualif}</span>{/if}
                 {tu.valeur}
               </dd>
+              {#if tu.complement}<dd class="complement">{tu.complement}</dd>{/if}
               <dd class="detail-tuile">
                 <details bind:open={detailsOuverts[k]}>
                   <summary>{tu.notes?.length ? 'Détail et sources' : 'Détail'}</summary>
@@ -391,8 +552,10 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
               <dt>Nucléaire disponible non produit</dt>
               <dd>
                 nucléaire déclaré disponible − nucléaire produit, heure par heure : une puissance
-                restée inemployée, pas un gisement d’énergie. Ce n’est pas la « modulation » publiée
-                par EDF.
+                restée inemployée, pas un gisement d’énergie. Il dépend de ce qu’EDF déclare
+                indisponible, y compris des arrêts « pour modulation » : le résultat donne aussi la
+                valeur en réintégrant ceux de moins de 7 jours, économiques. Ce n’est pas la «
+                modulation » publiée par EDF.
               </dd>
             </div>
             <div>
@@ -468,9 +631,9 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
   .hypothese {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.3rem;
+    gap: 0.15rem;
     max-width: var(--mesure);
-    padding: 0.6rem 0 0.55rem;
+    padding: 0.4rem 0 0.35rem;
     border-top: 1px solid var(--trait);
   }
   .ligne-nom {
@@ -484,7 +647,7 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
   .nom {
     font-family: var(--sans);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     line-height: 1.25;
   }
   input[type='range'] {
@@ -507,19 +670,37 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     padding: 0.15rem 0.4rem;
   }
   input[type='number'] {
-    width: 5.5rem;
+    width: 4.5rem;
   }
   :disabled {
     opacity: 0.6;
   }
+  /* Le défaut et la plage sont dans le résumé du repli « Raison » : une ligne par réglage. */
   .defaut {
-    margin: 0;
     font-family: var(--sans);
-    font-size: 0.95rem;
-    line-height: 1.35;
+    font-size: 0.9rem;
+    line-height: 1.3;
     color: var(--encre-2);
   }
-  .pourquoi > summary,
+  .raison-lien {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--encre);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    white-space: nowrap;
+  }
+  .pourquoi > summary {
+    cursor: pointer;
+    line-height: 1.3;
+  }
+  .notes-raison {
+    margin: 0.2rem 0 0.3rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--trait);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
   .detail-tuile summary,
   .definitions-repli > summary {
     width: fit-content;
@@ -619,6 +800,13 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
   .qualif {
     font-size: 1.05rem;
     font-weight: 500;
+  }
+  .tuile dd.complement {
+    margin: 0 0 0.1rem;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    line-height: 1.25;
+    color: var(--encre-2);
   }
   .detail {
     margin: 0.3rem 0 0;

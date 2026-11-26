@@ -35,6 +35,10 @@ se règlent ci-dessous.
 - **Le comportement lors des perturbations du réseau.** La façon dont de grandes charges
   informatiques réagissent à un creux de tension relève de l'exploitation du réseau, hors du
   calcul d'équilibre heure par heure fait ici.
+- **Une vague de froid.** Le réglage « froid supplémentaire » ajoute, pendant une semaine, une
+  consommation proportionnelle aux degrés réglés, avec le gradient moyen publié par RTE. Il ne
+  simule ni la météo des pays voisins (un même froid peut toucher plusieurs pays), ni l'effet sur les
+  importations, ni les stocks d'eau.
 - **Le risque de défaillance.** RTE l'évalue en simulant de nombreux scénarios de
   météo et de disponibilité ; le simulateur rejoue une seule année observée. Dépasser le
   maximum observé de cette année n'est pas une défaillance.

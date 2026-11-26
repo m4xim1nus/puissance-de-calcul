@@ -51,12 +51,22 @@ de {{besoin_capacites_rapide_2030}} en 2030 et de
 {{besoin_capacites_rapide_2035}} en 2035, qui disparaît si le nucléaire
 est plus disponible ou si les renouvelables vont plus vite.
 
-Aux heures de surplus, l'abondance ne suffit pas non plus : avec les
-données de 2025, au plus {{quand_part_j_5gw_2025}} de l'énergie d'une
-consommation plate de 5 GW aurait trouvé du nucléaire disponible et non
-produit ({{quand_part_j_plancher_5gw_2025}} en retranchant 1 GW jamais
-mobilisable) ; le reste viendrait d'autres moyens, de renouvelables
-moins arrêtés ou d'exportations en moins.
+Aux heures de surplus, l'abondance ne suffit pas non plus. Avec les
+données de 2025 et la disponibilité déclarée par EDF,
+{{quand_part_j_5gw_2025}} au plus de l'énergie d'une consommation plate
+de 5 GW aurait trouvé du nucléaire disponible et non produit
+({{quand_part_j_plancher_5gw_2025}} en supposant 1 GW non mobilisable à
+toute heure, hypothèse de ce site). EDF déclare aussi comme
+indisponibilités des arrêts courts « pour modulation », décidés pour des
+raisons économiques ; en les réintégrant, ces parts montent à
+{{quand_part_j_reintegre_5gw_2025}} et
+{{quand_part_j_plancher_reintegre_5gw_2025}}. Il faudrait alors produire
+{{quand_energie_j_5gw_2025}} à {{quand_energie_j_reintegre_5gw_2025}} de
+nucléaire en plus sur l'année, pour un parc qui a produit
+{{prod_nucleaire_2025}} en 2025 et dont l'exploitant prévoit
+{{prod_nucleaire_prevision_2026_2027}} par an pour 2026-2027 ; le reste
+viendrait d'autres moyens, de renouvelables moins arrêtés ou
+d'exportations en moins.
 
 À l'échelle nationale, la contrainte la plus nette est donc la pointe
 d'hiver. Dans la trajectoire lente, RTE n'y voit pas de besoin de
