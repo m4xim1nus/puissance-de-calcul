@@ -161,3 +161,62 @@ largement le volume.
 Le site est en ligne sur `pdc.technoperchoir.fr`, et toutes les routes
 répondent (404 compris). Jeton ENTSO-E toujours attendu. La relecture
 de l'auteur et la recette sur téléphone ouvriront la session 2.
+
+---
+
+## Session 2 — 2026-11-26, à partir de 9 h 10 · retours de l'auteur, « Quand ? », simulateur
+
+**Demande de l'auteur** (citée telle quelle) :
+
+> reprends la session 2 selon ROADMAP.md
+> retours de lecture :
+>  - ok dans l'ensemble - même si j'ai une lecture naïve, aucune expertise dans le domaine
+>  - sur la home, pas clair pour moi pourquoi ça commence par un gros graphique du Prix de gros day-ahead, certes clair et joli, avant ce qui semble être la phrase d'accroche "Le système français...", qui se trouve tout en bas de la page/accessible en scroll. Peut être logique pour un expert, obscur pour moi
+>  - enquête combien ras
+>  - méthode ras
+>  - making of : contenu intéressant sans doute, mais forme trop à plat, illisible pour un humain : effort graphique pour lire plus facilement, eg utiliser les formats imposés pour les décisions/erreurs/autres? pour faire des élements UI. Intégrer le brief au journal, avec toogle pour afficher/masquer. Pour le journal, il y a sans doute plus clair compact à faire aussi.
+> jeton pas encore arrivé
+>
+> go intégrer mes retours aux md, pour reprendre la session 2 (retours, enquête Quand, simulateur, etc)
+
+**Ce qu'elle recouvrait** :
+
+- « lecture naïve » : l'auteur relit en non-spécialiste. Ses retours ne
+  portent sur aucun chiffre ; ils portent sur la lisibilité. La lectrice
+  cible reste l'experte, mais une page d'accueil qui ne se comprend
+  qu'avec l'expertise rate aussi l'experte pressée ;
+- accueil : la phrase-question (« Le système électrique français
+  peut-il accueillir… ») arrive après la heatmap, sa légende et ses
+  cas particuliers, donc hors de l'écran à l'ouverture. Rien ne dit
+  pourquoi le site s'ouvre sur des prix de gros. À refaire : la
+  question d'abord, une ou deux phrases qui disent pourquoi regarder
+  l'électricité **heure par heure** et ce que montre la carte, puis la
+  carte ;
+- « Combien ? » et « Méthode » : rien à signaler (« ras ») ;
+- making-of : aujourd'hui trois fichiers Markdown rendus bruts, à la
+  suite. Les décisions et les erreurs ont un format fixe (tableau daté,
+  champs Faux / Repéré par / Correction / Garde-fou) : s'en servir pour
+  en faire des éléments d'interface (fiches, étiquettes, filtres) au
+  lieu de texte à plat. Le brief n'est plus une section à part : il
+  entre dans le journal, à l'endroit où il a servi (session 1), replié
+  par défaut et dépliable. Le journal lui-même : une présentation plus
+  compacte (en-tête de session avec date, durée, agents, coût ; détail
+  dépliable) ;
+- « jeton pas encore arrivé » : le jeton ENTSO-E n'est pas dans
+  `source/` ; l'étape 2 de l'ordre prévu (branchement ENTSO-E) est
+  sautée, comme prévu par la roadmap ;
+- « intégrer mes retours aux md » : consigner ces retours dans le
+  journal, la roadmap, le backlog, les décisions et la conception, puis
+  enchaîner sur la suite de la session 2 (retours, « Quand ? »,
+  simulateur).
+
+**Fait** :
+
+- retours consignés : journal (cette entrée), `ROADMAP.md` (étape 2
+  close côté relecture, étape 3 réordonnée), `BACKLOG.md`,
+  `DECISIONS.md` (ordre de l'accueil, making-of structuré),
+  `docs/CONCEPTION.md` (maquette de l'accueil, page making-of) ;
+- aucun retour ne porte sur un chiffre : rien à vérifier à la source,
+  rien à consigner dans `ERREURS.md` à ce stade. Les deux défauts
+  relevés sont des défauts de conception (lisibilité), pas des erreurs
+  de fond ; ils sont tracés ici et dans `DECISIONS.md`.

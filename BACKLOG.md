@@ -17,7 +17,10 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 
 - [ ] Onglet « À toi » : missions par difficulté croissante (Linky, hypothèse du simulateur, conviction à contredire) (brief, 2026-11-25)
 - [ ] Glossaire replié (merit order, capture price, PPA, TURPE, CFE 24/7) (brief, 2026-11-25)
-- [ ] Jeton ENTSO-E : compte créé par l'auteur le 26/11, jeton attendu sous ~3 jours, toujours en attente le 26/11 après la session 1 ; à déposer dans `source/entsoe_token`, puis brancher prix et mix des voisins (enquête carbone) (user:auteur, 2026-11-26)
+- [ ] Jeton ENTSO-E : compte créé par l'auteur le 26/11, jeton attendu sous ~3 jours, toujours en attente le 26/11 après la session 1 et au début de la session 2 ; à déposer dans `source/entsoe_token`, puis brancher prix et mix des voisins (enquête carbone) (user:auteur, 2026-11-26)
 - [ ] `pc check` : recompter les heures négatives sur les CSV publiés (pas seulement avant arrondi) (claude, 2026-11-26)
 - [ ] Composant « en chantier » : encart standard pour toute enquête ou module dont une source manque (donnée, raison, ce qui viendra) (user:auteur, 2026-11-26)
-- [ ] Recette sur téléphone de https://pdc.technoperchoir.fr (heatmap au doigt, notes repliées, tableaux) (claude, 2026-11-26)
+- [→Étape 3] Recette sur téléphone de https://pdc.technoperchoir.fr (heatmap au doigt, notes repliées, tableaux) (claude, 2026-11-26)
+- [→Étape 3] Accueil : la question d'abord et visible sans défiler, une phrase sur le pourquoi de l'heure par heure, puis la heatmap des prix ; aujourd'hui « obscur » pour un non-spécialiste (user:auteur, 2026-11-26)
+- [→Étape 3] Making-of : décisions et erreurs en fiches (formats imposés → éléments d'interface), journal compact avec détail dépliable, brief intégré au journal et replié (user:auteur, 2026-11-26)
+- [ ] Relecture « lecteur non spécialiste » en plus de la relecture « lectrice experte » avant publication d'une page (accroche, enchaînement, jargon hors glossaire) : l'auteur joue ce rôle aujourd'hui, un agent pourrait le préparer (claude, 2026-11-26)

@@ -40,21 +40,38 @@ extérieur pour l'instant, jeton ENTSO-E.
 - [x] Cloudflare Pages relié au dépôt : en ligne sur
       https://pdc.technoperchoir.fr (2026-11-26)
 - [ ] Recette sur téléphone du site en ligne
-- [ ] Relecture de l'auteur : retours à traiter en ouverture de session 2
-      (chaque retour sur un chiffre se vérifie à la source avant correction)
+- [x] Relecture de l'auteur (2026-11-26, session 2) : « Combien ? » et
+      « Méthode » sans remarque ; aucun retour sur un chiffre. Deux
+      retours de lisibilité, traités en étape 3 (point 1)
 
-## Étape 3 : « Quand ? » + simulateur
+## Étape 3 : « Quand ? » + simulateur — en cours (session 2)
 
-Ordre prévu pour la session 2 :
+Ordre de la session 2 :
 
-1. **Retours de relecture de l'auteur** sur l'étape 2. On les cite dans
-   le journal, on les traite, et on consigne dans `ERREURS.md` ce qui
-   en relève.
-2. **Jeton ENTSO-E** : s'il est arrivé (`source/entsoe_token`, jamais
-   versionné), on vérifie l'accès avec un agent Sonnet, puis on branche
-   la source dans `pc download` (prix et mix des voisins, flux
-   transfrontaliers). Il sert à l'enquête carbone et au recoupement des
-   prix energy-charts. Sinon, on ne fait rien : l'étape 3 n'en dépend pas.
+1. **Retours de relecture de l'auteur** (cités dans le journal,
+   session 2) :
+   - [ ] **Accueil** : la question d'abord, visible sans défiler ; une
+         ou deux phrases qui disent pourquoi regarder l'électricité
+         heure par heure et ce que montre la carte des prix ; puis la
+         heatmap, puis les enquêtes. Lisible par un non-spécialiste sans
+         rien retirer pour l'experte ;
+   - [ ] **Making-of** : rendu structuré au lieu du Markdown à plat.
+         Décisions en fiches (date, décision, raisons, étiquette « l'auteur
+         / Claude », filtre par auteur de la décision) ; erreurs en fiches
+         (Faux / Repéré par / Correction / Garde-fou, étiquette de qui l'a
+         repérée) ; journal compact (en-tête par session : date, durée,
+         agents, coût ; demande citée visible ; détail dépliable) ; brief
+         intégré au journal (session 1), replié par défaut. Les fichiers
+         Markdown restent la source unique : le site les analyse, les
+         formats imposés deviennent un contrat testé ;
+   - [ ] Recette sur téléphone (reportée de l'étape 2), après ces deux
+         chantiers.
+2. **Jeton ENTSO-E** : pas arrivé au 26/11 matin. Point sauté ; l'étape 3
+   n'en dépend pas. Quand il arrive (`source/entsoe_token`, jamais
+   versionné) : vérification d'accès par un agent Sonnet, puis
+   branchement dans `pc download` (prix et mix des voisins, flux
+   transfrontaliers), pour l'enquête carbone et le recoupement des prix
+   energy-charts.
 3. **Enquête « Quand ? »** (`/quand`) : à quelles heures le système a de
    la marge et à quelles heures il n'en a pas. Monotones de charge et de
    prix, heures de tension et heures de surplus, ce qu'une charge plate

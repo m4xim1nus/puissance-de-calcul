@@ -7,8 +7,12 @@ conception. Les décisions qui engagent le fond sont dans
 ## 1. Récit
 
 Pas de thèse affichée avant les enquêtes (décision de l'auteur, 2026-11-26).
-L'accueil **pose la question** et montre l'objet qui la rend
-nécessaire : une année du système électrique **heure par heure**. Les
+L'accueil **pose la question**, dit en une ou deux phrases pourquoi
+on la regarde heure par heure, puis montre l'objet qui la rend
+nécessaire : une année du système électrique **heure par heure**.
+La question passe **avant** la carte et se lit sans défiler (retour de
+l'auteur, 2026-11-26 : le graphique seul en ouverture est obscur pour
+un non-spécialiste). Les
 enquêtes répondent chacune à une sous-question, avec leurs chiffres
 sourcés, leurs limites et ce qui manque. Le message principal s'écrira
 quand deux enquêtes seront faites.
@@ -20,12 +24,12 @@ prix → « Où ? » (enquête courte sur ce qui manque).
 
 | Route | Contenu | Étape |
 |---|---|---|
-| `/` | Hero heatmap 8 760 h ; la question ; accès aux enquêtes et au simulateur | 2 |
+| `/` | La question et son pourquoi (heure par heure) ; hero heatmap 8 760 h ; accès aux enquêtes et au simulateur | 2, revu en 3 |
 | `/combien` | Enquête « Combien ? » : la pyramide des puissances, la consommation, les trajectoires | 2 |
 | `/quand` | Enquête « Quand ? » | 3 |
 | `/simulateur` | Module signature | 3 |
 | `/methode` | Sources, hypothèses, contrôles de cohérence (`pc check`), glossaire replié | 2 |
-| `/making-of` | Journal, décisions, erreurs, brief | fait |
+| `/making-of` | Journal compact (brief replié dans la session 1), décisions et erreurs en fiches filtrables | 2, revu en 3 |
 | `/a-toi` | Missions à faire soi-même | 3 |
 
 ## 3. Direction visuelle
@@ -71,8 +75,9 @@ d'éCO2mix).
 ┌──────────────────────────────────────────────────────────────┐
 │ Puissance de calcul        Combien  Quand  Simulateur  Méthode │
 ├──────────────────────────────────────────────────────────────┤
+│  question, en une phrase, visible sans défiler               │
+│  pourquoi l'heure par heure, ce que montre la carte (2 phr.) │
 │  [ heatmap 365 jours × 24 heures, pleine largeur ]           │
-│  question, en une phrase, sous la heatmap                    │
 ├────────────────────────────────────┬─────────────────────────┤
 │ texte d'enquête (≤ 68 ch.)         │ note marginale :        │
 │ … 0,77 GW raccordés¹ …             │ ¹ RTE, Bilan électrique │
@@ -106,3 +111,21 @@ d'éCO2mix).
 5. Accessibilité : contraste AA, focus clavier visible,
    `prefers-reduced-motion`, chaque graphique a un tableau de données
    repliable.
+
+### Making-of
+
+Les trois fichiers Markdown restent la source ; la page les analyse et
+rend leurs formats imposés en interface :
+
+- **Décisions** : une fiche par ligne du registre (date, décision,
+  raisons), étiquette « l'auteur » ou « Claude », filtre par qui a
+  tranché ;
+- **Erreurs** : une fiche par entrée, les quatre champs (Faux, Repéré
+  par, Correction, Garde-fou) en rubriques, étiquette de qui a repéré
+  l'erreur ;
+- **Journal** : une session = un en-tête compact (numéro, date, objet,
+  durée, agents, coût) et la demande citée ; le détail se déplie. Le
+  brief est replié dans la session 1.
+
+Un test vérifie que chaque entrée respecte son format : un écart casse
+le build plutôt que l'affichage.
