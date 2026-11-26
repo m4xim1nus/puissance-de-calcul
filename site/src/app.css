@@ -46,12 +46,15 @@
   --rn-p1: #db9f76;
   --rn-p2: #b76f39;
   --rn-p3: #80430c;
-  /* Années comparées (2022 → 2025), rampe ordinale d'une seule teinte (celle de --donnee) : la plus
-     récente est la plus marquée. Validée avec le skill dataviz (contraste ≥ 2:1 sur --papier). */
-  --annee-1: #8cadde;
-  --annee-2: #618dce;
-  --annee-3: #3b6eb9;
-  --annee-4: #104a97;
+  /* Années comparées (2022 → 2025) : orange, violet, vert, bleu, pris à la palette catégorielle du
+     skill dataviz et validés dans cet ordre (paires adjacentes, clair et sombre). Ni bleu-vert
+     (réservé au surplus), ni jaune (--signal). Les paires non adjacentes proches en vision
+     daltonienne (2022/2024, 2023/2025) sont séparées par le motif du trait (TRAITS_ANNEES, quand.ts)
+     et par les étiquettes directes. */
+  --annee-1: #f47230;
+  --annee-2: #6a4ce2;
+  --annee-3: #008a17;
+  --annee-4: #257de0;
 
   /* Typographie */
   --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
@@ -96,10 +99,10 @@
     --rn-p1: #8d5730;
     --rn-p2: #c87e49;
     --rn-p3: #f9b281;
-    --annee-1: #4c72ab;
-    --annee-2: #6793d5;
-    --annee-3: #89b3f1;
-    --annee-4: #b1d3ff;
+    --annee-1: #e76624;
+    --annee-2: #9887ef;
+    --annee-3: #0aac23;
+    --annee-4: #338ced;
   }
 }
 :root[data-theme='dark'] {
@@ -132,10 +135,10 @@
   --rn-p1: #8d5730;
   --rn-p2: #c87e49;
   --rn-p3: #f9b281;
-  --annee-1: #4c72ab;
-  --annee-2: #6793d5;
-  --annee-3: #89b3f1;
-  --annee-4: #b1d3ff;
+  --annee-1: #e76624;
+  --annee-2: #9887ef;
+  --annee-3: #0aac23;
+  --annee-4: #338ced;
 }
 
 * {

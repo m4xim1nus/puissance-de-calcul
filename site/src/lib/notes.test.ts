@@ -102,7 +102,7 @@ describe('note d’un chiffre calculé par le site', () => {
   it('dit « calcul du site », la méthode et les données, sans page de source', () => {
     const html = noteChiffre(4, calcule);
     const tete = html.slice(0, html.indexOf('<details'));
-    expect(tete).toContain('Calcul du site');
+    expect(tete).toContain('Calcul du site, non recoupé');
     expect(tete).toContain('14 janv. 2025');
     expect(tete).not.toContain('data/export/quand.json');
     expect(html).toContain('<span class="note-cle">Méthode</span> consommation − éolien');
@@ -111,6 +111,20 @@ describe('note d’un chiffre calculé par le site', () => {
     expect(html).toContain('contrôlé par <code>pc check</code>');
     expect(html).toContain('Non recoupé.');
     expect(html).toContain('id="note-4"');
+  });
+  it('dit « recoupé » seulement pour un recoupement indépendant', () => {
+    const comparaison = {
+      source: 'autre',
+      valeur: 'autre grandeur',
+      independant: false
+    };
+    const tete = (x: Chiffre) => noteChiffre(1, x).split('<details')[0];
+    expect(tete({ ...calcule, recoupements: [comparaison] })).toContain(
+      'Calcul du site, non recoupé'
+    );
+    expect(tete({ ...calcule, recoupements: [{ ...comparaison, independant: true }] })).toContain(
+      'Calcul du site, recoupé'
+    );
   });
   it('refuse un chiffre calculé sans méthode', () => {
     expect(() => noteChiffre(1, { ...calcule, calcul: undefined })).toThrow(/sans méthode/);

@@ -410,3 +410,12 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   celle-ci, et ajoutait un effacement circulaire et un prix moyen qui se
   lisait comme une économie (consigné). Claude arbitre : spécification
   révisée, l'agent du simulateur relancé avec son contexte.
+- l'agent du site rend les corrections des graphiques de `/quand` :
+  zoom sur les 500 heures les plus tendues avec le maximum 2015-2025,
+  palette des années refaite (motifs de trait pour les paires proches en
+  vision daltonienne), fourchette avec et sans plancher, troisième
+  panneau au-delà du maximum pluriannuel, mention « calcul du site, non
+  recoupé » en clair, légende du changement d'heure rectifiée après
+  vérification dans les données (éCO2mix ne publie rien sur l'heure
+  répétée d'octobre), effacements retirés de ce qui « couvre » la charge
+  résiduelle. Claude relit les captures.

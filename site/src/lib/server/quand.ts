@@ -49,9 +49,18 @@ export function lireQuand(brut: any): DonneesQuand {
         chargesPlates: (exiger(d.charges_plates, `${c}.charges_plates`) as any[]).map((p, i) => ({
           xMw: nombre(p.x_mw, `${c}.charges_plates[${i}].x_mw`),
           partDansJ: nombre(p.part_dans_j, `${c}.charges_plates[${i}].part_dans_j`),
+          partDansJPlancher: nombre(
+            p.part_dans_j_plancher,
+            `${c}.charges_plates[${i}].part_dans_j_plancher`
+          ),
+          plancherMw: nombre(p.plancher_mw, `${c}.charges_plates[${i}].plancher_mw`),
           heuresAuDessusDuMax: nombre(
             p.heures_rn_plus_x_au_dessus_du_max,
             `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max`
+          ),
+          heuresAuDessusDuMaxReference: nombre(
+            p.heures_rn_plus_x_au_dessus_du_max_reference,
+            `${c}.charges_plates[${i}].heures_rn_plus_x_au_dessus_du_max_reference`
           )
         }))
       };
@@ -76,7 +85,13 @@ export function lireQuand(brut: any): DonneesQuand {
     matrices,
     sources: exiger(brut.donnees?.sources, 'donnees.sources'),
     extractions: exiger(brut.donnees?.extractions, 'donnees.extractions'),
-    exclues: brut.annees_exclues ?? {}
+    exclues: brut.annees_exclues ?? {},
+    rnMaxPluriannuel: {
+      valeurMw: nombre(brut.rn_max_pluriannuel?.valeur_mw, 'rn_max_pluriannuel.valeur_mw'),
+      debutParis: exiger(brut.rn_max_pluriannuel?.debut_paris, 'rn_max_pluriannuel.debut_paris'),
+      annee: Number(exiger(brut.rn_max_pluriannuel?.annee, 'rn_max_pluriannuel.annee')),
+      annees: exiger(brut.rn_max_pluriannuel?.annees, 'rn_max_pluriannuel.annees')
+    }
   };
 }
 

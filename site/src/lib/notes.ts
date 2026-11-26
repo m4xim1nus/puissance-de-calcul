@@ -141,6 +141,15 @@ export function noteRenvoi(numero: number, premiere: number): string {
 }
 
 /**
+ * État de recoupement d'un chiffre, dit en clair (règle du projet : un chiffre clé sans
+ * recoupement est marqué « non recoupé »). Un rapprochement avec une autre grandeur, marqué non
+ * indépendant, ne compte pas comme un recoupement.
+ */
+export function etatRecoupement(c: Chiffre): string {
+  return c.recoupements?.some((r) => r.independant) ? 'recoupé' : 'non recoupé';
+}
+
+/**
  * Note d'un chiffre calculé par le site (`produit_par`) : pas de page de source à citer, mais la
  * méthode et les données. Visible : numéro, « calcul du site », période, pastille. Dans le repli :
  * méthode, données (avec lien), champ lu, période, périmètre, valeur avant arrondi, remarque,
@@ -154,8 +163,8 @@ export function noteCalcul(
   if (!c.calcul) throw new Error(`Chiffre calculé sans méthode (« calcul ») : ${c.libelle}`);
   const tete =
     `<span class="note-tete">${numero === null ? '' : `<span class="note-num">${numero}</span> `}` +
-    `<strong class="note-calcul">Calcul du site</strong>, ${echapper(formaterPeriode(c.periode, true))} ` +
-    `${pastille(c.confiance)}</span>`;
+    `<strong class="note-calcul">Calcul du site, ${etatRecoupement(c)}</strong>, ` +
+    `${echapper(formaterPeriode(c.periode, true))} ${pastille(c.confiance)}</span>`;
   const exacte =
     c.valeur_calculee !== undefined
       ? `${formaterNombre(c.valeur_calculee, 6)}${separateurUnite(c.unite)}${c.unite}, affiché arrondi${c.precision !== undefined ? ` au pas de ${formaterValeur(c.precision, c.unite)}` : ''}`

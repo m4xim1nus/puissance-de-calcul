@@ -44,8 +44,8 @@
 <Figure
   id="heatmap-rn"
   titre="Charge résiduelle heure par heure, {annees}"
-  sousTitre="En GW, moyenne de chaque heure. Une ligne par jour, du 1er janvier (en haut) au 31 décembre ; une colonne par heure de début, en heure de Paris. Brun : à fournir par le reste du système (hydraulique, thermique, bioénergies, échanges, stockage, effacements) ; bleu-vert : surplus avant exports et pompage."
-  remarques="Même échelle pour les deux années. Gris : heure absente (passage à l’heure d’été) ou donnée manquante ; l’heure répétée du passage à l’heure d’hiver est la moyenne de ses deux occurrences. Valeur exacte dans l’infobulle."
+  sousTitre="En GW, moyenne de chaque heure. Une ligne par jour, du 1er janvier (en haut) au 31 décembre ; une colonne par heure de début, en heure de Paris. Brun : à fournir par le reste du système (hydraulique, thermique, bioénergies, échanges, stockage) ; bleu-vert : surplus avant exports et pompage."
+  remarques="Même échelle pour les deux années. Gris : heure inexistante ou donnée manquante. Le jour du passage à l’heure d’été, la case 2 h n’existe pas. Le jour du passage à l’heure d’hiver, éCO2mix ne publie ni 1 h ni la première des deux heures de 2 h (heure d’été) : la case 1 h est grise et la case 2 h ne porte que la seconde (heure d’hiver). Les effacements activés sont déjà retranchés de la consommation observée. Valeur exacte dans l’infobulle."
   sources={sourcesRn(q)}
   titreTableau="Tableau des données : charge résiduelle par mois, {annees}"
 >

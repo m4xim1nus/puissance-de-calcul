@@ -1,7 +1,7 @@
 // Données et calculs d'affichage des graphiques de l'enquête « Quand ? ». Les valeurs viennent de
 // data/export/quand.json (calculé par `pc build`) ; ce module ne fait que les mettre en forme :
 // MW → GW à une décimale, classes de couleur, statistiques mensuelles des matrices.
-import { FINE, formaterDate, formaterNombre } from '$lib/format';
+import { FINE, dateParis, formaterDate, formaterNombre } from '$lib/format';
 
 /** Une année de quand.json, réduite à ce qu'affichent les graphiques. */
 export interface AnneeQuand {
@@ -23,10 +23,25 @@ export interface AnneeQuand {
   heuresNegatives: number;
   chargesPlates: {
     xMw: number;
-    /** Part entre 0 et 1, borne haute. */
+    /** Part entre 0 et 1, borne haute (sans plancher). */
     partDansJ: number;
+    /** Même part, J diminué d'un plancher non mobilisable (hypothèse du site). */
+    partDansJPlancher: number;
+    plancherMw: number;
+    /** Heures où RN + X dépasse le maximum de l'année (au moins 1 : l'heure du maximum). */
     heuresAuDessusDuMax: number;
+    /** Heures où RN + X dépasse le maximum 2015-2025 (peut valoir 0). */
+    heuresAuDessusDuMaxReference: number;
   }[];
+}
+
+/** Maximum de la charge résiduelle sur toutes les années pleines. */
+export interface MaxPluriannuel {
+  valeurMw: number;
+  debutParis: string;
+  annee: number;
+  /** « 2015-2025 » */
+  annees: string;
 }
 
 /** Matrice jour × heure de Paris de la charge résiduelle (MW) ; `null` = heure absente. */
@@ -45,10 +60,18 @@ export interface DonneesQuand {
   extractions: Record<string, string>;
   /** Années absentes et pourquoi. */
   exclues: Record<string, string>;
+  rnMaxPluriannuel: MaxPluriannuel;
 }
 
 /** Années comparées dans les graphiques (de la plus ancienne à la plus récente). */
 export const ANNEES_COMPAREES = [2022, 2023, 2024, 2025] as const;
+
+/**
+ * Motif de trait de chaque année comparée (attribut `stroke-dasharray`), en plus de sa couleur
+ * (--annee-1 … --annee-4) : les paires non adjacentes proches en vision daltonienne (2022/2024,
+ * 2023/2025) diffèrent ainsi par le trait.
+ */
+export const TRAITS_ANNEES = ['', '7 4', '1.5 3.5', ''] as const;
 
 /** MW → « 12,3 GW » : une décimale, toujours (« 8,0 GW »), signe moins typographique. */
 export function gw(mw: number, unite = true): string {
@@ -187,7 +210,7 @@ export function sourcesRn(q: DonneesQuand): string {
     .join(' ; ');
   const extraits = Object.entries(q.extractions)
     .filter(([k]) => k !== 'prix')
-    .map(([k, iso]) => `${NOMS_EXTRACTIONS[k] ?? k} le ${formaterDate(iso.slice(0, 10))}`)
+    .map(([k, iso]) => `${NOMS_EXTRACTIONS[k] ?? k} le ${formaterDate(dateParis(iso))}`)
     .join(', ');
   return `Calcul du site (data/export/quand.json, pc build) sur ${series}. Extraction : ${extraits}.`;
 }

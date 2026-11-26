@@ -101,6 +101,7 @@ describe('mise en page', () => {
     const s = sourcesRn(q);
     expect(s).toContain('éCO2mix national (RTE) ; REMIT (EDF)');
     expect(s).not.toMatch(/prix|energy-charts/);
-    expect(s).toContain('éCO2mix le 25 novembre 2026');
+    // 23:21 UTC le 25 novembre = 00:21 à Paris le 26 : la date affichée est celle de Paris.
+    expect(s).toContain('éCO2mix le 26\u00a0novembre\u00a02026');
   });
 });

@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ANNEES_COMPAREES } from '$lib/quand';
 import { chargerChiffres } from './chiffres';
+import { RACINE } from './makingof';
 import { chargerQuand, lireQuand } from './quand';
 
 describe('données de « Quand ? » (data/export/quand.json du dépôt)', () => {
@@ -46,4 +49,45 @@ describe('données de « Quand ? » (data/export/quand.json du dépôt)', () => 
       /quantiles_mw/
     );
   });
+});
+
+describe('légende du calendrier : changements d’heure (vérifiée sur les données publiées)', () => {
+  const q = chargerQuand();
+  /** Dernier dimanche du mois (0 = janvier), en AAAA-MM-JJ. */
+  const dernierDimanche = (annee: number, mois: number) => {
+    const d = new Date(Date.UTC(annee, mois + 1, 0));
+    d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+    return d.toISOString().slice(0, 10);
+  };
+  const ligneCsv = (annee: number, heureUtc: string) => {
+    const [tete, ...lignes] = readFileSync(
+      resolve(RACINE, `data/export/horaire/${annee}.csv`),
+      'utf8'
+    )
+      .trim()
+      .split('\n');
+    const cles = tete.split(',');
+    const l = lignes.find((x) => x.startsWith(heureUtc));
+    if (!l) throw new Error(`${heureUtc} absent de horaire/${annee}.csv`);
+    return Object.fromEntries(l.split(',').map((v, i) => [cles[i], v]));
+  };
+  for (const m of q.matrices) {
+    it(`${m.annee} : 2 h n’existe pas au printemps ; à l’automne, 1 h est vide et 2 h ne porte que l’heure d’hiver`, () => {
+      const printemps = m.jours.indexOf(dernierDimanche(m.annee, 2));
+      expect(m.valeurs[printemps][2]).toBeNull();
+      const jour = dernierDimanche(m.annee, 9);
+      const automne = m.jours.indexOf(jour);
+      expect(m.valeurs[automne][1]).toBeNull();
+      // Première occurrence de 2 h (heure d'été, 00:00Z) : non publiée.
+      expect(ligneCsv(m.annee, `${jour}T00:00Z`).consommation).toBe('');
+      // Seconde occurrence (heure d'hiver, 01:00Z) : c'est elle que porte la case 2 h.
+      const l = ligneCsv(m.annee, `${jour}T01:00Z`);
+      const rn =
+        Number(l.consommation) -
+        Number(l.eolien) -
+        Number(l.solaire) -
+        Number(l.nucleaire_disponible);
+      expect(Math.abs((m.valeurs[automne][2] as number) - rn)).toBeLessThanOrEqual(1);
+    });
+  }
 });
