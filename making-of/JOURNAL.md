@@ -1000,3 +1000,9 @@ surlignage jaune gache la lecture en sombre » (chiffres forts des
 cartes de l'accueil). Le surlignage devient un soulignement épais de la
 même couleur, lisible dans les deux modes ; vérifié par captures, clair
 et sombre.
+
+Puis : « et ptetre faire un mini commit & push pour avoir un logo
+d'onglet et un lien partageable sur whatsapp plus joli ? ». Fait par
+Claude : une icône d'onglet (neuf cases du calendrier des prix, SVG et
+PNG) et un aperçu de lien (balises Open Graph, image 1200 × 630 avec le
+titre et le vrai calendrier des prix de 2025, légendé).

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Puissance de calcul : trois heures × trois jours du calendrier des prix (milieu de journée à prix négatif). -->
+  <rect width="32" height="32" rx="6" fill="#16263a"/>
+  <rect x="5" y="5" width="6.5" height="6.5" rx="1" fill="#ddb07f"/>
+  <rect x="12.75" y="5" width="6.5" height="6.5" rx="1" fill="#45a6a2"/>
+  <rect x="20.5" y="5" width="6.5" height="6.5" rx="1" fill="#c8854f"/>
+  <rect x="5" y="12.75" width="6.5" height="6.5" rx="1" fill="#c8854f"/>
+  <rect x="12.75" y="12.75" width="6.5" height="6.5" rx="1" fill="#1c7c7d"/>
+  <rect x="20.5" y="12.75" width="6.5" height="6.5" rx="1" fill="#a95e2a"/>
+  <rect x="5" y="20.5" width="6.5" height="6.5" rx="1" fill="#a95e2a"/>
+  <rect x="12.75" y="20.5" width="6.5" height="6.5" rx="1" fill="#ddb07f"/>
+  <rect x="20.5" y="20.5" width="6.5" height="6.5" rx="1" fill="#f2c200"/>
+</svg>
