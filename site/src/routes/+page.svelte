@@ -185,14 +185,13 @@
     font-weight: 600;
     line-height: 1.1;
   }
+  /* Soulignement épais plutôt que surlignage : lisible en clair comme en sombre. */
   .fort :global(.chiffre) {
-    background: linear-gradient(
-      transparent 62%,
-      var(--signal) 62%,
-      var(--signal) 92%,
-      transparent 92%
-    );
-    color: var(--encre);
+    text-decoration: underline;
+    text-decoration-color: var(--signal);
+    text-decoration-thickness: 0.14em;
+    text-underline-offset: 0.14em;
+    text-decoration-skip-ink: none;
   }
   .fort.long {
     font-size: clamp(1.5rem, 1.2rem + 0.9vw, 1.85rem);

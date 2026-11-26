@@ -994,3 +994,9 @@ existe-t-elle ? (« Où ? » dit « à notre connaissance ».)
 en ligne : « ok il est temps d'envoyer le lien du site, merci ! ». Le
 lien part à la lectrice ; la suite du travail attend ses retours
 (roadmap, « Après l'envoi »).
+
+**Après l'envoi** (même jour) : l'auteur signale « un seul défaut : le
+surlignage jaune gache la lecture en sombre » (chiffres forts des
+cartes de l'accueil). Le surlignage devient un soulignement épais de la
+même couleur, lisible dans les deux modes ; vérifié par captures, clair
+et sombre.
