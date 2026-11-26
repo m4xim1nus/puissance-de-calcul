@@ -166,7 +166,7 @@ le partage. Tout ce qui n'est pas dans cette liste attend après l'envoi
 7. ✅ **Onglet « À toi »** (`docs/A-TOI.md`) : cinq missions.
 8. ✅ **Relecture finale** « lectrice experte » de tout le site et
    « lecteur non spécialiste » de l'accueil ; corrections et vérification.
-   Reste à l'auteur : relire, puis envoyer le lien.
+   Relu par l'auteur ; lien envoyé à la lectrice le 26/11/2026.
 
 Après l'envoi : suite réduite du carbone (heures d'export), enquête
 « stocks », série de température, effacement réaliste, anomalies ENTSO-E

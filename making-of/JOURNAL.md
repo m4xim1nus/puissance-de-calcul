@@ -989,3 +989,8 @@ session suivante, le reprendra.
 « Où ? » ; une question reste ouverte, qu'on ne tranche qu'en
 demandant à RTE : la carte des zones favorables du schéma décennal
 existe-t-elle ? (« Où ? » dit « à notre connaissance ».)
+
+**Après la session** (même jour) : l'auteur, après relecture du site
+en ligne : « ok il est temps d'envoyer le lien du site, merci ! ». Le
+lien part à la lectrice ; la suite du travail attend ses retours
+(roadmap, « Après l'envoi »).
