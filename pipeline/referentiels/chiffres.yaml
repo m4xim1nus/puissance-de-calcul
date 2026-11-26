@@ -7,7 +7,8 @@
 # recoupements (liste {source, valeur, note, independant}), calcul (si
 # le site dérive le chiffre), verification (« contre-verification » si
 # le passage a été relu à la source par un second agent, sinon « spike »),
-# note.
+# note, precision (facultatif : pas d'affichage, par exemple 1 pour un
+# dénombrement affiché à l'unité).
 #
 # Chiffres calculés : les identifiants `quand_*` ne sont PAS saisis ici. `pc
 # build` les calcule (pc/export_quand.py) et les ajoute à chiffres.json avec
@@ -201,8 +202,17 @@ chiffres:
     page: page web
     citation: « En mai 2026, RTE avait réservé près de 18 GW de capacité, pour environ 80 projets. »
     confiance: B
+    recoupements:
+      - source: rte-bilan-s1-2026
+        valeur: "environ 17,5 à 18 GW de data centers à mi-juin 2026, par LECTURE DE LA FIGURE 7 (p. 18), non publiés en valeur : environ 4,7 GW (contrats antérieurs à 2026, avant 2030), 9,5 GW (antérieurs à 2026, 2030-2035), 0,3 GW (suspendus), 0,4 GW et 3 GW (contrats de 2026) ; le texte donne 3,8 GW pour les contrats de 2026"
+        note: même éditeur, même grandeur (accès au réseau de transport contractualisé) ; lecture graphique, incertitude de l'ordre de ±0,5 GW sur le total ; relue par la relecture adverse du 26/11/2026 et par l'agent rédacteur
+        independant: false
+      - source: rte-toprac
+        valeur: 36,8 GW alloués à des projets de consommation, tous usages, au 30/06/2026 (toprac_conso_2026_06)
+        note: même éditeur, borne supérieure (tous consommateurs), pas un recoupement de la part des data centers
+        independant: false
     verification: contre-verification
-    note: pas de ventilation par échéance de mise en service
+    note: "le bilan du premier semestre 2026 (p. 18) ventile les contrats tous usages (environ 5 GW de data centers avant 2030) ; ses « 72 % » portent sur les projets à mettre à disposition en 2030-2035, jamais sur les 33 GW du total"
 
   dc_fasttrack_prereserve_2025_12:
     libelle: Capacité pré-réservée sur les cinq sites fast-track
@@ -210,7 +220,7 @@ chiffres:
     unite: GW
     grandeur: puissance_reservee
     periode: 2025-12-19
-    perimetre: Fouju, Montereau (Vernou-la-Celle-sur-Seine), Escaudain, Dunkerque (700 MW chacun) et Le Bosquel (1 GW) ; pré-réservations temporaires à la demande de l'État
+    perimetre: Fouju, Montereau (Vernou-la-Celle-sur-Seine), Escaudain, Bourbourg (zone Grande Industrie du Grand Port Maritime de Dunkerque) (700 MW chacun) et Le Bosquel (1 GW) ; pré-réservations temporaires à la demande de l'État
     source: rte-services-2025-12-19
     page: actualité
     citation: « the French State has asked RTE to pre-reserve 700 MW of capacity at the "Grande Industrie" area of the "Grand Port Maritime de Dunkerque" »
@@ -1683,6 +1693,312 @@ chiffres:
     verification: contre-verification
     note: "texte non adopté au 26/11/2026 : première lecture du Parlement le 24/11/2026, position du Conseil attendue (fiche de procédure 2026/0085(COD), pe-oeil-2026-0085) ; le texte voté par le Parlement (T10-0381/2026) n'a pas été relu par le site ; le considérant 3a annonce, dans la proposition de révision de la directive de juillet 2026, des paramètres « dynamiques » de la réserve et une baisse annuelle du seuil d'invalidation"
 
+  # ------------------------------------------------------------ « Où ? »
+  # Enquête courte du 26/11/2026 (docs/enquetes/ou.md). Passages relus par l'agent rédacteur
+  # dans les copies de data/raw/ou/ et data/raw/spike/datacenters/ (rapport :
+  # docs/relectures/2026-11-26-ou-agent.md).
+
+  sddr_postes_250mw:
+    libelle: Postes du réseau 400 kV capables d'accueillir un projet de consommation d'environ 250 MW, selon RTE
+    valeur: 50
+    unite: postes
+    grandeur: nombre
+    periode: 2025-03-21
+    perimetre: réseau 400 kV, France métropolitaine ; « environ » ; liste et carte non publiées
+    source: rte-sddr2025-synthese
+    page: p. 19, figure 5
+    citation: « ~ 50 — Le nombre de postes capables d'accueillir 250 MW »
+    confiance: B
+    verification: spike
+    note: RTE donne le compte, pas les postes ; la carte des zones favorables annoncée en février 2025 (rte-sddr2025-fiche5, p. 4) n'a pas été trouvée publiée au 26/11/2026
+
+  sddr_postes_750mw:
+    libelle: Postes du réseau 400 kV capables d'accueillir un projet de consommation d'environ 750 MW, selon RTE
+    valeur: 20
+    unite: postes
+    grandeur: nombre
+    periode: 2025-03-21
+    perimetre: réseau 400 kV, France métropolitaine ; « environ » ; liste et carte non publiées
+    source: rte-sddr2025-synthese
+    page: p. 19, figure 5
+    citation: « ~ 20 — Le nombre de postes capables d'accueillir 750 MW »
+    confiance: B
+    verification: spike
+    note: RTE ne dit pas si ces postes sont comptés aussi parmi ceux capables d'accueillir 250 MW
+
+  sddr_sites_1gw:
+    libelle: Sites capables d'accueillir rapidement des projets d'environ 1 GW, selon RTE
+    valeur: [8, 10]
+    unite: sites
+    grandeur: nombre
+    periode: 2025-03-21
+    perimetre: France métropolitaine ; liste non publiée dans le SDDR
+    source: rte-sddr2025-synthese
+    page: p. 19, figure 5
+    citation: « 8 à 10 — Le nombre de sites capables d'accueillir rapidement des projets d'environ 1 GW »
+    confiance: B
+    recoupements:
+      - source: rte-sddr2025-fiche5
+        valeur: « 8 sites identifiés pour 1 GW (connexion à pleine puissance en trois ans) »
+        note: même éditeur ; fiche 5, schéma du parcours client
+        independant: false
+    verification: spike
+    note: cinq sites « fast-track » ont ensuite été nommés (dc_fasttrack_prereserve_2025_12) ; le lien entre les 8 à 10 sites du SDDR et ces cinq sites n'est pas écrit par RTE
+
+  dc_reserve_idf_2026:
+    libelle: Capacité de raccordement réservée chez RTE pour des data centers en Île-de-France
+    valeur: 7
+    unite: GW
+    grandeur: puissance_reservee
+    periode: non précisée (page affichée au 01/06/2026)
+    perimetre: Île-de-France, réseau de transport ; « environ »
+    source: rte-page-datacenters
+    page: page web, « 2 territoires qui concentrent la majorité des projets »
+    citation: "« L'Île-de-France : les services de cloud computing se développent à proximité des sièges des grandes entreprises (environ 7 GW de capacité réservée). »"
+    confiance: C
+    recoupements:
+      - source: rte-page-datacenters
+        valeur: « En Île-de-France, par exemple, la puissance demandée (6,5 GW) avoisine la puissance moyenne actuelle de la région (7 GW). »
+        note: même page, autre grandeur (« demandée »), non définie
+        independant: false
+      - source: rte-idf-2026
+        valeur: 8 GW de « raccordements en cours » sur une cinquantaine de sites (dc_en_cours_idf_2026)
+        note: même éditeur, autre libellé, définition non publiée
+        independant: false
+    verification: spike
+    note: confiance C parce que RTE publie pour la même région trois chiffres de libellés différents (réservée, demandée, en cours) sans définir les deux derniers ni dater le premier ; tous usages ou data centers seuls, la page ne le dit pas explicitement (le titre de section parle des projets de data centers)
+
+  dc_reserve_hdf_2026:
+    libelle: Capacité de raccordement réservée chez RTE pour des data centers dans les Hauts-de-France
+    valeur: 6
+    unite: GW
+    grandeur: puissance_reservee
+    periode: non précisée (page affichée au 01/06/2026)
+    perimetre: Hauts-de-France, réseau de transport ; « environ »
+    source: rte-page-datacenters
+    page: page web, « 2 territoires qui concentrent la majorité des projets »
+    citation: "« Les Hauts-de-France : la région bénéficie de sa proximité avec les grandes capitales européennes et de la présence d'un acteur historique, OVH (environ 6 GW de capacité réservée). »"
+    confiance: B
+    verification: spike
+    note: non daté ; trois des cinq sites fast-track sont dans la région (Escaudain, Bourbourg, Le Bosquel) ; la page ne dit pas s'ils sont compris
+
+  dc_raccorde_idf_2025_12:
+    libelle: Puissance des data centers déjà raccordés au réseau de transport en Île-de-France
+    valeur: 640
+    unite: MW
+    grandeur: puissance_raccordee
+    periode: fin 2025 (bilan publié le 09/07/2026)
+    perimetre: Île-de-France, réseau de transport ; 6 sites
+    source: rte-idf-2026
+    page: p. 2, « Zoom data centers en Île-de-France »
+    citation: « 640 MW déjà raccordés sur 6 sites » ; « Fin 2025, 6 data centers sont raccordés au réseau de transport d'électricité dans la région. »
+    confiance: B
+    verification: spike
+    note: RTE précise que « les chiffres présentés sont une photographie à l'instant T et évoluent quotidiennement »
+
+  dc_en_cours_idf_2026:
+    libelle: Raccordements de data centers « en cours » au réseau de transport en Île-de-France
+    valeur: 8
+    unite: GW
+    grandeur: puissance_reservee
+    periode: 2026 (bilan publié le 09/07/2026, « photographie à l'instant T »)
+    perimetre: Île-de-France, réseau de transport ; une cinquantaine de sites ; définition de « en cours » non publiée
+    source: rte-idf-2026
+    page: p. 2, « Zoom data centers en Île-de-France »
+    citation: « Raccordements en cours 8 GW sur une cinquantaine de sites » ; « Raccordements à l'étude 7 GW sur une trentaine de sites »
+    confiance: C
+    verification: spike
+    note: classé « réservée » par le site parce qu'un raccordement en cours suppose une proposition acceptée, ce que RTE n'écrit pas ; à ne pas additionner aux 7 GW « réservés » de la page web, qui portent sur la même région ; les 7 GW « à l'étude » (études exploratoires, sans réservation) ne sont pas repris
+
+  dc_sites_propices_rte:
+    libelle: Sites propices à l'accueil d'infrastructures numériques identifiés par l'État en lien avec RTE
+    valeur: 65
+    unite: sites
+    grandeur: nombre
+    periode: non précisée (page affichée au 01/06/2026)
+    perimetre: liste non publiée
+    source: rte-page-datacenters
+    page: page web, intertitre
+    citation: « 65 sites propices identifiés par l'Etat en lien avec RTE » (intertitre) ; « l'État a annoncé avoir identifié plus d'une soixantaine de sites propices » (texte)
+    confiance: B
+    recoupements:
+      - source: dge-guide-2025
+        valeur: 63 sites (dc_sites_identifies_etat)
+        note: autre éditeur, mais même recensement de l'État, à une autre date ; le compte diffère
+        independant: false
+    verification: spike
+    note: critères affichés par RTE — foncier, capacités de raccordement électrique, acceptabilité locale et environnementale
+
+  odre_postes_rte_2026_06:
+    libelle: Sites électriques RTE et points de piquage listés en open data
+    valeur: 5042
+    unite: sites
+    grandeur: nombre
+    periode: 2026-06-16
+    perimetre: France métropolitaine ; postes de propriété ou copropriété RTE, ou extrémités d'une liaison RTE, et points de piquage ; champs code, nom, fonction, état, tension, département ; aucune coordonnée
+    source: odre-postes-rte
+    page: métadonnées et enregistrements (API ODRÉ)
+    # Un dénombrement s'affiche à l'unité (le site arrondit sinon à 3 chiffres significatifs : 5 040).
+    precision: 1
+    citation: 5 042 enregistrements (« records_count ») ; « RTE a fait évoluer l'accès aux données GPS des infrastructures du réseau public de transport pour des raisons de sécurité publique. RTE travaille à des solutions alternatives et publie les données sous une nouvelle forme »
+    confiance: B
+    verification: spike
+    note: décompte du site sur l'export du 25/11/2026, 4 232 « postes de transformation » et 810 « points de piquage » ; une seule tension par site ; localisation au département seulement
+
+  sdes_departements_classe_haute_2024:
+    libelle: Départements dont les data centers ont consommé 300 GWh ou plus en 2024 (classe la plus haute du SDES)
+    valeur: 4
+    unite: départements
+    grandeur: nombre
+    periode: "2024"
+    perimetre: France métropolitaine, data centers consommant plus de 1 GWh/an ; Nord, Essonne, Hauts-de-Seine, Seine-Saint-Denis
+    source: sdes-datacenters-2024
+    page: classeur de données, figure 3
+    citation: "« Lecture : en 2024, les centres de données du département Nord consomment 300 GWh ou plus. » ; classe « De 300 GWh et plus » pour les départements 59, 91, 92 et 93"
+    confiance: B
+    verification: spike
+    note: le SDES ne publie que des classes par département (moins de 2 ; 2 à 10 ; 10 à 100 ; 100 à 300 ; 300 GWh et plus), ni valeur ni site
+
+  ue_eed_seuil_dc:
+    libelle: Seuil de puissance informatique installée au-delà duquel un data center doit publier ses informations (directive efficacité énergétique)
+    valeur: 0.5
+    unite: MW
+    grandeur: puissance_it
+    periode: depuis le 15 mai 2024
+    perimetre: Union européenne ; centres de données de défense et de protection civile exemptés
+    source: ue-2023-1791
+    page: article 12, paragraphe 1
+    citation: « les États membres exigent des propriétaires et des exploitants de centres de données situés sur leur territoire ayant une demande de puissance des technologies de l'information installées d'au moins 500 kW qu'ils mettent à la disposition du public les informations mentionnées à l'annexe VII, à l'exception des informations soumises au droit de l'Union et au droit national protégeant les secrets commerciaux et les secrets d'affaires ainsi que la confidentialité »
+    confiance: B
+    verification: spike
+    note: 500 kW dans le texte ; en France, le seuil s'apprécie à l'échelle du numéro SIRET (code de l'énergie, art. D. 236-1, décret n° 2025-1382)
+
+  toprac_conso_2026_06:
+    libelle: Puissance allouée par RTE à des projets de consommation ayant accepté une proposition technique et financière (Toprac), France
+    valeur: 36.8
+    unite: GW
+    grandeur: puissance_reservee
+    periode: 2026-06-30
+    perimetre: France métropolitaine, réseau de transport ; tous projets de consommation (data centers, industrie, hydrogène…) ; hors projets à raccorder aux réseaux de distribution
+    source: rte-toprac
+    page: application, totaux de la mise à jour du 30/06/2026 (catégorie « Consommation »)
+    citation: "« Cette carte fournit, par région administrative, les volumes cumulés de puissance allouée sur le réseau public de transport d'électricité en vue du raccordement de projets d'installations de production, de consommation et de stockage d'électricité. » ; « Seuls les projets d'installation ayant valablement accepté une « proposition technique et financière » de la part de RTE à la date de mise à jour de la carte sont compatibilisés. » ; valeur 36,8 (catégorie CONSOMMATION, mise à jour 30/06/2026)"
+    confiance: B
+    recoupements:
+      - source: rte-bilan-s1-2026
+        valeur: 33 GW de projets en développement ayant contractualisé un accès au réseau de transport, à mi-juin 2026 (p. 18)
+        note: même éditeur ; écart d'environ 4 GW non expliqué (suspendus, augmentations de puissance de sites existants, périmètre « en développement » ?)
+        independant: false
+    verification: spike
+    note: valeurs lues dans le code de l'application (toprac.cloud-rte-france.com, fichier main.f4d454b6.js) ; mises à jour précédentes 21,6 GW (31/12/2024), 23,7 (30/06/2025), 31,1 (10/11/2025), 33,2 (31/01/2026)
+
+  toprac_conso_idf_2026_06:
+    libelle: Puissance allouée par RTE à des projets de consommation ayant accepté une proposition technique et financière (Toprac), Île-de-France
+    valeur: 8.5
+    unite: GW
+    grandeur: puissance_reservee
+    periode: 2026-06-30
+    perimetre: Île-de-France, réseau de transport ; tous projets de consommation
+    source: rte-toprac
+    page: application, carte régionale de la mise à jour du 30/06/2026 (catégorie « Consommation »)
+    citation: valeur 8,5 pour ILE_DE_FRANCE, catégorie CONSOMMATION, mise à jour 30/06/2026 (définition de la carte, voir toprac_conso_2026_06)
+    confiance: B
+    verification: spike
+    note: 3,5 GW au 31/12/2024, 4,3 au 30/06/2025, 6,5 au 10/11/2025, 7,0 au 31/01/2026 ; somme des régions au 30/06/2026 = 36,9 GW (certaines valeurs masquées pour secret statistique)
+
+  toprac_conso_hdf_2026_06:
+    libelle: Puissance allouée par RTE à des projets de consommation ayant accepté une proposition technique et financière (Toprac), Hauts-de-France
+    valeur: 10.4
+    unite: GW
+    grandeur: puissance_reservee
+    periode: 2026-06-30
+    perimetre: Hauts-de-France, réseau de transport ; tous projets de consommation
+    source: rte-toprac
+    page: application, carte régionale de la mise à jour du 30/06/2026 (catégorie « Consommation »)
+    citation: valeur 10,4 pour HAUTS_DE_FRANCE, catégorie CONSOMMATION, mise à jour 30/06/2026 (définition de la carte, voir toprac_conso_2026_06)
+    confiance: B
+    verification: spike
+    note: 5,5 GW au 31/12/2024, 6,3 au 30/06/2025, 8,0 au 10/11/2025, 9,3 au 31/01/2026
+
+  orrem_zones_2026_11:
+    libelle: Zones de mutualisation pour la consommation publiées par RTE, avec leur capacité d'accueil en soutirage
+    valeur: 11
+    unite: zones
+    grandeur: nombre
+    periode: 2026-11-10
+    perimetre: réseau de transport ; 7 zones « Validée », 1 « Partagée CRE » (IDF Sud), 1 « En surveillance », 2 « A l'étude » ; 165 postes rattachés (feuille OUVRAGES_POSTES), sans capacité par poste
+    source: rte-zones-mutualisation-2026-11
+    page: fichier du 10/11/2026, feuille Valeurs_France
+    citation: "11 lignes (Dunkerque, Le Havre Port-Jérôme, Loire Estuaire, Plan de Campagne, Fos, IDF Sud, Saint-Avold, Lyon Vallée de la Chimie, Port-la-Nouvelle, Sud Alsace, Valenciennes) ; « La capacité totale offerte (MW) : capacité d'accueil en soutirage offerte par l'ensemble d'ouvrages mutualisés, réservée aux installations de consommation raccordées au RPT et aux ouvrages du RPD. »"
+    confiance: B
+    verification: spike
+    note: carte interactive publiée depuis le 16/12/2024 ; capacités par zone, sur des ouvrages à construire ou renforcer
+
+  orrem_idf_sud_offerte_2026_11:
+    libelle: Capacité d'accueil en soutirage offerte par la zone de mutualisation IDF Sud
+    valeur: 1479
+    unite: MW
+    grandeur: puissance_dimensionnement
+    periode: 2026-11-10
+    perimetre: zone IDF Sud (sud de l'Île-de-France), état « Partagée CRE » (mutualisation partagée avec la CRE, pas encore autorisée formellement) ; fin des travaux prévue en septembre 2031 ; 54 postes rattachés
+    source: rte-zones-mutualisation-2026-11
+    page: fichier du 10/11/2026, feuille Valeurs_France
+    citation: IDF Sud ; ETAT_ZONE « Partagée CRE » ; CAPACITE_TOTALE_OFFERTE 1479 ; CAPACITE_RACCORDEMENT_RESIDUELLE 0 ; CAPACITE_ATTRIBUEE 1479 ; DATE_FIN_TRAVAUX « sept 2031 »
+    # Un total de fichier s'affiche à l'unité (le site arrondit sinon à 3 chiffres significatifs : 1 480).
+    precision: 1
+    confiance: B
+    recoupements:
+      - source: rte-page-datacenters
+        valeur: « environ 1 200 MW de capacité dans le sud de l'Île-de-France »
+        note: même éditeur ; page web non datée (affichée au 01/06/2026), antérieure au fichier du 10/11/2026
+        independant: false
+    verification: spike
+    note: capacité sur des ouvrages à construire, pas sur le réseau existant
+
+  orrem_idf_sud_residuelle_2026_11:
+    libelle: Capacité d'accueil en soutirage résiduelle de la zone de mutualisation IDF Sud
+    valeur: 0
+    unite: MW
+    grandeur: puissance_dimensionnement
+    periode: 2026-11-10
+    perimetre: zone IDF Sud ; résiduelle = offerte − attribuée, l'attribuée étant la somme des puissances de raccordement des installations en service ou entrées en file d'attente (PTF acceptée, ou convention de raccordement envoyée ou acceptée)
+    source: rte-zones-mutualisation-2026-11
+    page: fichier du 10/11/2026, feuille Valeurs_France
+    citation: IDF Sud ; CAPACITE_RACCORDEMENT_RESIDUELLE 0 ; CAPACITE_ATTRIBUEE 1479
+    confiance: B
+    verification: spike
+
+  orrem_plan_campagne_offerte_2026_11:
+    libelle: Capacité d'accueil en soutirage offerte par la zone de mutualisation de Plan-de-Campagne
+    valeur: 550
+    unite: MW
+    grandeur: puissance_dimensionnement
+    periode: 2026-11-10
+    perimetre: zone Plan de Campagne (entre Aix-en-Provence et Marseille), état « Validée » ; fin des travaux prévue en mars 2032
+    source: rte-zones-mutualisation-2026-11
+    page: fichier du 10/11/2026, feuille Valeurs_France
+    citation: Plan de Campagne ; ETAT_ZONE « Validée » ; CAPACITE_TOTALE_OFFERTE 550 ; CAPACITE_RACCORDEMENT_RESIDUELLE 250 ; CAPACITE_ATTRIBUEE 300 ; DATE_FIN_TRAVAUX « mars 2032 »
+    confiance: B
+    recoupements:
+      - source: rte-page-datacenters
+        valeur: « environ 500 MW de capacité dans la zone de Plan-de-Campagne »
+        note: même éditeur ; page web non datée (affichée au 01/06/2026), antérieure au fichier du 10/11/2026
+        independant: false
+    verification: spike
+
+  orrem_plan_campagne_residuelle_2026_11:
+    libelle: Capacité d'accueil en soutirage résiduelle de la zone de mutualisation de Plan-de-Campagne
+    valeur: 250
+    unite: MW
+    grandeur: puissance_dimensionnement
+    periode: 2026-11-10
+    perimetre: zone Plan de Campagne ; résiduelle = offerte − attribuée (définitions de RTE, voir orrem_idf_sud_residuelle_2026_11)
+    source: rte-zones-mutualisation-2026-11
+    page: fichier du 10/11/2026, feuille Valeurs_France
+    citation: Plan de Campagne ; CAPACITE_RACCORDEMENT_RESIDUELLE 250 ; CAPACITE_ATTRIBUEE 300
+    confiance: B
+    verification: spike
+
 contraintes:
   - inferieur: [dc_conso_rpt_2024, dc_conso_sites_dedies_2024]
     motif: le transport est une partie des sites dédiés
@@ -1716,3 +2032,25 @@ contraintes:
     motif: en 2025, placement égal à l'excédent sur 833 millions (190 494 202 quotas)
   - inferieur: [ets_seuil_prelevement_haut, ets_tnac_2024]
     motif: en 2024, placement proportionnel (275 531 900 quotas, 24 %)
+  - inferieur: [dc_raccorde_idf_2025_12, dc_raccorde_rpt_2025_12]
+    motif: une région est une partie du total national, à la même date (fin 2025)
+  - inferieur: [dc_reserve_idf_2026, dc_reserve_rte_2026_05]
+    motif: une région est une partie du total national (dates non précisées par la page, vrai en valeur)
+  - inferieur: [dc_reserve_hdf_2026, dc_reserve_rte_2026_05]
+    motif: une région est une partie du total national (dates non précisées par la page, vrai en valeur)
+  - inferieur: [orrem_idf_sud_residuelle_2026_11, orrem_idf_sud_offerte_2026_11]
+    motif: la capacité résiduelle d'une zone ne dépasse pas sa capacité offerte
+  - inferieur: [orrem_plan_campagne_residuelle_2026_11, orrem_plan_campagne_offerte_2026_11]
+    motif: la capacité résiduelle d'une zone ne dépasse pas sa capacité offerte
+  - inferieur: [toprac_conso_idf_2026_06, toprac_conso_2026_06]
+    motif: une région est une partie du total national, à la même date
+  - inferieur: [toprac_conso_hdf_2026_06, toprac_conso_2026_06]
+    motif: une région est une partie du total national, à la même date
+  - inferieur: [dc_reserve_rte_2026_05, toprac_conso_2026_06]
+    motif: les data centers sont une partie des projets de consommation (mai et fin juin 2026, vrai en valeur)
+  - inferieur: [dc_reserve_idf_2026, toprac_conso_idf_2026_06]
+    motif: les data centers sont une partie des projets de consommation de la région (dates différentes, vrai en valeur)
+  - inferieur: [dc_en_cours_idf_2026, toprac_conso_idf_2026_06]
+    motif: si « en cours » vaut PTF acceptée, les data centers en cours sont une partie des projets de consommation de la région (vrai en valeur, définition non publiée)
+  - inferieur: [dc_reserve_hdf_2026, toprac_conso_hdf_2026_06]
+    motif: les data centers sont une partie des projets de consommation de la région (dates différentes, vrai en valeur)

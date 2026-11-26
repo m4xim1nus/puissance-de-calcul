@@ -41,7 +41,8 @@ UNITES: dict[str, dict[str, float]] = {
     "puissance_it": _PUISSANCE,
     "energie": _ENERGIE,
     "part": {"%": 1.0},
-    "nombre": {"sites": 1.0, "projets": 1.0, "heures": 1.0, "déclarants": 1.0, "pays": 1.0},
+    "nombre": {"sites": 1.0, "projets": 1.0, "heures": 1.0, "déclarants": 1.0, "pays": 1.0,
+               "postes": 1.0, "départements": 1.0, "zones": 1.0},
     # Carbone (« Quel carbone ? ») : une grandeur par famille de facteur, pour qu'aucune contrainte ne
     # compare un facteur moyen à un facteur marginal, à un paramètre de marché ou à un forfait
     # réglementaire. 1 MJ = 1/3,6 kWh : 1 gCO2eq/MJ = 3,6 gCO2eq/kWh.
@@ -84,6 +85,8 @@ CHAMPS_CHIFFRE = ("libelle", "valeur", "unite", "grandeur", "periode", "perimetr
 #: Valeur du champ `produit_par` d'un chiffre calculé par le pipeline (et non saisi à la main) :
 #: il doit alors décrire son `calcul`, porter sa valeur non arrondie (`valeur_calculee`) et le pas
 #: d'arrondi de la valeur publiée (`precision`), et sa source est l'export qui le porte.
+#: Un chiffre saisi peut aussi porter `precision` pour fixer son pas d'affichage (un dénombrement
+#: ou un total de fichier affiché à l'unité, au lieu de l'arrondi générique à 3 chiffres significatifs).
 PRODUIT_PAR_PIPELINE = "pc build"
 
 

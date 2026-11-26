@@ -2,6 +2,7 @@
 titre: Quel carbone ?
 question: Que vaut le contenu carbone de l'électricité française, et que dit-il des émissions d'une consommation ajoutée ?
 mise_a_jour: 2026-11-26
+accroche: {{intensite_prod_rte_2025}} en moyenne pour la production française de 2025. C'est une moyenne : elle ne dit pas ce qu'émettrait une consommation ajoutée, et aucune institution ne publie de [facteur marginal](glossaire:facteur-moyen-marginal) récent pour la France, à notre connaissance.
 ---
 
 <!--
@@ -22,9 +23,9 @@ exemple, consomme une électricité dont RTE publie chaque année le contenu
 carbone moyen. Ce chiffre est publié et sourcé. Il ne répond pourtant pas
 à la question qu'on lui pose le plus souvent : combien d'émissions cette
 consommation de plus entraînerait-elle ? Cette enquête dit ce que vaut
-l'intensité moyenne, comment elle varie d'une heure et d'une saison à
+l'[intensité moyenne](glossaire:intensite-carbone), comment elle varie d'une heure et d'une saison à
 l'autre, ce que publient les institutions, et pourquoi le chiffre utile,
-le facteur marginal, manque.
+le [facteur marginal](glossaire:facteur-moyen-marginal), manque.
 
 **Ce qu'on en retient.** En 2025, l'intensité carbone moyenne de
 l'électricité produite en France valait {{intensite_prod_rte_2025}} en
@@ -63,7 +64,7 @@ d'éCO2mix, pondéré par la production de chaque heure, donne
 est attendu et contrôlé : éCO2mix ne couvre pas la Corse, dont la
 production thermique est au fioul, et n'applique pas les facteurs
 d'émission de l'annexe du Bilan, mais le facteur de chaque combustible
-tiré de la Base Carbone de l'ADEME, combiné au rendement moyen de la
+tiré de la Base Carbone de l'ADEME (aujourd'hui intégrée à sa Base Empreinte), combiné au rendement moyen de la
 filière {{source:rte-eco2mix-emissions|page éCO2mix « eCO2 emissions »}}.
 D'après une estimation du site, la Corse explique l'essentiel de l'écart.
 Pour la consommation,
@@ -95,9 +96,9 @@ faire appel à des moyens de production thermique fossile, et
 plus carbonée » {{source:rte-be2025|p. 105}}.
 
 L'heure la plus carbonée de 2025, pour la production, valait
-{{carbone_prod_max_2025}} : le matin du 14 janvier, celui où la charge
-résiduelle de [« Quand ? »](/quand) a culminé. RTE donne un maximum de
-{{intensite_max_rte_2025}}, sans nommer la série ; sa monotone de
+{{carbone_prod_max_2025}} : le matin du 14 janvier, celui où la [charge
+résiduelle](glossaire:charge-residuelle) de [« Quand ? »](/quand) a culminé. RTE donne un maximum de
+{{intensite_max_rte_2025}}, sans nommer la série ; sa [monotone](glossaire:monotone) de
 l'intensité de la consommation culmine à ce niveau en 2025
 {{source:rte-be2025|p. 104, figure 5.7}}. La série horaire de la
 consommation que RTE publie en open data, recalculée en 2026, culmine,
@@ -145,8 +146,8 @@ fait RTE, une consommation ajoutée ne les fait pas varier. Ce qui répond
 à une consommation de plus, ce sont notamment les moyens qui peuvent
 moduler leur production : le nucléaire quand il lui reste de la marge,
 l'hydraulique, le gaz, le charbon et le fioul, le pompage des stations
-de transfert d'énergie, les effacements, l'éolien et le solaire arrêtés
-aux heures de prix négatifs, et les échanges avec les voisins.
+de transfert d'énergie, les [effacements](glossaire:effacement), l'éolien et le solaire arrêtés
+aux heures de [prix négatifs](glossaire:prix-negatif), et les échanges avec les voisins.
 
 Le facteur marginal d'une heure peut donc être nul en émissions
 directes, quand une consommation ajoutée est servie par du nucléaire
@@ -249,7 +250,7 @@ existantes qu'on lui attribuerait dans un inventaire.
   dans sa rédaction de 2024, exige notamment qu'elle soit consommée dans
   le même mois que sa production jusqu'à fin 2029, dans la même heure
   ensuite ; la condition est toujours tenue pour remplie quand le prix
-  day-ahead ne dépasse pas {{ue_correlation_seuil_prix}}, ou reste sous
+  [day-ahead](glossaire:day-ahead) ne dépasse pas {{ue_correlation_seuil_prix}}, ou reste sous
   {{ue_correlation_coef_quota}} le prix d'un quota de CO2.
   Aucun de ces textes ne vise
   les data centers : ils montrent comment le législateur a tranché une
@@ -283,10 +284,13 @@ existantes qu'on lui attribuerait dans un inventaire.
   changent. La Commission a proposé le 1er avril 2026 de mettre fin à
   l'annulation {{source:ce-tnac-2025|section 2}}. Le texte de compromis
   approuvé par les représentants des États membres le 28 octobre 2026 la
-  garde, mais n'annule plus que les quotas détenus au-delà de
-  {{ets_seuil_invalidation_compromis}} à son entrée en vigueur, et
-  annonce des seuils de réserve « dynamiques » dans une révision plus
-  large proposée en juillet 2026 {{source:conseil-14944-26|annexe, considérants 3 et 3a, article 1er}}.
+  garde : à partir de son entrée en vigueur, seuls les quotas que la
+  réserve détient au-delà de {{ets_seuil_invalidation_compromis}} ne sont
+  plus valides. Il rappelle que la révision plus large proposée par la
+  Commission en juillet 2026 rend dynamiques les seuils haut et bas de la
+  réserve, leurs marges et la quantité qu'elle remet sur le marché, et
+  demande que cette révision prévoie aussi une baisse annuelle du seuil
+  d'invalidation {{source:conseil-14944-26|annexe, considérants 3 et 3a, article 1er}}.
   Le Parlement européen l'a adopté en première lecture le 24 novembre
   2026 ; au 26 novembre, la procédure attendait la position du Conseil
   {{source:pe-oeil-2026-0085|fiche de procédure}}. Si ce texte entre en

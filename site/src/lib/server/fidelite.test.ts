@@ -178,12 +178,51 @@ describe('fidélité de la page making-of à ses fichiers source', () => {
         texte(un(li, (n) => n.nom === 'h3'))
       );
       expect(un(li, (n) => n.nom === 'time').attrs.datetime).toBe(m[2]);
-      const detail = tous(li, (n) => n.nom === 'details' && !a(n, 'brief'));
-      const rendu =
-        texte(un(li, (n) => a(n, 'demande'))) +
-        ' ' +
-        detail.map((d) => texte(un(d, (n) => a(n, 'contenu')))).join(' ');
-      memesMots(`session ${m[1]}, demande et détail`, texteMd(corps.join('\n')), rendu);
+      // Rendu remis dans l'ordre du fichier : la demande, puis chaque partie. Durée, Agents et
+      // Coût ont leur première phrase dans l'en-tête (sans son point final) et leur suite dans le
+      // détail, sous un titre « …, suite » qui n'est pas du texte source.
+      const resume = new Map(
+        tous(li, (n) => n.nom === 'div' && n.parent !== null && a(n.parent, 'resume')).map((d) => [
+          mots(texte(un(d, (n) => n.nom === 'dt'))).join(' '),
+          texte(un(d, (n) => n.nom === 'dd')) + '.'
+        ])
+      );
+      const parties = tous(li, (n) => n.nom === 'section' && a(n, 'partie'));
+      const titres = corps
+        .filter((l, i) => /^\*\*[^*]+\*\*/.test(l) && (i === 0 || !corps[i - 1].trim()))
+        .map((l) =>
+          l
+            .match(/^\*\*([^*]+)\*\*/)![1]
+            .replace(/’/g, "'")
+            .trim()
+        );
+      const rendu = [texte(un(li, (n) => a(n, 'demande')))];
+      let k2 = 0;
+      for (const t of titres.filter((t) => !/^Demande de l'auteur/.test(t))) {
+        const p = parties[k2];
+        const titreRendu = p ? texte(un(p, (n) => n.nom === 'h4')) : '';
+        if (resume.has(t)) {
+          rendu.push(t, resume.get(t)!);
+          if (mots(titreRendu).join(' ').replace(' ,', ',') === `${t}, suite`) {
+            rendu.push(texte(p).replace(/^.*?, suite/, ''));
+            k2++;
+          }
+        } else {
+          rendu.push(p ? texte(p) : '');
+          k2++;
+        }
+      }
+      expect(k2, `session ${m[1]} : parties rendues`).toBe(parties.length);
+      // Les deux-points qui suivent un intitulé en gras deviennent le titre de la partie.
+      const sansDeuxPoints = (t: string) =>
+        mots(t)
+          .filter((w) => w !== ':')
+          .join(' ');
+      memesMots(
+        `session ${m[1]}, demande et détail`,
+        sansDeuxPoints(texteMd(corps.join('\n'))),
+        sansDeuxPoints(rendu.join(' '))
+      );
     });
   });
 

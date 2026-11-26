@@ -84,3 +84,15 @@ describe('markdown complet', () => {
     );
   });
 });
+
+describe('citations ligne à ligne (demandes de l’auteur)', () => {
+  const cite = '> une demande\n> sur deux lignes\n\nhors citation\nsur deux lignes';
+  it('garde les retours à la ligne dans la citation seulement', () => {
+    expect(markdown(cite, { citationsLigneALigne: true })).toBe(
+      '<blockquote><p>une demande<br />\nsur deux lignes</p></blockquote>\n<p>hors citation sur deux lignes</p>'
+    );
+  });
+  it('sans l’option, les fond comme en Markdown standard', () => {
+    expect(markdown(cite)).toContain('<p>une demande sur deux lignes</p>');
+  });
+});

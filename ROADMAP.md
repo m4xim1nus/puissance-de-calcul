@@ -148,26 +148,27 @@ Accord de l'auteur et de Claude (fin de session 3) : la session 4 prépare
 le partage. Tout ce qui n'est pas dans cette liste attend après l'envoi
 (backlog). Ordre :
 
-1. **Relevé « En bref »** en début de session (`uv run pc bilan`), qui
-   complète la session 3 ; relancer `pc download edf_remit` et vérifier
-   le contrôle de jonction REMIT (risque d'échec vers le 07/12).
-2. **Enquête courte « Où ? »** : ce qui manque (capacité d'accueil par
-   poste, coordonnées des postes, registre des sites), sources primaires,
-   relecture adverse.
-3. **Message principal révisé** (`docs/MESSAGE.md`) avec « Où ? » et
-   « Quel carbone ? », daté, et ce qui a changé.
-4. **Accueil refait** (retour de l'auteur, backlog) : un chiffre fort par
-   enquête avec son lien, un message à retenir compact, une visualisation
-   choisie pour son effet, le reste secondaire.
-5. **Making-of** : « Détail » des sessions plus digeste, sans répéter
-   l'en-tête ; sauts de ligne des demandes citées.
-6. **Glossaire replié** (exigence du brief) et liens depuis les pages.
-7. **Onglet « À toi »** (exigence du brief) : missions par difficulté
-   croissante ; à défaut, un encart « en préparation » honnête.
-8. **Relecture finale** : « lectrice experte » de tout le site, et
-   « lecteur non spécialiste » pour l'accueil ; corrections et
-   vérification ; puis l'auteur envoie le lien.
+1. ✅ **Relevé « En bref »** (`pc bilan`) ; `pc download edf_remit` relancé :
+   historique d'EDF inchangé (07/09/2026), jonction tenue avec 10 jours de
+   recouvrement ; le risque d'un trou début décembre demeure.
+2. ✅ **Enquête courte « Où ? »** (`/ou`) : rédaction (agent), relecture
+   adverse (trois constats d'absence faux, consignés), corrections,
+   vérification.
+3. ✅ **Message principal, version 2** (`docs/MESSAGE.md`) : « À retenir »,
+   « Le message en détail », « Ce qui a changé », daté et versionné.
+4. ✅ **Accueil refait** : « À retenir », une carte par enquête avec un
+   chiffre fort (champ `accroche`), calendrier des prix avec sa lecture,
+   message complet replié ; relecture « lecteur non spécialiste ».
+5. ✅ **Making-of** : détail des sessions en parties titrées, sans répéter
+   l'en-tête ; retours à la ligne des demandes citées.
+6. ✅ **Glossaire replié** sur « Méthode » (`docs/GLOSSAIRE.md`), liens
+   depuis les pages.
+7. ✅ **Onglet « À toi »** (`docs/A-TOI.md`) : cinq missions.
+8. ✅ **Relecture finale** « lectrice experte » de tout le site et
+   « lecteur non spécialiste » de l'accueil ; corrections et vérification.
+   Reste à l'auteur : relire, puis envoyer le lien.
 
 Après l'envoi : suite réduite du carbone (heures d'export), enquête
 « stocks », série de température, effacement réaliste, anomalies ENTSO-E
-(décalage d'une heure, biais des flux), licence FR↔GB.
+(décalage d'une heure, biais des flux), licence FR↔GB ; demander à RTE si
+la carte des zones favorables du schéma décennal existe.

@@ -44,7 +44,7 @@ rte-page-datacenters:
   titre: Les data centers en chiffres clés (page web)
   date_publication: 2026-06-01
   url: https://www.rte-france.com/bases-electricite/consommation-electricite/essor-data-centers-france
-  consulte_le: 2026-11-25
+  consulte_le: 2026-11-26
   note: publiée le 21/05/2025, date affichée 01/06/2026 ; page mise à jour sans historique
 
 rte-cp-campusia-2026:
@@ -67,7 +67,7 @@ rte-idf-2026:
   titre: Bilan électrique Île-de-France
   date_publication: 2026-07-09
   url: https://assets.rte-france.com/prod/public/2026-07/2026-07-09-bilan-electrique-idf-2026.pdf
-  consulte_le: 2026-11-25
+  consulte_le: 2026-11-26
 
 sdes-datacenters-2024:
   editeur: SDES
@@ -371,3 +371,165 @@ rte-eco2mix-emissions:
   url: https://www.rte-france.com/en/data-publications/eco2mix/eco2-emissions
   consulte_le: 2026-11-26
   note: page sans date, lue en anglais ; date = date de consultation ; « direct emissions » = facteur d'émission « primaire » du combustible (Base Carbone de l'ADEME) combiné au rendement moyen de la filière (hypothèses internes de RTE)
+
+# « Où ? » (enquête courte, 26/11/2026). Copies locales dans data/raw/ou/ (non versionné).
+rte-sddr2025-fiche5:
+  editeur: RTE
+  titre: Schéma décennal de développement du réseau, édition 2025 — fiche 5, raccordement de l'industrie
+  date_publication: 2025-02-27
+  url: https://assets.rte-france.com/prod/public/2025-02/2025-02-27-sddr-fiche-5-raccordement-industrie.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 24 pages ; page = page du PDF, suivie du folio imprimé (le PDF commence au folio 44) ; orientations publiées le 13/02/2025
+
+rte-sddr2025-synthese:
+  editeur: RTE
+  titre: Schéma décennal de développement du réseau, édition 2025 — synthèse
+  date_publication: 2025-03-21
+  url: https://assets.rte-france.com/prod/public/2025-03/SDDR2025-synthese-21032025.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 48 pages, folio imprimé = page du PDF
+
+rte-sddr2025-rapport:
+  editeur: RTE
+  titre: Schéma décennal de développement du réseau, édition 2025 — rapport complet (orientations soumises au débat public)
+  date_publication: 2025-06-06
+  url: https://assets.rte-france.com/prod/public/2025-06/2025-06-06-sddr-rapport-complet.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 176 pages, page = page du PDF ; la fiche 5 y est reprise sans changement sur la carte des zones favorables (p. 49 et 54)
+
+cre-2026-173:
+  editeur: CRE
+  titre: Délibération n° 2026-173 du 28 juillet 2026 portant approbation de la procédure de traitement des demandes de raccordement des réseaux publics de distribution au réseau public de transport d'électricité
+  date_publication: 2026-07-28
+  url: https://www.cre.fr/fileadmin/Documents/Deliberations/2026/260728_2026-173_Procedure_de_raccordement_RTE.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 9 pages, folio « n/9 »
+
+ue-2024-1747:
+  editeur: Parlement européen et Conseil de l'UE
+  titre: Règlement (UE) 2024/1747 du 13 juin 2024 modifiant les règlements (UE) 2019/942 et (UE) 2019/943 (organisation du marché de l'électricité de l'Union), JO L du 26.6.2024
+  date_publication: 2024-06-26
+  url: https://eur-lex.europa.eu/eli/reg/2024/1747/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans la version HTML d'EUR-Lex ; entrée en vigueur le vingtième jour suivant la publication ; directement applicable
+
+ue-2023-1791:
+  editeur: Parlement européen et Conseil de l'UE
+  titre: Directive (UE) 2023/1791 du 13 septembre 2023 relative à l'efficacité énergétique (refonte), JO L 231 du 20.9.2023
+  date_publication: 2023-09-20
+  url: https://eur-lex.europa.eu/eli/dir/2023/1791/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans la version HTML d'EUR-Lex (article 12, annexe VII)
+
+ue-2024-1364:
+  editeur: Commission européenne
+  titre: Règlement délégué (UE) 2024/1364 du 14 mars 2024 sur la première phase de la mise en place d'un système commun de notation des centres de données à l'échelle de l'Union, JO L du 17.5.2024
+  date_publication: 2024-05-17
+  url: https://eur-lex.europa.eu/eli/reg_del/2024/1364/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans la version HTML d'EUR-Lex (articles 3 et 5)
+
+decret-2025-1382:
+  editeur: Premier ministre (Journal officiel de la République française)
+  titre: Décret n° 2025-1382 du 29 décembre 2025 relatif à la transposition de la directive (UE) 2023/1791 relative à l'efficacité énergétique, JORF du 30.12.2025
+  date_publication: 2025-12-30
+  url: https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053201866
+  consulte_le: 2026-11-26
+  note: Légifrance refusant les accès automatisés, texte lu dans la copie du JORF transmise à la Commission (EUR-Lex, mesures nationales d'exécution, NIM:202600311, PDF de 12 pages) ; page = page de ce PDF ; entrée en vigueur le 1er janvier 2026 (article 18)
+
+odre-postes-rte:
+  editeur: RTE (open data ODRÉ)
+  titre: Sites électriques RTE et points de piquage (au 16 juin 2026)
+  date_publication: 2026-06-16
+  url: https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/
+  consulte_le: 2026-11-26
+  note: Licence Ouverte 2.0 ; métadonnées et champs relus par l'API ODRÉ le 26/11/2026 (code, nom, fonction, état, tension, département ; aucune géométrie)
+
+enedis-nmo-rac-005e:
+  editeur: Enedis
+  titre: Procédure de traitement des demandes de raccordement au réseau public de distribution d'une installation de consommation en BT de puissance supérieure à 36 kVA et en HTA (Enedis-NMO-RAC_005E, version 2)
+  date_publication: 2026-09-03
+  url: https://www.enedis.fr/media/4661/download
+  consulte_le: 2026-11-26
+  note: date = date d'application de la version 2 (PDF créé le 26/08/2026) ; PDF de 61 pages, page = page du PDF
+
+rte-bilan-s1-2026:
+  editeur: RTE
+  titre: Bilan du premier semestre 2026 et perspectives sur la sécurité d'approvisionnement
+  date_publication: 2026-07-16
+  url: https://assets.rte-france.com/prod/public/2026-07/2026-07-16-bilan-semestre1.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 56 pages en doubles pages (la page 16 du PDF porte les folios 16 et 17)
+
+rte-consultation-refonte-2026:
+  editeur: RTE
+  titre: Consultation publique sur la refonte du raccordement des clients consommateurs
+  date_publication: 2026-01-26
+  url: https://www.services-rte.com/files/live/sites/services-rte/files/Consultation%20Publique%20-%20Refonte%20Raccordement.pdf
+  consulte_le: 2026-11-26
+  note: consultation ouverte du 26 janvier au 20 mars 2026 ; PDF de 20 pages, folio « n/20 »
+
+capareseau:
+  editeur: RTE et gestionnaires de réseaux de distribution
+  titre: Caparéseau — Capacités d'accueil en production du réseau (site web)
+  date_publication: 2026-11-26
+  url: https://www.capareseau.fr/
+  consulte_le: 2026-11-26
+  note: date = date de consultation ; titre de la page lu le 26/11/2026 ; mention légale (spike du 25/11/2026) « les possibilités de raccordement aux réseaux de transport et de distribution des installations de production d'électricité »
+
+rte-sddr-reponse-cpdp-2026:
+  editeur: RTE
+  titre: Schéma décennal de développement du réseau — note d'accompagnement en réponse aux demandes de clarification et aux recommandations de la Commission particulière du débat public
+  date_publication: 2026-06-12
+  url: https://assets.rte-france.com/prod/public/2026-06/2026-06-12-nte-accompagnement-reponse-cpdp.pdf
+  consulte_le: 2026-11-26
+  note: datée « Juin 2026 » (PDF créé le 10/06/2026, URL datée du 12/06/2026) ; PDF de 32 pages, folio imprimé = page du PDF
+
+odre-lignes-rte:
+  editeur: RTE (open data ODRÉ)
+  titre: Lignes aériennes RTE – nouveau découpage (au 16 juin 2026) ; Lignes souterraines RTE – nouveau découpage (au 16 juin 2026)
+  date_publication: 2026-06-16
+  url: https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/
+  consulte_le: 2026-11-26
+  note: Licence Ouverte 2.0 ; champs relus par l'API ODRÉ le 26/11/2026 (code, nom, état, tension, nombre de circuits, ouvrages associés ; aucune géométrie) ; jeu des lignes aériennes modifié le 03/07/2025 malgré le titre « au 16 juin 2026 », jeu des lignes souterraines (lignes-souterraines-rte-nv) modifié le 16/06/2026
+
+# « Où ? », corrections après relecture adverse (docs/relectures/2026-11-26-ou.md). Copies dans data/raw/ou/relecture/.
+rte-toprac:
+  editeur: RTE
+  titre: Projets en cours de raccordement (Toprac) — puissances allouées par RTE en vue du raccordement d'installations en projet (application web, site Analyses et données)
+  date_publication: 2026-06-30
+  url: https://analysesetdonnees.rte-france.com/regions/toprac
+  consulte_le: 2026-11-26
+  note: application https://toprac.cloud-rte-france.com/ (données embarquées dans main.f4d454b6.js, SHA-256 7664ffa4) ; date = dernière mise à jour proposée ; mises à jour du 31/12/2024, 30/06/2025, 10/11/2025, 31/01/2026 et 30/06/2026 ; projets ayant accepté une PTF, réseau de transport seul, par région administrative et par type (production, consommation, stockage) ; valeurs masquées pour secret statistique
+
+rte-cartostock:
+  editeur: RTE
+  titre: Capacités de raccordement des batteries (Cartostock, application web, site Analyses et données)
+  date_publication: 2026-11-26
+  url: https://analysesetdonnees.rte-france.com/reseaux/cartostock
+  consulte_le: 2026-11-26
+  note: date = date de consultation ; application https://cartostock.cloud-rte-france.com/ (contenu de la carte non ouvert dans un navigateur)
+
+rte-zones-mutualisation-2026-11:
+  editeur: RTE
+  titre: Consulter la localisation des zones de mutualisation et les capacités d'accueil pour la consommation (carte interactive et fichier de données, RTE Services)
+  date_publication: 2026-11-10
+  url: https://www.services-rte.com/fr/decouvrez-nos-offres-de-service/consulter-la-localisation-des-zones-de-mutualisation-et-les-capacites-daccueil-pour-la-consommation.html
+  consulte_le: 2026-11-26
+  note: date = date du fichier 2026-11-10-donnees-orrem_telechargement.xlsx (SHA-256 23adbcf2 ; feuilles Valeurs_France, OUVRAGES_POSTES, OUVRAGES_LIGNES) ; carte annoncée le 16/12/2024 ; zones « Validée », « Partagée CRE », « En surveillance », « A l'étude » ; capacités en soutirage par zone, réseau de transport
+
+cre-2025-193:
+  editeur: CRE
+  titre: Délibération n° 2025-193 du 23 juillet 2025 portant approbation de la procédure de traitement des demandes de raccordement au réseau public de transport d'électricité
+  date_publication: 2025-07-23
+  url: https://www.cre.fr/fileadmin/Documents/Deliberations/2025/250723_2025-193_Procedure_raccordement_RTE.pdf
+  consulte_le: 2026-11-26
+  note: p. 1, RTE souhaite notamment « créer une procédure commune pour les installations de production, de stockage, de consommation et les sites mixtes »
+
+ue-c-2025-6703:
+  editeur: Commission européenne
+  titre: Communication C/2025/6703 — Orientations relatives à l'efficacité et à la rapidité des raccordements au réseau, JO série C du 19.12.2025
+  date_publication: 2025-12-19
+  url: https://eur-lex.europa.eu/eli/C/2025/6703/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans le PDF du JO (22 pages), page = page du PDF ; § 2.2.1 « Transparence en ce qui concerne les capacités d'hébergement du réseau », p. 7

@@ -2,6 +2,7 @@
 titre: Combien ?
 question: Combien pèsent les data centers dans le système électrique français, aujourd'hui et dans dix ans ?
 mise_a_jour: 2026-11-26
+accroche: Près de {{dc_reserve_rte_2026_05}} de [puissance réservée](glossaire:puissance-reservee) auprès de RTE pour des data centers en mai 2026 : un droit d'accès au réseau, qui n'engage pas à consommer. Les data centers en service sur des sites dédiés, eux, ont consommé {{dc_conso_sites_dedies_2024}} en 2024, de l'ordre de 1 % de la consommation du pays.
 ---
 
 <!--
@@ -19,8 +20,8 @@ les seuls nombres en clair sont des calculs expliqués dans la phrase.
 En 2024, les data centers installés sur des sites dédiés ont consommé
 {{dc_conso_sites_dedies_2024}}, pour une consommation brute française de
 {{conso_brute_france_2024}} : de l'ordre de 1 %. RTE attribue
-{{dc_conso_rpt_2024}} aux data centers raccordés au réseau de transport
-et {{dc_conso_rpd_2024}} à ceux raccordés au réseau d'Enedis. Les deux
+{{dc_conso_rpt_2024}} aux data centers raccordés au [réseau de transport](glossaire:rpt)
+et {{dc_conso_rpd_2024}} à ceux raccordés au [réseau d'Enedis](glossaire:rpd). Les deux
 réunis font environ 3,8 TWh, sous la fourchette précédente. RTE
 n'explique pas l'écart : data centers raccordés à d'autres
 gestionnaires de réseau de distribution qu'Enedis, arrondis, ou
@@ -41,28 +42,31 @@ indépendant : il repose sur les mêmes comptages que RTE.
 Pour un data center, le mot « puissance » désigne cinq grandeurs
 différentes. Elles ne s'additionnent pas, et chacune est datée.
 
-1. **Recherchée.** Ce que des porteurs de projets disent chercher.
+1. **[Recherchée](glossaire:puissance-recherchee).** Ce que des porteurs de projets disent chercher.
    L'État annonçait {{dc_recherche_2026_01}}, sans publier de
    définition.
-2. **Réservée.** Le droit d'accès au réseau de transport, ouvert par
-   l'acceptation d'une proposition technique et financière de RTE et le
+2. **[Réservée](glossaire:puissance-reservee).** Le droit d'accès au réseau de transport, ouvert par
+   l'acceptation d'une [proposition technique et financière](glossaire:ptf) de RTE et le
    versement d'un premier acompte. Il n'engage pas à consommer. Les
    chiffres publiés ne forment pas une série homogène. Le Bilan
    prévisionnel comptait {{dc_reserve_rte_2025_11}} de propositions
    signées au 1er novembre 2025, hors sites déjà raccordés. La page web
-   de RTE donnait {{dc_reserve_rte_2024_12}} fin 2024 et
+   de RTE donnait {{dc_reserve_rte_2024_12}} fin 2024 et près de
    {{dc_reserve_rte_2026_05}} en mai 2026, sans préciser le traitement
    des sites raccordés ni des projets suspendus. RTE indiquait aussi, en
    novembre 2025, que {{dc_reserve_avant_2030_2025_11}} de data centers
    visaient une mise en service avant 2030, sites déjà raccordés
    compris : ce n'est donc pas une part des réservations.
 
-   Cas particulier, la **pré-réservation** : à la demande de l'État, RTE
+   Cas particulier, la **[pré-réservation](glossaire:puissance-pre-reservee)** : à la demande de l'État, RTE
    a bloqué {{dc_fasttrack_prereserve_2025_12}} sur cinq sites
-   « fast-track », pour une durée limitée. Leur état en novembre 2026
-   n'est pas publié. Fouju figure à la fois parmi ces sites et à l'étage
+   « [fast-track](glossaire:fast-track) », pour une durée limitée. En juin 2026, RTE écrivait que
+   quatre d'entre eux avaient « déjà fait l'objet de la signature d'un engagement de
+   raccordement », sans dire lesquels ni de quel engagement il s'agit
+   {{source:rte-sddr-reponse-cpdp-2026|p. 20}} ; leur état en novembre 2026 n'est pas publié.
+   Fouju figure à la fois parmi ces sites et à l'étage
    suivant, avec son contrat.
-3. **Signée.** Le contrat de raccordement, avec un calendrier. Le
+3. **[Signée](glossaire:puissance-signee).** Le contrat de raccordement, avec un calendrier. Le
    premier contrat « fast-track », celui du Campus IA à Fouju (signé le
    26 janvier 2026), prévoit {{dc_signe_fouju_2027}}, puis
    {{dc_signe_fouju_2029}}. Ce sont des paliers de puissance mise à
@@ -70,14 +74,14 @@ différentes. Elles ne s'additionnent pas, et chacune est datée.
    ouvrages sont dimensionnés pour permettre, à terme,
    {{dc_signe_fouju_terme}}, mais ce niveau n'est pas un palier du
    contrat.
-4. **Raccordée.** Fin 2025, les data centers raccordés au réseau de
+4. **[Raccordée](glossaire:puissance-raccordee).** Fin 2025, les data centers raccordés au réseau de
    transport totalisaient {{dc_raccorde_rpt_2025_12}} de puissance de
    raccordement. Côté Enedis, RTE indique {{dc_raccorde_rpd_2025}} de
    puissance raccordée pour les data centers en service en 2025. Ce
    total a baissé en 2025 par construction : depuis l'été 2025, les
    gestionnaires de réseau peuvent réduire les puissances de
    raccordement surdimensionnées.
-5. **Appelée.** Ce qui transite réellement. Sur le réseau de transport,
+5. **[Appelée](glossaire:puissance-appelee).** Ce qui transite réellement. Sur le réseau de transport,
    la consommation de 2025 correspond à une puissance moyenne d'environ
    {{dc_appele_moyen_rpt_2025}}.
 
@@ -146,7 +150,7 @@ compris.
 
 En énergie, la trajectoire haute de 2035 vaut environ 7 % de la
 consommation brute de 2024 (32 ÷ 442). Les enquêtes suivantes examinent
-la même question à l'heure et au poste.
+la même question à l'heure et au [poste](glossaire:poste-electrique).
 
 ## Ce qui manque
 

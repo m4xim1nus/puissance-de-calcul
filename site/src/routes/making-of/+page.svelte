@@ -142,8 +142,17 @@
             <details class="repli">
               <summary>Détail : {sommaireDetail(s.parties)}</summary>
               <div class="contenu texte">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html s.detail}
+                {#each s.detail as d, k (k)}
+                  <section class="partie" class:complement={d.resume}>
+                    <h4>
+                      {d.titre}{#if d.resume}<span class="precision">, suite</span
+                        >{:else if d.precision}
+                        <span class="precision">{d.precision}</span>{/if}
+                    </h4>
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html d.html}
+                  </section>
+                {/each}
               </div>
             </details>
           {/if}
@@ -392,6 +401,30 @@
   }
   .contenu :global(table) {
     font-size: 0.875rem;
+  }
+  /* Parties d'une session : intitulé en titre court, listes aérées. */
+  .partie + .partie {
+    margin-top: 1.1rem;
+  }
+  .partie > h4 {
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--encre);
+    margin: 0 0 0.35em;
+  }
+  .partie .precision {
+    font-weight: 400;
+    color: var(--encre-2);
+  }
+  .partie :global(> ul > li + li),
+  .partie :global(> ol > li + li) {
+    margin-top: 0.45em;
+  }
+  .partie.complement {
+    font-size: 0.9375rem;
+    color: var(--encre-2);
   }
 
   /* ---------- Fiches (décisions, erreurs) ---------- */

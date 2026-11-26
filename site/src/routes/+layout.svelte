@@ -15,6 +15,7 @@
     { href: '/combien', libelle: 'Combien' },
     { href: '/quand', libelle: 'Quand' },
     { href: '/carbone', libelle: 'Carbone' },
+    { href: '/ou', libelle: 'Où' },
     { href: '/simulateur', libelle: 'Simulateur' },
     { href: '/methode', libelle: 'Méthode' },
     { href: '/making-of', libelle: 'Making-of' },

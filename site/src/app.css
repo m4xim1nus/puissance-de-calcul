@@ -192,6 +192,14 @@ a:hover {
   text-decoration-color: var(--encre);
   text-decoration-thickness: 2px;
 }
+/* Renvoi au glossaire (/methode#g-…) : pointillé discret, distinct d'un lien vers une page. */
+a.glossaire {
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--encre) 60%, transparent);
+}
+a.glossaire:hover {
+  text-decoration-style: solid;
+}
 :focus-visible {
   outline: 2px solid var(--encre);
   outline-offset: 2px;

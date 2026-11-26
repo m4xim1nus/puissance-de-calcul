@@ -392,6 +392,26 @@
       exactes sont dans l’infobulle.
     </p>
   {/if}
+  <div class="negatives">
+    <p>
+      {phraseNegatives}<strong class="nombre"
+        >{heures(reference ? reference.valeur : stats.negatives)}</strong
+      >{#if precisions.length}{' '}<span class="calcul">({precisions.join(`${FINE}; `)})</span
+        >{/if}.
+    </p>
+    {#if stats.negatives > 0}
+      <p class="planchers">
+        {stats.planchers === 0 ? 'Aucune' : `Dont ${heures(stats.planchers)}`} à des prix compris entre
+        {plancher}{FINE}€/MWh (inclus) et 0{FINE}€/MWh (exclu) : prix à peine négatifs, seuil choisi
+        par le site, décompte non recoupé.
+      </p>
+    {/if}
+    {#if reference}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      <div class="source-ref">{@html reference.note}</div>
+    {/if}
+  </div>
+
   <ul class="speciales">
     {#if donnees.provisoire}
       <li>
@@ -413,26 +433,6 @@
       en heure d’été, à droite 2 h en heure d’hiver.
     </li>
   </ul>
-
-  <div class="negatives">
-    <p>
-      {phraseNegatives}<strong class="nombre"
-        >{heures(reference ? reference.valeur : stats.negatives)}</strong
-      >{#if precisions.length}{' '}<span class="calcul">({precisions.join(`${FINE}; `)})</span
-        >{/if}.
-    </p>
-    {#if stats.negatives > 0}
-      <p class="planchers">
-        {stats.planchers === 0 ? 'Aucune' : `Dont ${heures(stats.planchers)}`} à des prix compris entre
-        {plancher}{FINE}€/MWh (inclus) et 0{FINE}€/MWh (exclu) : prix à peine négatifs, seuil choisi
-        par le site, décompte non recoupé.
-      </p>
-    {/if}
-    {#if reference}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      <div class="source-ref">{@html reference.note}</div>
-    {/if}
-  </div>
 
   <p class="source">
     Prix day-ahead France : Bundesnetzagentur / SMARD.de via energy-charts.info,

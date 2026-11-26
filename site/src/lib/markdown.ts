@@ -6,7 +6,10 @@
 // - `{{expression}}` dans le texte, remplacé par le HTML que renvoie `options.jeton` ;
 // - une ligne `::: nom argument :::`, renvoyée comme bloc « directive » par `markdownBlocs` ;
 // - `options.envelopper`, qui reçoit le HTML d'un paragraphe ou d'un item de liste (pour y
-//   accrocher des notes marginales).
+//   accrocher des notes marginales) ;
+// - un renvoi au glossaire `[texte](glossaire:id)`, rendu en lien `<a class="glossaire">` vers
+//   l'URL que renvoie `options.glossaire` (qui lève une erreur si l'identifiant est inconnu) ;
+//   sans l'option, le renvoi reste du texte, comme tout lien d'un schéma non reconnu.
 // Les commentaires HTML `<!-- … -->` en début de ligne ne sont jamais rendus.
 
 const ECHAPPE: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
@@ -28,6 +31,15 @@ export interface OptionsMarkdown {
    * tels quels : citations, brief).
    */
   typographie?: boolean | 'espaces';
+  /** URL d'une entrée du glossaire, pour un renvoi `[texte](glossaire:id)` ; lève si `id` est inconnu. */
+  glossaire?: (id: string) => string;
+  /**
+   * Dans une citation `>`, chaque fin de ligne d'un paragraphe devient un saut de ligne `<br />`
+   * (demandes de l'auteur citées telles quelles : leurs retours à la ligne font partie du texte).
+   */
+  citationsLigneALigne?: boolean;
+  /** Usage interne : paragraphe rendu ligne à ligne (posé par `citationsLigneALigne`). */
+  ligneALigne?: boolean;
 }
 
 /**
@@ -66,9 +78,11 @@ export function enLigne(texte: string, options: OptionsMarkdown = {}): string {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*]+?)\*/g, '$1<em>$2</em>')
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t: string, url: string) =>
-      /^(https?:|\/|#)/.test(url)
-        ? `<a href="${url}"${url.startsWith('http') ? ' rel="external"' : ''}>${t}</a>`
-        : t
+      url.startsWith('glossaire:') && options.glossaire
+        ? `<a class="glossaire" href="${echapper(options.glossaire(url.slice('glossaire:'.length)))}">${t}</a>`
+        : /^(https?:|\/|#)/.test(url)
+          ? `<a href="${url}"${url.startsWith('http') ? ' rel="external"' : ''}>${t}</a>`
+          : t
     )
     .replace(/\u0000(\d+)\u0000/g, (_, i: string) => reserves[Number(i)]);
 }
@@ -228,7 +242,8 @@ export function markdownBlocs(texte: string, options: OptionsMarkdown = {}): Blo
       const citation: string[] = [];
       while (i < lignes.length && /^\s{0,3}>/.test(lignes[i]))
         citation.push(lignes[i++].replace(/^\s{0,3}>\s?/, ''));
-      html(`<blockquote>${markdown(citation.join('\n'), options)}</blockquote>`);
+      const interne = options.citationsLigneALigne ? { ...options, ligneALigne: true } : options;
+      html(`<blockquote>${markdown(citation.join('\n'), interne)}</blockquote>`);
     } else if (l.includes('|') && i + 1 < lignes.length && RE_TABLE_SEP.test(lignes[i + 1])) {
       const bloc = [l, lignes[i + 1]];
       i += 2;
@@ -251,7 +266,9 @@ export function markdownBlocs(texte: string, options: OptionsMarkdown = {}): Blo
         !RE_COMMENTAIRE.test(lignes[i])
       )
         para.push(rogner(lignes[i++]));
-      const contenu = enLigne(para.join(' '), options);
+      const contenu = options.ligneALigne
+        ? para.map((p) => enLigne(p, options)).join('<br />\n')
+        : enLigne(para.join(' '), options);
       html(options.envelopper ? options.envelopper(contenu, 'p') : `<p>${contenu}</p>`);
     }
   }

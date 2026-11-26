@@ -839,3 +839,153 @@ réel, avec jusqu'à trois agents en parallèle.
 coût d'une conversation qu'à sa fermeture ; `pc bilan`, lancé au début
 de la session 4, le reprendra. Jetons produits d'après les seules
 transcriptions, Haiku exclu : ≈ 1,7 M pour Opus, ≈ 0,2 M pour Sonnet.
+
+---
+
+## Session 4 — 2026-11-26, à partir de 18 h 43 · « Où ? », message révisé, accueil, glossaire, « À toi », relecture finale
+
+**Demande de l'auteur** (citée telle quelle) :
+
+> reprends la session 4 de ROADMAP.md, go
+
+**Ce qu'elle recouvrait** : l'ordre de l'étape 5 de la roadmap, dernière
+session avant l'envoi du lien à la lectrice : relevé « En bref » et
+contrôle REMIT, enquête courte « Où ? », message principal révisé,
+accueil refait, making-of plus digeste, glossaire, onglet « À toi »,
+relecture finale de tout le site.
+
+**Fait** :
+
+- relevé « En bref » refait (`pc bilan`, 4 sessions) ; `pc download
+  edf_remit` relancé : l'historique d'EDF n'a pas changé en ligne
+  (dernière publication le 07/09/2026), la liste courante remonte au
+  28/08 : recouvrement de 10 jours, contrôle de jonction au vert. Le
+  risque d'un trou reste pour début décembre si EDF ne republie pas son
+  historique. `pc build` met à jour la fin de 2026, 33 contrôles sans
+  échec ;
+- enquête « Où ? » confiée à un agent Opus, glossaire à un autre agent
+  Opus, en parallèle ;
+- **making-of** (Claude) : le « Détail » de chaque session est découpé
+  en parties titrées (« Ce qu'elle recouvrait », « Fait »…) ; Durée,
+  Agents et Coût n'y gardent que ce qui suit leur première phrase, déjà
+  dans l'en-tête, et disparaissent s'il n'y a rien de plus ; les
+  demandes citées gardent leurs retours à la ligne. Le test de fidélité
+  aux fichiers source est adapté : il recompose chaque session dans
+  l'ordre du fichier, en-tête compris, et vérifie mot à mot ;
+- **onglet « À toi »** (Claude) : cinq missions, de la courbe Linky à la
+  chasse aux erreurs du site, chacune avec ce qu'il faut demander et ce
+  qu'il faut vérifier soi-même ; texte dans `docs/A-TOI.md`, rendu par
+  la page ;
+- **glossaire** (agent Opus, `docs/relectures/2026-11-26-glossaire-agent.md`) :
+  34 termes dans `docs/GLOSSAIRE.md`, source unique, rendus repliés sur
+  « Méthode » avec une ancre par terme ; renvois en lien `glossaire:id`
+  posés à la première occurrence sur l'accueil et les enquêtes, sans
+  changer un mot du texte ; un identifiant absent fait échouer le
+  build. L'agent signale cinq définitions écrites en partie de mémoire
+  (jours PP, CFE 24/7, garanties d'origine, REMIT, S3REnR) : elles
+  passeront par la relecture finale ;
+- **« Où ? »** rédigée (agent Opus, `docs/relectures/2026-11-26-ou-agent.md`) :
+  ce qui manque pour situer l'accueil (capacité en soutirage par poste,
+  coordonnées des postes, registre des sites) et ce qui est publié
+  malgré tout (totaux régionaux, sites de l'État, zones d'accueil
+  mutualisées, règle de la file d'attente en refonte) ; 15 sources,
+  13 chiffres, aucun chiffre existant modifié. L'agent signale que le
+  bilan semestriel de RTE de juillet 2026 pourrait rendre daté le total
+  de 18 GW réservés cité partout sur le site ; une erreur de son
+  brouillon, corrigée par lui avant rendu, est consignée. Relecture
+  adverse lancée, avec la vérification de ce point ;
+- **message principal, version 2** (Claude, `docs/MESSAGE.md`) : trois
+  sections contrôlées par le site, « À retenir » (quatre points),
+  « Le message en détail » (la version 1, plus deux paragraphes sur le
+  carbone et le poste électrique, et la liste des questions ouvertes
+  mise à jour) et « Ce qui a changé » (une entrée datée par version).
+  Aucun chiffre ni aucune conclusion de la version 1 ne change ;
+- **accueil refait** (Claude) : la question et l'hypothèse du site,
+  dite comme telle ; « À retenir » ; une carte par enquête avec un
+  chiffre fort tiré du référentiel (champ `accroche` du front matter de
+  chaque enquête, sources repliées sous le chiffre) ; le calendrier des
+  prix, introduit par une phrase qui dit pourquoi regarder heure par
+  heure ; le message complet replié en bas. Les notes sont numérotées
+  dans l'ordre de lecture sur toute la page (test). Vérifié par captures
+  d'écran, bureau et téléphone : un chiffre à unité longue débordait de
+  sa carte, corrigé ;
+- **méthode** (Claude, backlog) : la liste des sources compte aussi
+  celles que les pages citent sans en tirer de chiffre (dont le rapport
+  RTE-ADEME de 2020) ; « Quel carbone ? » précise que la Base Carbone de
+  l'ADEME est aujourd'hui intégrée à sa Base Empreinte. Le point EU ETS
+  du même item (seuils « dynamiques », baisse annuelle du seuil
+  d'invalidation) demande de relire le texte du Conseil : confié à la
+  relecture finale ;
+- relectures finales lancées en parallèle (deux agents Opus) :
+  « lectrice experte » sur la cohérence de tout le site et ce qui est
+  nouveau aujourd'hui (message, accroches, glossaire, « À toi »),
+  « lecteur non spécialiste » sur l'accueil ;
+- relecture « lecteur non spécialiste » de l'accueil
+  (`docs/relectures/2026-11-26-accueil-non-specialiste.md`, 11 points) :
+  deux contresens induits par la page (« le surplus ne suffit pas » lu
+  comme un manque de surplus ; 18 GW réservés comparés aux 8 à 10 GW de
+  marge) et des cartes arrivées trop bas, qui répétaient « À retenir ».
+  Corrigé par Claude : « À retenir » devient un paragraphe, les cartes
+  portent le détail ; la mise en garde « n'engage pas à consommer » suit
+  le chiffre de 18 GW ; chapeau explicite ; une phrase de lecture du
+  calendrier (vérifiée sur les prix de 2025 : heures négatives surtout
+  de 10 h à 17 h, d'avril à septembre ; les 500 heures les plus chères
+  surtout en janvier-février, le matin et le soir) ; carte du simulateur
+  ouverte sur 5 GW ; deux entrées de glossaire (consommation plate,
+  nucléaire disponible non produit, vérifiée contre le calcul de
+  `pc/quand.py`). Proposition retenue en partie : fusionner « À retenir »
+  et les cartes (décision de forme, Claude) ;
+- relecture adverse de « Où ? » (`docs/relectures/2026-11-26-ou.md`) :
+  publiable après corrections ; citations exactes, constat central
+  tenu (carte des zones favorables du schéma décennal non parue ; pas
+  de capacité en soutirage poste par poste sur le réseau existant),
+  mais trois constats d'absence faux (Toprac, Cartostock, capacités
+  d'accueil des zones de mutualisation de RTE) et deux zones chiffrées
+  avec une page périmée. Claude vérifie à la source (pages de RTE,
+  fichier du 10/11/2026 lu ligne à ligne), consigne l'erreur, corrige
+  le message et l'accueil qui la reprenaient, et renvoie les corrections
+  de la page à l'agent rédacteur. Les 18 GW de « Combien ? » ne sont
+  pas dépassés : le bilan semestriel de RTE les recoupe ;
+- relecture finale « lectrice experte » (`docs/relectures/2026-11-26-finale-experte.md`) :
+  envoyable après corrections ; les valeurs reprises d'une page à
+  l'autre sont toutes identiques, les recalculs du message bouclent ;
+  cinq points de fond, tous dans des textes courts qui coupaient du
+  contexte (accroches, « À retenir », « À toi »), et douze de forme.
+  Claude vérifie à la source (texte du Conseil 14944/26, délibération
+  CRE n° 2026-43, rapport de paramétrage de RTE, note de RTE de juin
+  2026, fichiers servis), consigne l'erreur et corrige : la carte
+  « Quand ? » donne la fourchette 52 % à 55 % au plus, avec ce qui la
+  fait varier ; « À retenir » rappelle que RTE, data centers compris, ne
+  trouve pas de besoin de moyens nouveaux d'ici 2035 en trajectoire
+  lente ; « À toi » corrige une unité (Wh, pas kWh) et un fichier de
+  prix inexistant ; glossaire, paragraphe EU ETS, critère de sécurité
+  d'approvisionnement, page Méthode (trois producteurs) et état des
+  sites fast-track en juin 2026 corrigés ; trois points au backlog ;
+- vérification des corrections, par les deux relecteurs : « Où ? »
+  publiable (trois retouches de forme, faites : la file d'attente n'est
+  publiée que par région et par zone ; des zones encore à l'étude ;
+  accroche datée de 2025) ; site envoyable après trois retouches, dont
+  une **erreur nouvelle de Claude** sur l'accueil (« maximum de
+  consommation » pour « maximum de charge résiduelle » sur la carte du
+  simulateur), consignée et corrigée ; « Ce qui a changé » dit désormais
+  qu'une conclusion de la version 1 est corrigée (zones de
+  mutualisation) ; page Méthode (trois producteurs, ligne EDF) ; renvoi
+  à la délibération de la CRE dans le glossaire. 33 contrôles, 202 et
+  204 tests, build ; site publié.
+
+**Agents** : 5 lancés par Claude, tous Opus, dont 3 relancés avec leur
+contexte pour des corrections ou des vérifications : « Où ? »
+(rédaction puis corrections), glossaire, relecture adverse de « Où ? »,
+relecture finale « lectrice experte », relecture de l'accueil
+« lecteur non spécialiste ».
+
+**Durée** : de 18 h 43 à 19 h 40 environ, soit à peu près 1 h de temps
+réel, avec jusqu'à trois agents en parallèle.
+
+**Coût** : non relevé à la clôture ; `pc bilan`, lancé au début de la
+session suivante, le reprendra.
+
+**Pour l'auteur, avant d'envoyer le lien** : relire l'accueil et
+« Où ? » ; une question reste ouverte, qu'on ne tranche qu'en
+demandant à RTE : la carte des zones favorables du schéma décennal
+existe-t-elle ? (« Où ? » dit « à notre connaissance ».)

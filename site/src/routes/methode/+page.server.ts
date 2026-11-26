@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { sourcesDe } from '$lib/chiffres';
 import { dateParis } from '$lib/format';
 import { markdown } from '$lib/markdown';
-import { chargerChiffres } from '$lib/server/chiffres';
+import { chargerChiffres, chargerSources } from '$lib/server/chiffres';
+import { rendreGlossaire } from '$lib/server/glossaire';
 import { RACINE } from '$lib/server/makingof';
 
 interface Meta {
@@ -27,6 +28,7 @@ function donnees() {
     extractionPrix: extraction('prix_fr/'),
     extractionEco2mix: extraction('eco2mix'),
     extractionOdre: extraction('odre_'),
+    extractionRemit: extraction('edf_remit/'),
     // Copie du LISEZMOI des séries horaires ; son titre devient un h3 sous le h2 « Données ».
     lisezmoi: markdown(lisezmoi, { niveauTitre: 3 })
   };
@@ -39,12 +41,19 @@ export function load() {
   const usages = new Map<string, number>();
   for (const c of Object.values(chiffres))
     usages.set(c.source.cle, (usages.get(c.source.cle) ?? 0) + 1);
-  const sources = [...sourcesDe(chiffres).values()]
+  // Toutes les sources du référentiel : celles des chiffres, et celles qu'une page cite sans
+  // chiffre ({{source:cle|page}}) ; à clé égale, celle du chiffre l'emporte.
+  const sources = [...new Map([...chargerSources(), ...sourcesDe(chiffres)]).values()]
     .map((s) => ({ ...s, chiffres: usages.get(s.cle) ?? 0 }))
     .sort(
       (a, b) =>
         a.editeur.localeCompare(b.editeur, 'fr') ||
         b.date_publication.localeCompare(a.date_publication)
     );
-  return { sources, nombreChiffres: Object.keys(chiffres).length, donnees: donnees() };
+  return {
+    sources,
+    nombreChiffres: Object.keys(chiffres).length,
+    donnees: donnees(),
+    glossaire: rendreGlossaire()
+  };
 }

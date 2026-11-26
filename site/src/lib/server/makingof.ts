@@ -34,6 +34,8 @@ export const lireFichier = (chemin: string) =>
 const TYPO = { typographie: 'espaces' } as const;
 const enLigne = (t: string) => enLigneBrut(t, TYPO);
 const markdown = (t: string, niveauTitre = 1) => markdownBrut(t, { ...TYPO, niveauTitre });
+// Journal : les citations de l'auteur gardent leurs retours à la ligne.
+const markdownJournal = (t: string) => markdownBrut(t, { ...TYPO, citationsLigneALigne: true });
 
 const RE_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Une date AAAA-MM-JJ qui existe au calendrier. */
@@ -267,8 +269,12 @@ export interface Session {
   resume: { cle: (typeof RESUMES)[number]; html: string }[];
   /** Intitulés des parties repliées, dans l'ordre (« Ce qu'elle recouvrait », « Fait »…). */
   parties: string[];
-  /** HTML de tout le reste de la session, replié à l'affichage. */
-  detail: string;
+  /**
+   * Le reste de la session, replié à l'affichage : une partie par bloc, son intitulé en titre
+   * (sans les deux-points), son texte en HTML. Pour Durée, Agents et Coût, la première phrase est
+   * déjà dans l'en-tête : le bloc n'en garde que la suite, et disparaît s'il n'y a pas de suite.
+   */
+  detail: { titre: string; precision: string | null; html: string; resume: boolean }[];
   /** Pas de paragraphe « Durée » : la session n'est pas close. */
   enCours: boolean;
   /** HTML du brief, rattaché à la session 1 (décision de l'auteur, 2026-11-26). */
@@ -279,12 +285,22 @@ const RE_TITRE_SESSION = /^## Session (\d+) — (\d{4}-\d{2}-\d{2})(?:,\s*(.+?))
 const RE_PARTIE = /^\*\*([^*]+)\*\*/;
 const DEMANDE = /^Demande de l'auteur/;
 
+const RE_PHRASE = /^([\s\S]+?[^.\s])\.(?=\s|$)/;
 /** Première phrase d'un paragraphe, sans son point final. */
 export function premierePhrase(texte: string): string {
   const t = texte.replace(/\s+/g, ' ').trim();
-  const m = t.match(/^(.+?[^.\s])\.(?=\s|$)/);
+  const m = t.match(RE_PHRASE);
   return m ? m[1] : t;
 }
+/** Ce qui suit la première phrase (retours à la ligne gardés) ; vide s'il n'y a qu'une phrase. */
+export function apresPremierePhrase(texte: string): string {
+  const t = texte.trim();
+  const m = t.match(RE_PHRASE);
+  return m ? t.slice(m[0].length).trim() : '';
+}
+
+/** Intitulé en gras d'une partie : `**Fait** :`, `**Demande de l'auteur** (citée telle quelle) :`. */
+const RE_TETE_PARTIE = /^\*\*([^*]+)\*\*[ \t]*(\([^()\n]*\))?[ \t]*:?[ \t]*/;
 
 export function analyserJournal(texte: string, brief: string | null = null): Analyse<Session> {
   const lignes = texte.split('\n');
@@ -319,27 +335,38 @@ export function analyserJournal(texte: string, brief: string | null = null): Ana
     else if (!demande.lignes.some((l) => /^\s{0,3}>/.test(l)))
       ecarts.push(`ligne ${n} : la demande de l'auteur n'est pas citée (bloc « > » attendu)`);
 
+    const corpsDe = (p: { lignes: string[] }) => p.lignes.join('\n').replace(RE_TETE_PARTIE, '');
+    const estResume = (t: string | null) => RESUMES.some((c) => c === t);
     const resume = RESUMES.flatMap((cle) => {
       const p = parties.find((x) => x.titre === cle);
-      if (!p) return [];
-      const texte = p.lignes
-        .join(' ')
-        .replace(RE_PARTIE, '')
-        .replace(/^\s*:\s*/, '');
-      return [{ cle, html: enLigne(premierePhrase(texte)) }];
+      return p ? [{ cle, html: enLigne(premierePhrase(corpsDe(p))) }] : [];
     });
     const reste = parties.filter((p) => p !== demande && p.lignes.some((l) => l.trim()));
+    const detail = reste.flatMap((p) => {
+      const tete = p.lignes[0].match(RE_TETE_PARTIE);
+      const resumee = estResume(p.titre);
+      const texte = resumee ? apresPremierePhrase(corpsDe(p)) : corpsDe(p);
+      if (resumee && !texte.trim()) return [];
+      return [
+        {
+          titre: p.titre ?? 'Notes',
+          precision: tete?.[2] ?? null,
+          html: markdownJournal(texte),
+          resume: resumee
+        }
+      ];
+    });
     return {
       id: `session-${numero || n}`,
       numero,
       date: m?.[2] ?? '',
       horaire: m?.[3] ?? null,
       objet: enLigne(m?.[4] ?? titre.replace(/^##\s*/, '')),
-      demande: demande ? markdown(demande.lignes.join('\n')) : '',
+      demande: demande ? markdownJournal(demande.lignes.join('\n')) : '',
       resume,
       enCours: !parties.some((p) => p.titre === 'Durée'),
-      parties: reste.map((p) => p.titre ?? 'Notes'),
-      detail: markdown(reste.map((p) => p.lignes.join('\n')).join('\n\n')),
+      parties: detail.map((d) => d.titre),
+      detail,
       brief: numero === 1 ? brief : null
     };
   });

@@ -2,8 +2,20 @@
   import { COTES, type Confiance, type Source } from '$lib/chiffres';
   import { formaterDate } from '$lib/format';
   import { dateSource } from '$lib/notes';
+  import { page } from '$app/state';
+  import { tick } from 'svelte';
 
   let { data } = $props();
+
+  // Glossaire replié par défaut (lisible sans JavaScript) ; arrivée par une ancre #g-… : on le
+  // déplie, puis on fait défiler jusqu'au terme (le navigateur n'a pas pu viser un repli fermé).
+  let glossaireOuvert = $state(false);
+  $effect(() => {
+    const ancre = page.url.hash.slice(1);
+    if (!ancre.startsWith('g-')) return;
+    glossaireOuvert = true;
+    tick().then(() => document.getElementById(decodeURIComponent(ancre))?.scrollIntoView());
+  });
 
   const cotes = Object.entries(COTES) as [Confiance, string][];
   const publie = (s: Source) => {
@@ -49,8 +61,9 @@
 
   <h2 id="sources">Sources</h2>
   <p>
-    {data.sources.length} publications, citées par les {data.nombreChiffres} chiffres du référentiel.
-    Les dates de publication approchées au mois sont données au mois.
+    {data.sources.length} publications&#8239;: celles des {data.nombreChiffres} chiffres du référentiel,
+    et celles que les pages citent sans en tirer de chiffre. Les dates de publication approchées au mois
+    sont données au mois.
   </p>
   <ul class="sources">
     {#each data.sources as s (s.cle)}
@@ -60,8 +73,8 @@
         <span class="secondaire">
           {#if s.consulte_le}Consulté le {formaterDate(s.consulte_le)}.{/if}
           {#if s.note}{s.note.charAt(0).toUpperCase() + s.note.slice(1)}.{/if}
-          {s.chiffres}
-          {s.chiffres > 1 ? 'chiffres' : 'chiffre'}.
+          {#if s.chiffres}{s.chiffres}
+            {s.chiffres > 1 ? 'chiffres' : 'chiffre'}.{:else}Citée sans chiffre.{/if}
         </span>
       </li>
     {/each}
@@ -69,9 +82,13 @@
 
   <h2 id="donnees">Données</h2>
   <p>
-    Les séries horaires (hero de l’accueil, enquêtes à venir) viennent de deux producteurs, sous
-    licence ouverte. Elles sont téléchargées par le pipeline du site, contrôlées, puis figées dans
-    le dépôt : le site publié ne télécharge rien.
+    Les séries horaires (calendrier de l’accueil, « Quand ? », « Quel carbone ? », simulateur)
+    viennent de trois producteurs, sous licence ouverte. Elles sont téléchargées par le pipeline du
+    site, contrôlées, puis figées dans le dépôt : le site publié ne télécharge rien. Le site sert
+    les fichiers horaires par année close (<code>/donnees/horaire/AAAA.csv</code>)&#8239;; les
+    métadonnées (<code>meta.json</code>) et la table complète (<code>systeme_horaire.parquet</code>)
+    sont dans le dossier <code>data/export/</code> du
+    <a href="https://github.com/m4xim1nus/puissance-de-calcul" rel="external">dépôt public</a>.
   </p>
   <ul class="sources">
     <li>
@@ -100,9 +117,26 @@
         sont jamais imputées.
       </span>
     </li>
+    <li>
+      <span class="editeur">Disponibilité nucléaire déclarée</span> : EDF, indisponibilités des
+      moyens de production (REMIT), opendata.edf.fr,
+      <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" rel="external"
+        >Licence Ouverte 2.0</a
+      >.
+      <span class="secondaire">
+        {#if data.donnees.extractionRemit}Extraction le {formaterDate(
+            data.donnees.extractionRemit.derniere
+          )} (heure de Paris).{/if}
+        Historique depuis 2015 et liste courante ; puissance déclarée disponible, reconstruite heure par
+        heure par le site (colonne <code>nucleaire_disponible</code>).
+      </span>
+    </li>
   </ul>
   <details class="lisezmoi">
-    <summary>Format des séries horaires (copie de data/export/horaire/LISEZMOI.md)</summary>
+    <summary
+      >Format des séries horaires (copie de data/export/horaire/LISEZMOI.md du dépôt&#8239;; ses
+      chemins relatifs renvoient au dossier data/export/)</summary
+    >
     <div class="texte-lisezmoi">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html data.donnees.lisezmoi}
@@ -110,84 +144,27 @@
   </details>
 
   <h2 id="glossaire">Glossaire</h2>
-  <details class="glossaire">
+  <p>
+    Le sens retenu par ce site pour les termes du métier, en {data.glossaire.length} entrées. Les pages
+    y renvoient par un lien discret, à la première occurrence du terme.
+  </p>
+  <details class="glossaire" bind:open={glossaireOuvert}>
     <summary>Afficher le glossaire</summary>
     <dl>
-      <dt>Puissance recherchée</dt>
-      <dd>
-        Puissance électrique que des porteurs de projets déclarent rechercher, telle que l’État
-        l’annonce pour les projets qu’il accompagne. Aucune définition publiée ; ce n’est ni un
-        droit d’accès au réseau ni un engagement.
-      </dd>
-      <dt>Puissance réservée</dt>
-      <dd>
-        Capacité d’accès au réseau réservée par le gestionnaire pour un projet, une fois sa
-        proposition technique et financière (PTF) signée. C’est un droit d’accès, avec une place
-        dans la file d’attente ; il n’engage pas à consommer et peut être abandonné.
-      </dd>
-      <dt>Puissance pré-réservée (fast-track)</dt>
-      <dd>
-        Capacité que RTE réserve, à la demande de l’État, sur un site identifié, avant qu’un porteur
-        de projet ne s’y engage. Elle est temporaire.
-      </dd>
-      <dt>Puissance signée</dt>
-      <dd>
-        Puissance de raccordement inscrite dans le contrat de raccordement, avec un calendrier de
-        mise à disposition, souvent par paliers. Ce n’est pas une date de mise en service de
-        l’installation.
-      </dd>
-      <dt>Puissance raccordée</dt>
-      <dd>
-        Puissance de raccordement des installations effectivement raccordées : la puissance maximale
-        qu’elles peuvent soutirer au réseau selon leur contrat. Une capacité, pas une consommation.
-      </dd>
-      <dt>Puissance appelée</dt>
-      <dd>
-        Puissance effectivement soutirée au réseau, à un instant donné ou en moyenne sur une période
-        (l’énergie consommée divisée par la durée ; sur un an, 8 760 heures, 8 784 en année
-        bissextile).
-      </dd>
-      <dt>PTF</dt>
-      <dd>
-        Proposition technique et financière : offre du gestionnaire de réseau qui décrit la solution
-        de raccordement, son coût et son délai. Son acceptation, avec le versement du premier
-        acompte, fait entrer le projet dans la file d’attente et réserve la capacité.
-      </dd>
-      <dt>RPT</dt>
-      <dd>
-        Réseau public de transport d’électricité : haute et très haute tension (HTB, au-delà de 50
-        kV), exploité par RTE.
-      </dd>
-      <dt>RPD</dt>
-      <dd>
-        Réseau public de distribution : moyenne et basse tension (HTA et BT, jusqu’à 50 kV),
-        exploité par Enedis sur l’essentiel du territoire métropolitain et par des entreprises
-        locales de distribution ailleurs.
-      </dd>
-      <dt>Fast-track</dt>
-      <dd>
-        Procédure de raccordement accéléré encadrée par la CRE (<a
-          href="https://www.cre.fr/fileadmin/Documents/Deliberations/2025/250507_2025-120_Procedure_raccordement_Fast_track.pdf"
-          rel="external">délibération n° 2025-120 du 7 mai 2025</a
-        >), destinée à des consommateurs de très forte puissance raccordés en 400 kV sur des sites
-        préalablement identifiés par l’État.
-      </dd>
-      <dt>MW et MWh</dt>
-      <dd>
-        Le MW mesure une puissance, un débit d’énergie à un instant ; le MWh mesure une énergie, une
-        puissance maintenue pendant une durée (1 MW pendant une heure donne 1 MWh ; 1 TWh vaut un
-        million de MWh). Une série au pas de 30 minutes exprimée en MW se somme en MWh avec un
-        facteur 0,5.
-      </dd>
-      <dt>Facteur d’émission moyen et marginal</dt>
-      <dd>
-        Moyen : émissions de l’ensemble de la production (ou de la consommation, échanges compris)
-        rapportées à l’énergie, sur une période donnée. Marginal : variation des émissions provoquée
-        par une variation de la consommation, c’est-à-dire les émissions des moyens qui s’ajustent à
-        la marge ; il dépend de l’heure et de l’horizon retenu (exploitation à court terme, ou
-        évolution du parc à long terme). L’un ne remplace pas l’autre : chaque chiffre carbone du
-        site dit lequel il est.
-      </dd>
+      {#each data.glossaire as e (e.id)}
+        <div class="terme" id="g-{e.id}">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <dt>{@html e.terme}</dt>
+          <dd>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html e.definition}
+            {#if e.source}
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              <span class="source-terme">Source&nbsp;: {@html e.source}</span>
+            {/if}
+          </dd>
+        </div>
+      {/each}
     </dl>
   </details>
 </div>
@@ -252,13 +229,27 @@
   .glossaire dl {
     margin-top: 0.75rem;
   }
+  .terme {
+    padding: 0.55rem 0 0.65rem;
+    border-bottom: 1px solid var(--trait);
+    scroll-margin-top: 1rem;
+  }
+  .terme:target {
+    box-shadow: inset 3px 0 0 var(--signal);
+    padding-left: 0.8rem;
+  }
   .glossaire dt {
     font-family: var(--sans);
     font-weight: 600;
-    margin-top: 0.9rem;
   }
   .glossaire dd {
     margin: 0.15rem 0 0;
+  }
+  .source-terme {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--encre-2);
+    font-size: 0.9rem;
   }
   @media (max-width: 30rem) {
     .cotes div {

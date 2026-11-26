@@ -10,6 +10,7 @@ import { estNomGraphique } from '$lib/graphiques/noms';
 import { echapper, markdownBlocs, typographier } from '$lib/markdown';
 import { appel, noteChiffre, noteRenvoi, noteSource } from '$lib/notes';
 import { chargerSources } from '$lib/server/chiffres';
+import { resolveurGlossaire } from '$lib/server/glossaire';
 import { RACINE } from '$lib/server/makingof';
 
 const CHAMPS_REQUIS = ['titre', 'question', 'mise_a_jour'] as const;
@@ -111,8 +112,12 @@ export function lireChantier(nom: string, dossier: string = CHANTIERS): Chantier
   return sortie;
 }
 
-/** Rend le corps d'une enquête en blocs HTML (avec notes marginales) et emplacements de graphiques. */
-export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
+/**
+ * Rend le corps d'une enquête en blocs HTML (avec notes marginales) et emplacements de graphiques.
+ * `depart` : dernier numéro de note déjà utilisé sur la page, quand plusieurs textes y sont rendus
+ * séparément (accueil) ; les numéros, et donc les ancres `note-N`, restent uniques.
+ */
+export function rendreCorps(corps: string, chiffres: Chiffres, depart = 0): BlocEnquete[] {
   corps = inclureFragments(corps);
   verifierDebutsDeLigne(corps);
   // Sources citées par les chiffres, complétées par toutes celles du référentiel (une source peut être
@@ -120,7 +125,7 @@ export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
   const sources = new Map([...chargerSources(), ...sourcesDe(chiffres)]);
   const notes = new Map<number, string>();
   const premiereNote = new Map<string, number>();
-  let numero = 0;
+  let numero = depart;
 
   const jeton = (expression: string): string => {
     const n = ++numero;
@@ -156,7 +161,15 @@ export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
     return `<div class="avec-notes">${aside}${texte}</div>`;
   };
 
-  return markdownBlocs(corps, { niveauTitre: 1, jeton, envelopper, typographie: true }).map((b) => {
+  // Renvois [texte](glossaire:id) : un identifiant absent de docs/GLOSSAIRE.md lève une erreur.
+  const glossaire = resolveurGlossaire();
+  return markdownBlocs(corps, {
+    niveauTitre: 1,
+    jeton,
+    envelopper,
+    typographie: true,
+    glossaire
+  }).map((b) => {
     if (b.type === 'html') return b;
     if (b.nom === 'chantier') return { type: 'chantier', ...lireChantier(b.argument) };
     if (b.nom !== 'graphique') throw new Error(`Directive inconnue : « ${b.brut} »`);
@@ -181,6 +194,14 @@ export function metaEnquete(meta: Record<string, string>, slug: string): MetaEnq
 }
 
 const DOSSIER = resolve(RACINE, 'docs/enquetes');
+
+/** Plus grand numéro de note appelé dans des blocs HTML (0 s'il n'y en a pas). */
+export function derniereNote(html: string[]): number {
+  return Math.max(
+    0,
+    ...html.flatMap((h) => [...h.matchAll(/data-note="(\d+)"/g)].map((m) => Number(m[1])))
+  );
+}
 
 export function slugsEnquetes(): string[] {
   return readdirSync(DOSSIER)

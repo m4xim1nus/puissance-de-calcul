@@ -14,9 +14,9 @@ se règlent dans le panneau « Hypothèses ».
 ## Ce que le simulateur ne modélise pas
 
 - **Le fonctionnement du parc.** Aucune centrale n'est appelée pour servir la consommation
-  ajoutée : elle s'ajoute à la charge résiduelle observée, et le simulateur regarde où elle
+  ajoutée : elle s'ajoute à la [charge résiduelle](glossaire:charge-residuelle) observée, et le simulateur regarde où elle
   tombe.
-- **La formation des prix.** Le prix affiché est le prix day-ahead **observé**, formé sans
+- **La formation des prix.** Le prix affiché est le prix [day-ahead](glossaire:day-ahead) **observé**, formé sans
   cette consommation. Avec elle, certains prix auraient été plus élevés ; le simulateur ne
   dit pas de combien.
 - **Les échanges et les voisins.** Qui servirait la consommation ajoutée (plus de nucléaire,
@@ -25,7 +25,7 @@ se règlent dans le panneau « Hypothèses ».
   pas encore le dire : les données des pays voisins ne sont pas branchées.
 - **Le carbone.** Aucun chiffre d'émissions n'est calculé, ni moyen ni marginal.
 - **Le réseau local.** Tout est national. Quelques centaines de MW pèsent d'abord sur un
-  poste électrique et sur ses lignes ; à notre connaissance, aucune capacité d'accueil en
+  [poste électrique](glossaire:poste-electrique) et sur ses lignes ; à notre connaissance, aucune capacité d'accueil en
   consommation par poste n'est publiée en open data.
 - **Les pertes de réseau.** La consommation à laquelle s'ajoute X compte les pertes : X les
   inclut, le simulateur ne les calcule pas à part.
@@ -39,6 +39,6 @@ se règlent dans le panneau « Hypothèses ».
   consommation proportionnelle aux degrés réglés, avec le gradient moyen publié par RTE. Il ne
   simule ni la météo des pays voisins (un même froid peut toucher plusieurs pays), ni l'effet sur les
   importations, ni les stocks d'eau.
-- **Le risque de défaillance.** RTE l'évalue en simulant de nombreux scénarios de
+- **Le risque de [défaillance](glossaire:adequation).** RTE l'évalue en simulant de nombreux scénarios de
   météo et de disponibilité ; le simulateur rejoue une seule année observée. Dépasser le
   maximum observé de cette année n'est pas une défaillance.

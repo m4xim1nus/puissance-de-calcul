@@ -194,11 +194,15 @@ describe('analyse des formats (cas synthétiques)', () => {
       { cle: 'Durée', html: 'de 9 h à 10 h' },
       { cle: 'Coût', html: 'non relevé' }
     ]);
-    expect(s.parties).toEqual(['Fait', 'Durée', 'Coût']);
+    expect(s.parties).toEqual(['Fait', 'Durée']);
+    expect(s.detail.map((d) => [d.titre, d.html, d.resume])).toEqual([
+      ['Fait', '<ul><li>x</li></ul>', false],
+      ['Durée', '<p>Pause comprise.</p>', true]
+    ]);
     expect(s.enCours).toBe(false);
     const ouverte = analyserJournal(SESSION + "**Demande de l'auteur** :\n\n> fais x\n");
     expect(ouverte.entrees[0].enCours).toBe(true);
-    expect(s.detail).not.toContain('fais x');
+    expect(s.detail.map((d) => d.html).join('')).not.toContain('fais x');
     expect(s.brief).toBeNull();
   });
   it('coupe à la première phrase', () => {

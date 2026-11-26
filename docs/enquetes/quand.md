@@ -2,6 +2,7 @@
 titre: Quand ?
 question: À quelles heures le système électrique français a-t-il de la marge, à quelles heures n'en a-t-il pas, et que change une consommation continue de plus ?
 mise_a_jour: 2026-11-26
+accroche: {{quand_part_j_5gw_2025}} à {{quand_part_j_reintegre_5gw_2025}} au plus || de l'énergie d'une [consommation plate](glossaire:consommation-plate) de 5 GW aurait trouvé, en 2025, du [nucléaire disponible et non produit](glossaire:nucleaire-disponible-non-produit) : le premier chiffre avec la disponibilité déclarée par EDF, le second en réintégrant les arrêts courts qu'il déclare pour modulation. Le reste serait venu d'autres moyens, de renouvelables moins arrêtés ou d'exportations en moins.
 ---
 
 <!--
@@ -41,11 +42,11 @@ ce que les données observées, elles, permettent de voir. La marge dont
 parle RTE n'est pas un écart qu'on lit sur une courbe.
 C'est le résultat d'une simulation : des scénarios de météo et de
 disponibilité des moyens de production, à l'échelle de l'Europe
-interconnectée, comparés au critère public de sécurité
-d'approvisionnement, une espérance de trois heures de défaillance par
-an {{source:rte-bp2025-fonctionnement|p. 2}}. Dans son Bilan prévisionnel 2025, RTE
+interconnectée, comparés au [critère public de sécurité
+d'approvisionnement](glossaire:adequation), une espérance de trois heures de défaillance et de
+deux heures de délestage par an {{source:rte-bp2025-fonctionnement|p. 2}}. Dans son Bilan prévisionnel 2025, RTE
 évaluait les marges de l'hiver 2026-2027 à {{marge_rte_hiver_2026_2027}}
-par rapport à ce critère. Pour paramétrer le mécanisme de capacité,
+par rapport à ce critère. Pour paramétrer le [mécanisme de capacité](glossaire:mecanisme-capacite),
 RTE a retenu une marge de {{marge_mc_certifiee_2026_2027}} certifiés,
 dans le scénario de décarbonation lente : une autre unité de compte, et
 pas un recoupement du chiffre précédent. Ces deux chiffres datent d'avant
@@ -65,15 +66,15 @@ où le système a dû aller chercher le plus loin.
 
 ## Les heures tendues : l'hiver, le matin et le soir
 
-L'indicateur retenu est une **charge résiduelle** : la consommation,
+L'indicateur retenu est une **[charge résiduelle](glossaire:charge-residuelle)** : la consommation,
 moins l'éolien et le solaire produits, moins le nucléaire **disponible**
-déclaré par EDF au titre de REMIT. Le choix du nucléaire disponible, et
+déclaré par EDF au titre de [REMIT](glossaire:remit). Le choix du nucléaire disponible, et
 non du nucléaire produit, est essentiel. Le nucléaire module sa
 production quand la demande est faible ; retrancher ce qu'il a produit
 masquerait la puissance restée inutilisée aux heures où il a baissé sa
 production. Ce qui reste après ce retranchement doit venir de
 l'hydraulique, du gaz, des autres centrales thermiques, des
-importations ou du stockage (les effacements activés, eux, sont déjà
+importations ou du stockage (les [effacements](glossaire:effacement) activés, eux, sont déjà
 retranchés de la consommation observée). L'hydraulique au fil de l'eau
 n'est pas retranchée : ce choix, que d'autres définitions ne font pas,
 la compte parmi ce qui couvre la charge résiduelle. Cette grandeur n'est
@@ -92,8 +93,8 @@ Les cent heures où elle est la plus élevée sont des heures d'hiver :
 et {{quand_top100_hiver_2022}} en 2022. Elles se concentrent
 le matin et en début de soirée : {{quand_top100_plages_pp_2025}}
 tombent entre 7 h et 10 h ou entre 17 h et 20 h (heure de Paris) en
-2025, {{quand_top100_plages_pp_2024}} en 2024. Ce sont les plages de
-pointe du mécanisme de capacité. Dans les simulations de RTE à moyen
+2025, {{quand_top100_plages_pp_2024}} en 2024. Ce sont les [plages de
+pointe](glossaire:plages-pp) du mécanisme de capacité. Dans les simulations de RTE à moyen
 terme, près de {{rte_part_defaillance_plages_pointe}} de l'énergie non
 distribuée y tomberait ; l'autre moitié glisserait vers la soirée et la
 nuit, à mesure que les épisodes s'allongent. Une consommation plate
@@ -104,7 +105,7 @@ pèse sur toutes ces heures.
 Ces heures n'ont pas la même intensité d'une année à l'autre, et ce
 qui les a couvertes a changé. Pendant les cent heures les plus tendues
 de 2022, la charge résiduelle valait en moyenne
-{{quand_top100_rn_moyenne_2022}} et le solde des échanges de la France
+{{quand_top100_rn_moyenne_2022}} et le [solde des échanges](glossaire:solde-echanges) de la France
 {{quand_top100_solde_2022}} (positif : importateur). Pendant celles de
 2025, la charge résiduelle valait en moyenne
 {{quand_top100_rn_moyenne_2025}}, et le solde {{quand_top100_solde_2025}} :
@@ -118,12 +119,12 @@ reste.
 
 À l'autre bout, il y a les heures où la production peu flexible dépasse
 ce que la consommation, le pompage et les exportations absorbent à prix
-positif. Le signal le plus visible est le prix
-négatif : {{heures_negatives_2023}} en 2023, {{heures_negatives_2024}}
+positif. Le signal le plus visible est le [prix
+négatif](glossaire:prix-negatif) : {{heures_negatives_2023}} en 2023, {{heures_negatives_2024}}
 en 2024, {{heures_negatives_2025}} en 2025. Ces heures-là, des
 producteurs éoliens et solaires s'arrêtent : RTE estime à
 {{enr_renoncees_prix_negatifs_2025}} la production renoncée en 2025.
-Les {{enr_ecretees_rte_2025}} écrêtés à la demande de RTE pour
+Les {{enr_ecretees_rte_2025}} [écrêtés](glossaire:ecretement) à la demande de RTE pour
 l'équilibre entre l'offre et la demande recouvrent probablement en
 partie ce chiffre : les deux ne s'additionnent pas.
 
@@ -157,8 +158,8 @@ les 8 760 heures de l'année. C'est une hypothèse, pas un profil
 observé : aucune courbe de charge de data centers n'est publiée, et les
 data centers déjà raccordés au réseau de transport n'utilisaient, à
 la date du Bilan prévisionnel (décembre 2025), que
-{{dc_taux_utilisation_rpt_2025_12}} de leur puissance de raccordement,
-un chiffre que RTE donne en exemple sans en préciser le calcul. X GW consommés ne sont pas X GW réservés (voir
+{{dc_taux_utilisation_rpt_2025_12}} de leur [puissance de raccordement](glossaire:puissance-raccordee),
+un chiffre que RTE donne en exemple sans en préciser le calcul. X GW consommés ne sont pas X GW [réservés](glossaire:puissance-reservee) (voir
 [« Combien ? »](/combien)).
 
 **Aux heures de surplus**, une partie de cette énergie trouverait du
@@ -173,7 +174,7 @@ heures les plus chères, le nucléaire disponible non produit reste le
 plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait
 150 €/MWh. Une part de ce « reste » n'est pas mobilisable (réserves de
-services système, rampes, fins de cycle). En retranchant 1 GW à toute
+[services système](glossaire:services-systeme), rampes, fins de cycle). En retranchant 1 GW à toute
 heure, un ordre de grandeur choisi par ce site, les parts tombent à
 {{quand_part_j_plancher_5gw_2025}} et {{quand_part_j_plancher_10gw_2025}} ; le
 [simulateur](/simulateur) permet de régler ce plancher.
@@ -200,7 +201,7 @@ ces heures : en 2025, quand le nucléaire disponible non produit dépasse
 5 GW, son solde des échanges vaut en moyenne {{quand_solde_j5_2025}}
 (négatif : exportateur). Si la consommation ajoutée réduisait ces
 exportations, ce qui manquerait aux voisins se mesurerait avec le
-facteur d'émission marginal européen, que ce calcul ne donne pas.
+[facteur d'émission marginal](glossaire:facteur-moyen-marginal) européen, que ce calcul ne donne pas.
 
 ::: graphique charge-plate :::
 
@@ -246,7 +247,7 @@ ce que le simulateur permet d'explorer.
   s'électrifient, le charbon ferme, le solaire grandit et déplace les
   heures de surplus.
 - **Le réseau local.** Tout ici est national. Une consommation de
-  quelques centaines de MW pèse d'abord sur un poste électrique et sur
+  quelques centaines de MW pèse d'abord sur un [poste électrique](glossaire:poste-electrique) et sur
   les lignes qui l'alimentent ; à notre connaissance, aucune capacité
   d'accueil en consommation par poste n'est publiée en open data.
 - **Les stocks.** L'hydraulique de lac et les stations de pompage

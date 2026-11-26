@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-26T17:07:59+00:00",
+  "genere_le": "2026-11-26T18:32:03+00:00",
   "conventions": {
     "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
     "horodatage_eco2mix": "fin",
@@ -228,7 +228,7 @@
     "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens sur l'heure) : dénominateur d'un taux de disponibilité",
     "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW moyens ; 0 avant le 18/12/2024) ; sa production n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)",
     "nucleaire_disponible_reintegre": "variante de `nucleaire_disponible` (MW moyens) : mêmes règles, mais les arrêts et baisses COURTS (moins de 7 jours, sans mention du combustible) qu'EDF déclare POUR MODULATION ne retirent rien (règles : `arrets_modulation.regle` et `arrets_modulation.courts`, pc/remit.py MOTIF_MODULATION). Ce sont des arrêts économiques décidés au jour le jour (« la tranche sera redémarrée si les conditions économiques le justifient ») ; aucun avant 2019. Les arrêts longs pour modulation, qui peuvent relever de la gestion du combustible, restent retranchés. Toujours ≥ `nucleaire_disponible`. Ce n'est pas une capacité physique garantie non plus : le combustible et le calendrier des arrêts limitent l'énergie",
-    "evenements_retenus": 13695,
+    "evenements_retenus": 13701,
     "tranches": [
       "BELLEVILLE 1",
       "BELLEVILLE 2",
@@ -293,7 +293,7 @@
     "fin_historique_utc": "2026-09-07T07:19:00+00:00",
     "debut_liste_courante_utc": "2026-08-28T00:00:00+00:00",
     "trou_entre_fichiers": false,
-    "derniere_heure_utc": "2026-11-26T07:00:00+00:00",
+    "derniere_heure_utc": "2026-11-26T16:00:00+00:00",
     "taux_disponibilite_hors_flamanville3": {
       "2015": 79.88,
       "2016": 72.37,
@@ -392,8 +392,8 @@
     },
     "extractions": {
       "edf_remit/courante": {
-        "extrait_le": "2026-11-26T08:51:44+00:00",
-        "mis_a_jour_source": "2026-11-26T08:00:33.988Z",
+        "extrait_le": "2026-11-26T17:43:16+00:00",
+        "mis_a_jour_source": "2026-11-26T17:00:22.420Z",
         "fichier_source": "Export_toutes_versions.csv",
         "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/indisponibilites-des-moyens-de-production-edf-sa/raw"
       },
@@ -559,11 +559,11 @@
     },
     "edf_remit/courante": {
       "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/indisponibilites-des-moyens-de-production-edf-sa/raw",
-      "extrait_le": "2026-11-26T08:51:44+00:00",
+      "extrait_le": "2026-11-26T17:43:16+00:00",
       "nature": "indisponibilités des moyens de production d'EDF SA déclarées au titre de REMIT, une ligne par version d'événement (CSV latin-1, « ; ») : historique depuis 2015 (export ponctuel) et liste courante (événements terminés depuis moins de trois mois, mise à jour horaire)",
-      "sha256": "144c811f2491103e8f67dfd4400c2c429ea83586371d2d38676c8a861a111bf2",
-      "lignes": 29717,
-      "mis_a_jour_source": "2026-11-26T08:00:33.988Z",
+      "sha256": "50c3fbb03603f4a321a11f7dc6c393e5013252fdb9ee7b038545e4264a8afdc2",
+      "lignes": 29923,
+      "mis_a_jour_source": "2026-11-26T17:00:22.420Z",
       "fichier_source": "Export_toutes_versions.csv"
     },
     "edf_remit/historique": {

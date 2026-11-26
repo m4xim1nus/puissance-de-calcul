@@ -10,9 +10,9 @@ remplacée par docs/enquetes/partage/nom.md, texte commun avec « Quand ? » (pa
 ## Lire ces résultats
 
 **La charge résiduelle** est la consommation, moins l'éolien et le solaire produits, moins le
-nucléaire **disponible** déclaré par EDF au titre de REMIT. Ce qui reste doit venir de
+nucléaire **disponible** déclaré par EDF au titre de [REMIT](glossaire:remit). Ce qui reste doit venir de
 l'hydraulique (fil de l'eau compris), du gaz, des autres centrales thermiques, des importations
-ou du stockage ; les effacements activés sont déjà retranchés de la consommation observée. Ce
+ou du stockage ; les [effacements](glossaire:effacement) activés sont déjà retranchés de la consommation observée. Ce
 n'est pas une marge : la puissance disponible de ces moyens n'est pas observée heure par heure.
 Ce n'est pas non plus la « consommation résiduelle » des publications de RTE.
 
@@ -21,7 +21,7 @@ nucléaire disponible et non produit est un plafond, avec la disponibilité déc
 un plafond lâche. Même aux heures les
 plus chères, ce nucléaire reste le plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait 150 €/MWh. Une part de ce
-« reste » n'est pas mobilisable (réserves de services système, rampes, fins de cycle). D'où la
+« reste » n'est pas mobilisable (réserves de [services système](glossaire:services-systeme), rampes, fins de cycle). D'où la
 fourchette affichée : sans plancher, et en retranchant un plancher à toute heure, 1 GW par défaut,
 un ordre de grandeur choisi par ce site, que le réglage « Nucléaire non mobilisable » fait varier.
 Sous cette fourchette, le résultat en donne une seconde, en réintégrant les arrêts courts (moins de
@@ -42,8 +42,8 @@ et « modulé » est fixée par EDF : ce calcul n'est pas la modulation publiée
 arrêtés, ou moins d'exportations) dépend, heure par heure, de la saturation des
 interconnexions et des prix voisins. Ce site ne sait pas encore le dire : les données des pays
 voisins ne sont pas branchées. On sait seulement que la France exporte massivement à ces
-heures : le solde moyen affiché est un constat. Si la consommation ajoutée réduisait ces
-exportations, ce qui manquerait aux voisins se mesurerait avec le facteur d'émission marginal
+heures : le [solde moyen](glossaire:solde-echanges) affiché est un constat. Si la consommation ajoutée réduisait ces
+exportations, ce qui manquerait aux voisins se mesurerait avec le [facteur d'émission marginal](glossaire:facteur-moyen-marginal)
 européen, que ce calcul ne donne pas.
 
 **Deux maxima.** Le compte au-delà du maximum de l'année tient beaucoup à une seule heure :
@@ -69,7 +69,7 @@ discutée ici.
 
 **Les prix** sont les prix day-ahead observés de la zone France, au pas horaire (depuis le
 1er octobre 2025, moyenne des quatre quarts d'heure). La part de l'énergie ajoutée consommée à
-prix nul ou négatif est une lecture du calendrier des prix, pas une facture ; pour une
+[prix nul ou négatif](glossaire:prix-negatif) est une lecture du calendrier des prix, pas une facture ; pour une
 consommation plate, c'est la part des heures de l'année à prix nul ou négatif, quelle que soit
 la puissance. Avec quelques GW de plus, une partie de ces heures n'aurait plus été à prix nul ou
 négatif : la consommation ajoutée aurait absorbé une part du surplus. Le simulateur n'affiche
