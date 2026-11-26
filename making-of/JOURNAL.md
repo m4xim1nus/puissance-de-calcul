@@ -757,3 +757,38 @@ session 1, la relecture du contexte en cache domine.
   ordinateur, page sans défilement aux trois tailles testées, textes
   longs dans une notice latérale ; sur téléphone, réglages collés en
   haut en onglets, résultats et graphique visibles pendant qu'on règle ;
+- simulateur pleine page **publié** (commit `fdb6a77`) ; Claude relit
+  les captures (ordinateur et téléphone, clair et sombre) et corrige un
+  renvoi devenu faux (« se règlent ci-dessous »). Enquête carbone courte
+  confiée à un agent Opus, d'après le plan minimal de la relecture ;
+- **enquête carbone courte rédigée** (agent Opus,
+  `docs/relectures/2026-11-26-carbone-agent.md`) : intensités moyennes
+  calculées depuis éCO2mix, ce que disent les institutions (sources
+  relues par l'agent), encart « en préparation » sur le facteur
+  marginal ; 48 chiffres ajoutés, aucun modifié ; 32 contrôles, 201 et
+  184 tests. Une erreur de double arrondi repérée par l'agent lui-même,
+  consignée. Claude remarque que la restriction par source du contrôle
+  des chiffres « orphelins » laisse un trou pour une troisième source ;
+  relecture adverse lancée ;
+- **relecture adverse de l'enquête carbone**
+  (`docs/relectures/2026-11-26-carbone.md`) : publiable après
+  corrections ; citations exactes et non coupées, intensités recalculées
+  à l'identique. Cinq points de fond, dont le rapport RTE-ADEME de 2020
+  que la page oubliait. Claude relit ce rapport dans le PDF de RTE
+  (p. 208-209) avant de corriger. Erreur consignée, corrections
+  renvoyées à l'agent de l'enquête ;
+- corrections de l'enquête carbone faites par l'agent (33 contrôles,
+  202 et 185 tests), vérification lancée. Question à l'auteur sur la
+  suite, réponse : *« Publier, suite réduite (Recommandé) »* : le calcul
+  « si… alors » est abandonné. Le test de taille des exports, qui ne
+  comptait qu'une partie des fichiers et allait casser dans quelques
+  jours, porte désormais sur tout `data/export/` avec un budget de 20 Mo
+  (décision de Claude) ;
+- vérification des corrections de l'enquête carbone : publiable
+  après retouches de forme. Claude les fait : le coefficient de 0,36 du
+  règlement 2024/1408 devient un coefficient sans dimension (« 0,36 fois
+  le prix d'un quota ») au lieu d'une valeur en tCO2eq/MWh qui se lisait
+  comme un facteur d'émission ; le maximum de 58 g de RTE est dit « sans
+  nommer la série » ; une phrase non établie sur la Corse est corrigée ;
+  la page du JO est corrigée. 33 contrôles, 202 et 185 tests. **« Quel
+  carbone ? » publiée** ;

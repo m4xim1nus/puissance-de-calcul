@@ -1243,6 +1243,446 @@ chiffres:
     verification: contre-verification
     note: RTE résume ses propres projections ; citation relue dans le PDF par Claude le 26/11/2026
 
+  # ------------------------------------------------------------- carbone
+  # « Quel carbone ? », saisis le 26/11/2026 par l'agent rédacteur, passages relus dans les PDF
+  # (rapport docs/relectures/2026-11-26-carbone-agent.md) ; contre-vérification à faire avant
+  # publication. Les intensités calculées par le site (`carbone_*`) ne sont PAS saisies ici : `pc
+  # build` les calcule (pc/carbone.py). Chaque grandeur dit sa famille : intensité moyenne, contenu
+  # marginal, facteur de marché, valeur forfaitaire (pc/chiffres.py, UNITES).
+
+  intensite_prod_rte_2025:
+    libelle: Intensité carbone moyenne de la production d'électricité en France (émissions directes)
+    valeur: 19.6
+    unite: gCO2eq/kWh
+    precision: 0.1
+    grandeur: intensite_moyenne
+    periode: "2025"
+    perimetre: production d'électricité en France métropolitaine, Corse comprise ; émissions directes de combustion ; facteurs d'émission de l'annexe du Bilan (p. 145)
+    source: rte-be2025
+    page: p. 104 (aussi p. 99)
+    citation: « En moyenne sur l'année 2025, l'intensité carbone de la production française a été de 19,6 gCO2éq/kWh, et l'intensité carbone de la consommation française, en prenant en compte les échanges d'électricité avec les autres pays, de 20,0 gCO2éq/kWh. Le fait que ces deux valeurs soient presque identiques s'explique par la position très largement et presque exclusivement exportatrice nette de la France au cours de l'année (voir le chapitre Échanges). »
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: moyenne de taux_co2 pondérée par la production, hors Corse (carbone_prod_moyenne_2025, calcul du site)
+        note: même éditeur ; périmètre (Corse exclue) et jeu de facteurs différents ; écart contrôlé par `pc check`
+        independant: false
+    verification: spike
+    note: intensité MOYENNE, pas un facteur marginal ; RTE précise que ses facteurs « sont issus de travaux internes ; ils reposent sur un ensemble de sources et modèles, et sont harmonisés entre les différentes publications » (p. 105, sous la figure 5.8)
+
+  intensite_conso_rte_2025:
+    libelle: Intensité carbone moyenne de la consommation d'électricité en France, échanges compris (émissions directes)
+    valeur: 20.0
+    unite: gCO2eq/kWh
+    precision: 0.1
+    grandeur: intensite_moyenne
+    periode: "2025"
+    perimetre: consommation d'électricité en France, échanges avec les autres pays pris en compte ; émissions directes
+    source: rte-be2025
+    page: p. 104
+    citation: « En moyenne sur l'année 2025, l'intensité carbone de la production française a été de 19,6 gCO2éq/kWh, et l'intensité carbone de la consommation française, en prenant en compte les échanges d'électricité avec les autres pays, de 20,0 gCO2éq/kWh. Le fait que ces deux valeurs soient presque identiques s'explique par la position très largement et presque exclusivement exportatrice nette de la France au cours de l'année (voir le chapitre Échanges). »
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: série horaire ODRÉ part-enr-intensite-ges-conso-tr pondérée par la consommation éCO2mix (carbone_conso_moyenne_2025, calcul du site)
+        note: même éditeur, même méthode ; écart contrôlé par `pc check` (± 2 %)
+        independant: false
+    verification: spike
+    note: intensité MOYENNE, pas un facteur marginal
+
+  intensite_prod_rte_2024:
+    libelle: Intensité carbone moyenne de la production d'électricité en France (émissions directes)
+    valeur: 21.7
+    unite: gCO2eq/kWh
+    precision: 0.1
+    grandeur: intensite_moyenne
+    periode: "2024"
+    perimetre: production d'électricité en France métropolitaine, Corse comprise ; émissions directes
+    source: rte-be2024
+    page: p. 90
+    citation: "« Ainsi, l'intensité carbone de la production d'électricité française a baissé de près d'un tiers par rapport à celle de 2023 : elle a atteint 21,7 gCO2eq par kilowatt-heure produit sur l'année 2024. »"
+    confiance: B
+    verification: spike
+    note: intensité MOYENNE, pas un facteur marginal ; page du rapport complet (le chapitre isolé a sa propre pagination)
+
+  intensite_prod_acv_rte_2025:
+    libelle: Intensité carbone moyenne de la production d'électricité en France, au périmètre du cycle de vie
+    valeur: 29.0
+    unite: gCO2eq/kWh
+    precision: 0.1
+    grandeur: intensite_moyenne
+    periode: "2025"
+    perimetre: "production d'électricité en France ; émissions sur le cycle de vie (extraction et transport des combustibles et des matériaux, construction des installations, combustion), sauf l'incinération des déchets, comptée à zéro sur le cycle de vie alors que son facteur direct vaut 988 g (annexe p. 145)"
+    source: rte-be2025
+    page: p. 106
+    citation: "« L'analyse au périmètre du cycle de vie entraîne le même constat que celle au périmètre des émissions directes : les émissions liées à la production d'électricité en France sont parmi les plus faibles d'Europe. L'intensité de la production a atteint 29,0 gCO2éq/kWh au périmètre du cycle de vie. »"
+    confiance: B
+    verification: spike
+    note: intensité MOYENNE en analyse de cycle de vie ; à ne pas comparer à une intensité directe
+
+  intensite_max_rte_2025:
+    libelle: Intensité carbone moyenne de la consommation, maximum horaire de l'année, selon RTE
+    valeur: 58
+    unite: gCO2eq/kWh
+    grandeur: intensite_moyenne
+    periode: "2025"
+    perimetre: "intensité de la consommation d'électricité en France, échanges compris ; émissions directes ; attribution : la phrase suit une phrase sur l'intensité de la consommation, et la monotone de la figure 5.7 (« intensité en émissions de gaz à effet de serre de la consommation d'électricité française », p. 104) démarre à ce niveau en 2025 (lecture graphique)"
+    source: rte-be2025
+    page: p. 105
+    citation: "« En 2025, fait notable, l'intensité est restée contenue même lors des périodes de forte consommation : elle a atteint un maximum de 58 gCO2éq/kWh. Il s'agit d'un niveau très bas, inférieur à l'intensité moyenne de la production française sur l'ensemble de l'année 2012. »"
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: maximum horaire 2025 de la série ODRÉ de l'intensité de la consommation (carbone_conso_max_2025, calcul du site)
+        note: "même éditeur ; la série ODRÉ, recalculée par RTE en mars 2026, donne 60 g : écart contrôlé par `pc check` (± 3 g) ; le maximum de la production (57,5 g) n'est pas le bon terme de comparaison"
+        independant: false
+    verification: contre-verification
+    note: "attribution à la consommation corrigée après la relecture adverse du 26/11/2026 (F4), qui l'a établie par la figure 5.7 ; une heure d'intensité moyenne élevée n'est pas une heure où une consommation ajoutée émettrait le plus. La phrase voisine du même Bilan sur 2023 (« dépassé 100 gCO2éq/kWh pendant environ 3 % du temps ») est reprise du Bilan 2024 (p. 99) et contredite par la figure 5.7 du Bilan 2025 et par la série ODRÉ (0,35 % des heures) : non publiée"
+
+  intensite_fond_rte:
+    libelle: Seuil de « l'intensité de fond » du système électrique français selon RTE
+    valeur: 15
+    unite: gCO2eq/kWh
+    grandeur: intensite_moyenne
+    periode: "2025"
+    perimetre: intensité horaire de la production comme de la consommation ; émissions directes
+    source: rte-be2025
+    page: p. 105
+    citation: "« Près de la moitié du temps, l'intensité de la production comme de la consommation s'est située en dessous de 15 gCO2éq/kWh. Ce niveau pratiquement incompressible, qui s'apparente à « l'intensité de fond » du système, correspond aux émissions liées aux filières en grande partie fatales du point de vue du système électrique (voir l'analyse dans la partie précédente), c'est-à-dire l'incinération des déchets et les cogénérations. »"
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: "part des heures de 2025 sous ce seuil : carbone_prod_part_sous_15_2025 et carbone_conso_part_sous_15_2025 (calculs du site)"
+        note: même éditeur ; « près de la moitié » contrôlé par `pc check` (bande de 40 à 55 %)
+        independant: false
+    verification: spike
+    note: "seuil d'intensité MOYENNE horaire ; le seuil de pc/carbone.py (SEUIL_FOND_G) doit lui rester égal (contrôlé par un test). Le Bilan 2024 situait ce niveau à 10 gCO2eq/kWh (« près de la moitié du temps », p. 99) : le niveau « pratiquement incompressible » dépend de l'année et du jeu de facteurs"
+
+  facteur_ccg_direct_rte:
+    libelle: Facteur d'émissions directes des cycles combinés au gaz retenu par RTE
+    valeur: 331
+    unite: gCO2eq/kWh
+    grandeur: facteur_emission_filiere
+    periode: facteurs appliqués par RTE à tout l'historique (Bilan électrique 2025)
+    perimetre: "par kWh produit par la filière « Gaz - cycles combinés » ; émissions directes (cycle de vie : 389 g, même tableau) ; facteurs du parc français"
+    source: rte-be2025
+    page: annexe, p. 145
+    citation: "« Hypothèses concernant les facteurs d'émissions utilisés pour calculer les émissions de gaz à effet de serre de la production et de la consommation d'électricité » — Gaz - cycles combinés : facteur d'émissions directes 331 gCO2eq/kWh ; facteur d'émissions sur le cycle de vie 389 gCO2eq/kWh"
+    confiance: B
+    verification: spike
+    note: "facteur d'une FILIÈRE, ni intensité moyenne du système ni facteur marginal ; RTE (p. 106) présente les cycles combinés comme « les centrales au gaz les plus performantes » ; turbines à combustion : 497 g (même tableau)"
+
+  facteur_tac_direct_rte:
+    libelle: Facteur d'émissions directes des turbines à combustion au gaz retenu par RTE
+    valeur: 497
+    unite: gCO2eq/kWh
+    grandeur: facteur_emission_filiere
+    periode: facteurs appliqués par RTE à tout l'historique (Bilan électrique 2025)
+    perimetre: "par kWh produit par la filière « Gaz - turbines à combustion » ; émissions directes (cycle de vie : 583 g, même tableau) ; facteurs du parc français"
+    source: rte-be2025
+    page: annexe, p. 145
+    citation: "« Hypothèses concernant les facteurs d'émissions utilisés pour calculer les émissions de gaz à effet de serre de la production et de la consommation d'électricité » — Gaz - turbines à combustion : facteur d'émissions directes 497 gCO2eq/kWh ; facteur d'émissions sur le cycle de vie 583 gCO2eq/kWh"
+    confiance: B
+    verification: contre-verification
+    note: facteur moyen d'une FILIÈRE retenu par RTE, ni intensité moyenne du système ni facteur marginal
+
+  emissions_prod_rte_2025:
+    libelle: Émissions directes de gaz à effet de serre de la production d'électricité en France
+    valeur: 10.9
+    unite: MtCO2eq
+    precision: 0.1
+    grandeur: emissions
+    periode: "2025"
+    perimetre: production d'électricité en France, Corse comprise ; émissions directes
+    source: rte-be2025
+    page: p. 99
+    citation: « En 2025, pour la troisième année consécutive, les émissions directes liées à la production d'électricité française ont poursuivi leur baisse et atteint un minimum historique depuis 1945, s'élevant à 10,9 MtCO2éq. Il s'agit d'un niveau comparable, mais en légère baisse, par rapport à celui observé en 2024 (11,7 MtCO2éq). »
+    confiance: B
+    verification: spike
+
+  emissions_cogeneration_rte_2025:
+    libelle: Émissions directes des moyens de production au gaz assimilables à des cogénérations
+    valeur: 3.2
+    unite: MtCO2eq
+    precision: 0.1
+    grandeur: emissions
+    periode: "2025"
+    perimetre: part des émissions de la filière gaz associée à des moyens assimilables à des cogénérations (chaleur industrielle ou réseaux de chaleur, électricité produit secondaire)
+    source: rte-be2025
+    page: p. 102-103
+    citation: « Un peu moins de deux tiers (6,7 MtCO2éq) des émissions liées à la production proviennent de la filière gaz. Parmi celles-ci, près de 40 % (3,2 MtCO2éq) sont associées à des moyens de production assimilables à des cogénérations, c'est-à-dire des installations qui produisent principalement de la chaleur pour alimenter des procédés industriels ou bien des réseaux de chaleur urbaine, et dont l'électricité est un produit secondaire. Leur fonctionnement est indépendant des conditions du marché de l'électricité, et correspond à un « socle » de production et d'émissions (voir le chapitre Production) difficilement compressibles. »
+    confiance: B
+    verification: spike
+
+  emissions_dechets_rte_2025:
+    libelle: Émissions directes de la production d'électricité par incinération de déchets non renouvelables
+    valeur: 2.3
+    unite: MtCO2eq
+    precision: 0.1
+    grandeur: emissions
+    periode: "2025"
+    perimetre: incinération de déchets non renouvelables (part non renouvelable des déchets ménagers, déchets industriels)
+    source: rte-be2025
+    page: p. 103
+    citation: « La production d'électricité à partir de l'incinération de déchets non-renouvelables, qui, de même, est une filière dont le fonctionnement est principalement déterminé par le besoin de traitement des déchets, indépendamment des conditions du marché de l'électricité, représente environ un cinquième du volume d'émissions, soit 2,3 MtCO2éq. »
+    confiance: B
+    verification: spike
+
+  part_emissions_hors_socle_rte_2025:
+    libelle: Part des émissions de la production d'électricité qui ne vient ni des cogénérations ni des filières fatales
+    valeur: 40
+    unite: "%"
+    grandeur: part
+    periode: "2025"
+    perimetre: émissions directes de la production d'électricité en France
+    source: rte-be2025
+    page: p. 103
+    citation: "« Ainsi, la part des émissions qui n'est pas assimilable aux cogénérations ou aux filières fatales ne représente que 40 % des émissions liées à la production d'électricité. Cette part correspond à des moyens de production qui permettent d'assurer l'équilibre du système lors des périodes de consommation élevée, avec des temps de fonctionnement relativement faibles. Ces émissions « résiduelles » du mix français sont à envisager, au moins à court terme, dans la mesure où elles permettent le bon fonctionnement du système et le développement par ailleurs du parc de production décarboné : cela représente un volume d'émissions limité par rapport au service rendu au système. »"
+    confiance: B
+    verification: spike
+
+  emissions_evitees_rte_2025:
+    libelle: Émissions « évitées » en Europe par les exportations françaises, selon la méthode de RTE
+    valeur: 27
+    unite: MtCO2eq
+    grandeur: emissions_evitees
+    periode: "2025"
+    perimetre: pour chaque heure, différentiel entre l'intensité moyenne de la production française et celle des pays importateurs, multiplié par les volumes exportés ; « près de » 27 Mt
+    source: rte-be2025
+    page: p. 107
+    citation: "« Pour évaluer les émissions évitées, il est possible de comparer, pour chaque heure, l'intensité de la production française avec celle des pays vers lesquelles l'électricité est exportée. Les émissions évitées sont ainsi fonction, d'une part, du différentiel d'intensité carbone entre les mix de production de la France et des autres pays, et d'autre part de la quantité d'électricité exportée. Une telle approche implique nécessairement des simplifications, et néglige certains phénomènes propres au fonctionnement du système électrique : en particulier, il n'est pas tenu compte de l'effet qu'aurait une modification des échanges sur l'ordre de préséance économique dans chaque pays. Cela étant, l'analyse des émissions évitées ainsi calculées permet tout de même de dégager des tendances, notamment dans le temps et dans la répartition géographique. » ; même page : « En 2025, les exportations de la France ont permis d'éviter l'émission près de 27 MtCO2éq en Europe, dont près de la moitié ont été évitées en Italie, et un cinquième en Allemagne. »"
+    confiance: B
+    verification: spike
+    note: calcul par différentiel d'intensités MOYENNES ; ni un effet causal, ni un facteur marginal (limite écrite par RTE) ; ne s'additionne à aucune autre estimation d'émissions (double compte)
+
+  ademe_rte_2007_marginal_base:
+    libelle: Contenu en CO2 marginal de l'électricité pour les usages en base, estimé par l'ADEME et RTE en 2007
+    valeur: [450, 550]
+    unite: gCO2/kWh
+    grandeur: contenu_marginal
+    periode: « situation actuelle » du système électrique européen en 2007
+    perimetre: incrément de consommation en France servi par le moyen de production marginal sur le système interconnecté européen, en France ou hors de France ; CO2 (pas CO2eq)
+    source: ademe-rte-2007
+    page: p. 3
+    citation: "« Compte tenu de la structure du parc de production européen, on évalue entre 600 et 700 grammes de CO2 le contenu du kWh produit en période de marginalité non nucléaire. Sur la base de ces estimations, le contenu marginal en CO2 par classes d'usages ressort à : pour les usages en base : 450 à 550 g ; pour le chauffage électrique : de l'ordre de 500 à 600 g ; pour les usages intermittents et l'éclairage : 600 à 700 g. »"
+    confiance: B
+    verification: spike
+    note: "contenu MARGINAL, daté (parc européen de 2007, charbon et gaz, peu de renouvelables) ; la note elle-même dit la méthode à « revisiter régulièrement » (p. 4) ; non transposable aujourd'hui ; liste à puces de la note recomposée en une phrase (ordre de la note dans le PDF : base, chauffage, intermittents)"
+
+  ademe_rte_2007_marginalite_nucleaire:
+    libelle: Part du temps où un incrément de consommation est servi par le nucléaire, selon l'ADEME et RTE en 2007
+    valeur: 25
+    unite: "%"
+    grandeur: part
+    periode: « situation actuelle » en 2007
+    perimetre: système électrique interconnecté européen vu de la France
+    source: ademe-rte-2007
+    page: p. 3
+    citation: "« Résultats : Dans la situation actuelle, les périodes durant lesquelles un incrément de consommation est satisfait par une augmentation de la production nucléaire représentent environ 25% du temps, essentiellement en creux de nuit et en week-end : c'est la durée de marginalité nucléaire. Durant ces périodes, une augmentation de la consommation (en France, mais aussi ailleurs sur la plaque continentale) n'entraîne pas d'émissions de CO2 supplémentaires. »"
+    confiance: B
+    verification: spike
+    note: « environ » ; estimation de 2007
+
+  ademe_rte_2007_marginal_base_2020:
+    libelle: Contenu en CO2 marginal pour un usage en base envisagé par l'ADEME et RTE à l'horizon 2020
+    valeur: 400
+    unite: gCO2/kWh
+    grandeur: contenu_marginal
+    periode: horizon 2020, vu de 2007
+    perimetre: « contenu marginal en développement » (trajectoire du parc européen attendue en 2007)
+    source: ademe-rte-2007
+    page: p. 3
+    citation: « Ces deux éléments sont de nature à diminuer le contenu marginal en CO2 de l'électricité, qui pourrait être de l'ordre de 400 g par kWh à l'horizon 2020 pour un usage en base. Ainsi, entre 2007 et 2020, au fil des évolutions attendues du parc de production européen, le contenu marginal en CO2 de l'électricité, pour un usage en base, devrait se réduire pour passer d'environ 500 à 400 g de CO2 par kWh. »
+    confiance: C
+    verification: spike
+    note: projection de 2007, pas une mesure ; cotée C (grandeur prospective, non vérifiée a posteriori par ses auteurs à notre connaissance)
+
+  cre_facteur_marche_2019:
+    libelle: Facteur d'émission « fondé sur le marché » de la France, approuvé par la CRE pour les aides d'État liées au SEQE
+    valeur: 0.59
+    unite: tCO2/MWh
+    precision: 0.01
+    grandeur: facteur_emission_marche
+    periode: année de référence 2019 ; destiné à servir « jusqu'à la prochaine révision des lignes directrices soit 2025 »
+    perimetre: sensibilité du prix spot français moyen à l'existence du SEQE (prix simulés avec et sans SEQE par le modèle Antares de RTE), rapportée au prix du CO2 ; paramètre du plafond des aides aux électro-intensifs
+    source: cre-2021-126
+    page: p. 2
+    citation: « Pour estimer l'impact du SEQE sur les consommateurs, RTE a simulé le fonctionnement du marché de gros de l'électricité avec et sans SEQE et a défini le facteur d'émission comme étant la sensibilité du prix Spot à l'existence d'un système ETS. […] FEM = (Prix avec SEQE − Prix sans SEQE) / Prix du CO2, où, dans chaque cas, le prix est la moyenne annuelle du prix horaire simulé. L'application de cette méthodologie donne un facteur d'émission de 0,59 tCO2/MWh. »
+    confiance: B
+    verification: spike
+    note: ce n'est ni une intensité moyenne ni le contenu marginal d'une consommation ajoutée, mais un coefficient de répercussion du prix du CO2 dans le prix de l'électricité ; la coupure […] retire la figure et la phrase d'introduction de la formule ; la CRE juge « moins robustes » les méthodes fondées sur la détermination du moyen marginal (p. 3)
+
+  ue_forfait_reseau_183:
+    libelle: Valeur d'émissions forfaitaire attribuée à l'électricité du réseau au-delà des heures où le prix est fixé par du renouvelable ou du nucléaire (carburants renouvelables d'origine non biologique)
+    valeur: 183
+    unite: gCO2eq/MJ
+    grandeur: valeur_forfaitaire
+    periode: règle en vigueur depuis le 10 juillet 2023 (vingtième jour après la publication)
+    perimetre: électricité du réseau non entièrement renouvelable utilisée pour produire des carburants renouvelables d'origine non biologique (hydrogène notamment) ; méthode b) parmi trois au choix ; MJ d'électricité
+    source: ue-2023-1185
+    page: annexe, partie A, point 6 b), JO L 157/25
+    citation: « b) les valeurs des émissions de gaz à effet de serre sont attribuées en fonction du nombre d'heures à pleine charge pendant lesquelles l'installation produisant des carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et des carburants à base de carbone recyclé est en service. Lorsque le nombre d'heures à pleine charge est égal ou inférieur au nombre d'heures pendant lesquelles le prix marginal de l'électricité a été fixé par des installations produisant de l'électricité renouvelable ou des centrales nucléaires au cours de l'année civile précédente pour laquelle des données fiables sont disponibles, l'électricité du réseau utilisée dans le processus de production de carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et de carburants à base de carbone recyclé se voit attribuer une valeur d'émissions de gaz à effet de serre de zéro gCO2eq/MJ. Si ce nombre d'heures à pleine charge est dépassé, l'électricité du réseau utilisée dans le processus de production de carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et de carburants à base de carbone recyclé se voit attribuer une valeur d'émission de gaz à effet de serre de 183 gCO2eq/MJ; ou »
+    confiance: B
+    verification: spike
+    note: valeur FORFAITAIRE fixée par un texte, ni moyenne ni marginale mesurée ; 183 gCO2eq/MJ × 3,6 = 658,8 gCO2eq/kWh (calcul du site) ; la règle vise les carburants, pas les data centers ; date d'entrée en vigueur déduite de l'article final du règlement (non recopié ici)
+
+  ue_intensite_france_2020:
+    libelle: Intensité des émissions de l'électricité produite en France retenue par le règlement délégué (UE) 2023/1185
+    valeur: 19.6
+    unite: gCO2eq/MJ
+    precision: 0.1
+    grandeur: intensite_moyenne
+    periode: "2020"
+    perimetre: combustion et amont des combustibles (extraction, raffinage, transport), sans la construction des installations ; méthode de la partie C de l'annexe ; MJ d'électricité
+    source: ue-2023-1185
+    page: annexe, tableau A, JO L 157/32-33
+    citation: "« Tableau A — Intensité des émissions d'électricité dans l'Union européenne 2020 […] France 19,6 […] Source : JRC, 2022. »"
+    confiance: B
+    verification: spike
+    note: intensité MOYENNE ; 19,6 gCO2eq/MJ × 3,6 = 70,6 gCO2eq/kWh (calcul du site) — même nombre que les 19,6 gCO2eq/kWh de RTE pour 2025, mais une autre unité, une autre année et un autre périmètre
+
+  ue_correlation_seuil_prix:
+    libelle: Prix day-ahead en dessous duquel la corrélation temporelle est toujours réputée respectée (carburants renouvelables d'origine non biologique)
+    valeur: 20
+    unite: €/MWh
+    grandeur: prix
+    periode: règle du règlement 2023/1184, article 6 dans sa rédaction issue du règlement 2024/1408 (JO du 21/05/2024)
+    perimetre: "prix d'équilibre du couplage unique journalier dans la zone de dépôt des offres, sur une période d'une heure ; alternative : moins de 0,36 fois le prix d'un quota de CO2"
+    source: ue-2024-1408
+    page: article 1er, point 7 (nouvel article 6 du règlement 2023/1184), p. 4/5
+    citation: "« Jusqu'au 31 décembre 2029, la condition de corrélation temporelle visée à l'article 4, paragraphes 2 et 4, est réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours du même mois civil que l'électricité renouvelable produite dans le cadre de l'accord d'achat d'électricité renouvelable […]. À partir du 1er janvier 2030, la condition de corrélation temporelle est réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours de la même période d'une heure que l'électricité renouvelable produite dans le cadre de l'accord d'achat d'électricité renouvelable […]. La condition de corrélation temporelle est toujours réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours d'une période d'une heure, lorsque le prix d'équilibre de l'électricité résultant du couplage unique journalier dans la zone de dépôt des offres, tel que visé à l'article 39, paragraphe 2, point a), du règlement (UE) 2015/1222 de la Commission, est inférieur ou égal à 20 EUR par MWh ou inférieur à 0,36 fois le prix d'un quota d'émission d'une tonne d'équivalent-dioxyde de carbone au cours de la période considérée aux fins de satisfaire aux exigences de la directive 2003/87/CE du Parlement européen et du Conseil. »"
+    confiance: B
+    verification: contre-verification
+    note: "les coupures […] retirent les variantes de stockage et la faculté pour les États membres d'avancer la règle horaire au 1er juillet 2027 ; texte identique en substance à la version de 2023 (ue-2023-1184, JO L 157/17), seul le terme « carburant » change ; règle de prix, pas une mesure d'émissions"
+
+  ue_correlation_coef_quota:
+    libelle: Coefficient appliqué au prix d'un quota de CO2 (€/t) pour obtenir le seuil alternatif de prix (€/MWh) de la corrélation temporelle (carburants renouvelables d'origine non biologique)
+    valeur: 0.36
+    unite: fois
+    precision: 0.01
+    grandeur: coefficient_reglementaire
+    periode: même règle que ue_correlation_seuil_prix
+    perimetre: le prix day-ahead de l'heure doit être inférieur à ce coefficient multiplié par le prix d'un quota d'émission d'une tonne d'équivalent CO2 (€/MWh contre €/t)
+    source: ue-2024-1408
+    page: article 1er, point 7 (nouvel article 6 du règlement 2023/1184), p. 4/5
+    citation: "« […] est inférieur ou égal à 20 EUR par MWh ou inférieur à 0,36 fois le prix d'un quota d'émission d'une tonne d'équivalent-dioxyde de carbone au cours de la période considérée […] »"
+    confiance: B
+    verification: contre-verification
+    note: "coefficient d'une règle de prix, sans dimension déclarée : le règlement écrit « 0,36 fois le prix d'un quota » (€/t) pour obtenir un seuil en €/MWh ; ni un facteur d'émission moyen ni un facteur marginal"
+
+  aie_dc_emissions_monde_2024:
+    libelle: Émissions indirectes de CO2 des data centers dans le monde (consommation d'électricité), selon l'AIE
+    valeur: 180
+    unite: MtCO2
+    grandeur: emissions_co2
+    periode: « today » (2024)
+    perimetre: monde ; toutes charges des data centers (l'IA en est une partie) ; hors production de secours ; CO2
+    source: iea-energy-ai-2025
+    page: p. 246
+    citation: "« Global fuel combustion CO2 emissions are estimated to reach 35 000 million tonnes (Mt) in 2024. Data centres account for around 180 Mt of indirect CO2 emissions today from the consumption of electricity, not including any emissions from backup power generation. This includes all workloads by data centres, of which AI is a subset. Data centres therefore account for a small share of emissions: 0.5% of combustion emissions today (Figure 5.28). »"
+    confiance: B
+    verification: spike
+    note: « around » ; le passage ne dit pas si l'AIE applique une intensité moyenne ou marginale (méthode non précisée ici) ; aucun chiffre pour la France
+
+  intensite_conso_pays_tracage:
+    libelle: Pays dont les échanges entrent dans le calcul de l'intensité de la consommation française par RTE (traçage des flux)
+    valeur: 15
+    unite: pays
+    grandeur: nombre
+    periode: méthode v1, avril 2026
+    perimetre: France et 14 pays européens (Espagne, Portugal, Italie, Suisse, Autriche, Allemagne, République tchèque, Pologne, Belgique, Pays-Bas, Suède, Norvège, Danemark, Grande-Bretagne) ; Irlande exclue
+    source: rte-methodo-intensite-conso-2026
+    page: p. 3
+    citation: "« Le périmètre élargi considéré par RTE pour le présent calcul contient les pays suivants : l'Espagne, le Portugal, l'Italie, la Suisse, l'Autriche, l'Allemagne, la République Tchèque, la Pologne, la Belgique, les Pays-Bas, la Suède, la Norvège, le Danemark et la Grande-Bretagne. L'Irlande a été, pour l'instant, exclue pour cause de qualité insuffisante des données disponibles. Un ensemble plus large de pays, s'étendant jusqu'à la Grèce et la Finlande, a également été étudié : la prise en compte de pays plus lointains que les 15 pays retenus, et dont les systèmes électriques sont relativement petits par rapport à celui de la France, ne modifie pas substantiellement les résultats présentés dans ce jeu de données. »"
+    confiance: B
+    verification: spike
+    note: "la méthode attribue à chaque importation l'intensité MOYENNE de la production du pays d'origine (p. 2) : l'intensité de la consommation reste une moyenne"
+
+  ets_tnac_2025:
+    libelle: Nombre total de quotas en circulation (SEQE de l'UE) publié pour 2025
+    valeur: 1023.494202
+    unite: millions de quotas
+    precision: 0.1
+    grandeur: quotas
+    periode: au 31 décembre 2025, publié le 1er juin 2026
+    perimetre: installations fixes, aviation et transport maritime couverts par le SEQE de l'UE ; quotas délivrés depuis 2008 moins émissions vérifiées
+    source: ce-tnac-2025
+    page: section 3 et tableau « Vue d'ensemble »
+    citation: « Compte tenu de ce qui précède, le nombre total de quotas en circulation en 2025 s'élève à 1 023 494 202. »
+    confiance: B
+    verification: spike
+    note: "section 4 : « Conformément à la décision RSM, un total de 190 494 202 quotas sera placé dans la réserve sur la période de douze mois comprise entre le 1er septembre 2026 et le 31 août 2027. »"
+
+  ets_tnac_2024:
+    libelle: Nombre total de quotas en circulation (SEQE de l'UE) publié pour 2024
+    valeur: 1148.049585
+    unite: millions de quotas
+    precision: 0.1
+    grandeur: quotas
+    periode: au 31 décembre 2024, publié le 28 mai 2025
+    perimetre: même définition que pour 2025 (aviation et transport maritime compris à partir de 2024)
+    source: ce-tnac-2025
+    page: section 1
+    citation: « Le 28 mai 2025, la Commission a publié le nombre total de quotas en circulation pour 2024, qui s'élevait à 1 148 049 585. Cela signifie que 275 531 900 quotas ont été placés dans la réserve entre le 1er septembre 2025 et le 31 août 2026. Le nombre de quotas dans la réserve qui n'étaient plus valides au 1er janvier 2025 atteignait au total 270 506 086. »
+    confiance: B
+    verification: spike
+    note: chiffre rapporté par la communication de 2026 ; la communication C/2025/3180 qui le publie n'a pas été relue
+
+  ets_seuil_prelevement_bas:
+    libelle: Seuil du nombre total de quotas en circulation au-dessus duquel des quotas sont placés dans la réserve de stabilité
+    valeur: 833
+    unite: millions de quotas
+    grandeur: quotas
+    periode: règle en vigueur (version consolidée au 1er janvier 2024)
+    perimetre: décision (UE) 2015/1814, article 1er, paragraphe 5
+    source: ue-2015-1814-consolidee
+    page: article 1er, paragraphe 5 (p. 3 du texte consolidé)
+    citation: « Pour une année donnée, si le nombre total de quotas en circulation se situe entre 833 et 1 096 millions, un nombre de quotas égal à la différence entre le nombre total de quotas en circulation, tel qu'établi dans la publication la plus récente visée au paragraphe 4 du présent article, et 833 millions est déduit de la quantité de quotas qui doit être mise aux enchères par les États membres au titre de l'article 10, paragraphe 2, de la directive 2003/87/CE et est placé dans la réserve sur une période de douze mois à compter du 1er septembre de l'année en question. Si le nombre total de quotas en circulation est supérieur à 1 096 millions, le nombre de quotas à déduire […] est égal à 12 % du nombre total de quotas en circulation. Par dérogation à la deuxième phrase du présent paragraphe, jusqu'au 31 décembre 2030, le pourcentage visé dans ladite phrase est multiplié par deux. »
+    confiance: B
+    verification: spike
+    note: version consolidée, outil documentaire sans effet juridique ; la coupure […] retire la répétition de la référence à la directive
+
+  ets_seuil_prelevement_haut:
+    libelle: Seuil du nombre total de quotas en circulation au-dessus duquel le placement dans la réserve est proportionnel (24 % jusqu'en 2030)
+    valeur: 1096
+    unite: millions de quotas
+    grandeur: quotas
+    periode: règle en vigueur (version consolidée au 1er janvier 2024)
+    perimetre: décision (UE) 2015/1814, article 1er, paragraphe 5
+    source: ue-2015-1814-consolidee
+    page: article 1er, paragraphe 5 (p. 3 du texte consolidé)
+    citation: « Pour une année donnée, si le nombre total de quotas en circulation se situe entre 833 et 1 096 millions, un nombre de quotas égal à la différence entre le nombre total de quotas en circulation […] et 833 millions est déduit de la quantité de quotas qui doit être mise aux enchères […]. Si le nombre total de quotas en circulation est supérieur à 1 096 millions, le nombre de quotas à déduire […] est égal à 12 % du nombre total de quotas en circulation. Par dérogation à la deuxième phrase du présent paragraphe, jusqu'au 31 décembre 2030, le pourcentage visé dans ladite phrase est multiplié par deux. »
+    confiance: B
+    verification: spike
+
+  ets_seuil_invalidation:
+    libelle: Nombre de quotas détenus dans la réserve de stabilité au-delà duquel les quotas de la réserve ne sont plus valides
+    valeur: 400
+    unite: millions de quotas
+    grandeur: quotas
+    periode: à partir de 2023 (version consolidée au 1er janvier 2024)
+    perimetre: décision (UE) 2015/1814, article 1er, paragraphe 5 bis
+    source: ue-2015-1814-consolidee
+    page: article 1er, paragraphe 5 bis (p. 3 du texte consolidé)
+    citation: « À moins qu'il n'en soit décidé autrement lors du premier réexamen mené conformément à l'article 3, à partir de 2023, les quotas détenus dans la réserve au-delà de 400 millions ne sont plus valides. »
+    confiance: B
+    verification: spike
+    note: "règle en vigueur au 26/11/2026. La Commission a proposé le 1er avril 2026 de mettre fin à l'invalidation (COM(2026) 153) ; le texte de compromis approuvé par le Coreper le 28/10/2026 la garde, avec un seuil de 700 millions à son entrée en vigueur (ets_seuil_invalidation_compromis) ; non adopté au 26/11/2026"
+
+  ets_seuil_invalidation_compromis:
+    libelle: Seuil d'invalidation des quotas de la réserve de stabilité prévu par le texte de compromis de 2026 (non adopté au 26/11/2026)
+    valeur: 700
+    unite: millions de quotas
+    grandeur: quotas
+    periode: à partir de l'entrée en vigueur de la décision modificative (troisième jour après sa publication), si elle est adoptée
+    perimetre: procédure 2026/0085 (COD), texte de compromis final approuvé par le Coreper le 28/10/2026, nouveau paragraphe 5 bis de l'article 1er de la décision (UE) 2015/1814
+    source: conseil-14944-26
+    page: annexe, considérant 3 et article 1er, p. 5-6
+    citation: "« Until [ ... OJ the day before the date of entry into force of this amending decision] allowances held in the reserve above 400 million allowances shall no longer be valid. From [ ... OJ the date of entry into force of this amending decision], allowances held in the reserve above 700 million allowances shall no longer be valid. » ; article 2 : « This Decision shall enter into force on the third day following that of its publication in the Official Journal of the European Union. »"
+    confiance: B
+    verification: contre-verification
+    note: "texte non adopté au 26/11/2026 : première lecture du Parlement le 24/11/2026, position du Conseil attendue (fiche de procédure 2026/0085(COD), pe-oeil-2026-0085) ; le texte voté par le Parlement (T10-0381/2026) n'a pas été relu par le site ; le considérant 3a annonce, dans la proposition de révision de la directive de juillet 2026, des paramètres « dynamiques » de la réserve et une baisse annuelle du seuil d'invalidation"
+
 contraintes:
   - inferieur: [dc_conso_rpt_2024, dc_conso_sites_dedies_2024]
     motif: le transport est une partie des sites dédiés
@@ -1256,3 +1696,23 @@ contraintes:
     motif: ordre des trajectoires
   - inferieur: [traj_bp2025_lente_2035, traj_bp2025_rapide_2035]
     motif: ordre des trajectoires
+  - inferieur: [emissions_cogeneration_rte_2025, emissions_prod_rte_2025]
+    motif: les cogénérations sont une partie des émissions de la production
+  - inferieur: [emissions_dechets_rte_2025, emissions_prod_rte_2025]
+    motif: les déchets sont une partie des émissions de la production
+  - inferieur: [intensite_prod_rte_2025, intensite_prod_acv_rte_2025]
+    motif: "en 2025, l'ACV (15,7 Mt) dépasse les émissions directes (10,9 Mt), bien que RTE compte zéro pour les déchets en cycle de vie (annexe p. 145) : vrai en valeur, pas par construction"
+  - inferieur: [facteur_ccg_direct_rte, facteur_tac_direct_rte]
+    motif: le cycle combiné est la centrale au gaz la plus performante (RTE, p. 106)
+  - inferieur: [ets_seuil_invalidation, ets_seuil_invalidation_compromis]
+    motif: le texte de compromis relève le seuil d'invalidation
+  - inferieur: [intensite_prod_rte_2025, intensite_max_rte_2025]
+    motif: une moyenne annuelle ne dépasse pas le maximum horaire
+  - inferieur: [ets_seuil_invalidation, ets_seuil_prelevement_bas]
+    motif: ordre des seuils de la réserve de stabilité
+  - inferieur: [ets_seuil_prelevement_bas, ets_tnac_2025]
+    motif: en 2025, des quotas sont placés dans la réserve (communication C/2026/2957)
+  - inferieur: [ets_tnac_2025, ets_seuil_prelevement_haut]
+    motif: en 2025, placement égal à l'excédent sur 833 millions (190 494 202 quotas)
+  - inferieur: [ets_seuil_prelevement_haut, ets_tnac_2024]
+    motif: en 2024, placement proportionnel (275 531 900 quotas, 24 %)

@@ -41,10 +41,24 @@ UNITES: dict[str, dict[str, float]] = {
     "puissance_it": _PUISSANCE,
     "energie": _ENERGIE,
     "part": {"%": 1.0},
-    "nombre": {"sites": 1.0, "projets": 1.0, "heures": 1.0, "déclarants": 1.0},
-    "intensite_moyenne": {"gCO2/kWh": 1.0, "gCO2eq/kWh": 1.0},
+    "nombre": {"sites": 1.0, "projets": 1.0, "heures": 1.0, "déclarants": 1.0, "pays": 1.0},
+    # Carbone (« Quel carbone ? ») : une grandeur par famille de facteur, pour qu'aucune contrainte ne
+    # compare un facteur moyen à un facteur marginal, à un paramètre de marché ou à un forfait
+    # réglementaire. 1 MJ = 1/3,6 kWh : 1 gCO2eq/MJ = 3,6 gCO2eq/kWh.
+    "intensite_moyenne": {"gCO2/kWh": 1.0, "gCO2eq/kWh": 1.0, "gCO2eq/MJ": 3.6},
+    "contenu_marginal": {"gCO2/kWh": 1.0},  # contenu CO2 marginal publié (note ADEME-RTE de 2007)
+    "facteur_emission_filiere": {"gCO2eq/kWh": 1.0},  # émissions d'une filière par kWh qu'elle produit
+    "facteur_emission_marche": {"tCO2/MWh": 1.0},  # sensibilité du prix spot au SEQE (CRE, aides d'État)
+    "valeur_forfaitaire": {"gCO2eq/MJ": 3.6, "gCO2eq/kWh": 1.0, "tCO2eq/MWh": 1000.0},  # fixée par un texte, pas une mesure
+    "emissions": {"MtCO2eq": 1.0},  # émissions directes observées (inventaire)
+    "emissions_evitees": {"MtCO2eq": 1.0},  # « émissions évitées » de RTE (différentiel d'intensités moyennes)
+    "emissions_co2": {"MtCO2": 1.0},  # CO2 seul (AIE)
+    "quotas": {"millions de quotas": 1.0},  # SEQE de l'UE, réserve de stabilité du marché
     "prix": {"€/MWh": 1.0},
     "pue": {"": 1.0},
+    # Coefficient fixé par un texte, sans dimension déclarée (« 0,36 fois le prix d'un quota ») :
+    # jamais un facteur d'émission.
+    "coefficient_reglementaire": {"fois": 1.0},
     # Capacité pour laquelle des ouvrages sont conçus, sans engagement contractuel.
     "puissance_dimensionnement": _PUISSANCE,
     # Grandeurs du système électrique (« Quand ? »). Chacune a son propre dictionnaire d'unités :
@@ -213,6 +227,9 @@ def exporter(ref: Referentiel, chemin: Path) -> None:
             cle: {**c, "source": {"cle": c["source"], **ref.sources[c["source"]]}}
             for cle, c in ref.chiffres.items()
         },
+        # Toutes les sources du référentiel, citées ou non par un chiffre : une enquête peut renvoyer
+        # à une source sans chiffre (`{{source:cle|page}}`, citation de texte réglementaire…).
+        "sources": {cle: {"cle": cle, **s} for cle, s in ref.sources.items()},
     }
     chemin.parent.mkdir(parents=True, exist_ok=True)
     chemin.write_text(json.dumps(sortie, ensure_ascii=False, indent=1, default=str) + "\n",

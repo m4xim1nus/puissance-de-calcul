@@ -10,7 +10,10 @@ from pc.check import HEURES_NEGATIVES_RTE
 
 pytestmark = pytest.mark.donnees
 
-MES_FICHIERS = ("systeme_horaire.parquet", "prix_quart_horaire.csv", "meta.json", "horaire", "quand.json")
+#: Budget de tout `data/export/` (fichiers servis au site et téléchargeables), décidé le 26/11/2026
+#: (making-of/DECISIONS.md) : 15,8 Mo à cette date, croissance ≈ 0,7 Mo par an (CSV de l'année en
+#: cours). Le dépasser impose de décider quoi alléger, pas de relever le budget sans le dire.
+BUDGET_EXPORTS = 20e6
 
 
 @pytest.fixture(scope="module")
@@ -19,9 +22,8 @@ def table(export):
 
 
 def test_taille_des_exports(export):
-    taille = sum(p.stat().st_size for nom in MES_FICHIERS for p in
-                 ([export / nom] if (export / nom).is_file() else (export / nom).rglob("*")) if p.is_file())
-    assert taille < 15e6
+    taille = sum(p.stat().st_size for p in export.rglob("*") if p.is_file())
+    assert taille < BUDGET_EXPORTS, f"data/export/ pèse {taille / 1e6:.2f} Mo (budget {BUDGET_EXPORTS / 1e6:.0f} Mo)"
 
 
 def test_grille_horaire_sans_trou_ni_doublon(table):
@@ -183,7 +185,67 @@ def test_chiffres_calcules_publies(export):
     # publié = arrondi : GW et TWh à 0,1, % à l'entier
     for cle, v in c.items():
         if v.get("produit_par"):
-            assert {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1, "°C": 0.1}[v["unite"]] == v["precision"]
+            assert {"GW": 0.1, "TWh": 0.1, "%": 1, "heures": 1, "°C": 0.1, "gCO2eq/kWh": 0.1}[v["unite"]] == v["precision"]
         # ordre de grandeur : RN max entre 20 et 45 GW ; Σ J entre 5 et 50 TWh
     assert all(20 < c[f"quand_rn_max_{an}"]["valeur"] < 45 for an in (2022, 2023, 2024, 2025))
     assert all(5 < c[f"quand_j_{an}"]["valeur"] < 50 for an in (2022, 2023, 2024, 2025))
+
+
+# --------------------------------------------------------------- « Quel carbone ? »
+
+
+@pytest.fixture(scope="module")
+def carb(export):
+    return json.loads((export / "carbone.json").read_text(encoding="utf-8"))
+
+
+def test_carbone_taille(export):
+    assert (export / "carbone.json").stat().st_size < 100_000
+
+
+def test_carbone_structure(carb):
+    assert carb["annees_couvertes"]["production"] == list(range(2015, 2026))
+    assert carb["annees_couvertes"]["consommation"] == list(range(2021, 2026))
+    for serie in ("production", "consommation"):
+        assert set(carb["matrices_mois_heure"][serie]) == {"2022", "2025"}
+    # les deux séries sont dites moyennes, jamais marginales
+    assert "MOYENNE" in carb["description"] and "marginal" in carb["description"]
+
+
+def test_carbone_ordres_de_grandeur(carb):
+    for an in range(2015, 2026):
+        p = carb["annees"][str(an)]["production"]
+        assert 10 < p["moyenne_ponderee"] < 100 and p["max"]["valeur"] < 200
+        assert 430 < p["production_twh"] < 580  # production hors Corse, 2015-2025
+    for an in range(2021, 2026):
+        c = carb["annees"][str(an)]["consommation"]
+        assert 10 < c["moyenne_ponderee"] < 100
+
+
+def test_carbone_retrouve_depuis_la_table_publiee(export, carb):
+    """Moyenne 2025 de la production recalculée sur systeme_horaire.parquet (publié), sans pc/carbone.py."""
+    t = pl.read_parquet(export / "systeme_horaire.parquet")
+    f = ["fioul", "charbon", "gaz", "nucleaire", "eolien", "solaire", "hydraulique", "bioenergies"]
+    t = (t.with_columns(pl.sum_horizontal(f).alias("p"), annee_paris("heure_utc").alias("an"))
+          .filter((pl.col("an") == 2025) & pl.col("taux_co2").is_not_null()))
+    m = (t["taux_co2"] * t["p"]).sum() / t["p"].sum()
+    assert abs(m - carb["annees"]["2025"]["production"]["moyenne_ponderee"]) < 0.01
+
+
+def test_chiffres_carbone_publies(export):
+    c = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
+    for an in (2022, 2024, 2025):
+        for s in ("prod", "conso"):
+            v = c[f"carbone_{s}_moyenne_{an}"]
+            assert v["produit_par"] == "pc build" and v["source"]["cle"] == "pdc-carbone"
+            assert v["grandeur"] == "intensite_moyenne" and v["unite"] == "gCO2eq/kWh"
+    # recoupement de même éditeur, écart attendu (Corse, facteurs) : la valeur du site est plus basse
+    assert c["carbone_prod_moyenne_2025"]["valeur"] < c["intensite_prod_rte_2025"]["valeur"]
+    assert abs(c["carbone_conso_moyenne_2025"]["valeur"] / c["intensite_conso_rte_2025"]["valeur"] - 1) < 0.02
+    # aucun chiffre carbone saisi ou calculé sans famille explicite (moyen, marginal, marché, forfait…)
+    familles = {"intensite_moyenne", "contenu_marginal", "facteur_emission_marche", "valeur_forfaitaire",
+                "facteur_emission_filiere",
+                "emissions", "emissions_evitees", "emissions_co2"}
+    for k, v in c.items():
+        if "CO2" in v["unite"]:
+            assert v["grandeur"] in familles, k

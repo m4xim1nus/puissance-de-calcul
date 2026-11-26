@@ -271,3 +271,103 @@ entsoe-transparence:
   url: https://web-api.tp.entsoe.eu/api
   consulte_le: 2026-11-26
   note: date = date d'extraction par `pc download` ; citer « ENTSO-E Transparency Platform » (conditions générales d'utilisation du 29/03/2023, § 3.1). Flux physiques (art. 12.1.g) et capacités prévues (art. 11.1.a) figurent sur la « List of data available for free re-use » (18/10/2023, CC BY 4.0), sauf « data provided by interconnectors Interconnexion France-Angleterre » ; prix day-ahead (12.1.d), production réalisée (16.1.b&c) et charge réalisée (6.1.a) n'y figurent pas et relèvent des seules conditions générales (droits éventuels du « Primary Owner of Data »)
+
+# « Quel carbone ? », saisi le 26/11/2026 : passages relus par l'agent rédacteur dans les PDF
+# (copies locales non versionnées dans data/raw/carbone/, SHA-256 dans
+# docs/relectures/2026-11-26-carbone-agent.md) ; contre-vérification à faire avant publication.
+ademe-rte-2007:
+  editeur: ADEME et RTE
+  titre: Le contenu en CO2 du kWh électrique — avantages comparés du contenu marginal et du contenu par usages sur la base de l'historique (note détaillée)
+  date_publication: 2007-10-08
+  url: https://www.hauts-de-france.developpement-durable.gouv.fr/IMG/pdf/contenuco2longue_ademe-rte.pdf
+  consulte_le: 2026-11-26
+  note: date portée en tête (« Final – le 08/10/2007 ») ; copie hébergée par la DREAL Hauts-de-France (PDF créé le 17/11/2015), les URL d'origine de l'ADEME n'étant plus servies ; page = page du PDF (7 pages, sans folio)
+
+cre-2021-126:
+  editeur: CRE
+  titre: Délibération n° 2021-126 du 6 mai 2021 portant approbation du rapport de RTE sur le facteur d'émission associé au marché de l'électricité français
+  date_publication: 2021-05-06
+  url: https://www.cre.fr/content/download/23806/file/210605_2021-126_Rapport_RTE_facteur_emission.pdf
+  consulte_le: 2026-11-26
+  note: PDF de 11 pages (délibération seule ; le rapport de RTE, annexé selon la CRE, n'est pas dans ce fichier) ; folio « n/11 »
+
+ue-2023-1185:
+  editeur: Commission européenne
+  titre: Règlement délégué (UE) 2023/1185 du 10 février 2023 (méthode d'évaluation des réductions d'émissions des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023
+  date_publication: 2023-06-20
+  url: https://eur-lex.europa.eu/eli/reg_del/2023/1185/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans le PDF du Journal officiel servi par l'Office des publications (publications.europa.eu/resource/celex/32023R1185), EUR-Lex refusant les accès automatisés ; page = page du JO (L 157/n)
+
+ue-2023-1184:
+  editeur: Commission européenne
+  titre: Règlement délégué (UE) 2023/1184 du 10 février 2023 (règles de production des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023
+  date_publication: 2023-06-20
+  url: https://eur-lex.europa.eu/eli/reg_del/2023/1184/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans le PDF du Journal officiel servi par l'Office des publications (celex 32023R1184) ; page = page du JO (L 157/n)
+
+ue-2015-1814-consolidee:
+  editeur: Parlement européen et Conseil de l'UE (version consolidée par l'Office des publications)
+  titre: Décision (UE) 2015/1814 concernant la création et le fonctionnement d'une réserve de stabilité du marché pour le SEQE de l'UE — version consolidée au 1er janvier 2024 (modifications 2018/410, 2023/852 et 2023/959)
+  date_publication: 2024-01-01
+  url: https://eur-lex.europa.eu/eli/dec/2015/1814/oj
+  consulte_le: 2026-11-26
+  note: « outil de documentation » sans effet juridique (mention en tête du texte consolidé, celex 02015D1814-20240101) ; proposition de la Commission du 1er avril 2026, COM(2026) 153, de mettre fin à l'invalidation ; texte de compromis approuvé par le Coreper le 28/10/2026 (document du Conseil 14944/26) qui garde l'invalidation et en relève le seuil à 700 millions de quotas ; première lecture du Parlement le 24/11/2026, position du Conseil attendue au 26/11/2026 (fiche de procédure 2026/0085(COD))
+
+ce-tnac-2025:
+  editeur: Commission européenne
+  titre: Communication C/2026/2957 — Publication du nombre total de quotas en circulation en 2025 aux fins de la réserve de stabilité du marché relevant du SEQE de l'UE
+  date_publication: 2026-06-01
+  url: https://eur-lex.europa.eu/eli/C/2026/2957/oj
+  consulte_le: 2026-11-26
+  note: texte français lu dans la version XHTML servie par l'Office des publications (cellar 0e89f392-5d73-11f1-aa6d-01aa75ed71a1) ; JO série C du 1.6.2026
+
+rte-methodo-intensite-conso-2026:
+  editeur: RTE (open data ODRÉ)
+  titre: Méthodologie — Part des EnR et intensité en émissions de GES de l'électricité consommée en France en temps réel (v1)
+  date_publication: 2026-04-01
+  url: https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/part-enr-intensite-ges-conso-tr/attachments/rte_methodologie_fr_part_enr_intensite_ges_conso_v1_pdf
+  consulte_le: 2026-11-26
+  note: date de couverture « Avril 2026 – v1 », approchée au mois (PDF créé le 15/04/2026) ; pièce jointe du jeu ODRÉ part-enr-intensite-ges-conso-tr
+
+# Corrections après relecture adverse (docs/relectures/2026-11-26-carbone.md), 26/11/2026.
+rte-ademe-2020-chauffage:
+  editeur: RTE et ADEME
+  titre: Réduction des émissions de CO2, impact sur le système électrique — quelle contribution du chauffage dans les bâtiments à l'horizon 2035 ? (rapport complet)
+  date_publication: 2021-01-28
+  url: https://assets.rte-france.com/prod/public/2021-02/Rapport%20chauffage_RTE_Ademe.pdf
+  consulte_le: 2026-11-26
+  note: étude de décembre 2020, rapport complet publié en 2021 (PDF de 268 pages créé le 28/01/2021, URL datée 2021-02) ; page = page du PDF, égale au folio imprimé
+
+conseil-14944-26:
+  editeur: Conseil de l'Union européenne
+  titre: Document 14944/26 — Outcome of proceedings, procédure 2026/0085 (COD), décision modifiant la décision (UE) 2015/1814 (invalidation des quotas de la réserve de stabilité), texte de compromis final
+  date_publication: 2026-10-28
+  url: https://data.consilium.europa.eu/doc/document/ST-14944-2026-INIT/en/pdf
+  consulte_le: 2026-11-26
+  note: en anglais (pas de version française servie) ; texte approuvé par le Coreper « with a view to agreement », pas encore adopté ; page = page du PDF (6 pages)
+
+pe-oeil-2026-0085:
+  editeur: Parlement européen (Observatoire législatif)
+  titre: Fiche de procédure 2026/0085(COD) — Amending Decision 2015/1814 (invalidation des quotas de la réserve de stabilité)
+  date_publication: 2026-11-26
+  url: https://oeil.secure.europarl.europa.eu/oeil/en/procedure-file?reference=2026/0085(COD)
+  consulte_le: 2026-11-26
+  note: date = date de consultation ; état lu le 26/11/2026 « Awaiting Council's 1st reading position » ; décision du Parlement en première lecture le 24/11/2026 (T10-0381/2026, texte adopté non relu par le site)
+
+ue-2024-1408:
+  editeur: Commission européenne
+  titre: Règlement délégué (UE) 2024/1408 du 14 mars 2024 modifiant le règlement délégué (UE) 2023/1184 (terme « carburants renouvelables d'origine non biologique »), JO L du 21.5.2024
+  date_publication: 2024-05-21
+  url: https://eur-lex.europa.eu/eli/reg_del/2024/1408/oj
+  consulte_le: 2026-11-26
+  note: texte français du JO servi par l'Office des publications (celex 32024R1408) ; remplace notamment l'article 6 du règlement 2023/1184 (dates, seuil de 20 EUR/MWh, coefficient de 0,36 et option du 1er juillet 2027 inchangés) ; page = page du PDF (n/5)
+
+rte-eco2mix-emissions:
+  editeur: RTE
+  titre: éCO2mix — eCO2 emissions (page web, méthode du taux d'émission de la production)
+  date_publication: 2026-11-26
+  url: https://www.rte-france.com/en/data-publications/eco2mix/eco2-emissions
+  consulte_le: 2026-11-26
+  note: page sans date, lue en anglais ; date = date de consultation ; « direct emissions » = facteur d'émission « primaire » du combustible (Base Carbone de l'ADEME) combiné au rendement moyen de la filière (hypothèses internes de RTE)

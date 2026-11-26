@@ -3,6 +3,7 @@ import type { Chiffre, Chiffres } from '$lib/chiffres';
 import { chargerChiffres } from './chiffres';
 import {
   chargerEnquete,
+  lireChantier,
   lireFrontMatter,
   metaEnquete,
   rendreCorps,
@@ -184,5 +185,73 @@ describe('fragments partagés (::: inclure nom :::)', () => {
     // Les deux restent dans la même liste que les autres limites.
     const liste = html.slice(html.indexOf('Ce que ce calcul ne dit pas'));
     expect(liste.match(/<ul>/g)?.length).toBe(1);
+  });
+});
+
+describe('encarts « en préparation » (::: chantier nom :::)', () => {
+  const ecrire = async (contenu: string) => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const d = mkdtempSync(join(tmpdir(), 'chantier-'));
+    writeFileSync(join(d, 'essai.md'), contenu);
+    return d;
+  };
+  const valide =
+    '---\ntitre: Essai\n---\n\n<!-- note -->\n\n## Ce qui manque\n\nUne série\nhoraire.\n\n## Pourquoi\n\nParce que : rien.\n\n## Ce qui viendra\n\nLa suite.\n';
+  it('lit le titre et les trois sections, en texte simple typographié', async () => {
+    const d = await ecrire(valide);
+    expect(lireChantier('essai', d)).toEqual({
+      titre: 'Essai',
+      manque: 'Une série horaire.',
+      pourquoi: 'Parce que\u00a0: rien.',
+      viendra: 'La suite.'
+    });
+  });
+  it('refuse une section manquante, dans le désordre, ou un chiffre du référentiel', async () => {
+    expect(() => lireChantier('essai', '/nulle/part')).toThrow();
+    let d = await ecrire(valide.replace('## Pourquoi', '## Raison'));
+    expect(() => lireChantier('essai', d)).toThrow(/sections/);
+    d = await ecrire(valide.replace('La suite.', '{{conso}}'));
+    expect(() => lireChantier('essai', d)).toThrow(/texte simple/);
+    d = await ecrire(valide.replace('Une série\nhoraire.', 'Un.\n\nDeux.'));
+    expect(() => lireChantier('essai', d)).toThrow(/texte simple/);
+  });
+  it('rend la directive en bloc « chantier » dans l’enquête « Quel carbone ? »', () => {
+    const e = chargerEnquete('carbone', chargerChiffres());
+    const encarts = e.blocs.filter((b) => b.type === 'chantier');
+    expect(encarts).toHaveLength(1);
+    expect(encarts[0]).toMatchObject({ type: 'chantier', titre: 'Le facteur marginal français' });
+    expect(e.blocs.some((b) => b.type === 'graphique' && b.nom === 'carbone-mois-heure')).toBe(
+      true
+    );
+  });
+});
+
+describe('« Quel carbone ? » : chaque chiffre carbone dit sa famille', () => {
+  it('aucun chiffre en gCO2, tCO2 ou MtCO2 sans grandeur explicite (moyen, marginal, marché, forfait…)', () => {
+    const familles = new Set([
+      'intensite_moyenne',
+      'contenu_marginal',
+      'facteur_emission_marche',
+      'valeur_forfaitaire',
+      'facteur_emission_filiere',
+      'emissions',
+      'emissions_evitees',
+      'emissions_co2'
+    ]);
+    const ch = chargerChiffres();
+    for (const [id, c] of Object.entries(ch))
+      if (/CO2/.test(c.unite)) expect(familles.has(c.grandeur), id).toBe(true);
+  });
+});
+
+describe('sources citées sans chiffre', () => {
+  it('renvoie à une source du référentiel qu’aucun chiffre ne cite', () => {
+    const blocs = rendreCorps('Texte {{source:rte-ademe-2020-chauffage|p. 208}}.', chiffres);
+    const html = blocs.map((b) => (b.type === 'html' ? b.html : '')).join('');
+    expect(html).toContain('Rapport%20chauffage_RTE_Ademe.pdf');
+    expect(html).toContain('p. 208');
+    expect(() => rendreCorps('{{source:inconnue|p. 1}}', chiffres)).toThrow(/Source inconnue/);
   });
 });

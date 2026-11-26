@@ -2,7 +2,7 @@
 // le pipeline). Pas de copie dans site/ : le build lit directement l'export.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { Chiffres } from '$lib/chiffres';
+import type { Chiffres, Source } from '$lib/chiffres';
 import { RACINE } from '$lib/server/makingof';
 
 const CONFIANCES = new Set(['A', 'B', 'C']);
@@ -30,6 +30,28 @@ export function validerChiffres(brut: unknown): Chiffres {
         throw new Error(`chiffres.json : « ${id} », source sans ${champ}`);
   }
   return chiffres as Chiffres;
+}
+
+let cacheSources: Map<string, Source> | undefined;
+
+/**
+ * Toutes les sources du référentiel (clé « sources » de chiffres.json), citées ou non par un chiffre :
+ * une enquête peut renvoyer à un texte sans en tirer de chiffre (`{{source:cle|page}}`). Chaque
+ * source doit avoir ses champs obligatoires, sinon le build échoue.
+ */
+export function chargerSources(): Map<string, Source> {
+  if (cacheSources) return cacheSources;
+  const brut = JSON.parse(readFileSync(resolve(RACINE, 'data/export/chiffres.json'), 'utf8')) as {
+    sources?: Record<string, Record<string, unknown>>;
+  };
+  const m = new Map<string, Source>();
+  for (const [cle, s] of Object.entries(brut.sources ?? {})) {
+    for (const champ of ['editeur', 'titre', 'date_publication', 'url'])
+      if (typeof s[champ] !== 'string')
+        throw new Error(`chiffres.json : source « ${cle} » sans ${champ}`);
+    m.set(cle, { ...(s as unknown as Source), cle });
+  }
+  return (cacheSources = m);
 }
 
 export function chargerChiffres(): Chiffres {

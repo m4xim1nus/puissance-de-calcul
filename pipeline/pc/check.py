@@ -1062,7 +1062,9 @@ def controle_quand_chiffres(q: dict, export: Path) -> Resultat:
             # la valeur publiée est l'arrondi de la valeur non arrondie de quand.json, à un demi-pas près
             if abs(p["valeur"] - p["valeur_calculee"]) > p["precision"] / 2 + 1e-9:
                 erreurs.append(f"{cle} : valeur publiée {p['valeur']} à plus d'un demi-pas de {p['valeur_calculee']}")
-    orphelins = sorted(k for k, v in publies.items() if v.get("produit_par") and k not in attendus)
+    # Chiffres calculés de « Quand ? » seulement (ceux de « Quel carbone ? » : `controle_carbone_chiffres`).
+    orphelins = sorted(k for k, v in publies.items() if v.get("produit_par") and k not in attendus
+                       and (v.get("source") or {}).get("cle") == SOURCE_QUAND)
     erreurs += [f"{k} : chiffre calculé orphelin" for k in orphelins]
     if erreurs:
         r.statut = "ÉCHEC"
@@ -1089,6 +1091,239 @@ def controles_quand(export: Path, table: pl.DataFrame) -> list:
         lambda: controle_quand_ecretement(q, table),
         lambda: controle_quand_chiffres(q, export),
     ]
+
+
+# --------------------------------------------------------------------------
+# « Quel carbone ? » (pc/carbone.py, data/export/carbone.json)
+# --------------------------------------------------------------------------
+
+#: Écart attendu entre la moyenne annuelle de `taux_co2` (éCO2mix, hors Corse) et l'intensité de la
+#: production publiée dans le Bilan électrique (Corse comprise, facteurs de l'annexe). Calibré le
+#: 26/11/2026 sur les deux années de référence : −7,4 % (2024 : 20,1 contre 21,7) et −6,3 % (2025 :
+#: 18,4 contre 19,6). La contre-vérification du 26/11/2026 (docs/spike/contre-verification.md, J)
+#: attribue environ 3/4 (2024) et 9/10 (2025) de l'écart au fioul de la Corse, le reste aux facteurs
+#: d'émission. Un écart hors de cette bande signale un changement de méthode ou une erreur.
+ECART_PRODUCTION_BILAN = (-0.09, -0.04)
+#: Intensité de la consommation : même éditeur, même méthode (± 2 %, comme `controle_intensite`).
+TOLERANCE_CONSO_BILAN = 0.02
+#: « Près de la moitié du temps, l'intensité de la production comme de la consommation s'est située en
+#: dessous de 15 gCO2éq/kWh » (BE2025, p. 105) : bande large autour de la moitié.
+BANDE_PART_FOND = (0.40, 0.55)
+#: Maximum horaire 2025 de l'intensité de la CONSOMMATION publié par RTE (58 g, BE2025 p. 105 ; série
+#: établie par la figure 5.7, monotone de la consommation : relecture adverse du 26/11/2026, F4).
+#: Comparé au maximum de la série ODRÉ de la consommation, recalculée par RTE en mars 2026 (60 g) :
+#: tolérance de ± 3 g. (Une première version le comparait à la production, à ± 0,5 g : coïncidence.)
+MAX_RTE_2025 = 58.0
+TOLERANCE_MAX_RTE_G = 3.0
+
+
+def _carbone(export: Path) -> dict:
+    import json
+    return json.loads((export / "carbone.json").read_text(encoding="utf-8"))
+
+
+def controle_carbone_recalcul(raw: Path, export: Path, table: pl.DataFrame, c: dict) -> Resultat:
+    """carbone.json = recalcul depuis systeme_horaire.parquet et le jeu ODRÉ ; moyennes annuelles
+    recalculées par une seconde implémentation (Python pur) ; ordre des statistiques."""
+    from . import carbone
+    r = Resultat("« Quel carbone ? » : carbone.json = recalcul (table publiée + ODRÉ) ; moyennes pondérées "
+                 "recalculées en Python pur ; min ≤ quantiles ≤ max", "OK")
+    chemin = fichier(raw, "odre_ges_conso")
+    ges = carbone.lire_ges_conso(chemin) if chemin.exists() else None
+    if ges is None:
+        return Resultat(r.nom, "ÉCHEC", [f"{chemin} absent : la série consommation ne peut pas être vérifiée"])
+    attendu = carbone.construire_carbone(table, ges, c["donnees"]["extractions"])
+    fautes = []
+    if attendu != c:
+        diff = [k for k in set(attendu) | set(c) if attendu.get(k) != c.get(k)]
+        fautes.append(f"carbone.json ≠ recalcul (clés {sorted(diff)}) : relancer `pc build`")
+    h = carbone.series_horaires(table, ges)
+    for serie in carbone.SERIES:
+        for an in c["annees_couvertes"][serie]:
+            s = c["annees"][str(an)][serie]
+            d = carbone._valides(h, serie).filter(pl.col("an") == an)
+            m = carbone.moyenne_ponderee(d["i"].to_list(), d["w"].to_list())
+            if abs(m - s["moyenne_ponderee"]) > 0.006:
+                fautes.append(f"{serie} {an} : moyenne {s['moyenne_ponderee']} ≠ recalcul {m:.3f}")
+            q = s["quantiles"]
+            suite = [s["min"]["valeur"], q["p10"], q["p50"], q["p90"], s["max"]["valeur"]]
+            if suite != sorted(suite) or not (s["min"]["valeur"] <= s["moyenne_ponderee"] <= s["max"]["valeur"]):
+                fautes.append(f"{serie} {an} : ordre min ≤ p10 ≤ p50 ≤ p90 ≤ max ou min ≤ moyenne ≤ max violé")
+            for k in ("moyenne_hiver", "moyenne_ete"):
+                if not (s["min"]["valeur"] <= s[k] <= s["max"]["valeur"]):
+                    fautes.append(f"{serie} {an} : {k} hors [min, max]")
+        for an, mat in c["matrices_mois_heure"][serie].items():
+            s = c["annees"][an][serie]
+            cases = [v for ligne in mat["valeurs"] for v in ligne if v is not None]
+            if len(cases) != 288 or min(cases) < s["min"]["valeur"] or max(cases) > s["max"]["valeur"]:
+                fautes.append(f"{serie} {an} : matrice incomplète ou hors [min, max]")
+    if fautes:
+        r.statut = "ÉCHEC"
+    r.lignes.append("production : " + ", ".join(f"{a} {_f(c['annees'][str(a)]['production']['moyenne_ponderee'], 2)} g"
+                                                for a in c["annees_couvertes"]["production"]))
+    r.lignes.append("consommation : " + ", ".join(
+        f"{a} {_f(c['annees'][str(a)]['consommation']['moyenne_ponderee'], 2)} g" for a in c["annees_couvertes"]["consommation"]))
+    r.lignes += fautes
+    return r
+
+
+def controle_carbone_bilan(raw: Path, c: dict) -> Resultat:
+    """Recoupements (même éditeur) avec les Bilans électriques de RTE, valeurs lues dans le référentiel."""
+    from . import carbone, chiffres
+    r = Resultat("« Quel carbone ? » : intensités moyennes = Bilans électriques RTE (production : écart de −9 à −4 % "
+                 "attendu, Corse et facteurs ; consommation : ± 2 %) ; part des heures < 15 g ≈ la moitié ; "
+                 "maximum 2025 ≈ 58 g", "OK")
+    ref = chiffres.charger().chiffres
+    for serie, refs in carbone.REFERENCES_RTE.items():
+        for an, cle in refs.items():
+            s = (c["annees"].get(str(an)) or {}).get(serie)
+            if s is None or cle not in ref:
+                r.statut = "ÉCHEC"
+                r.lignes.append(f"{serie} {an} : valeur ou référence absente ({cle})")
+                continue
+            e = s["moyenne_ponderee"] / ref[cle]["valeur"] - 1
+            lo, hi = ECART_PRODUCTION_BILAN if serie == "production" else (-TOLERANCE_CONSO_BILAN, TOLERANCE_CONSO_BILAN)
+            ok = lo <= e <= hi
+            if not ok:
+                r.statut = "ÉCHEC"
+            r.lignes.append(f"{serie} {an} : site {_f(s['moyenne_ponderee'], 2)} g, RTE {_f(ref[cle]['valeur'], 1)} g, "
+                            f"écart {_pct(e, 1)}{'' if ok else '  ← hors bande'}")
+    for serie in carbone.SERIES:
+        s = c["annees"]["2025"][serie]
+        p = s["part_heures_sous_seuil_fond"]
+        ok = BANDE_PART_FOND[0] <= p <= BANDE_PART_FOND[1]
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{serie} 2025 : {_f(p * 100, 1)} % des heures sous {_f(carbone.SEUIL_FOND_G, 0)} g "
+                        f"(RTE : « près de la moitié du temps »){'' if ok else '  ← hors bande'}")
+    mp = c["annees"]["2025"]["production"]["max"]["valeur"]
+    mc = c["annees"]["2025"]["consommation"]["max"]["valeur"]
+    ok = abs(mc - MAX_RTE_2025) <= TOLERANCE_MAX_RTE_G
+    if not ok:
+        r.statut = "ÉCHEC"
+    r.lignes.append(f"maximum horaire 2025 de la consommation : site {_f(mc, 1)} g, RTE {_f(MAX_RTE_2025, 0)} g (figure 5.7, "
+                    f"± {_f(TOLERANCE_MAX_RTE_G, 0)} g ; série ODRÉ recalculée en mars 2026){'' if ok else '  ← écart'} ; "
+                    f"production (information) {_f(mp, 1)} g")
+    # Les deux chiffres de RTE ne sont pas complémentaires : les 40 % « hors socle » excluent aussi les
+    # cogénérations au fioul, que RTE ne chiffre pas à part (figure 5.6). Inégalité qui doit tenir :
+    # (cogénérations au gaz + déchets) / total ≤ 1 − part hors socle (relecture adverse, F1).
+    cles = ("emissions_cogeneration_rte_2025", "emissions_dechets_rte_2025", "emissions_prod_rte_2025",
+            "part_emissions_hors_socle_rte_2025")
+    if all(k in ref for k in cles):
+        socle = (ref[cles[0]]["valeur"] + ref[cles[1]]["valeur"]) / ref[cles[2]]["valeur"]
+        borne = 1 - ref[cles[3]]["valeur"] / 100
+        ok = socle <= borne + 1e-9
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"socle RTE 2025 : cogénérations au gaz + déchets = {_f(socle * 100, 0)} % des émissions ≤ "
+                        f"{_f(borne * 100, 0)} % (100 % − part hors socle ; le reste : cogénérations au fioul, non chiffrées "
+                        f"à part){'' if ok else '  ← incohérent'}")
+    em = c["annees"]["2025"]["production"]["emissions_directes_mt"]
+    if "emissions_prod_rte_2025" in ref:
+        r.lignes.append(f"émissions directes 2025 (information) : site {_f(em, 2)} Mt hors Corse, RTE "
+                        f"{_f(ref['emissions_prod_rte_2025']['valeur'], 1)} Mt Corse comprise "
+                        f"({_pct(em / ref['emissions_prod_rte_2025']['valeur'] - 1, 1)})")
+    # « En 2023, par exemple, l'intensité carbone de la consommation avait dépassé 100 gCO2éq/kWh pendant
+    # environ 3 % du temps » (BE2025, p. 105) : phrase reprise du Bilan 2024 (p. 99), contredite par la
+    # figure 5.7 du Bilan 2025 (environ 0,4 %, lecture graphique) et par le jeu ODRÉ. Affiché, pas publié.
+    chemin = fichier(raw, "odre_ges_conso")
+    if chemin.exists():
+        g = carbone.lire_ges_conso(chemin).with_columns(
+            pl.col("heure_utc").dt.convert_time_zone("Europe/Paris").dt.year().alias("an"))
+        g23 = g.filter(pl.col("an") == 2023)
+        if g23.height:
+            r.lignes.append(f"information : consommation 2023 au-dessus de 100 g pendant "
+                            f"{_f((g23['intensite_conso'] > 100).mean() * 100, 2)} % des heures dans le jeu ODRÉ ; le texte "
+                            "du BE2025 (p. 105) écrit « environ 3 % du temps », phrase reprise du BE2024 et contredite par "
+                            "sa propre figure 5.7 : non publiée")
+    return r
+
+
+def controle_carbone_chiffres(export: Path, c: dict, brut: dict | None = None) -> Resultat:
+    """chiffres.json porte exactement les chiffres calculés depuis carbone.json (source pdc-carbone)."""
+    import json
+    from . import carbone, chiffres
+    r = Resultat("« Quel carbone ? » : chiffres calculés de chiffres.json = carbone.json, valeur publiée = arrondi "
+                 "(g/kWh à 0,1, % à l'entier) de la valeur exportée ET de la valeur non arrondie ; référentiel "
+                 "fusionné valide", "OK")
+    ref = chiffres.charger()
+    attendus = carbone.chiffres_calcules(c, ref.chiffres)
+    publies = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
+    source = (publies.get(next(iter(attendus)), {}).get("source") or {}) if attendus else {}
+    fusion = chiffres.fusionner(ref, {carbone.SOURCE_CARBONE: {k: v for k, v in source.items() if k != "cle"}},
+                                attendus)
+    erreurs = chiffres.valider(fusion)
+    for cle, v in attendus.items():
+        p = publies.get(cle)
+        if p is None:
+            erreurs.append(f"{cle} absent de chiffres.json")
+        elif ({k: x for k, x in p.items() if k != "source"} != {k: x for k, x in v.items() if k != "source"}
+              or p["source"].get("cle") != carbone.SOURCE_CARBONE):
+            erreurs.append(f"{cle} : chiffres.json ≠ carbone.json (relancer `pc build`)")
+        elif abs(p["valeur"] - p["valeur_calculee"]) > p["precision"] / 2 + 1e-9:
+            erreurs.append(f"{cle} : valeur publiée {p['valeur']} à plus d'un demi-pas de {p['valeur_calculee']}")
+    erreurs += [f"{k} : chiffre calculé orphelin" for k, v in publies.items()
+                if (v.get("source") or {}).get("cle") == carbone.SOURCE_CARBONE and k not in attendus]
+    # Double arrondi : chaque valeur publiée doit être aussi l'arrondi de la valeur NON arrondie.
+    if brut is not None:
+        exacts = carbone.chiffres_calcules(brut, ref.chiffres)
+        for cle, v in attendus.items():
+            e = exacts.get(cle)
+            if e is None or e["valeur"] != v["valeur"]:
+                erreurs.append(f"{cle} : double arrondi, publié {v['valeur']} ≠ arrondi de la valeur exacte "
+                               f"{e and e['valeur_calculee']} ({e and e['valeur']})")
+    if erreurs:
+        r.statut = "ÉCHEC"
+    r.lignes.append(f"{len(attendus)} chiffres calculés ; source « {carbone.SOURCE_CARBONE} » datée du "
+                    f"{source.get('date_publication', '?')}")
+    r.lignes += erreurs
+    return r
+
+
+def controles_carbone(raw: Path, export: Path, table: pl.DataFrame) -> list:
+    if not (export / "carbone.json").exists():
+        return [lambda: Resultat("« Quel carbone ? »", "ÉCHEC", ["carbone.json absent : lancer `pc build`"])]
+    from . import carbone
+    c = _carbone(export)
+    chemin = fichier(raw, "odre_ges_conso")
+    brut = (carbone.construire_carbone(table, carbone.lire_ges_conso(chemin), c["donnees"]["extractions"],
+                                       arrondi=False) if chemin.exists() else None)
+    return [
+        lambda: controle_carbone_recalcul(raw, export, table, c),
+        lambda: controle_carbone_bilan(raw, c),
+        lambda: controle_carbone_chiffres(export, c, brut),
+    ]
+
+
+# --------------------------------------------------------------------------
+# Chiffres calculés, toutes sources confondues
+# --------------------------------------------------------------------------
+
+
+def producteurs_controles() -> dict[str, str]:
+    """Source des chiffres calculés → contrôle qui connaît sa liste attendue (et repère ses orphelins)."""
+    from . import carbone
+    from .export_quand import SOURCE_QUAND
+    return {SOURCE_QUAND: "controle_quand_chiffres", carbone.SOURCE_CARBONE: "controle_carbone_chiffres"}
+
+
+def controle_chiffres_calcules_couverts(export: Path) -> Resultat:
+    """Tout chiffre calculé (`produit_par`) de chiffres.json relève d'une source qu'un contrôle couvre :
+    un chiffre d'une source inconnue, ou sans source, ferait échouer `pc check` (relecture adverse du
+    26/11/2026, C1 : les contrôles par enquête ne voient que leur propre source)."""
+    import json
+    producteurs = producteurs_controles()
+    r = Resultat("Chiffres calculés : chacun relève d'un contrôle de cohérence (" + ", ".join(sorted(producteurs)) + ")",
+                 "OK")
+    publies = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
+    hors = sorted(f"{k} (source {(v.get('source') or {}).get('cle')!r})" for k, v in publies.items()
+                  if v.get("produit_par") and (v.get("source") or {}).get("cle") not in producteurs)
+    if hors:
+        r.statut = "ÉCHEC"
+    n = sum(1 for v in publies.values() if v.get("produit_par"))
+    r.lignes.append(f"{n} chiffres calculés au total")
+    r.lignes += [f"{h} : chiffre calculé sans contrôle" for h in hors]
+    return r
 
 
 # --------------------------------------------------------------------------
@@ -1137,6 +1372,8 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None, derive: Path
         lambda: controle_completude(table, annee_courante),
         *controles_remit,
         *controles_quand(export, table),
+        *controles_carbone(raw, export, table),
+        lambda: controle_chiffres_calcules_couverts(export),
     ]
     try:  # ENTSO-E (pc/check_entsoe.py) : INFO sans données, ÉCHEC si le brut existe sans dérivés
         from . import check_entsoe

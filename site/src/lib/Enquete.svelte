@@ -4,6 +4,7 @@
   // texte + marge.
   import { onMount } from 'svelte';
   import type { Chiffres } from '$lib/chiffres';
+  import EnChantier from '$lib/EnChantier.svelte';
   import { formaterDate } from '$lib/format';
   import { GRAPHIQUES, type DonneesEnquete } from '$lib/graphiques/registre';
   import type { Enquete } from '$lib/enquete';
@@ -57,6 +58,10 @@
     {#if b.type === 'html'}
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html b.html}
+    {:else if b.type === 'chantier'}
+      <div class="encart">
+        <EnChantier titre={b.titre} manque={b.manque} pourquoi={b.pourquoi} viendra={b.viendra} />
+      </div>
     {:else}
       {@const Graphique = GRAPHIQUES[b.nom]}
       <Graphique {chiffres} {donnees} />
@@ -82,6 +87,11 @@
   }
   .tete .meta {
     margin: 0;
+  }
+  .encart {
+    clear: both;
+    max-width: var(--mesure);
+    margin: 1.5rem 0 2rem;
   }
 
   /* Texte de l'enquête (HTML rendu au prérendu). */

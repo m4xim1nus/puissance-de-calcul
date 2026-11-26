@@ -5,10 +5,11 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chiffre, sourcesDe, type Chiffres } from '$lib/chiffres';
 import { formaterValeur } from '$lib/format';
-import type { BlocEnquete, Enquete, MetaEnquete } from '$lib/enquete';
+import type { BlocEnquete, Chantier, Enquete, MetaEnquete } from '$lib/enquete';
 import { estNomGraphique } from '$lib/graphiques/noms';
 import { echapper, markdownBlocs, typographier } from '$lib/markdown';
 import { appel, noteChiffre, noteRenvoi, noteSource } from '$lib/notes';
+import { chargerSources } from '$lib/server/chiffres';
 import { RACINE } from '$lib/server/makingof';
 
 const CHAMPS_REQUIS = ['titre', 'question', 'mise_a_jour'] as const;
@@ -72,11 +73,51 @@ export function inclureFragments(corps: string, dossier: string = PARTAGE): stri
   });
 }
 
+/** Encarts « en préparation » : docs/enquetes/chantier/<nom>.md. */
+const CHANTIERS = resolve(RACINE, 'docs/enquetes/chantier');
+const SECTIONS_CHANTIER = {
+  'Ce qui manque': 'manque',
+  Pourquoi: 'pourquoi',
+  'Ce qui viendra': 'viendra'
+} as const;
+
+/**
+ * Lit un encart « en préparation » : front matter `titre`, puis trois sections `## Ce qui manque`,
+ * `## Pourquoi`, `## Ce qui viendra`, dans cet ordre, chacune un paragraphe de texte simple (ni
+ * chiffre du référentiel, ni lien, ni directive : EnChantier.svelte l'affiche tel quel). Toute
+ * entorse lève une erreur.
+ */
+export function lireChantier(nom: string, dossier: string = CHANTIERS): Chantier {
+  if (!/^[a-z0-9-]+$/.test(nom)) throw new Error(`Encart « ${nom} » : nom invalide`);
+  const { meta, corps } = lireFrontMatter(readFileSync(resolve(dossier, `${nom}.md`), 'utf8'));
+  if (!meta.titre) throw new Error(`Encart « ${nom} » : titre absent du front matter`);
+  const texte = corps.replace(/<!--[\s\S]*?-->/g, '');
+  const morceaux = texte.split(/^## +(.+)$/m).slice(1);
+  const titres = morceaux.filter((_, i) => i % 2 === 0).map((t) => t.trim());
+  const attendus = Object.keys(SECTIONS_CHANTIER);
+  if (titres.join('|') !== attendus.join('|'))
+    throw new Error(
+      `Encart « ${nom} » : sections ${JSON.stringify(titres)}, attendu ${JSON.stringify(attendus)}`
+    );
+  const sortie = { titre: typographier(meta.titre) } as Chantier;
+  titres.forEach((t, i) => {
+    const p = morceaux[2 * i + 1].trim().replace(/\s*\n\s*/g, ' ');
+    if (!p || /\n\s*\n|\{\{|:::|\]\(/.test(morceaux[2 * i + 1].trim()))
+      throw new Error(
+        `Encart « ${nom} », section « ${t} » : un paragraphe de texte simple attendu`
+      );
+    sortie[SECTIONS_CHANTIER[t as keyof typeof SECTIONS_CHANTIER]] = typographier(p);
+  });
+  return sortie;
+}
+
 /** Rend le corps d'une enquête en blocs HTML (avec notes marginales) et emplacements de graphiques. */
 export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
   corps = inclureFragments(corps);
   verifierDebutsDeLigne(corps);
-  const sources = sourcesDe(chiffres);
+  // Sources citées par les chiffres, complétées par toutes celles du référentiel (une source peut être
+  // citée sans chiffre) ; à clé égale, celle du chiffre l'emporte.
+  const sources = new Map([...chargerSources(), ...sourcesDe(chiffres)]);
   const notes = new Map<number, string>();
   const premiereNote = new Map<string, number>();
   let numero = 0;
@@ -117,6 +158,7 @@ export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
 
   return markdownBlocs(corps, { niveauTitre: 1, jeton, envelopper, typographie: true }).map((b) => {
     if (b.type === 'html') return b;
+    if (b.nom === 'chantier') return { type: 'chantier', ...lireChantier(b.argument) };
     if (b.nom !== 'graphique') throw new Error(`Directive inconnue : « ${b.brut} »`);
     if (!estNomGraphique(b.argument)) throw new Error(`Graphique inconnu : « ${b.argument} »`);
     return { type: 'graphique', nom: b.argument };

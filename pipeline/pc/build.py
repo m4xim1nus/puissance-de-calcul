@@ -15,7 +15,9 @@ Chaîne :
 5. exports : `systeme_horaire.parquet`, `horaire/AAAA.csv`,
    `prix_quart_horaire.csv`, `meta.json` ;
 6. indicateurs de « Quand ? » → `quand.json` (`pc/quand.py`, `pc/export_quand.py`), et les
-   chiffres calculés que le texte cite, renvoyés à la CLI pour `chiffres.json`.
+   chiffres calculés que le texte cite, renvoyés à la CLI pour `chiffres.json` ;
+7. intensité carbone moyenne (« Quel carbone ? ») → `carbone.json` (`pc/carbone.py`), et ses
+   chiffres calculés.
 
 Unités : les colonnes de puissance sont des **MW moyens** sur le pas de
 temps. Une heure de MW moyens vaut des MWh (× 1 h) ; une demi-heure, × 0,5 h.
@@ -30,7 +32,7 @@ from pathlib import Path
 
 import polars as pl
 
-from . import export_quand, remit
+from . import carbone, export_quand, remit
 from .sources import (ANNEE_DEBUT, LICENCE_EDF, LICENCE_ODRE, LICENCE_PRIX, fichier, fichier_edf, fichiers_annuels,
                       lire_manifeste)
 
@@ -574,13 +576,15 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 
 #: Familles de sources lues par les indicateurs de « Quand ? » (préfixes du manifeste).
 SOURCES_QUAND = {"eco2mix": ("eco2mix_cons_def/", "eco2mix_tr"), "edf_remit": ("edf_remit/",), "prix": ("prix_fr/",)}
+#: Familles de sources lues par « Quel carbone ? ».
+SOURCES_CARBONE = {"eco2mix": ("eco2mix_cons_def/", "eco2mix_tr"), "odre_ges_conso": ("odre_ges_conso",)}
 
 
-def extractions_quand(manifeste: dict) -> tuple[dict, str]:
-    """Dernière extraction de chaque famille de sources de « Quand ? », et la plus récente
-    (date de Paris), qui date les chiffres calculés."""
+def extractions_quand(manifeste: dict, familles: dict | None = None) -> tuple[dict, str]:
+    """Dernière extraction de chaque famille de sources de « Quand ? » (ou de `familles`), et la plus
+    récente (date de Paris), qui date les chiffres calculés."""
     par_famille = {}
-    for famille, prefixes in SOURCES_QUAND.items():
+    for famille, prefixes in (familles or SOURCES_QUAND).items():
         dates = [v["extrait_le"] for k, v in manifeste.items() if k.startswith(prefixes) and v.get("extrait_le")]
         par_famille[famille] = max(dates) if dates else None
     dates = [d for d in par_famille.values() if d]
@@ -593,8 +597,10 @@ def extractions_quand(manifeste: dict) -> tuple[dict, str]:
 
 def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None,
           ecretement: dict[int, tuple[dict, dict]] | None = None,
-          froid: tuple[dict, dict] | None = None) -> tuple[dict, dict]:
+          froid: tuple[dict, dict] | None = None, saisis: dict[str, dict] | None = None) -> tuple[dict, dict]:
     """Construit les exports ; renvoie (sources, chiffres) calculés pour `chiffres.json`.
+
+    `saisis` : chiffres du référentiel saisi (références RTE des recoupements de « Quel carbone ? »).
 
     `modulation` : chiffres saisis de la modulation nucléaire publiée, par année (recoupement
     d'ordre de grandeur des chiffres calculés de Σ J). `ecretement` : production renoncée et
@@ -670,6 +676,9 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None,
             "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire "
                           "disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; "
                           "définitions, unités et limites dans le fichier",
+            "carbone.json": "intensité carbone MOYENNE de la production et de la consommation (enquête « Quel "
+                            "carbone ? ») par année pleine, profils mensuels et horaires, matrices mois × heure ; ni "
+                            "l'une ni l'autre n'est un facteur marginal",
         },
     }
     (export / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
@@ -681,8 +690,22 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None,
     calcules = export_quand.chiffres_calcules(q, modulation, ecretement, froid)
     print(f"quand.json : années {', '.join(q['annees'])} ; exclues : {', '.join(q['annees_exclues']) or 'aucune'} ; "
           f"{len(calcules)} chiffres calculés", file=sys.stderr)
+    ext_c, date_c = extractions_quand(manifeste, SOURCES_CARBONE)
+    chemin_ges = fichier(raw, "odre_ges_conso")
+    ges = carbone.lire_ges_conso(chemin_ges) if chemin_ges.exists() else None
+    if ges is None:
+        print(f"AVERTISSEMENT : {chemin_ges} absent ; carbone.json sans la série consommation (`pc check` échouera)",
+              file=sys.stderr)
+    c = carbone.construire_carbone(table, ges, ext_c)
+    carbone.ecrire_carbone(c, export / "carbone.json")
+    calcules_c = carbone.chiffres_calcules(c, saisis)
+    print(f"carbone.json : production {c['annees_couvertes']['production'][0]}-{c['annees_couvertes']['production'][-1]}, "
+          f"consommation {', '.join(map(str, c['annees_couvertes']['consommation'])) or 'aucune'} ; "
+          f"{len(calcules_c)} chiffres calculés", file=sys.stderr)
     taille = sum(p.stat().st_size for p in export.rglob("*") if p.is_file())
     print(f"exports : {table.height} heures, {len(resume)} années, {taille / 1e6:.1f} Mo dans {export}",
           file=sys.stderr)
-    return {export_quand.SOURCE_QUAND: export_quand.source_quand(date_extraction)}, calcules
+    return ({export_quand.SOURCE_QUAND: export_quand.source_quand(date_extraction),
+             carbone.SOURCE_CARBONE: carbone.source_carbone(date_c)},
+            {**calcules, **calcules_c})
 

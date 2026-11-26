@@ -198,3 +198,15 @@ Format :
 - **Repéré par** : la relecture adverse du spike (agent Opus, `docs/relectures/2026-11-26-spike-carbone.md`), qui a recalculé C2 et C4 à l'identique ; Claude a vérifié dans le spike le recoupement annoncé et les deux valeurs. Rien n'a été publié.
 - **Correction** : annotation en tête du spike ; périmètre de l'enquête soumis à l'auteur.
 - **Garde-fou ajouté** : « recoupé » ne s'écrit que si les intervalles se recouvrent, chiffres côte à côte ; une régression sur des séries observées ne se lit causalement qu'avec une stratégie d'identification écrite (et relue).
+
+### 2026-11-26 — Enquête carbone : un double arrondi
+- **Faux** : dans le calcul de l'enquête carbone (agent Opus), l'intensité moyenne de la consommation de 2025 (20,14978 gCO2eq/kWh) était arrondie deux fois et publiée 20,2 au lieu de 20,1.
+- **Repéré par** : l'agent lui-même, avant tout rendu.
+- **Correction** : un seul arrondi, à partir de la valeur exacte ; `pc check` compare chaque chiffre carbone publié à l'arrondi de sa valeur exacte (contrôle déjà en place pour « Quand ? »).
+- **Garde-fou ajouté** : ce contrôle s'applique à toute nouvelle famille de chiffres calculés.
+
+### 2026-11-26 — Enquête carbone : un bilan qui ne bouclait pas, un rapport de RTE oublié, une réforme non datée
+- **Faux** : dans le texte de « Quel carbone ? » soumis à relecture (agent Opus) : un bilan d'émissions qui ne bouclait pas (10,9 − 3,2 − 2,3 = 5,4 Mt, soit 50 %, et non « les 40 % restants », RTE comptant aussi les cogénérations au fioul) ; « la dernière estimation marginale date de 2007 », alors que RTE et l'ADEME écrivent en 2020 que la méthode marginale « n'est pas généralisable à un volume important » et lui préfèrent des comparaisons de scénarios intégrant les pays voisins ; un état de la réforme de l'EU ETS non daté, et « chez les voisins » faux pour la Grande-Bretagne et la Suisse ; le maximum de 58 g de RTE recoupé avec la production alors qu'il porte très probablement sur la consommation ; un motif de contrainte du référentiel faux (déchets à 0 en cycle de vie dans l'annexe RTE). Côté contrôles, la restriction par source laissait sans contrôle un chiffre calculé d'une troisième source.
+- **Repéré par** : la relecture adverse (agent Opus, `docs/relectures/2026-11-26-carbone.md`), avant publication ; Claude a relu dans le PDF de RTE les citations du rapport de 2020 (p. 208-209) et avait signalé le trou du contrôle.
+- **Correction** : en cours, par l'agent de l'enquête.
+- **Garde-fou ajouté** : un « personne ne publie » se vérifie aussi contre ce que les mêmes institutions ont publié **sur la méthode** ; un contrôle restreint par source garde un filet global.

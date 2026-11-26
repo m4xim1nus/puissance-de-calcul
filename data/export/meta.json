@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-26T15:12:28+00:00",
+  "genere_le": "2026-11-26T17:07:59+00:00",
   "conventions": {
     "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
     "horodatage_eco2mix": "fin",
@@ -769,6 +769,7 @@
     "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3, nucleaire_disponible_reintegre)",
     "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
     "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
-    "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; définitions, unités et limites dans le fichier"
+    "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; définitions, unités et limites dans le fichier",
+    "carbone.json": "intensité carbone MOYENNE de la production et de la consommation (enquête « Quel carbone ? ») par année pleine, profils mensuels et horaires, matrices mois × heure ; ni l'une ni l'autre n'est un facteur marginal"
   }
 }

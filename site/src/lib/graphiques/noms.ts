@@ -7,7 +7,8 @@ export const NOMS_GRAPHIQUES = [
   'trajectoires',
   'monotone-rn',
   'heatmap-rn',
-  'charge-plate'
+  'charge-plate',
+  'carbone-mois-heure'
 ] as const;
 export type NomGraphique = (typeof NOMS_GRAPHIQUES)[number];
 

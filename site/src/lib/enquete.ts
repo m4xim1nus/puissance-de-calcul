@@ -7,7 +7,18 @@ export interface MetaEnquete {
   mise_a_jour: string;
 }
 
-export type BlocEnquete = { type: 'html'; html: string } | { type: 'graphique'; nom: NomGraphique };
+/** Encart « en préparation » (EnChantier.svelte) : texte simple, typographié. */
+export interface Chantier {
+  titre: string;
+  manque: string;
+  pourquoi: string;
+  viendra: string;
+}
+
+export type BlocEnquete =
+  | { type: 'html'; html: string }
+  | { type: 'graphique'; nom: NomGraphique }
+  | ({ type: 'chantier' } & Chantier);
 
 export interface Enquete {
   slug: string;

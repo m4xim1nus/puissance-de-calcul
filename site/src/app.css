@@ -59,6 +59,14 @@
   --annee-2: #6a4ce2;
   --annee-3: #008a17;
   --annee-4: #257de0;
+  /* Intensité carbone moyenne (« Quel carbone ? »), échelle séquentielle à 5 pas : la rampe
+     positive du calendrier des prix (--prix-p0 … p4), déjà validée en clair et en sombre ; les
+     alias suivent le mode. Pas de bleu-vert : rien n'est « sous zéro ». */
+  --co2-0: var(--prix-p0);
+  --co2-1: var(--prix-p1);
+  --co2-2: var(--prix-p2);
+  --co2-3: var(--prix-p3);
+  --co2-4: var(--prix-p4);
 
   /* Typographie */
   --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;

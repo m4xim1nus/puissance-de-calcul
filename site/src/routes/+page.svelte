@@ -63,6 +63,12 @@
       <span class="question">{data.quand.question}</span>
       <span class="lire">Lire l’enquête →</span>
     </a>
+    <a class="enquete" href="/carbone">
+      <span class="etat">Enquête</span>
+      <span class="titre">{data.carbone.titre}</span>
+      <span class="question">{data.carbone.question}</span>
+      <span class="lire">Lire l’enquête →</span>
+    </a>
     <a class="enquete" href="/simulateur">
       <span class="etat">Simulateur</span>
       <span class="titre">Une consommation de plus</span>

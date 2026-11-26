@@ -57,7 +57,7 @@ def main(argv=None) -> int:
         modulation = {an: ref.chiffres[cle] for an, cle in MODULATION_PUBLIEE.items() if cle in ref.chiffres}
         sources_calc, chiffres_calc = build(args.raw, args.export, modulation,
                                             ecretement_du_referentiel(ref.chiffres),
-                                            froid_du_referentiel(ref.chiffres))
+                                            froid_du_referentiel(ref.chiffres), ref.chiffres)
         complet = chiffres.fusionner(ref, sources_calc, chiffres_calc)
         erreurs = chiffres.valider(complet)
         if erreurs:

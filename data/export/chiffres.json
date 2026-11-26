@@ -1915,6 +1915,686 @@
    "verification": "contre-verification",
    "note": "RTE résume ses propres projections ; citation relue dans le PDF par Claude le 26/11/2026"
   },
+  "intensite_prod_rte_2025": {
+   "libelle": "Intensité carbone moyenne de la production d'électricité en France (émissions directes)",
+   "valeur": 19.6,
+   "unite": "gCO2eq/kWh",
+   "precision": 0.1,
+   "grandeur": "intensite_moyenne",
+   "periode": "2025",
+   "perimetre": "production d'électricité en France métropolitaine, Corse comprise ; émissions directes de combustion ; facteurs d'émission de l'annexe du Bilan (p. 145)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 104 (aussi p. 99)",
+   "citation": "« En moyenne sur l'année 2025, l'intensité carbone de la production française a été de 19,6 gCO2éq/kWh, et l'intensité carbone de la consommation française, en prenant en compte les échanges d'électricité avec les autres pays, de 20,0 gCO2éq/kWh. Le fait que ces deux valeurs soient presque identiques s'explique par la position très largement et presque exclusivement exportatrice nette de la France au cours de l'année (voir le chapitre Échanges). »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-eco2mix-odre",
+     "valeur": "moyenne de taux_co2 pondérée par la production, hors Corse (carbone_prod_moyenne_2025, calcul du site)",
+     "note": "même éditeur ; périmètre (Corse exclue) et jeu de facteurs différents ; écart contrôlé par `pc check`",
+     "independant": false
+    }
+   ],
+   "verification": "spike",
+   "note": "intensité MOYENNE, pas un facteur marginal ; RTE précise que ses facteurs « sont issus de travaux internes ; ils reposent sur un ensemble de sources et modèles, et sont harmonisés entre les différentes publications » (p. 105, sous la figure 5.8)"
+  },
+  "intensite_conso_rte_2025": {
+   "libelle": "Intensité carbone moyenne de la consommation d'électricité en France, échanges compris (émissions directes)",
+   "valeur": 20.0,
+   "unite": "gCO2eq/kWh",
+   "precision": 0.1,
+   "grandeur": "intensite_moyenne",
+   "periode": "2025",
+   "perimetre": "consommation d'électricité en France, échanges avec les autres pays pris en compte ; émissions directes",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 104",
+   "citation": "« En moyenne sur l'année 2025, l'intensité carbone de la production française a été de 19,6 gCO2éq/kWh, et l'intensité carbone de la consommation française, en prenant en compte les échanges d'électricité avec les autres pays, de 20,0 gCO2éq/kWh. Le fait que ces deux valeurs soient presque identiques s'explique par la position très largement et presque exclusivement exportatrice nette de la France au cours de l'année (voir le chapitre Échanges). »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-eco2mix-odre",
+     "valeur": "série horaire ODRÉ part-enr-intensite-ges-conso-tr pondérée par la consommation éCO2mix (carbone_conso_moyenne_2025, calcul du site)",
+     "note": "même éditeur, même méthode ; écart contrôlé par `pc check` (± 2 %)",
+     "independant": false
+    }
+   ],
+   "verification": "spike",
+   "note": "intensité MOYENNE, pas un facteur marginal"
+  },
+  "intensite_prod_rte_2024": {
+   "libelle": "Intensité carbone moyenne de la production d'électricité en France (émissions directes)",
+   "valeur": 21.7,
+   "unite": "gCO2eq/kWh",
+   "precision": 0.1,
+   "grandeur": "intensite_moyenne",
+   "periode": "2024",
+   "perimetre": "production d'électricité en France métropolitaine, Corse comprise ; émissions directes",
+   "source": {
+    "cle": "rte-be2024",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2024 — rapport complet",
+    "date_publication": "2025-09-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2025-09/BE2024%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2025-09)"
+   },
+   "page": "p. 90",
+   "citation": "« Ainsi, l'intensité carbone de la production d'électricité française a baissé de près d'un tiers par rapport à celle de 2023 : elle a atteint 21,7 gCO2eq par kilowatt-heure produit sur l'année 2024. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "intensité MOYENNE, pas un facteur marginal ; page du rapport complet (le chapitre isolé a sa propre pagination)"
+  },
+  "intensite_prod_acv_rte_2025": {
+   "libelle": "Intensité carbone moyenne de la production d'électricité en France, au périmètre du cycle de vie",
+   "valeur": 29.0,
+   "unite": "gCO2eq/kWh",
+   "precision": 0.1,
+   "grandeur": "intensite_moyenne",
+   "periode": "2025",
+   "perimetre": "production d'électricité en France ; émissions sur le cycle de vie (extraction et transport des combustibles et des matériaux, construction des installations, combustion), sauf l'incinération des déchets, comptée à zéro sur le cycle de vie alors que son facteur direct vaut 988 g (annexe p. 145)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 106",
+   "citation": "« L'analyse au périmètre du cycle de vie entraîne le même constat que celle au périmètre des émissions directes : les émissions liées à la production d'électricité en France sont parmi les plus faibles d'Europe. L'intensité de la production a atteint 29,0 gCO2éq/kWh au périmètre du cycle de vie. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "intensité MOYENNE en analyse de cycle de vie ; à ne pas comparer à une intensité directe"
+  },
+  "intensite_max_rte_2025": {
+   "libelle": "Intensité carbone moyenne de la consommation, maximum horaire de l'année, selon RTE",
+   "valeur": 58,
+   "unite": "gCO2eq/kWh",
+   "grandeur": "intensite_moyenne",
+   "periode": "2025",
+   "perimetre": "intensité de la consommation d'électricité en France, échanges compris ; émissions directes ; attribution : la phrase suit une phrase sur l'intensité de la consommation, et la monotone de la figure 5.7 (« intensité en émissions de gaz à effet de serre de la consommation d'électricité française », p. 104) démarre à ce niveau en 2025 (lecture graphique)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 105",
+   "citation": "« En 2025, fait notable, l'intensité est restée contenue même lors des périodes de forte consommation : elle a atteint un maximum de 58 gCO2éq/kWh. Il s'agit d'un niveau très bas, inférieur à l'intensité moyenne de la production française sur l'ensemble de l'année 2012. »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-eco2mix-odre",
+     "valeur": "maximum horaire 2025 de la série ODRÉ de l'intensité de la consommation (carbone_conso_max_2025, calcul du site)",
+     "note": "même éditeur ; la série ODRÉ, recalculée par RTE en mars 2026, donne 60 g : écart contrôlé par `pc check` (± 3 g) ; le maximum de la production (57,5 g) n'est pas le bon terme de comparaison",
+     "independant": false
+    }
+   ],
+   "verification": "contre-verification",
+   "note": "attribution à la consommation corrigée après la relecture adverse du 26/11/2026 (F4), qui l'a établie par la figure 5.7 ; une heure d'intensité moyenne élevée n'est pas une heure où une consommation ajoutée émettrait le plus. La phrase voisine du même Bilan sur 2023 (« dépassé 100 gCO2éq/kWh pendant environ 3 % du temps ») est reprise du Bilan 2024 (p. 99) et contredite par la figure 5.7 du Bilan 2025 et par la série ODRÉ (0,35 % des heures) : non publiée"
+  },
+  "intensite_fond_rte": {
+   "libelle": "Seuil de « l'intensité de fond » du système électrique français selon RTE",
+   "valeur": 15,
+   "unite": "gCO2eq/kWh",
+   "grandeur": "intensite_moyenne",
+   "periode": "2025",
+   "perimetre": "intensité horaire de la production comme de la consommation ; émissions directes",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 105",
+   "citation": "« Près de la moitié du temps, l'intensité de la production comme de la consommation s'est située en dessous de 15 gCO2éq/kWh. Ce niveau pratiquement incompressible, qui s'apparente à « l'intensité de fond » du système, correspond aux émissions liées aux filières en grande partie fatales du point de vue du système électrique (voir l'analyse dans la partie précédente), c'est-à-dire l'incinération des déchets et les cogénérations. »",
+   "confiance": "B",
+   "recoupements": [
+    {
+     "source": "rte-eco2mix-odre",
+     "valeur": "part des heures de 2025 sous ce seuil : carbone_prod_part_sous_15_2025 et carbone_conso_part_sous_15_2025 (calculs du site)",
+     "note": "même éditeur ; « près de la moitié » contrôlé par `pc check` (bande de 40 à 55 %)",
+     "independant": false
+    }
+   ],
+   "verification": "spike",
+   "note": "seuil d'intensité MOYENNE horaire ; le seuil de pc/carbone.py (SEUIL_FOND_G) doit lui rester égal (contrôlé par un test). Le Bilan 2024 situait ce niveau à 10 gCO2eq/kWh (« près de la moitié du temps », p. 99) : le niveau « pratiquement incompressible » dépend de l'année et du jeu de facteurs"
+  },
+  "facteur_ccg_direct_rte": {
+   "libelle": "Facteur d'émissions directes des cycles combinés au gaz retenu par RTE",
+   "valeur": 331,
+   "unite": "gCO2eq/kWh",
+   "grandeur": "facteur_emission_filiere",
+   "periode": "facteurs appliqués par RTE à tout l'historique (Bilan électrique 2025)",
+   "perimetre": "par kWh produit par la filière « Gaz - cycles combinés » ; émissions directes (cycle de vie : 389 g, même tableau) ; facteurs du parc français",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "annexe, p. 145",
+   "citation": "« Hypothèses concernant les facteurs d'émissions utilisés pour calculer les émissions de gaz à effet de serre de la production et de la consommation d'électricité » — Gaz - cycles combinés : facteur d'émissions directes 331 gCO2eq/kWh ; facteur d'émissions sur le cycle de vie 389 gCO2eq/kWh",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "facteur d'une FILIÈRE, ni intensité moyenne du système ni facteur marginal ; RTE (p. 106) présente les cycles combinés comme « les centrales au gaz les plus performantes » ; turbines à combustion : 497 g (même tableau)"
+  },
+  "facteur_tac_direct_rte": {
+   "libelle": "Facteur d'émissions directes des turbines à combustion au gaz retenu par RTE",
+   "valeur": 497,
+   "unite": "gCO2eq/kWh",
+   "grandeur": "facteur_emission_filiere",
+   "periode": "facteurs appliqués par RTE à tout l'historique (Bilan électrique 2025)",
+   "perimetre": "par kWh produit par la filière « Gaz - turbines à combustion » ; émissions directes (cycle de vie : 583 g, même tableau) ; facteurs du parc français",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "annexe, p. 145",
+   "citation": "« Hypothèses concernant les facteurs d'émissions utilisés pour calculer les émissions de gaz à effet de serre de la production et de la consommation d'électricité » — Gaz - turbines à combustion : facteur d'émissions directes 497 gCO2eq/kWh ; facteur d'émissions sur le cycle de vie 583 gCO2eq/kWh",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "facteur moyen d'une FILIÈRE retenu par RTE, ni intensité moyenne du système ni facteur marginal"
+  },
+  "emissions_prod_rte_2025": {
+   "libelle": "Émissions directes de gaz à effet de serre de la production d'électricité en France",
+   "valeur": 10.9,
+   "unite": "MtCO2eq",
+   "precision": 0.1,
+   "grandeur": "emissions",
+   "periode": "2025",
+   "perimetre": "production d'électricité en France, Corse comprise ; émissions directes",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 99",
+   "citation": "« En 2025, pour la troisième année consécutive, les émissions directes liées à la production d'électricité française ont poursuivi leur baisse et atteint un minimum historique depuis 1945, s'élevant à 10,9 MtCO2éq. Il s'agit d'un niveau comparable, mais en légère baisse, par rapport à celui observé en 2024 (11,7 MtCO2éq). »",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "emissions_cogeneration_rte_2025": {
+   "libelle": "Émissions directes des moyens de production au gaz assimilables à des cogénérations",
+   "valeur": 3.2,
+   "unite": "MtCO2eq",
+   "precision": 0.1,
+   "grandeur": "emissions",
+   "periode": "2025",
+   "perimetre": "part des émissions de la filière gaz associée à des moyens assimilables à des cogénérations (chaleur industrielle ou réseaux de chaleur, électricité produit secondaire)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 102-103",
+   "citation": "« Un peu moins de deux tiers (6,7 MtCO2éq) des émissions liées à la production proviennent de la filière gaz. Parmi celles-ci, près de 40 % (3,2 MtCO2éq) sont associées à des moyens de production assimilables à des cogénérations, c'est-à-dire des installations qui produisent principalement de la chaleur pour alimenter des procédés industriels ou bien des réseaux de chaleur urbaine, et dont l'électricité est un produit secondaire. Leur fonctionnement est indépendant des conditions du marché de l'électricité, et correspond à un « socle » de production et d'émissions (voir le chapitre Production) difficilement compressibles. »",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "emissions_dechets_rte_2025": {
+   "libelle": "Émissions directes de la production d'électricité par incinération de déchets non renouvelables",
+   "valeur": 2.3,
+   "unite": "MtCO2eq",
+   "precision": 0.1,
+   "grandeur": "emissions",
+   "periode": "2025",
+   "perimetre": "incinération de déchets non renouvelables (part non renouvelable des déchets ménagers, déchets industriels)",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 103",
+   "citation": "« La production d'électricité à partir de l'incinération de déchets non-renouvelables, qui, de même, est une filière dont le fonctionnement est principalement déterminé par le besoin de traitement des déchets, indépendamment des conditions du marché de l'électricité, représente environ un cinquième du volume d'émissions, soit 2,3 MtCO2éq. »",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "part_emissions_hors_socle_rte_2025": {
+   "libelle": "Part des émissions de la production d'électricité qui ne vient ni des cogénérations ni des filières fatales",
+   "valeur": 40,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "2025",
+   "perimetre": "émissions directes de la production d'électricité en France",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 103",
+   "citation": "« Ainsi, la part des émissions qui n'est pas assimilable aux cogénérations ou aux filières fatales ne représente que 40 % des émissions liées à la production d'électricité. Cette part correspond à des moyens de production qui permettent d'assurer l'équilibre du système lors des périodes de consommation élevée, avec des temps de fonctionnement relativement faibles. Ces émissions « résiduelles » du mix français sont à envisager, au moins à court terme, dans la mesure où elles permettent le bon fonctionnement du système et le développement par ailleurs du parc de production décarboné : cela représente un volume d'émissions limité par rapport au service rendu au système. »",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "emissions_evitees_rte_2025": {
+   "libelle": "Émissions « évitées » en Europe par les exportations françaises, selon la méthode de RTE",
+   "valeur": 27,
+   "unite": "MtCO2eq",
+   "grandeur": "emissions_evitees",
+   "periode": "2025",
+   "perimetre": "pour chaque heure, différentiel entre l'intensité moyenne de la production française et celle des pays importateurs, multiplié par les volumes exportés ; « près de » 27 Mt",
+   "source": {
+    "cle": "rte-be2025",
+    "editeur": "RTE",
+    "titre": "Bilan électrique 2025 — rapport complet",
+    "date_publication": "2026-03-01",
+    "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date de publication approchée au mois (URL datée 2026-03)"
+   },
+   "page": "p. 107",
+   "citation": "« Pour évaluer les émissions évitées, il est possible de comparer, pour chaque heure, l'intensité de la production française avec celle des pays vers lesquelles l'électricité est exportée. Les émissions évitées sont ainsi fonction, d'une part, du différentiel d'intensité carbone entre les mix de production de la France et des autres pays, et d'autre part de la quantité d'électricité exportée. Une telle approche implique nécessairement des simplifications, et néglige certains phénomènes propres au fonctionnement du système électrique : en particulier, il n'est pas tenu compte de l'effet qu'aurait une modification des échanges sur l'ordre de préséance économique dans chaque pays. Cela étant, l'analyse des émissions évitées ainsi calculées permet tout de même de dégager des tendances, notamment dans le temps et dans la répartition géographique. » ; même page : « En 2025, les exportations de la France ont permis d'éviter l'émission près de 27 MtCO2éq en Europe, dont près de la moitié ont été évitées en Italie, et un cinquième en Allemagne. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "calcul par différentiel d'intensités MOYENNES ; ni un effet causal, ni un facteur marginal (limite écrite par RTE) ; ne s'additionne à aucune autre estimation d'émissions (double compte)"
+  },
+  "ademe_rte_2007_marginal_base": {
+   "libelle": "Contenu en CO2 marginal de l'électricité pour les usages en base, estimé par l'ADEME et RTE en 2007",
+   "valeur": [
+    450,
+    550
+   ],
+   "unite": "gCO2/kWh",
+   "grandeur": "contenu_marginal",
+   "periode": "« situation actuelle » du système électrique européen en 2007",
+   "perimetre": "incrément de consommation en France servi par le moyen de production marginal sur le système interconnecté européen, en France ou hors de France ; CO2 (pas CO2eq)",
+   "source": {
+    "cle": "ademe-rte-2007",
+    "editeur": "ADEME et RTE",
+    "titre": "Le contenu en CO2 du kWh électrique — avantages comparés du contenu marginal et du contenu par usages sur la base de l'historique (note détaillée)",
+    "date_publication": "2007-10-08",
+    "url": "https://www.hauts-de-france.developpement-durable.gouv.fr/IMG/pdf/contenuco2longue_ademe-rte.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date portée en tête (« Final – le 08/10/2007 ») ; copie hébergée par la DREAL Hauts-de-France (PDF créé le 17/11/2015), les URL d'origine de l'ADEME n'étant plus servies ; page = page du PDF (7 pages, sans folio)"
+   },
+   "page": "p. 3",
+   "citation": "« Compte tenu de la structure du parc de production européen, on évalue entre 600 et 700 grammes de CO2 le contenu du kWh produit en période de marginalité non nucléaire. Sur la base de ces estimations, le contenu marginal en CO2 par classes d'usages ressort à : pour les usages en base : 450 à 550 g ; pour le chauffage électrique : de l'ordre de 500 à 600 g ; pour les usages intermittents et l'éclairage : 600 à 700 g. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "contenu MARGINAL, daté (parc européen de 2007, charbon et gaz, peu de renouvelables) ; la note elle-même dit la méthode à « revisiter régulièrement » (p. 4) ; non transposable aujourd'hui ; liste à puces de la note recomposée en une phrase (ordre de la note dans le PDF : base, chauffage, intermittents)"
+  },
+  "ademe_rte_2007_marginalite_nucleaire": {
+   "libelle": "Part du temps où un incrément de consommation est servi par le nucléaire, selon l'ADEME et RTE en 2007",
+   "valeur": 25,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "« situation actuelle » en 2007",
+   "perimetre": "système électrique interconnecté européen vu de la France",
+   "source": {
+    "cle": "ademe-rte-2007",
+    "editeur": "ADEME et RTE",
+    "titre": "Le contenu en CO2 du kWh électrique — avantages comparés du contenu marginal et du contenu par usages sur la base de l'historique (note détaillée)",
+    "date_publication": "2007-10-08",
+    "url": "https://www.hauts-de-france.developpement-durable.gouv.fr/IMG/pdf/contenuco2longue_ademe-rte.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date portée en tête (« Final – le 08/10/2007 ») ; copie hébergée par la DREAL Hauts-de-France (PDF créé le 17/11/2015), les URL d'origine de l'ADEME n'étant plus servies ; page = page du PDF (7 pages, sans folio)"
+   },
+   "page": "p. 3",
+   "citation": "« Résultats : Dans la situation actuelle, les périodes durant lesquelles un incrément de consommation est satisfait par une augmentation de la production nucléaire représentent environ 25% du temps, essentiellement en creux de nuit et en week-end : c'est la durée de marginalité nucléaire. Durant ces périodes, une augmentation de la consommation (en France, mais aussi ailleurs sur la plaque continentale) n'entraîne pas d'émissions de CO2 supplémentaires. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "« environ » ; estimation de 2007"
+  },
+  "ademe_rte_2007_marginal_base_2020": {
+   "libelle": "Contenu en CO2 marginal pour un usage en base envisagé par l'ADEME et RTE à l'horizon 2020",
+   "valeur": 400,
+   "unite": "gCO2/kWh",
+   "grandeur": "contenu_marginal",
+   "periode": "horizon 2020, vu de 2007",
+   "perimetre": "« contenu marginal en développement » (trajectoire du parc européen attendue en 2007)",
+   "source": {
+    "cle": "ademe-rte-2007",
+    "editeur": "ADEME et RTE",
+    "titre": "Le contenu en CO2 du kWh électrique — avantages comparés du contenu marginal et du contenu par usages sur la base de l'historique (note détaillée)",
+    "date_publication": "2007-10-08",
+    "url": "https://www.hauts-de-france.developpement-durable.gouv.fr/IMG/pdf/contenuco2longue_ademe-rte.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date portée en tête (« Final – le 08/10/2007 ») ; copie hébergée par la DREAL Hauts-de-France (PDF créé le 17/11/2015), les URL d'origine de l'ADEME n'étant plus servies ; page = page du PDF (7 pages, sans folio)"
+   },
+   "page": "p. 3",
+   "citation": "« Ces deux éléments sont de nature à diminuer le contenu marginal en CO2 de l'électricité, qui pourrait être de l'ordre de 400 g par kWh à l'horizon 2020 pour un usage en base. Ainsi, entre 2007 et 2020, au fil des évolutions attendues du parc de production européen, le contenu marginal en CO2 de l'électricité, pour un usage en base, devrait se réduire pour passer d'environ 500 à 400 g de CO2 par kWh. »",
+   "confiance": "C",
+   "verification": "spike",
+   "note": "projection de 2007, pas une mesure ; cotée C (grandeur prospective, non vérifiée a posteriori par ses auteurs à notre connaissance)"
+  },
+  "cre_facteur_marche_2019": {
+   "libelle": "Facteur d'émission « fondé sur le marché » de la France, approuvé par la CRE pour les aides d'État liées au SEQE",
+   "valeur": 0.59,
+   "unite": "tCO2/MWh",
+   "precision": 0.01,
+   "grandeur": "facteur_emission_marche",
+   "periode": "année de référence 2019 ; destiné à servir « jusqu'à la prochaine révision des lignes directrices soit 2025 »",
+   "perimetre": "sensibilité du prix spot français moyen à l'existence du SEQE (prix simulés avec et sans SEQE par le modèle Antares de RTE), rapportée au prix du CO2 ; paramètre du plafond des aides aux électro-intensifs",
+   "source": {
+    "cle": "cre-2021-126",
+    "editeur": "CRE",
+    "titre": "Délibération n° 2021-126 du 6 mai 2021 portant approbation du rapport de RTE sur le facteur d'émission associé au marché de l'électricité français",
+    "date_publication": "2021-05-06",
+    "url": "https://www.cre.fr/content/download/23806/file/210605_2021-126_Rapport_RTE_facteur_emission.pdf",
+    "consulte_le": "2026-11-26",
+    "note": "PDF de 11 pages (délibération seule ; le rapport de RTE, annexé selon la CRE, n'est pas dans ce fichier) ; folio « n/11 »"
+   },
+   "page": "p. 2",
+   "citation": "« Pour estimer l'impact du SEQE sur les consommateurs, RTE a simulé le fonctionnement du marché de gros de l'électricité avec et sans SEQE et a défini le facteur d'émission comme étant la sensibilité du prix Spot à l'existence d'un système ETS. […] FEM = (Prix avec SEQE − Prix sans SEQE) / Prix du CO2, où, dans chaque cas, le prix est la moyenne annuelle du prix horaire simulé. L'application de cette méthodologie donne un facteur d'émission de 0,59 tCO2/MWh. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "ce n'est ni une intensité moyenne ni le contenu marginal d'une consommation ajoutée, mais un coefficient de répercussion du prix du CO2 dans le prix de l'électricité ; la coupure […] retire la figure et la phrase d'introduction de la formule ; la CRE juge « moins robustes » les méthodes fondées sur la détermination du moyen marginal (p. 3)"
+  },
+  "ue_forfait_reseau_183": {
+   "libelle": "Valeur d'émissions forfaitaire attribuée à l'électricité du réseau au-delà des heures où le prix est fixé par du renouvelable ou du nucléaire (carburants renouvelables d'origine non biologique)",
+   "valeur": 183,
+   "unite": "gCO2eq/MJ",
+   "grandeur": "valeur_forfaitaire",
+   "periode": "règle en vigueur depuis le 10 juillet 2023 (vingtième jour après la publication)",
+   "perimetre": "électricité du réseau non entièrement renouvelable utilisée pour produire des carburants renouvelables d'origine non biologique (hydrogène notamment) ; méthode b) parmi trois au choix ; MJ d'électricité",
+   "source": {
+    "cle": "ue-2023-1185",
+    "editeur": "Commission européenne",
+    "titre": "Règlement délégué (UE) 2023/1185 du 10 février 2023 (méthode d'évaluation des réductions d'émissions des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023",
+    "date_publication": "2023-06-20",
+    "url": "https://eur-lex.europa.eu/eli/reg_del/2023/1185/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français lu dans le PDF du Journal officiel servi par l'Office des publications (publications.europa.eu/resource/celex/32023R1185), EUR-Lex refusant les accès automatisés ; page = page du JO (L 157/n)"
+   },
+   "page": "annexe, partie A, point 6 b), JO L 157/25",
+   "citation": "« b) les valeurs des émissions de gaz à effet de serre sont attribuées en fonction du nombre d'heures à pleine charge pendant lesquelles l'installation produisant des carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et des carburants à base de carbone recyclé est en service. Lorsque le nombre d'heures à pleine charge est égal ou inférieur au nombre d'heures pendant lesquelles le prix marginal de l'électricité a été fixé par des installations produisant de l'électricité renouvelable ou des centrales nucléaires au cours de l'année civile précédente pour laquelle des données fiables sont disponibles, l'électricité du réseau utilisée dans le processus de production de carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et de carburants à base de carbone recyclé se voit attribuer une valeur d'émissions de gaz à effet de serre de zéro gCO2eq/MJ. Si ce nombre d'heures à pleine charge est dépassé, l'électricité du réseau utilisée dans le processus de production de carburants liquides et gazeux renouvelables destinés au secteur des transports, d'origine non biologique, et de carburants à base de carbone recyclé se voit attribuer une valeur d'émission de gaz à effet de serre de 183 gCO2eq/MJ; ou »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "valeur FORFAITAIRE fixée par un texte, ni moyenne ni marginale mesurée ; 183 gCO2eq/MJ × 3,6 = 658,8 gCO2eq/kWh (calcul du site) ; la règle vise les carburants, pas les data centers ; date d'entrée en vigueur déduite de l'article final du règlement (non recopié ici)"
+  },
+  "ue_intensite_france_2020": {
+   "libelle": "Intensité des émissions de l'électricité produite en France retenue par le règlement délégué (UE) 2023/1185",
+   "valeur": 19.6,
+   "unite": "gCO2eq/MJ",
+   "precision": 0.1,
+   "grandeur": "intensite_moyenne",
+   "periode": "2020",
+   "perimetre": "combustion et amont des combustibles (extraction, raffinage, transport), sans la construction des installations ; méthode de la partie C de l'annexe ; MJ d'électricité",
+   "source": {
+    "cle": "ue-2023-1185",
+    "editeur": "Commission européenne",
+    "titre": "Règlement délégué (UE) 2023/1185 du 10 février 2023 (méthode d'évaluation des réductions d'émissions des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023",
+    "date_publication": "2023-06-20",
+    "url": "https://eur-lex.europa.eu/eli/reg_del/2023/1185/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français lu dans le PDF du Journal officiel servi par l'Office des publications (publications.europa.eu/resource/celex/32023R1185), EUR-Lex refusant les accès automatisés ; page = page du JO (L 157/n)"
+   },
+   "page": "annexe, tableau A, JO L 157/32-33",
+   "citation": "« Tableau A — Intensité des émissions d'électricité dans l'Union européenne 2020 […] France 19,6 […] Source : JRC, 2022. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "intensité MOYENNE ; 19,6 gCO2eq/MJ × 3,6 = 70,6 gCO2eq/kWh (calcul du site) — même nombre que les 19,6 gCO2eq/kWh de RTE pour 2025, mais une autre unité, une autre année et un autre périmètre"
+  },
+  "ue_correlation_seuil_prix": {
+   "libelle": "Prix day-ahead en dessous duquel la corrélation temporelle est toujours réputée respectée (carburants renouvelables d'origine non biologique)",
+   "valeur": 20,
+   "unite": "€/MWh",
+   "grandeur": "prix",
+   "periode": "règle du règlement 2023/1184, article 6 dans sa rédaction issue du règlement 2024/1408 (JO du 21/05/2024)",
+   "perimetre": "prix d'équilibre du couplage unique journalier dans la zone de dépôt des offres, sur une période d'une heure ; alternative : moins de 0,36 fois le prix d'un quota de CO2",
+   "source": {
+    "cle": "ue-2024-1408",
+    "editeur": "Commission européenne",
+    "titre": "Règlement délégué (UE) 2024/1408 du 14 mars 2024 modifiant le règlement délégué (UE) 2023/1184 (terme « carburants renouvelables d'origine non biologique »), JO L du 21.5.2024",
+    "date_publication": "2024-05-21",
+    "url": "https://eur-lex.europa.eu/eli/reg_del/2024/1408/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français du JO servi par l'Office des publications (celex 32024R1408) ; remplace notamment l'article 6 du règlement 2023/1184 (dates, seuil de 20 EUR/MWh, coefficient de 0,36 et option du 1er juillet 2027 inchangés) ; page = page du PDF (n/5)"
+   },
+   "page": "article 1er, point 7 (nouvel article 6 du règlement 2023/1184), p. 4/5",
+   "citation": "« Jusqu'au 31 décembre 2029, la condition de corrélation temporelle visée à l'article 4, paragraphes 2 et 4, est réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours du même mois civil que l'électricité renouvelable produite dans le cadre de l'accord d'achat d'électricité renouvelable […]. À partir du 1er janvier 2030, la condition de corrélation temporelle est réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours de la même période d'une heure que l'électricité renouvelable produite dans le cadre de l'accord d'achat d'électricité renouvelable […]. La condition de corrélation temporelle est toujours réputée respectée si le carburant renouvelable d'origine non biologique est produit au cours d'une période d'une heure, lorsque le prix d'équilibre de l'électricité résultant du couplage unique journalier dans la zone de dépôt des offres, tel que visé à l'article 39, paragraphe 2, point a), du règlement (UE) 2015/1222 de la Commission, est inférieur ou égal à 20 EUR par MWh ou inférieur à 0,36 fois le prix d'un quota d'émission d'une tonne d'équivalent-dioxyde de carbone au cours de la période considérée aux fins de satisfaire aux exigences de la directive 2003/87/CE du Parlement européen et du Conseil. »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "les coupures […] retirent les variantes de stockage et la faculté pour les États membres d'avancer la règle horaire au 1er juillet 2027 ; texte identique en substance à la version de 2023 (ue-2023-1184, JO L 157/17), seul le terme « carburant » change ; règle de prix, pas une mesure d'émissions"
+  },
+  "ue_correlation_coef_quota": {
+   "libelle": "Coefficient appliqué au prix d'un quota de CO2 (€/t) pour obtenir le seuil alternatif de prix (€/MWh) de la corrélation temporelle (carburants renouvelables d'origine non biologique)",
+   "valeur": 0.36,
+   "unite": "fois",
+   "precision": 0.01,
+   "grandeur": "coefficient_reglementaire",
+   "periode": "même règle que ue_correlation_seuil_prix",
+   "perimetre": "le prix day-ahead de l'heure doit être inférieur à ce coefficient multiplié par le prix d'un quota d'émission d'une tonne d'équivalent CO2 (€/MWh contre €/t)",
+   "source": {
+    "cle": "ue-2024-1408",
+    "editeur": "Commission européenne",
+    "titre": "Règlement délégué (UE) 2024/1408 du 14 mars 2024 modifiant le règlement délégué (UE) 2023/1184 (terme « carburants renouvelables d'origine non biologique »), JO L du 21.5.2024",
+    "date_publication": "2024-05-21",
+    "url": "https://eur-lex.europa.eu/eli/reg_del/2024/1408/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français du JO servi par l'Office des publications (celex 32024R1408) ; remplace notamment l'article 6 du règlement 2023/1184 (dates, seuil de 20 EUR/MWh, coefficient de 0,36 et option du 1er juillet 2027 inchangés) ; page = page du PDF (n/5)"
+   },
+   "page": "article 1er, point 7 (nouvel article 6 du règlement 2023/1184), p. 4/5",
+   "citation": "« […] est inférieur ou égal à 20 EUR par MWh ou inférieur à 0,36 fois le prix d'un quota d'émission d'une tonne d'équivalent-dioxyde de carbone au cours de la période considérée […] »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "coefficient d'une règle de prix, sans dimension déclarée : le règlement écrit « 0,36 fois le prix d'un quota » (€/t) pour obtenir un seuil en €/MWh ; ni un facteur d'émission moyen ni un facteur marginal"
+  },
+  "aie_dc_emissions_monde_2024": {
+   "libelle": "Émissions indirectes de CO2 des data centers dans le monde (consommation d'électricité), selon l'AIE",
+   "valeur": 180,
+   "unite": "MtCO2",
+   "grandeur": "emissions_co2",
+   "periode": "« today » (2024)",
+   "perimetre": "monde ; toutes charges des data centers (l'IA en est une partie) ; hors production de secours ; CO2",
+   "source": {
+    "cle": "iea-energy-ai-2025",
+    "editeur": "AIE",
+    "titre": "Energy and AI",
+    "date_publication": "2025-04-01",
+    "url": "https://iea.blob.core.windows.net/assets/86ed1178-4d77-45ac-ab38-28e849f3b93f/EnergyandAI.pdf",
+    "consulte_le": "2026-11-25",
+    "note": "date approchée au mois ; ne contient aucun chiffre pour la France"
+   },
+   "page": "p. 246",
+   "citation": "« Global fuel combustion CO2 emissions are estimated to reach 35 000 million tonnes (Mt) in 2024. Data centres account for around 180 Mt of indirect CO2 emissions today from the consumption of electricity, not including any emissions from backup power generation. This includes all workloads by data centres, of which AI is a subset. Data centres therefore account for a small share of emissions: 0.5% of combustion emissions today (Figure 5.28). »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "« around » ; le passage ne dit pas si l'AIE applique une intensité moyenne ou marginale (méthode non précisée ici) ; aucun chiffre pour la France"
+  },
+  "intensite_conso_pays_tracage": {
+   "libelle": "Pays dont les échanges entrent dans le calcul de l'intensité de la consommation française par RTE (traçage des flux)",
+   "valeur": 15,
+   "unite": "pays",
+   "grandeur": "nombre",
+   "periode": "méthode v1, avril 2026",
+   "perimetre": "France et 14 pays européens (Espagne, Portugal, Italie, Suisse, Autriche, Allemagne, République tchèque, Pologne, Belgique, Pays-Bas, Suède, Norvège, Danemark, Grande-Bretagne) ; Irlande exclue",
+   "source": {
+    "cle": "rte-methodo-intensite-conso-2026",
+    "editeur": "RTE (open data ODRÉ)",
+    "titre": "Méthodologie — Part des EnR et intensité en émissions de GES de l'électricité consommée en France en temps réel (v1)",
+    "date_publication": "2026-04-01",
+    "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/part-enr-intensite-ges-conso-tr/attachments/rte_methodologie_fr_part_enr_intensite_ges_conso_v1_pdf",
+    "consulte_le": "2026-11-26",
+    "note": "date de couverture « Avril 2026 – v1 », approchée au mois (PDF créé le 15/04/2026) ; pièce jointe du jeu ODRÉ part-enr-intensite-ges-conso-tr"
+   },
+   "page": "p. 3",
+   "citation": "« Le périmètre élargi considéré par RTE pour le présent calcul contient les pays suivants : l'Espagne, le Portugal, l'Italie, la Suisse, l'Autriche, l'Allemagne, la République Tchèque, la Pologne, la Belgique, les Pays-Bas, la Suède, la Norvège, le Danemark et la Grande-Bretagne. L'Irlande a été, pour l'instant, exclue pour cause de qualité insuffisante des données disponibles. Un ensemble plus large de pays, s'étendant jusqu'à la Grèce et la Finlande, a également été étudié : la prise en compte de pays plus lointains que les 15 pays retenus, et dont les systèmes électriques sont relativement petits par rapport à celui de la France, ne modifie pas substantiellement les résultats présentés dans ce jeu de données. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "la méthode attribue à chaque importation l'intensité MOYENNE de la production du pays d'origine (p. 2) : l'intensité de la consommation reste une moyenne"
+  },
+  "ets_tnac_2025": {
+   "libelle": "Nombre total de quotas en circulation (SEQE de l'UE) publié pour 2025",
+   "valeur": 1023.494202,
+   "unite": "millions de quotas",
+   "precision": 0.1,
+   "grandeur": "quotas",
+   "periode": "au 31 décembre 2025, publié le 1er juin 2026",
+   "perimetre": "installations fixes, aviation et transport maritime couverts par le SEQE de l'UE ; quotas délivrés depuis 2008 moins émissions vérifiées",
+   "source": {
+    "cle": "ce-tnac-2025",
+    "editeur": "Commission européenne",
+    "titre": "Communication C/2026/2957 — Publication du nombre total de quotas en circulation en 2025 aux fins de la réserve de stabilité du marché relevant du SEQE de l'UE",
+    "date_publication": "2026-06-01",
+    "url": "https://eur-lex.europa.eu/eli/C/2026/2957/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français lu dans la version XHTML servie par l'Office des publications (cellar 0e89f392-5d73-11f1-aa6d-01aa75ed71a1) ; JO série C du 1.6.2026"
+   },
+   "page": "section 3 et tableau « Vue d'ensemble »",
+   "citation": "« Compte tenu de ce qui précède, le nombre total de quotas en circulation en 2025 s'élève à 1 023 494 202. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "section 4 : « Conformément à la décision RSM, un total de 190 494 202 quotas sera placé dans la réserve sur la période de douze mois comprise entre le 1er septembre 2026 et le 31 août 2027. »"
+  },
+  "ets_tnac_2024": {
+   "libelle": "Nombre total de quotas en circulation (SEQE de l'UE) publié pour 2024",
+   "valeur": 1148.049585,
+   "unite": "millions de quotas",
+   "precision": 0.1,
+   "grandeur": "quotas",
+   "periode": "au 31 décembre 2024, publié le 28 mai 2025",
+   "perimetre": "même définition que pour 2025 (aviation et transport maritime compris à partir de 2024)",
+   "source": {
+    "cle": "ce-tnac-2025",
+    "editeur": "Commission européenne",
+    "titre": "Communication C/2026/2957 — Publication du nombre total de quotas en circulation en 2025 aux fins de la réserve de stabilité du marché relevant du SEQE de l'UE",
+    "date_publication": "2026-06-01",
+    "url": "https://eur-lex.europa.eu/eli/C/2026/2957/oj",
+    "consulte_le": "2026-11-26",
+    "note": "texte français lu dans la version XHTML servie par l'Office des publications (cellar 0e89f392-5d73-11f1-aa6d-01aa75ed71a1) ; JO série C du 1.6.2026"
+   },
+   "page": "section 1",
+   "citation": "« Le 28 mai 2025, la Commission a publié le nombre total de quotas en circulation pour 2024, qui s'élevait à 1 148 049 585. Cela signifie que 275 531 900 quotas ont été placés dans la réserve entre le 1er septembre 2025 et le 31 août 2026. Le nombre de quotas dans la réserve qui n'étaient plus valides au 1er janvier 2025 atteignait au total 270 506 086. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "chiffre rapporté par la communication de 2026 ; la communication C/2025/3180 qui le publie n'a pas été relue"
+  },
+  "ets_seuil_prelevement_bas": {
+   "libelle": "Seuil du nombre total de quotas en circulation au-dessus duquel des quotas sont placés dans la réserve de stabilité",
+   "valeur": 833,
+   "unite": "millions de quotas",
+   "grandeur": "quotas",
+   "periode": "règle en vigueur (version consolidée au 1er janvier 2024)",
+   "perimetre": "décision (UE) 2015/1814, article 1er, paragraphe 5",
+   "source": {
+    "cle": "ue-2015-1814-consolidee",
+    "editeur": "Parlement européen et Conseil de l'UE (version consolidée par l'Office des publications)",
+    "titre": "Décision (UE) 2015/1814 concernant la création et le fonctionnement d'une réserve de stabilité du marché pour le SEQE de l'UE — version consolidée au 1er janvier 2024 (modifications 2018/410, 2023/852 et 2023/959)",
+    "date_publication": "2024-01-01",
+    "url": "https://eur-lex.europa.eu/eli/dec/2015/1814/oj",
+    "consulte_le": "2026-11-26",
+    "note": "« outil de documentation » sans effet juridique (mention en tête du texte consolidé, celex 02015D1814-20240101) ; proposition de la Commission du 1er avril 2026, COM(2026) 153, de mettre fin à l'invalidation ; texte de compromis approuvé par le Coreper le 28/10/2026 (document du Conseil 14944/26) qui garde l'invalidation et en relève le seuil à 700 millions de quotas ; première lecture du Parlement le 24/11/2026, position du Conseil attendue au 26/11/2026 (fiche de procédure 2026/0085(COD))"
+   },
+   "page": "article 1er, paragraphe 5 (p. 3 du texte consolidé)",
+   "citation": "« Pour une année donnée, si le nombre total de quotas en circulation se situe entre 833 et 1 096 millions, un nombre de quotas égal à la différence entre le nombre total de quotas en circulation, tel qu'établi dans la publication la plus récente visée au paragraphe 4 du présent article, et 833 millions est déduit de la quantité de quotas qui doit être mise aux enchères par les États membres au titre de l'article 10, paragraphe 2, de la directive 2003/87/CE et est placé dans la réserve sur une période de douze mois à compter du 1er septembre de l'année en question. Si le nombre total de quotas en circulation est supérieur à 1 096 millions, le nombre de quotas à déduire […] est égal à 12 % du nombre total de quotas en circulation. Par dérogation à la deuxième phrase du présent paragraphe, jusqu'au 31 décembre 2030, le pourcentage visé dans ladite phrase est multiplié par deux. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "version consolidée, outil documentaire sans effet juridique ; la coupure […] retire la répétition de la référence à la directive"
+  },
+  "ets_seuil_prelevement_haut": {
+   "libelle": "Seuil du nombre total de quotas en circulation au-dessus duquel le placement dans la réserve est proportionnel (24 % jusqu'en 2030)",
+   "valeur": 1096,
+   "unite": "millions de quotas",
+   "grandeur": "quotas",
+   "periode": "règle en vigueur (version consolidée au 1er janvier 2024)",
+   "perimetre": "décision (UE) 2015/1814, article 1er, paragraphe 5",
+   "source": {
+    "cle": "ue-2015-1814-consolidee",
+    "editeur": "Parlement européen et Conseil de l'UE (version consolidée par l'Office des publications)",
+    "titre": "Décision (UE) 2015/1814 concernant la création et le fonctionnement d'une réserve de stabilité du marché pour le SEQE de l'UE — version consolidée au 1er janvier 2024 (modifications 2018/410, 2023/852 et 2023/959)",
+    "date_publication": "2024-01-01",
+    "url": "https://eur-lex.europa.eu/eli/dec/2015/1814/oj",
+    "consulte_le": "2026-11-26",
+    "note": "« outil de documentation » sans effet juridique (mention en tête du texte consolidé, celex 02015D1814-20240101) ; proposition de la Commission du 1er avril 2026, COM(2026) 153, de mettre fin à l'invalidation ; texte de compromis approuvé par le Coreper le 28/10/2026 (document du Conseil 14944/26) qui garde l'invalidation et en relève le seuil à 700 millions de quotas ; première lecture du Parlement le 24/11/2026, position du Conseil attendue au 26/11/2026 (fiche de procédure 2026/0085(COD))"
+   },
+   "page": "article 1er, paragraphe 5 (p. 3 du texte consolidé)",
+   "citation": "« Pour une année donnée, si le nombre total de quotas en circulation se situe entre 833 et 1 096 millions, un nombre de quotas égal à la différence entre le nombre total de quotas en circulation […] et 833 millions est déduit de la quantité de quotas qui doit être mise aux enchères […]. Si le nombre total de quotas en circulation est supérieur à 1 096 millions, le nombre de quotas à déduire […] est égal à 12 % du nombre total de quotas en circulation. Par dérogation à la deuxième phrase du présent paragraphe, jusqu'au 31 décembre 2030, le pourcentage visé dans ladite phrase est multiplié par deux. »",
+   "confiance": "B",
+   "verification": "spike"
+  },
+  "ets_seuil_invalidation": {
+   "libelle": "Nombre de quotas détenus dans la réserve de stabilité au-delà duquel les quotas de la réserve ne sont plus valides",
+   "valeur": 400,
+   "unite": "millions de quotas",
+   "grandeur": "quotas",
+   "periode": "à partir de 2023 (version consolidée au 1er janvier 2024)",
+   "perimetre": "décision (UE) 2015/1814, article 1er, paragraphe 5 bis",
+   "source": {
+    "cle": "ue-2015-1814-consolidee",
+    "editeur": "Parlement européen et Conseil de l'UE (version consolidée par l'Office des publications)",
+    "titre": "Décision (UE) 2015/1814 concernant la création et le fonctionnement d'une réserve de stabilité du marché pour le SEQE de l'UE — version consolidée au 1er janvier 2024 (modifications 2018/410, 2023/852 et 2023/959)",
+    "date_publication": "2024-01-01",
+    "url": "https://eur-lex.europa.eu/eli/dec/2015/1814/oj",
+    "consulte_le": "2026-11-26",
+    "note": "« outil de documentation » sans effet juridique (mention en tête du texte consolidé, celex 02015D1814-20240101) ; proposition de la Commission du 1er avril 2026, COM(2026) 153, de mettre fin à l'invalidation ; texte de compromis approuvé par le Coreper le 28/10/2026 (document du Conseil 14944/26) qui garde l'invalidation et en relève le seuil à 700 millions de quotas ; première lecture du Parlement le 24/11/2026, position du Conseil attendue au 26/11/2026 (fiche de procédure 2026/0085(COD))"
+   },
+   "page": "article 1er, paragraphe 5 bis (p. 3 du texte consolidé)",
+   "citation": "« À moins qu'il n'en soit décidé autrement lors du premier réexamen mené conformément à l'article 3, à partir de 2023, les quotas détenus dans la réserve au-delà de 400 millions ne sont plus valides. »",
+   "confiance": "B",
+   "verification": "spike",
+   "note": "règle en vigueur au 26/11/2026. La Commission a proposé le 1er avril 2026 de mettre fin à l'invalidation (COM(2026) 153) ; le texte de compromis approuvé par le Coreper le 28/10/2026 la garde, avec un seuil de 700 millions à son entrée en vigueur (ets_seuil_invalidation_compromis) ; non adopté au 26/11/2026"
+  },
+  "ets_seuil_invalidation_compromis": {
+   "libelle": "Seuil d'invalidation des quotas de la réserve de stabilité prévu par le texte de compromis de 2026 (non adopté au 26/11/2026)",
+   "valeur": 700,
+   "unite": "millions de quotas",
+   "grandeur": "quotas",
+   "periode": "à partir de l'entrée en vigueur de la décision modificative (troisième jour après sa publication), si elle est adoptée",
+   "perimetre": "procédure 2026/0085 (COD), texte de compromis final approuvé par le Coreper le 28/10/2026, nouveau paragraphe 5 bis de l'article 1er de la décision (UE) 2015/1814",
+   "source": {
+    "cle": "conseil-14944-26",
+    "editeur": "Conseil de l'Union européenne",
+    "titre": "Document 14944/26 — Outcome of proceedings, procédure 2026/0085 (COD), décision modifiant la décision (UE) 2015/1814 (invalidation des quotas de la réserve de stabilité), texte de compromis final",
+    "date_publication": "2026-10-28",
+    "url": "https://data.consilium.europa.eu/doc/document/ST-14944-2026-INIT/en/pdf",
+    "consulte_le": "2026-11-26",
+    "note": "en anglais (pas de version française servie) ; texte approuvé par le Coreper « with a view to agreement », pas encore adopté ; page = page du PDF (6 pages)"
+   },
+   "page": "annexe, considérant 3 et article 1er, p. 5-6",
+   "citation": "« Until [ ... OJ the day before the date of entry into force of this amending decision] allowances held in the reserve above 400 million allowances shall no longer be valid. From [ ... OJ the date of entry into force of this amending decision], allowances held in the reserve above 700 million allowances shall no longer be valid. » ; article 2 : « This Decision shall enter into force on the third day following that of its publication in the Official Journal of the European Union. »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "texte non adopté au 26/11/2026 : première lecture du Parlement le 24/11/2026, position du Conseil attendue (fiche de procédure 2026/0085(COD), pe-oeil-2026-0085) ; le texte voté par le Parlement (T10-0381/2026) n'a pas été relu par le site ; le considérant 3a annonce, dans la proposition de révision de la directive de juillet 2026, des paramètres « dynamiques » de la réserve et une baisse annuelle du seuil d'invalidation"
+  },
   "quand_rn_max_2022": {
    "source": {
     "cle": "pdc-quand",
@@ -9073,6 +9753,1039 @@
    "citation": "Production solaire et éolienne non produite lors des épisodes de prix négatifs (3,0 TWh, référentiel enr_renoncees_prix_negatifs_2025) ; annees.2025.prix.heures_negatif (513 h)",
    "calcul": "production éolienne et solaire renoncée lors des épisodes de prix négatifs (estimation RTE, 3,0 TWh, × 10⁶ en MWh) ÷ 513 heures à prix day-ahead strictement négatif de l'année = MW moyens sur ces heures ; la charge résiduelle observée est plus haute d'autant, en moyenne, que sans la production renoncée",
    "note": "borne haute d'une moyenne, pas une valeur heure par heure (la production renoncée se concentre sur les heures de forte production) ; borne si toute la production renoncée tombe à ces heures : une partie a pu l'être à des quarts d'heure négatifs d'heures dont la moyenne ne l'est pas, ce qui baisse la moyenne ; RTE donne « environ » 3 TWh : 0,1 TWh de plus ou de moins déplace la moyenne de 0,2 GW ; le détail de la note 19 de RTE (1,3 + 1,6 TWh, éolien terrestre et solaire) donne 2,9 TWh, soit 5,7 GW ; l'éolien en mer n'est pas dans l'estimation de RTE, alors qu'il est dans l'éolien observé (effet probablement négligeable) ; les 0,1 TWh écrêtés à la demande de RTE, qui recouvrent probablement en partie ce volume, ajouteraient au plus 0,2 GW ; charge résiduelle moyenne observée à ces heures : −9,8 GW, soit de l'ordre de −15,7 GW sans la production renoncée : le surplus réel de ces heures est plus grand que celui que montre la charge résiduelle, pas plus petit"
+  },
+  "carbone_prod_moyenne_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production (émissions directes), moyenne annuelle",
+   "valeur": 53.8,
+   "valeur_calculee": 53.7525,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2022",
+   "citation": "annees.2022.production.moyenne_ponderee",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; 8758 heures valides",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 52,4 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_max_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, maximum horaire de l'année",
+   "valeur": 110.5,
+   "valeur_calculee": 110.5,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2 décembre 2022, 3 h-4 h (heure de Paris)",
+   "citation": "annees.2022.production.max (heure UTC 2022-12-02T02:00Z)",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_moyenne_2024": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production (émissions directes), moyenne annuelle",
+   "valeur": 20.1,
+   "valeur_calculee": 20.1031,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2024",
+   "citation": "annees.2024.production.moyenne_ponderee",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; 8782 heures valides",
+   "recoupements": [
+    {
+     "source": "rte-be2024",
+     "valeur": "21,7 gCO2eq/kWh (RTE, p. 90)",
+     "note": "même éditeur (RTE) ; le Bilan électrique inclut la Corse (production au fioul) et applique les facteurs de son annexe, éCO2mix non : écart contrôlé par `pc check`",
+     "independant": false
+    }
+   ],
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 19,0 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_max_2024": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, maximum horaire de l'année",
+   "valeur": 69.0,
+   "valeur_calculee": 69.0,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "28 février 2024, 9 h-10 h (heure de Paris)",
+   "citation": "annees.2024.production.max (heure UTC 2024-02-28T08:00Z)",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_moyenne_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production (émissions directes), moyenne annuelle",
+   "valeur": 18.4,
+   "valeur_calculee": 18.3595,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2025",
+   "citation": "annees.2025.production.moyenne_ponderee",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; 8757 heures valides",
+   "recoupements": [
+    {
+     "source": "rte-be2025",
+     "valeur": "19,6 gCO2eq/kWh (RTE, p. 104 (aussi p. 99))",
+     "note": "même éditeur (RTE) ; le Bilan électrique inclut la Corse (production au fioul) et applique les facteurs de son annexe, éCO2mix non : écart contrôlé par `pc check`",
+     "independant": false
+    }
+   ],
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 17,3 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_max_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, maximum horaire de l'année",
+   "valeur": 57.5,
+   "valeur_calculee": 57.5,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "14 janvier 2025, 9 h-10 h (heure de Paris)",
+   "citation": "annees.2025.production.max (heure UTC 2025-01-14T08:00Z)",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_prod_part_sous_15_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "part",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Part des heures où l'intensité moyenne de la production est inférieure à 15 gCO2eq/kWh",
+   "valeur": 53,
+   "valeur_calculee": 52.79,
+   "precision": 1,
+   "unite": "%",
+   "periode": "2025",
+   "citation": "annees.2025.production.part_heures_sous_seuil_fond",
+   "calcul": "heures où l'intensité horaire est strictement inférieure à 15 g / heures valides (8757)",
+   "note": "seuil de l'« intensité de fond » de RTE (Bilan électrique 2025, p. 105 : « près de la moitié du temps ») ; intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_conso_moyenne_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la consommation (émissions directes), moyenne annuelle",
+   "valeur": 62.1,
+   "valeur_calculee": 62.0541,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2022",
+   "citation": "annees.2022.consommation.moyenne_ponderee",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; 8758 heures valides",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 60,3 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_max_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la consommation, maximum horaire de l'année",
+   "valeur": 154.0,
+   "valeur_calculee": 154.0,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "7 décembre 2022, 21 h-22 h (heure de Paris)",
+   "citation": "annees.2022.consommation.max (heure UTC 2022-12-07T20:00Z)",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_moyenne_2024": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la consommation (émissions directes), moyenne annuelle",
+   "valeur": 22.1,
+   "valeur_calculee": 22.1382,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2024",
+   "citation": "annees.2024.consommation.moyenne_ponderee",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; 8782 heures valides",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 20,5 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_max_2024": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la consommation, maximum horaire de l'année",
+   "valeur": 68.0,
+   "valeur_calculee": 68.0,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "9 janvier 2024, 19 h-20 h (heure de Paris)",
+   "citation": "annees.2024.consommation.max (heure UTC 2024-01-09T18:00Z)",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_moyenne_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la consommation (émissions directes), moyenne annuelle",
+   "valeur": 20.1,
+   "valeur_calculee": 20.1498,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2025",
+   "citation": "annees.2025.consommation.moyenne_ponderee",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; 8757 heures valides",
+   "recoupements": [
+    {
+     "source": "rte-be2025",
+     "valeur": "20,0 gCO2eq/kWh (RTE, p. 104)",
+     "note": "même éditeur (RTE), même méthode : écart contrôlé par `pc check` (± 2 %)",
+     "independant": false
+    }
+   ],
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; moyenne simple des heures, non pondérée (à ne pas prendre pour la moyenne annuelle) : 18,7 g ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_max_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "recoupements": [
+    {
+     "source": "rte-be2025",
+     "valeur": "58 gCO2eq/kWh (RTE, p. 105)",
+     "note": "même éditeur ; RTE calcule sur sa série du Bilan, la série ODRÉ a été recalculée en mars 2026 avec les facteurs actuels : écart contrôlé par `pc check` (± 3 g)",
+     "independant": false
+    }
+   ],
+   "libelle": "Intensité carbone moyenne de la consommation, maximum horaire de l'année",
+   "valeur": 60.0,
+   "valeur_calculee": 60.0,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "14 janvier 2025, 9 h-10 h (heure de Paris)",
+   "citation": "annees.2025.consommation.max (heure UTC 2025-01-14T08:00Z)",
+   "calcul": "intensite_emissions_conso du jeu ODRÉ part-enr-intensite-ges-conso-tr (gCO2eq/kWh, entiers), pondérée par la consommation éCO2mix de la même heure ; date_heure_utc lue comme début de l'heure (hypothèse) ; maximum des valeurs horaires",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée ; l'heure la plus carbonée en moyenne n'est pas l'heure où une consommation ajoutée émettrait le plus ; décimale sensible à la convention d'horodatage d'éCO2mix (point horodaté t = période qui se termine à t), qui fixe les heures et les poids"
+  },
+  "carbone_conso_part_sous_15_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "part",
+   "perimetre": "consommation d'électricité de la France continentale hors Corse, échanges compris (traçage des flux, méthode RTE d'avril 2026), émissions directes ; année civile en heure de Paris",
+   "libelle": "Part des heures où l'intensité moyenne de la consommation est inférieure à 15 gCO2eq/kWh",
+   "valeur": 47,
+   "valeur_calculee": 47.37,
+   "precision": 1,
+   "unite": "%",
+   "periode": "2025",
+   "citation": "annees.2025.consommation.part_heures_sous_seuil_fond",
+   "calcul": "heures où l'intensité horaire est strictement inférieure à 15 g / heures valides (8757)",
+   "note": "seuil de l'« intensité de fond » de RTE (Bilan électrique 2025, p. 105 : « près de la moitié du temps ») ; intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_hiver_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, hiver (novembre à mars)",
+   "valeur": 61.9,
+   "valeur_calculee": 61.9324,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2022, novembre à mars (heure de Paris)",
+   "citation": "annees.2022.production.moyenne_hiver",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix), sur les heures de novembre à mars",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_ete_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, été (avril à octobre)",
+   "valeur": 45.6,
+   "valeur_calculee": 45.621,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2022, avril à octobre (heure de Paris)",
+   "citation": "annees.2022.production.moyenne_ete",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix), sur les heures de avril à octobre",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_mh_max_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, case mois × heure la plus élevée de l'année",
+   "valeur": 72.4,
+   "valeur_calculee": 72.4342,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "décembre 2022, 4 h-5 h (heure de Paris), moyenne de 31 heures",
+   "citation": "matrices_mois_heure.production.2022.case_max",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; moyenne pondérée par case mois × heure de Paris, case la plus élevée des 288",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_mh_min_2022": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, case mois × heure la plus basse de l'année",
+   "valeur": 31.6,
+   "valeur_calculee": 31.5512,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "juin 2022, 13 h-14 h (heure de Paris), moyenne de 30 heures",
+   "citation": "matrices_mois_heure.production.2022.case_min",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; moyenne pondérée par case mois × heure de Paris, case la plus basse des 288",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_hiver_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, hiver (novembre à mars)",
+   "valeur": 26.0,
+   "valeur_calculee": 25.9675,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2025, novembre à mars (heure de Paris)",
+   "citation": "annees.2025.production.moyenne_hiver",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix), sur les heures de novembre à mars",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_ete_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, été (avril à octobre)",
+   "valeur": 11.5,
+   "valeur_calculee": 11.5234,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "2025, avril à octobre (heure de Paris)",
+   "citation": "annees.2025.production.moyenne_ete",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix), sur les heures de avril à octobre",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_mh_max_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, case mois × heure la plus élevée de l'année",
+   "valeur": 36.2,
+   "valeur_calculee": 36.1536,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "février 2025, 18 h-19 h (heure de Paris), moyenne de 28 heures",
+   "citation": "matrices_mois_heure.production.2025.case_max",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; moyenne pondérée par case mois × heure de Paris, case la plus élevée des 288",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  },
+  "carbone_prod_mh_min_2025": {
+   "source": {
+    "cle": "pdc-carbone",
+    "editeur": "Puissance de calcul (calcul du site)",
+    "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+    "date_publication": "2026-11-26",
+    "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+    "consulte_le": "2026-11-26",
+    "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+   },
+   "page": "data/export/carbone.json",
+   "confiance": "B",
+   "verification": "pc check",
+   "produit_par": "pc build",
+   "grandeur": "intensite_moyenne",
+   "perimetre": "production d'électricité de la France continentale hors Corse (éCO2mix national), émissions directes de combustion, importations exclues ; année civile en heure de Paris",
+   "libelle": "Intensité carbone moyenne de la production, case mois × heure la plus basse de l'année",
+   "valeur": 7.2,
+   "valeur_calculee": 7.1587,
+   "precision": 0.1,
+   "unite": "gCO2eq/kWh",
+   "periode": "septembre 2025, 13 h-14 h (heure de Paris), moyenne de 30 heures",
+   "citation": "matrices_mois_heure.production.2025.case_min",
+   "calcul": "taux_co2 d'éCO2mix (gCO2eq/kWh), valeur horaire pondérée par la production des demi-heures ; moyennes de période pondérées par la production horaire (Σ des filières éCO2mix) ; moyenne pondérée par case mois × heure de Paris, case la plus basse des 288",
+   "note": "intensité MOYENNE, pas un facteur marginal : elle ne dit pas ce que changerait une consommation ajoutée"
+  }
+ },
+ "sources": {
+  "rte-be2025": {
+   "cle": "rte-be2025",
+   "editeur": "RTE",
+   "titre": "Bilan électrique 2025 — rapport complet",
+   "date_publication": "2026-03-01",
+   "url": "https://assets.rte-france.com/analyse-et-donnees/2026-03/BE2025%20-%20Rapport%20Complet.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date de publication approchée au mois (URL datée 2026-03)"
+  },
+  "rte-be2024": {
+   "cle": "rte-be2024",
+   "editeur": "RTE",
+   "titre": "Bilan électrique 2024 — rapport complet",
+   "date_publication": "2025-09-01",
+   "url": "https://assets.rte-france.com/analyse-et-donnees/2025-09/BE2024%20-%20Rapport%20Complet.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date de publication approchée au mois (URL datée 2025-09)"
+  },
+  "rte-tdb-electrification-2026": {
+   "cle": "rte-tdb-electrification-2026",
+   "editeur": "RTE",
+   "titre": "Tableau de bord de suivi de l'électrification",
+   "date_publication": "2026-07-01",
+   "url": "https://assets.rte-france.com/analyse-et-donnees/2026-07/Tableau-de-bord-de-lelectrification.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date de publication approchée au mois"
+  },
+  "rte-bp2025-consommation": {
+   "cle": "rte-bp2025-consommation",
+   "editeur": "RTE",
+   "titre": "Bilan prévisionnel 2025-2035 — La consommation d'électricité",
+   "date_publication": "2025-12-23",
+   "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-23-bilan-previsionnel-2025-consommation.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "rte-bp2025-resultats": {
+   "cle": "rte-bp2025-resultats",
+   "editeur": "RTE",
+   "titre": "Bilan prévisionnel 2025 — Principaux résultats",
+   "date_publication": "2025-12-16",
+   "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-16-bilan-previsionnel-principaux-resultats-2025.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "rte-page-datacenters": {
+   "cle": "rte-page-datacenters",
+   "editeur": "RTE",
+   "titre": "Les data centers en chiffres clés (page web)",
+   "date_publication": "2026-06-01",
+   "url": "https://www.rte-france.com/bases-electricite/consommation-electricite/essor-data-centers-france",
+   "consulte_le": "2026-11-25",
+   "note": "publiée le 21/05/2025, date affichée 01/06/2026 ; page mise à jour sans historique"
+  },
+  "rte-cp-campusia-2026": {
+   "cle": "rte-cp-campusia-2026",
+   "editeur": "RTE",
+   "titre": "Campus IA et RTE signent un contrat de raccordement accéléré (communiqué)",
+   "date_publication": "2026-01-26",
+   "url": "https://assets.rte-france.com/prod/public/2026-01/20260122_CP_RACCORDEMENT_FASTTRACK_CAMPUSIA_VDEF_0.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "rte-fiche-fasttrack-2025": {
+   "cle": "rte-fiche-fasttrack-2025",
+   "editeur": "RTE",
+   "titre": "Labellisation d'un site « fast-track » par RTE (fiche descriptive, 5 sites)",
+   "date_publication": "2025-12-01",
+   "url": "https://www.services-rte.com/files/live/sites/services-rte/files/Fiche%20descriptive%20fast-track%20-%205%20sites.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date approchée au mois"
+  },
+  "rte-idf-2026": {
+   "cle": "rte-idf-2026",
+   "editeur": "RTE",
+   "titre": "Bilan électrique Île-de-France",
+   "date_publication": "2026-07-09",
+   "url": "https://assets.rte-france.com/prod/public/2026-07/2026-07-09-bilan-electrique-idf-2026.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "sdes-datacenters-2024": {
+   "cle": "sdes-datacenters-2024",
+   "editeur": "SDES",
+   "titre": "La consommation d'électricité des data centers en 2024",
+   "date_publication": "2026-07-02",
+   "url": "https://www.statistiques.developpement-durable.gouv.fr/la-consommation-delectricite-des-data-centers-en-2024",
+   "consulte_le": "2026-11-25"
+  },
+  "arcep-pns-2026": {
+   "cle": "arcep-pns-2026",
+   "editeur": "Arcep",
+   "titre": "Enquête annuelle « pour un numérique soutenable », 5e édition",
+   "date_publication": "2026-05-01",
+   "url": "https://www.arcep.fr/fileadmin/user_upload/observatoire/enquete-pns/edition-2026/enquete-annuelle-pour-un-numerique-soutenable_edition2026_mai2026.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date approchée au mois"
+  },
+  "ademe-prospective-2026": {
+   "cle": "ademe-prospective-2026",
+   "editeur": "ADEME",
+   "titre": "Prospective d'évolution des consommations des centres de données en France de 2024 à 2060 — Synthèse",
+   "date_publication": "2026-01-01",
+   "url": "https://www.actu-environnement.com/media/pdf/news-47330-synthese-etude-Ademe-datacenter-scenario-janvier-2026.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "copie hébergée par Actu-Environnement, les pages ademe.fr ayant refusé l'accès ; date approchée au mois"
+  },
+  "dge-rencontres-2026": {
+   "cle": "dge-rencontres-2026",
+   "editeur": "Ministère chargé du numérique (DGE)",
+   "titre": "Rencontres des centres de données (communiqué)",
+   "date_publication": "2026-01-30",
+   "url": "https://www.entreprises.gouv.fr/espace-presse/rencontres-des-centres-de-donnees-pres-dun-apres-le-sommet-pour-laction-sur-lia-de",
+   "consulte_le": "2026-11-25"
+  },
+  "dge-guide-2025": {
+   "cle": "dge-guide-2025",
+   "editeur": "Ministère chargé du numérique (DGE)",
+   "titre": "Guide — Implantation de centres de données",
+   "date_publication": "2025-11-25",
+   "url": "https://www.entreprises.gouv.fr/files/files/Publications/2025/Guide/25112025__Guide%20Datacenters.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "elysee-sommet-ia-2025": {
+   "cle": "elysee-sommet-ia-2025",
+   "editeur": "Présidence de la République",
+   "titre": "Faire de la France une puissance de l'IA (dossier de presse du Sommet pour l'action sur l'IA)",
+   "date_publication": "2025-02-09",
+   "url": "https://www.elysee.fr/admin/upload/default/0001/17/23058aa82354edfd8a30ff11b57b36f2801504f3.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "cre-2025-120": {
+   "cle": "cre-2025-120",
+   "editeur": "CRE",
+   "titre": "Délibération n° 2025-120 — procédure de raccordement « fast track »",
+   "date_publication": "2025-05-07",
+   "url": "https://www.cre.fr/fileadmin/Documents/Deliberations/2025/250507_2025-120_Procedure_raccordement_Fast_track.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "cre-2026-32": {
+   "cle": "cre-2026-32",
+   "editeur": "CRE",
+   "titre": "Délibération n° 2026-32 — procédure de raccordement de RTE",
+   "date_publication": "2026-02-04",
+   "url": "https://www.cre.fr/fileadmin/Documents/Deliberations/2026/260204_2026-32_Procedure_raccordement_RTE.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "ce-com-2026-500": {
+   "cle": "ce-com-2026-500",
+   "editeur": "Commission européenne",
+   "titre": "COM(2026) 500 — Report on the energy efficiency of data centres in the EU",
+   "date_publication": "2026-09-21",
+   "url": "https://build-up.ec.europa.eu/system/files/2026-10/39-2026-48_Report%20on%20the%20energy%20efficiency%20of%20data%20centres%20in%20the%20EU.pdf",
+   "consulte_le": "2026-11-25"
+  },
+  "iea-energy-ai-2025": {
+   "cle": "iea-energy-ai-2025",
+   "editeur": "AIE",
+   "titre": "Energy and AI",
+   "date_publication": "2025-04-01",
+   "url": "https://iea.blob.core.windows.net/assets/86ed1178-4d77-45ac-ab38-28e849f3b93f/EnergyandAI.pdf",
+   "consulte_le": "2026-11-25",
+   "note": "date approchée au mois ; ne contient aucun chiffre pour la France"
+  },
+  "rte-bp2023-consommation": {
+   "cle": "rte-bp2023-consommation",
+   "editeur": "RTE",
+   "titre": "Bilan prévisionnel 2023 — chapitre 2, Consommation",
+   "date_publication": "2023-11-01",
+   "url": "https://assets.rte-france.com/prod/public/2023-11/Bilan-previsionnel-2023-chapitre2-consommation.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date approchée au mois ; périmètre data centers incluant les centres internes"
+  },
+  "rte-services-2025-05-20": {
+   "cle": "rte-services-2025-05-20",
+   "editeur": "RTE",
+   "titre": "Pre-reservation of capacity on four suitable sites (RTE Services)",
+   "date_publication": "2025-05-20",
+   "url": "https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-four-suitable-sites.html",
+   "consulte_le": "2026-11-26"
+  },
+  "rte-services-2025-12-19": {
+   "cle": "rte-services-2025-12-19",
+   "editeur": "RTE",
+   "titre": "Pre-reservation of capacity on a new \"fast-track\" site (RTE Services)",
+   "date_publication": "2025-12-19",
+   "url": "https://www.services-rte.com/en/news/pre-reservation-of-capacity-on-a-new-fast-track-site.html",
+   "consulte_le": "2026-11-26"
+  },
+  "energy-charts-prix": {
+   "cle": "energy-charts-prix",
+   "editeur": "Fraunhofer ISE (energy-charts.info), données Bundesnetzagentur / SMARD",
+   "titre": "Prix day-ahead, zone France (API energy-charts, /price?bzn=FR)",
+   "date_publication": "2026-11-26",
+   "url": "https://api.energy-charts.info/price?bzn=FR",
+   "consulte_le": "2026-11-26",
+   "note": "licence CC BY 4.0 (energy-charts.info, SMARD.de) ; date = date d'extraction par `pc download`"
+  },
+  "rte-eco2mix-odre": {
+   "cle": "rte-eco2mix-odre",
+   "editeur": "RTE (open data ODRÉ)",
+   "titre": "éCO2mix national (données définitives) et consommation annuelle brute régionale",
+   "date_publication": "2026-11-26",
+   "url": "https://odre.opendatasoft.com/explore/dataset/eco2mix-national-cons-def/",
+   "consulte_le": "2026-11-26",
+   "note": "date = date d'extraction par `pc download` ; Licence Ouverte 2.0"
+  },
+  "edf-remit": {
+   "cle": "edf-remit",
+   "editeur": "EDF",
+   "titre": "Indisponibilités des moyens de production d'EDF SA (REMIT) — historique depuis 2015 et liste courante (opendata.edf.fr, data-fair)",
+   "date_publication": "2026-09-07",
+   "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015",
+   "consulte_le": "2026-11-26",
+   "note": "Licence Ouverte 2.0 ; date = dernier export de l'historique (liste courante mise à jour toutes les heures) ; périmètre EDF SA + Luminus"
+  },
+  "rte-bp2025-fonctionnement": {
+   "cle": "rte-bp2025-fonctionnement",
+   "editeur": "RTE",
+   "titre": "Bilan prévisionnel 2025-2035 — Fonctionnement du système électrique",
+   "date_publication": "2026-07-15",
+   "url": "https://assets.rte-france.com/prod/public/2026-07/2026-07-15-bilan-previsionnel-fonctionnement-systeme-electrique.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de l'URL ; PDF créé le 30/06/2026 ; copie locale identique à l'original (SHA-256, contre-vérification du 26/11/2026)"
+  },
+  "rte-hiver-2026-2027": {
+   "cle": "rte-hiver-2026-2027",
+   "editeur": "RTE",
+   "titre": "Perspectives pour le système électrique pour l'hiver 2026-2027 — synthèse",
+   "date_publication": "2026-11-18",
+   "url": "https://assets.rte-france.com/prod/public/2026-11/2026-11-18-synthese-perspectives-passage-hiver-2026-2027.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de l'URL ; couverture « novembre 2026 », PDF créé le 19/11/2026 ; figure de disponibilité nucléaire arrêtée au 13/11/2026"
+  },
+  "rte-parametrage-mc-2026": {
+   "cle": "rte-parametrage-mc-2026",
+   "editeur": "RTE",
+   "titre": "Mécanisme de capacité — Rapport de paramétrage de la période de livraison 2026/2027",
+   "date_publication": "2026-02-12",
+   "url": "https://assets.rte-france.com/prod/public/2026-02/2026-02-12-rapport-parametrage-mecanisme-capacite.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "couverture datée du 21/01/2026 ; version publiée le 12/02/2026, modifiée après la saisine de la CRE (note 7 p. 11, certification du parc et Cref)"
+  },
+  "rte-enchere-mc-2026": {
+   "cle": "rte-enchere-mc-2026",
+   "editeur": "RTE",
+   "titre": "Mécanisme de capacité — Rapport d'enchère de la période de livraison 2026/2027",
+   "date_publication": "2026-07-17",
+   "url": "https://www.services-rte.com/files/live/sites/services-rte/files/rapport-enchere-public-pl-26-27.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de couverture ; lu par la contre-vérification du 26/11/2026, copie non versionnée"
+  },
+  "rte-hiver-2022-2023": {
+   "cle": "rte-hiver-2022-2023",
+   "editeur": "RTE",
+   "titre": "Perspectives pour le système électrique pour l'automne et l'hiver 2022-2023",
+   "date_publication": "2022-09-14",
+   "url": "https://assets.rte-france.com/prod/public/2022-09/Analyse%20passage%20hiver%202022-2023.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de création du PDF (14/09/2022), URL datée 2022-09"
+  },
+  "rte-hiver-2024-2025": {
+   "cle": "rte-hiver-2024-2025",
+   "editeur": "RTE",
+   "titre": "Perspectives pour le système électrique pour l'hiver 2024-2025 (novembre 2024) — synthèse",
+   "date_publication": "2024-11-13",
+   "url": "https://assets.rte-france.com/prod/public/2024-11/RTE-synthese-passage-hiver-2024-2025.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de création du PDF ; couverture « novembre 2024 »"
+  },
+  "rte-hiver-2018-2019": {
+   "cle": "rte-hiver-2018-2019",
+   "editeur": "RTE",
+   "titre": "Synthèse — L'équilibre offre-demande d'électricité pour l'hiver 2018-2019",
+   "date_publication": "2018-11-19",
+   "url": "https://assets.rte-france.com/prod/public/2020-06/synthese_passage_hiver_2018-2019_1.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de création du PDF ; URL datée 2020-06 (republication sur le site actuel)"
+  },
+  "rte-be2017": {
+   "cle": "rte-be2017",
+   "editeur": "RTE",
+   "titre": "Bilan électrique 2017 (« Mon bilan électrique 2017 », version imprimable du site)",
+   "date_publication": "2018-02-21",
+   "url": "https://assets.rte-france.com/prod/public/2024-07/bilan_electrique-2017.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de création du PDF ; page = page du PDF (sans folio imprimé) ; URL datée 2024-07 (republication)"
+  },
+  "cre-2012-pics-prix": {
+   "cle": "cre-2012-pics-prix",
+   "editeur": "CRE",
+   "titre": "Délibération du 10 mai 2012 portant communication sur les pics de prix de l'électricité des 9 et 10 février 2012",
+   "date_publication": "2012-05-10",
+   "url": "https://www.cre.fr/fileadmin/Documents/Deliberations/import/120510_pics_de_prix.pdf",
+   "consulte_le": "2026-11-26"
+  },
+  "entsoe-transparence": {
+   "cle": "entsoe-transparence",
+   "editeur": "ENTSO-E (Transparency Platform), données des gestionnaires de réseau et des bourses",
+   "titre": "ENTSO-E Transparency Platform, API REST — prix day-ahead (A44), production réalisée par filière (A75), flux physiques (A11), capacités d'échange prévues (A61), charge réalisée (A65)",
+   "date_publication": "2026-11-26",
+   "url": "https://web-api.tp.entsoe.eu/api",
+   "consulte_le": "2026-11-26",
+   "note": "date = date d'extraction par `pc download` ; citer « ENTSO-E Transparency Platform » (conditions générales d'utilisation du 29/03/2023, § 3.1). Flux physiques (art. 12.1.g) et capacités prévues (art. 11.1.a) figurent sur la « List of data available for free re-use » (18/10/2023, CC BY 4.0), sauf « data provided by interconnectors Interconnexion France-Angleterre » ; prix day-ahead (12.1.d), production réalisée (16.1.b&c) et charge réalisée (6.1.a) n'y figurent pas et relèvent des seules conditions générales (droits éventuels du « Primary Owner of Data »)"
+  },
+  "ademe-rte-2007": {
+   "cle": "ademe-rte-2007",
+   "editeur": "ADEME et RTE",
+   "titre": "Le contenu en CO2 du kWh électrique — avantages comparés du contenu marginal et du contenu par usages sur la base de l'historique (note détaillée)",
+   "date_publication": "2007-10-08",
+   "url": "https://www.hauts-de-france.developpement-durable.gouv.fr/IMG/pdf/contenuco2longue_ademe-rte.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date portée en tête (« Final – le 08/10/2007 ») ; copie hébergée par la DREAL Hauts-de-France (PDF créé le 17/11/2015), les URL d'origine de l'ADEME n'étant plus servies ; page = page du PDF (7 pages, sans folio)"
+  },
+  "cre-2021-126": {
+   "cle": "cre-2021-126",
+   "editeur": "CRE",
+   "titre": "Délibération n° 2021-126 du 6 mai 2021 portant approbation du rapport de RTE sur le facteur d'émission associé au marché de l'électricité français",
+   "date_publication": "2021-05-06",
+   "url": "https://www.cre.fr/content/download/23806/file/210605_2021-126_Rapport_RTE_facteur_emission.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "PDF de 11 pages (délibération seule ; le rapport de RTE, annexé selon la CRE, n'est pas dans ce fichier) ; folio « n/11 »"
+  },
+  "ue-2023-1185": {
+   "cle": "ue-2023-1185",
+   "editeur": "Commission européenne",
+   "titre": "Règlement délégué (UE) 2023/1185 du 10 février 2023 (méthode d'évaluation des réductions d'émissions des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023",
+   "date_publication": "2023-06-20",
+   "url": "https://eur-lex.europa.eu/eli/reg_del/2023/1185/oj",
+   "consulte_le": "2026-11-26",
+   "note": "texte français lu dans le PDF du Journal officiel servi par l'Office des publications (publications.europa.eu/resource/celex/32023R1185), EUR-Lex refusant les accès automatisés ; page = page du JO (L 157/n)"
+  },
+  "ue-2023-1184": {
+   "cle": "ue-2023-1184",
+   "editeur": "Commission européenne",
+   "titre": "Règlement délégué (UE) 2023/1184 du 10 février 2023 (règles de production des carburants renouvelables d'origine non biologique), JO L 157 du 20.6.2023",
+   "date_publication": "2023-06-20",
+   "url": "https://eur-lex.europa.eu/eli/reg_del/2023/1184/oj",
+   "consulte_le": "2026-11-26",
+   "note": "texte français lu dans le PDF du Journal officiel servi par l'Office des publications (celex 32023R1184) ; page = page du JO (L 157/n)"
+  },
+  "ue-2015-1814-consolidee": {
+   "cle": "ue-2015-1814-consolidee",
+   "editeur": "Parlement européen et Conseil de l'UE (version consolidée par l'Office des publications)",
+   "titre": "Décision (UE) 2015/1814 concernant la création et le fonctionnement d'une réserve de stabilité du marché pour le SEQE de l'UE — version consolidée au 1er janvier 2024 (modifications 2018/410, 2023/852 et 2023/959)",
+   "date_publication": "2024-01-01",
+   "url": "https://eur-lex.europa.eu/eli/dec/2015/1814/oj",
+   "consulte_le": "2026-11-26",
+   "note": "« outil de documentation » sans effet juridique (mention en tête du texte consolidé, celex 02015D1814-20240101) ; proposition de la Commission du 1er avril 2026, COM(2026) 153, de mettre fin à l'invalidation ; texte de compromis approuvé par le Coreper le 28/10/2026 (document du Conseil 14944/26) qui garde l'invalidation et en relève le seuil à 700 millions de quotas ; première lecture du Parlement le 24/11/2026, position du Conseil attendue au 26/11/2026 (fiche de procédure 2026/0085(COD))"
+  },
+  "ce-tnac-2025": {
+   "cle": "ce-tnac-2025",
+   "editeur": "Commission européenne",
+   "titre": "Communication C/2026/2957 — Publication du nombre total de quotas en circulation en 2025 aux fins de la réserve de stabilité du marché relevant du SEQE de l'UE",
+   "date_publication": "2026-06-01",
+   "url": "https://eur-lex.europa.eu/eli/C/2026/2957/oj",
+   "consulte_le": "2026-11-26",
+   "note": "texte français lu dans la version XHTML servie par l'Office des publications (cellar 0e89f392-5d73-11f1-aa6d-01aa75ed71a1) ; JO série C du 1.6.2026"
+  },
+  "rte-methodo-intensite-conso-2026": {
+   "cle": "rte-methodo-intensite-conso-2026",
+   "editeur": "RTE (open data ODRÉ)",
+   "titre": "Méthodologie — Part des EnR et intensité en émissions de GES de l'électricité consommée en France en temps réel (v1)",
+   "date_publication": "2026-04-01",
+   "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/part-enr-intensite-ges-conso-tr/attachments/rte_methodologie_fr_part_enr_intensite_ges_conso_v1_pdf",
+   "consulte_le": "2026-11-26",
+   "note": "date de couverture « Avril 2026 – v1 », approchée au mois (PDF créé le 15/04/2026) ; pièce jointe du jeu ODRÉ part-enr-intensite-ges-conso-tr"
+  },
+  "rte-ademe-2020-chauffage": {
+   "cle": "rte-ademe-2020-chauffage",
+   "editeur": "RTE et ADEME",
+   "titre": "Réduction des émissions de CO2, impact sur le système électrique — quelle contribution du chauffage dans les bâtiments à l'horizon 2035 ? (rapport complet)",
+   "date_publication": "2021-01-28",
+   "url": "https://assets.rte-france.com/prod/public/2021-02/Rapport%20chauffage_RTE_Ademe.pdf",
+   "consulte_le": "2026-11-26",
+   "note": "étude de décembre 2020, rapport complet publié en 2021 (PDF de 268 pages créé le 28/01/2021, URL datée 2021-02) ; page = page du PDF, égale au folio imprimé"
+  },
+  "conseil-14944-26": {
+   "cle": "conseil-14944-26",
+   "editeur": "Conseil de l'Union européenne",
+   "titre": "Document 14944/26 — Outcome of proceedings, procédure 2026/0085 (COD), décision modifiant la décision (UE) 2015/1814 (invalidation des quotas de la réserve de stabilité), texte de compromis final",
+   "date_publication": "2026-10-28",
+   "url": "https://data.consilium.europa.eu/doc/document/ST-14944-2026-INIT/en/pdf",
+   "consulte_le": "2026-11-26",
+   "note": "en anglais (pas de version française servie) ; texte approuvé par le Coreper « with a view to agreement », pas encore adopté ; page = page du PDF (6 pages)"
+  },
+  "pe-oeil-2026-0085": {
+   "cle": "pe-oeil-2026-0085",
+   "editeur": "Parlement européen (Observatoire législatif)",
+   "titre": "Fiche de procédure 2026/0085(COD) — Amending Decision 2015/1814 (invalidation des quotas de la réserve de stabilité)",
+   "date_publication": "2026-11-26",
+   "url": "https://oeil.secure.europarl.europa.eu/oeil/en/procedure-file?reference=2026/0085(COD)",
+   "consulte_le": "2026-11-26",
+   "note": "date = date de consultation ; état lu le 26/11/2026 « Awaiting Council's 1st reading position » ; décision du Parlement en première lecture le 24/11/2026 (T10-0381/2026, texte adopté non relu par le site)"
+  },
+  "ue-2024-1408": {
+   "cle": "ue-2024-1408",
+   "editeur": "Commission européenne",
+   "titre": "Règlement délégué (UE) 2024/1408 du 14 mars 2024 modifiant le règlement délégué (UE) 2023/1184 (terme « carburants renouvelables d'origine non biologique »), JO L du 21.5.2024",
+   "date_publication": "2024-05-21",
+   "url": "https://eur-lex.europa.eu/eli/reg_del/2024/1408/oj",
+   "consulte_le": "2026-11-26",
+   "note": "texte français du JO servi par l'Office des publications (celex 32024R1408) ; remplace notamment l'article 6 du règlement 2023/1184 (dates, seuil de 20 EUR/MWh, coefficient de 0,36 et option du 1er juillet 2027 inchangés) ; page = page du PDF (n/5)"
+  },
+  "rte-eco2mix-emissions": {
+   "cle": "rte-eco2mix-emissions",
+   "editeur": "RTE",
+   "titre": "éCO2mix — eCO2 emissions (page web, méthode du taux d'émission de la production)",
+   "date_publication": "2026-11-26",
+   "url": "https://www.rte-france.com/en/data-publications/eco2mix/eco2-emissions",
+   "consulte_le": "2026-11-26",
+   "note": "page sans date, lue en anglais ; date = date de consultation ; « direct emissions » = facteur d'émission « primaire » du combustible (Base Carbone de l'ADEME) combiné au rendement moyen de la filière (hypothèses internes de RTE)"
+  },
+  "pdc-quand": {
+   "cle": "pdc-quand",
+   "editeur": "Puissance de calcul (calcul du site)",
+   "titre": "Indicateurs « Quand ? » (data/export/quand.json), calculés par `pc build` sur éCO2mix (RTE), les indisponibilités REMIT d'EDF et les prix day-ahead (energy-charts)",
+   "date_publication": "2026-11-26",
+   "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/quand.json",
+   "consulte_le": "2026-11-26",
+   "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
+  },
+  "pdc-carbone": {
+   "cle": "pdc-carbone",
+   "editeur": "Puissance de calcul (calcul du site)",
+   "titre": "Indicateurs « Quel carbone ? » (data/export/carbone.json), calculés par `pc build` sur éCO2mix (RTE) et l'intensité GES de la consommation publiée par RTE sur ODRÉ",
+   "date_publication": "2026-11-26",
+   "url": "https://github.com/m4xim1nus/puissance-de-calcul/blob/main/data/export/carbone.json",
+   "consulte_le": "2026-11-26",
+   "note": "date = dernière extraction des données sources ; recalculé à chaque `pc build`, contrôlé par `pc check`"
   }
  }
 }

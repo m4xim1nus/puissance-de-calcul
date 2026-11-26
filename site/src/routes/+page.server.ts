@@ -24,11 +24,14 @@ export function load() {
   }
   // Titre et question de l'enquête « Quand ? », tirés de son front matter (docs/enquetes/quand.md).
   const quand = chargerEnquete('quand', chiffres).meta;
+  // Idem pour « Quel carbone ? » (docs/enquetes/carbone.md).
+  const carbone = chargerEnquete('carbone', chiffres).meta;
   return {
     annees: anneesPrix(),
     initiale: anneePrix(ANNEE_DEFAUT),
     references,
     quand,
+    carbone,
     message: chargerMessage(chiffres)
   };
 }
