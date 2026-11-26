@@ -58,9 +58,9 @@ export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
       premiereNote.set(expression, n);
       notes.set(n, typographier(noteChiffre(n, c, sources)));
     } else {
-      notes.set(n, typographier(noteRenvoi(n, c, deja)));
+      notes.set(n, typographier(noteRenvoi(n, deja)));
     }
-    return `<span class="chiffre">${echapper(formaterValeur(c.valeur, c.unite))}</span>${appel(n)}`;
+    return `<span class="chiffre">${echapper(formaterValeur(c.valeur, c.unite, true))}</span>${appel(n)}`;
   };
 
   const envelopper = (html: string, contexte: 'p' | 'li'): string => {

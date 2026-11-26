@@ -87,7 +87,7 @@ export function estimations2024(chiffres: Chiffres): Estimation[] {
       min,
       max,
       intervalle: min !== max,
-      texte: formaterValeur(c.valeur, c.unite)
+      texte: formaterValeur(c.valeur, c.unite, true)
     };
   });
 }
@@ -190,7 +190,7 @@ export function pyramide(chiffres: Chiffres): EtagePyramide[] {
       return {
         id,
         mw: enMW(c),
-        valeur: formaterValeur(c.valeur, c.unite),
+        valeur: formaterValeur(c.valeur, c.unite, true),
         date: formaterPeriode(c.periode, true),
         precision,
         calcul: Boolean(c.calcul),
@@ -225,7 +225,7 @@ function pointTrajectoire(chiffres: Chiffres, id: string): PointTrajectoire {
   if (!/^\d{4}$/.test(c.periode))
     throw new Error(`« ${id} » : période ${c.periode}, année attendue`);
   const [min, max] = bornes(c.valeur);
-  return { id, annee: Number(c.periode), min, max, texte: formaterValeur(c.valeur, c.unite) };
+  return { id, annee: Number(c.periode), min, max, texte: formaterValeur(c.valeur, c.unite, true) };
 }
 
 export function trajectoires(chiffres: Chiffres) {

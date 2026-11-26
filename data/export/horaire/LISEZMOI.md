@@ -24,7 +24,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 - Cellule vide = donnée absente, **jamais imputée** : heure répétée du passage à
   l'heure d'hiver (absente des fichiers RTE), raccord entre deux natures de
   données, heures pas encore publiées.
-- Arrondis : MW à l'unité, prix au centime, `taux_co2` au dixième.
+- Arrondis : MW à l'unité, prix à 4 décimales (moyenne exacte de 4 quarts d'heure au centime ; une heure négative s'écrit donc avec son signe, jamais `-0.0`), `taux_co2` au dixième.
 - Les autres filières (charbon, fioul, bioénergies), les échanges commerciaux par
   frontière et les sous-filières sont dans `../systeme_horaire.parquet`.
 - Agrégation horaire de l'éCO2mix : un point horodaté t décrit la demi-heure

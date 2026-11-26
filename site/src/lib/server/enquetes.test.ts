@@ -78,6 +78,19 @@ describe('rendu du corps', () => {
     const [b] = rendreCorps('{{conso}} puis {{conso}}', chiffres);
     expect((b as { html: string }).html).toContain('voir la <a href="#note-1">note 1</a>');
   });
+  it('arrondit l’affichage à 3 chiffres significatifs, la note gardant la valeur exacte', () => {
+    const exact: Chiffres = { x: { ...base, valeur: 36.73 } };
+    const [b] = rendreCorps('{{x}}', exact);
+    const html = (b as { html: string }).html;
+    expect(html).toContain('<span class="chiffre">36,7\u202fTWh</span>');
+    expect(html).toContain('36,73\u202fTWh');
+  });
+  it('garde les espaces fines insécables tapées dans le texte, y compris en bord de ligne', () => {
+    const [b] = rendreCorps('les 8\u202f760 heures et 1\u202f%\u202f\nde plus', chiffres);
+    expect((b as { html: string }).html).toBe(
+      '<p>les 8\u202f760 heures et 1\u202f%\u202f de plus</p>'
+    );
+  });
   it('accroche les notes aux items de liste', () => {
     const [b] = rendreCorps('1. **Réservée.** {{conso}}\n2. Sans chiffre', chiffres);
     const html = (b as { html: string }).html;

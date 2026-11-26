@@ -61,3 +61,9 @@ Format :
 - **Repéré par** : l'agent qui a construit la page (Opus), chargé de signaler sans corriger toute erreur du texte. Repéré avant publication.
 - **Correction** : texte réécrit (l'écart de 3,8 TWh est montré et dit non expliqué ; les 7 GW sont présentés à part ; « en fonctionnement » est cité) ; contrainte « dont » retirée du référentiel.
 - **Garde-fou ajouté** : la relecture adverse « lectrice experte » de chaque page avant publication devient une étape de la roadmap. Pour le point 1, aucune règle automatique : additionner deux chiffres sourcés pour en vérifier un troisième reste une relecture humaine (ou d'agent).
+
+### 2026-11-26 — Prix horaires arrondis au centime : des heures négatives perdaient leur signe
+- **Faux** : le pipeline (agent Opus) arrondissait au centime le prix horaire, moyenne de 4 quarts d'heure depuis le 1er octobre 2025. Une moyenne de −0,0025 €/MWh devenait `-0.0`, indiscernable d'un zéro flottant négatif. Lu tel quel, le CSV donnait 506 heures négatives en 2025 au lieu de 513. `pc check`, qui compte avant l'arrondi, ne pouvait pas le voir.
+- **Repéré par** : l'agent du site, en confrontant son décompte au référentiel (513 h, RTE). Avant publication.
+- **Correction** : moyenne arrondie à 4 décimales (exacte pour 4 prix au centime) puis normalisée (`+ 0.0`) dès le calcul horaire ; le CSV donne directement 513 h (2025) et 568 h (2026, provisoire).
+- **Garde-fou ajouté** : aucun test automatique nouveau. Un contrôle « décompte sur le CSV publié = décompte de `pc check` » serait le bon garde-fou ; noté au backlog.

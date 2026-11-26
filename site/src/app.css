@@ -21,6 +21,19 @@
   --donnee-faible: #6da7ec;
   --donnee-autre: #d4582a;
 
+  /* Échelle divergente des prix (hero), centrée sur 0 €/MWh, validée avec le skill dataviz :
+     bras négatif dans la teinte --sous-zero (du plus au moins négatif), bras positif dans la
+     teinte --sur-zero (de 0 à ≥ 200 €/MWh, écrêté). Le pas « 0 à 25 » se fond dans le fond. */
+  --prix-n0: #0b4f50;
+  --prix-n1: #1c7c7d;
+  --prix-n2: #45a6a2;
+  --prix-p0: #efd9bd;
+  --prix-p1: #ddb07f;
+  --prix-p2: #c8854f;
+  --prix-p3: #a95e2a;
+  --prix-p4: #6e3410;
+  --prix-absent: #b9c3cb;
+
   /* Typographie */
   --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
   --serif: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
@@ -47,6 +60,15 @@
     --donnee: #9ec5f4;
     --donnee-faible: #3987e5;
     --donnee-autre: #e0682f;
+    --prix-n0: #93e2db;
+    --prix-n1: #4db8b3;
+    --prix-n2: #23857f;
+    --prix-p0: #3e2b21;
+    --prix-p1: #6a3f24;
+    --prix-p2: #9a5a2c;
+    --prix-p3: #cc7c3e;
+    --prix-p4: #f4ae70;
+    --prix-absent: #56657a;
   }
 }
 :root[data-theme='dark'] {
@@ -62,6 +84,15 @@
   --donnee: #9ec5f4;
   --donnee-faible: #3987e5;
   --donnee-autre: #e0682f;
+  --prix-n0: #93e2db;
+  --prix-n1: #4db8b3;
+  --prix-n2: #23857f;
+  --prix-p0: #3e2b21;
+  --prix-p1: #6a3f24;
+  --prix-p2: #9a5a2c;
+  --prix-p3: #cc7c3e;
+  --prix-p4: #f4ae70;
+  --prix-absent: #56657a;
 }
 
 * {
@@ -258,4 +289,75 @@ details > summary:hover {
     animation: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Notes sourcées (enquêtes, accueil) : une ou deux lignes, détails repliés. */
+.note + .note {
+  margin-top: 0.45rem;
+}
+.note p {
+  margin: 0 0 0.3rem;
+  max-width: none;
+}
+.note-num {
+  font-family: var(--sans);
+  font-weight: 600;
+  margin-right: 0.1rem;
+}
+.note-calcul {
+  font-family: var(--sans);
+  font-weight: 600;
+}
+.note-plus {
+  display: inline;
+}
+.note-plus > summary {
+  display: inline;
+  list-style: none;
+  font-size: 0.92em;
+  color: var(--encre-2);
+  text-decoration: underline dotted;
+  text-underline-offset: 0.18em;
+  white-space: nowrap;
+}
+.note-plus > summary::-webkit-details-marker {
+  display: none;
+}
+.note-plus > summary::after {
+  content: ' +';
+}
+.note-plus[open] > summary::after {
+  content: ' −';
+}
+.note-detail {
+  display: block;
+  margin: 0.3rem 0 0.2rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--trait);
+}
+.note-citation {
+  font-style: italic;
+}
+.note-cle {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--encre-2);
+  margin-right: 0.2rem;
+  font-style: normal;
+}
+.note-secondaire {
+  color: var(--encre-2);
+}
+.cote {
+  display: inline-block;
+  min-width: 1.3em;
+  padding: 0 0.2em;
+  text-align: center;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.9em;
+  line-height: 1.2;
+  border: 1.5px solid var(--encre);
+  border-radius: 3px;
+  text-decoration: none;
 }

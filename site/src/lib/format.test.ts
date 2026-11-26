@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FINE,
   INSECABLE,
+  dateParis,
   formaterDate,
   formaterNombre,
   formaterPeriode,
@@ -31,6 +32,14 @@ describe('formatage des nombres', () => {
     expect(v).toBe(`4${INSECABLE}à${INSECABLE}5${FINE}TWh`);
     expect(v).not.toMatch(/ /);
   });
+  it('arrondit l’affichage à 3 chiffres significatifs au plus', () => {
+    expect(formaterValeur(36.73, 'TWh', true)).toBe(`36,7${FINE}TWh`);
+    expect(formaterValeur(442.2, 'TWh', true)).toBe(`442${FINE}TWh`);
+    expect(formaterValeur(1400, 'MW', true)).toBe(`1${FINE}400${FINE}MW`);
+    expect(formaterValeur(4.34, 'TWh', true)).toBe(`4,34${FINE}TWh`);
+    expect(formaterValeur([15, 20], 'TWh', true)).toBe(`15${INSECABLE}à${INSECABLE}20${FINE}TWh`);
+    expect(formaterValeur(36.73, 'TWh')).toBe(`36,73${FINE}TWh`);
+  });
   it('refuse une valeur non finie', () => {
     expect(() => formaterNombre(Number.NaN)).toThrow();
   });
@@ -49,5 +58,13 @@ describe('formatage des dates et périodes', () => {
     expect(formaterPeriode('2022 → 2025-11-15')).toBe(
       `2022 → 15${INSECABLE}novembre${INSECABLE}2025`
     );
+  });
+});
+
+describe('dateParis', () => {
+  it('donne la date civile à Paris, pas en UTC', () => {
+    expect(dateParis('2026-11-25T23:12:13+00:00')).toBe('2026-11-26');
+    expect(dateParis('2026-07-01T21:59:00Z')).toBe('2026-07-01');
+    expect(dateParis('2026-07-01T22:00:00Z')).toBe('2026-07-02');
   });
 });

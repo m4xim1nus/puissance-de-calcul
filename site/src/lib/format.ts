@@ -22,11 +22,21 @@ export function separateurUnite(unite: string): string {
 
 export type Valeur = number | [number, number];
 
-/** 442.2, 'TWh' → « 442,2 TWh » ; [4, 5], 'TWh' → « 4 à 5 TWh » (insécable de bout en bout). */
-export function formaterValeur(valeur: Valeur, unite: string): string {
+/** Arrondi d'affichage à 3 chiffres significatifs au plus (36,73 → 36,7 ; 442,2 → 442). */
+export function arrondir(n: number, chiffres = 3): number {
+  return n === 0 ? 0 : Number(n.toPrecision(chiffres));
+}
+
+/**
+ * 442.2, 'TWh' → « 442,2 TWh » ; [4, 5], 'TWh' → « 4 à 5 TWh » (insécable de bout en bout).
+ * Avec `arrondi`, au plus 3 chiffres significatifs (affichage dans le texte et les graphiques ;
+ * la valeur exacte reste dans la note et le tableau de données).
+ */
+export function formaterValeur(valeur: Valeur, unite: string, arrondi = false): string {
+  const f = (n: number) => formaterNombre(arrondi ? arrondir(n) : n);
   const nombre = Array.isArray(valeur)
-    ? `${formaterNombre(valeur[0])}${INSECABLE}à${INSECABLE}${formaterNombre(valeur[1])}`
-    : formaterNombre(valeur);
+    ? `${f(valeur[0])}${INSECABLE}à${INSECABLE}${f(valeur[1])}`
+    : f(valeur);
   return unite ? `${nombre}${separateurUnite(unite)}${unite}` : nombre;
 }
 
@@ -73,4 +83,17 @@ export function formaterDate(iso: string, court = false): string {
 /** Une période du référentiel (« 2025-11-01 », « fin 2024 », « 2022 → 2025-11-15 ») en clair. */
 export function formaterPeriode(periode: string, court = false): string {
   return periode.replace(/\b\d{4}-\d{2}(?:-\d{2})?\b/g, (d) => formaterDate(d, court));
+}
+
+/** Date civile en heure de Paris (AAAA-MM-JJ) d'un instant ISO 8601 : une extraction faite à
+ * 23 h 12 UTC le 25 novembre a eu lieu le 26 novembre à Paris. */
+export function dateParis(iso: string): string {
+  const instant = new Date(iso);
+  if (Number.isNaN(instant.getTime())) throw new Error(`Instant ISO invalide : ${iso}`);
+  return new Intl.DateTimeFormat('fr-CA', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(instant);
 }

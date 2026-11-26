@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Chiffre } from './chiffres';
 import { FINE } from './format';
-import { appel, dateSource, noteChiffre, noteSource } from './notes';
+import { appel, dateSource, noteChiffre, noteSource, titreCourt } from './notes';
 
 const source = {
   cle: 'rte-be2025',
@@ -36,27 +36,41 @@ describe('notes', () => {
     expect(dateSource(source)).toBe('mars 2026');
     expect(dateSource({ ...source, note: undefined })).toBe('1er mars 2026');
   });
-  it('rend une note complète : source, lien, date, page, citation, période, périmètre, calcul, cote', () => {
+  it('rend une note compacte : n°, éditeur, titre court, date, page, pastille, calcul du site', () => {
     const html = noteChiffre(7, c);
-    expect(html).toContain('id="note-7"');
-    expect(html).toContain(
+    const tete = html.slice(0, html.indexOf('<details'));
+    expect(tete).toContain('id="note-7"');
+    expect(tete).toContain(
       'RTE, <a href="https://exemple.fr/be2025.pdf" rel="external">Bilan électrique 2025</a>'
     );
-    expect(html).toContain('mars 2026, p. 18.');
-    expect(html).toContain('p. 18');
-    expect(html).toContain('Citation : </span>« près de 1 TWh en 2025 »');
-    expect(html).toContain('Période</span> 2025');
-    expect(html).toContain('Périmètre</span> réseau de transport');
-    expect(html).toContain('<strong>calcul du site</strong>');
-    expect(html).toContain('Calcul du site</span> 1 TWh ÷ 8 760 h.');
-    expect(html).toContain(`114${FINE}MW`);
-    expect(html).toContain('Confiance B</a> : source primaire, recoupement partiel');
-    expect(html).toContain('Non recoupé.');
+    expect(tete).toContain('mars\u00a02026, p. 18');
+    expect(tete).toContain('class="cote"');
+    expect(tete).toContain('Confiance B : source primaire, recoupement partiel');
+    expect(tete).toContain('calcul du site');
+    // La citation, la période, le périmètre et le calcul détaillé sont dans le repli.
+    expect(tete).not.toContain('près de 1 TWh');
+    const repli = html.slice(html.indexOf('<details'));
+    expect(repli).toContain('« près de 1 TWh en 2025 »');
+    expect(repli).toContain('Période</span> 2025');
+    expect(repli).toContain('Périmètre</span> réseau de transport');
+    expect(repli).toContain('Calcul du site</span> 1 TWh ÷ 8 760 h.');
+    expect(repli).toContain(`114${FINE}MW`);
+    expect(repli).toContain('Non recoupé.');
+  });
+  it('raccourcit les titres longs, le titre complet restant au survol et dans le repli', () => {
+    expect(titreCourt('Bilan électrique 2025 — rapport complet')).toBe('Bilan électrique 2025');
+    expect(titreCourt('Les data centers en chiffres clés (page web)')).toBe(
+      'Les data centers en chiffres clés'
+    );
+    const long = titreCourt(
+      "Prospective d'évolution des consommations des centres de données en France de 2024 à 2060"
+    );
+    expect(long.length).toBeLessThanOrEqual(41);
+    expect(long.endsWith('…')).toBe(true);
   });
   it('omet la mention de calcul quand le chiffre est publié tel quel', () => {
     const html = noteChiffre(1, { ...c, calcul: undefined });
-    expect(html).not.toContain('Calcul du site');
-    expect(html).not.toContain('calcul du site');
+    expect(html).not.toContain('alcul du site');
   });
   it('échappe le contenu du référentiel', () => {
     expect(noteChiffre(1, { ...c, citation: '<b>x</b>' })).toContain('&lt;b&gt;x&lt;/b&gt;');

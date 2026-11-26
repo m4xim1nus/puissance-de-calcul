@@ -72,9 +72,12 @@ export function paragraphes(texte: string): string {
   return texte
     .trim()
     .split(/\n\s*\n/)
-    .map((p) => `<p>${enLigne(p.replace(/\s*\n\s*/g, ' '))}</p>`)
+    .map((p) => `<p>${enLigne(p.replace(/[ \t]*\n[ \t]*/g, ' '))}</p>`)
     .join('');
 }
+
+/** Retire les blancs ASCII en bord de ligne, jamais les espaces insécables (U+00A0, U+202F). */
+const rogner = (t: string) => t.replace(/^[ \t]+|[ \t]+$/g, '');
 
 const RE_PUCE = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const RE_TABLE_SEP = /^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$/;
@@ -127,7 +130,7 @@ function liste(lignes: string[], debut: number, options: OptionsMarkdown): [stri
       } else if (mm) {
         break;
       } else {
-        texte += ' ' + lignes[i].trim(); // ligne de continuation
+        texte += ' ' + rogner(lignes[i]); // ligne de continuation
         i++;
       }
     }
@@ -202,7 +205,7 @@ export function markdownBlocs(texte: string, options: OptionsMarkdown = {}): Blo
         !RE_DIRECTIVE.test(lignes[i]) &&
         !RE_COMMENTAIRE.test(lignes[i])
       )
-        para.push(lignes[i++].trim());
+        para.push(rogner(lignes[i++]));
       const contenu = enLigne(para.join(' '), options);
       html(options.envelopper ? options.envelopper(contenu, 'p') : `<p>${contenu}</p>`);
     }

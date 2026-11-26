@@ -140,57 +140,6 @@
     padding: 0.4rem 0 0.1rem 0.75rem;
     margin-top: 0.3rem;
   }
-  .enquete :global(.note + .note) {
-    margin-top: 0.7rem;
-    padding-top: 0.7rem;
-    border-top: 1px solid var(--trait);
-  }
-  .enquete :global(.note p) {
-    margin: 0 0 0.3rem;
-    max-width: none;
-  }
-  .enquete :global(.note-num) {
-    font-family: var(--sans);
-    font-weight: 600;
-    margin-right: 0.15rem;
-  }
-  .enquete :global(.note-citation) {
-    font-style: italic;
-  }
-  .enquete :global(.note-cle) {
-    font-family: var(--sans);
-    font-weight: 600;
-    color: var(--encre-2);
-    margin-right: 0.2rem;
-  }
-  .enquete :global(.note-secondaire) {
-    color: var(--encre-2);
-  }
-  .enquete :global(.note-plus > summary) {
-    font-size: 0.92em;
-    width: fit-content;
-  }
-  .enquete :global(.note-plus[open] > summary) {
-    margin-bottom: 0.25rem;
-  }
-  .enquete :global(.note-plus p) {
-    margin: 0 0 0.25rem;
-  }
-  .enquete :global(.note-cote) {
-    font-family: var(--sans);
-    font-size: 0.95em;
-  }
-  .enquete :global(.cote) {
-    display: inline-block;
-    min-width: 1.35em;
-    text-align: center;
-    font-weight: 600;
-    border: 1.5px solid var(--encre);
-    border-radius: 3px;
-    line-height: 1.25;
-    margin-right: 0.15rem;
-  }
-
   @media (min-width: 62rem) {
     .enquete :global(.avec-notes) {
       display: block;

@@ -18,15 +18,27 @@ export function dateSource(s: Source, court = false): string {
   return formaterDate(auMois ? s.date_publication.slice(0, 7) : s.date_publication, court);
 }
 
-function lienSource(s: Source): string {
-  return `<a href="${echapper(s.url)}" rel="external">${echapper(s.titre)}</a>`;
+/** Titre court d'une source : avant « — » ou « ( », puis coupé à environ 40 caractères. */
+export function titreCourt(titre: string, max = 40): string {
+  let t = titre.split(/ — | \(/)[0].trim();
+  if (t.length > max) {
+    const coupe = t.slice(0, max + 1);
+    t = coupe.slice(0, coupe.lastIndexOf(' ')).replace(/[\s,;:]+$/, '') + '…';
+  }
+  return t;
 }
 
-/** « RTE, Titre (lien), 23 déc. 2025, p. 18. » */
-function referenceSource(s: Source, page: string | undefined): string {
-  const morceaux = [echapper(s.editeur), lienSource(s), dateSource(s, true)];
+function lienSource(s: Source, court = false): string {
+  const titre = court ? titreCourt(s.titre) : s.titre;
+  const complet = court && titre !== s.titre ? ` title="${echapper(s.titre)}"` : '';
+  return `<a href="${echapper(s.url)}" rel="external"${complet}>${echapper(titre)}</a>`;
+}
+
+/** « RTE, Titre court (lien), mars 2026, p. 18 » */
+function referenceSource(s: Source, page: string | undefined, court = true): string {
+  const morceaux = [echapper(s.editeur), lienSource(s, court), dateSource(s, true)];
   if (page) morceaux.push(echapper(page));
-  return `<span class="note-source">${morceaux.join(', ')}.</span>`;
+  return `<span class="note-source">${morceaux.join(', ')}</span>`;
 }
 
 /** Consultation et remarque sur la source. */
@@ -39,36 +51,43 @@ function apropos(s: Source): string {
 
 const majuscule = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
-/** Mention lisible de la cote de confiance, avec sa légende en clair (pas seulement une lettre). */
-export function cote(c: Chiffre['confiance']): string {
+/** Pastille de confiance : une lettre, avec sa légende pour les lecteurs d'écran et au survol. */
+export function pastille(c: Chiffre['confiance']): string {
+  const legende = `Confiance ${c} : ${COTES[c]}`;
   return (
-    `<span class="cote" aria-hidden="true">${c}</span> ` +
-    `<a href="/methode#confiance">Confiance ${c}</a> : ${COTES[c]}.`
+    `<a class="cote" href="/methode#confiance" title="${legende}">` +
+    `<span aria-hidden="true">${c}</span><span class="lecteur">${legende}</span></a>`
   );
 }
 
+/** Mention de la cote de confiance avec sa légende en clair. */
+export function cote(c: Chiffre['confiance']): string {
+  return `<a href="/methode#confiance">Confiance ${c}</a> : ${COTES[c]}.`;
+}
+
 /**
- * Note d'un chiffre du référentiel. Visible : source (éditeur, titre et lien, date, page),
- * citation, période, mention du calcul, cote. Dans un repli : périmètre, calcul détaillé,
- * remarque, recoupements, consultation (une note complète dans la marge serait plus longue que
- * le paragraphe qu'elle annote).
+ * Note d'un chiffre du référentiel. Visible, en une ou deux lignes : numéro, éditeur, titre court
+ * (lien), date, page, pastille de confiance, et « calcul du site » s'il y a lieu. Dans le repli :
+ * titre complet, citation exacte, période, périmètre, valeur exacte, calcul, remarque,
+ * recoupements, cote en clair, consultation. Rien n'est perdu, tout est à un clic.
  */
 export function noteChiffre(
-  numero: number,
+  numero: number | null,
   c: Chiffre,
   sources: ReadonlyMap<string, Source> = new Map()
 ): string {
   const exacte = c.citation.trim().startsWith('«');
-  const visible = [
-    `<p class="note-tete"><span class="note-num">${numero}</span> ${referenceSource(c.source, c.page)}</p>`,
-    `<p class="note-citation"><span class="lecteur">${exacte ? 'Citation' : 'Dans la source'} : </span>${echapper(c.citation)}</p>`,
-    `<p class="note-cote"><span class="note-cle">Période</span> ${echapper(formaterPeriode(c.periode))}` +
-      (c.calcul ? ` · <strong>calcul du site</strong>` : '') +
-      ` · ${cote(c.confiance)}</p>`
-  ];
+  const tete =
+    `<span class="note-tete">${numero === null ? '' : `<span class="note-num">${numero}</span> `}` +
+    `${referenceSource(c.source, c.page)} ${pastille(c.confiance)}` +
+    (c.calcul ? ` · <strong class="note-calcul">calcul du site</strong>` : '') +
+    `</span>`;
   const detail = [
+    `<p><span class="note-cle">Source</span> ${echapper(c.source.editeur)}, ${lienSource(c.source)}.</p>`,
+    `<p class="note-citation"><span class="note-cle">${exacte ? 'Citation' : 'Dans la source'}</span> ${echapper(c.citation)}</p>`,
+    `<p><span class="note-cle">Période</span> ${echapper(formaterPeriode(c.periode))}.</p>`,
     `<p><span class="note-cle">Périmètre</span> ${echapper(c.perimetre)}.</p>`,
-    `<p><span class="note-cle">Valeur</span> ${echapper(formaterValeur(c.valeur, c.unite))} (${echapper(c.libelle.charAt(0).toLowerCase() + c.libelle.slice(1))}).</p>`
+    `<p><span class="note-cle">Valeur exacte</span> ${echapper(formaterValeur(c.valeur, c.unite))} (${echapper(c.libelle.charAt(0).toLowerCase() + c.libelle.slice(1))}).</p>`
   ];
   if (c.calcul)
     detail.push(`<p><span class="note-cle">Calcul du site</span> ${echapper(c.calcul)}.</p>`);
@@ -84,28 +103,30 @@ export function noteChiffre(
   } else {
     detail.push(`<p>Non recoupé.</p>`);
   }
+  detail.push(`<p>${cote(c.confiance)}</p>`);
   detail.push(apropos(c.source));
-  const plus = c.calcul ? 'Périmètre, calcul, recoupement' : 'Périmètre, recoupement';
   return (
-    `<div class="note" id="note-${numero}">${visible.join('')}` +
-    `<details class="note-plus"><summary>${plus}</summary>${detail.join('')}</details></div>`
+    `<div class="note"${numero === null ? '' : ` id="note-${numero}"`}>${tete} ` +
+    `<details class="note-plus"><summary>détails</summary>` +
+    `<div class="note-detail">${detail.join('')}</div></details></div>`
   );
 }
 
 /** Note d'un renvoi à une source, sans chiffre. */
 export function noteSource(numero: number, s: Source, page?: string): string {
+  const detail = `<p>${echapper(s.editeur)}, ${lienSource(s)}.</p>${apropos(s)}`;
   return (
-    `<div class="note" id="note-${numero}"><p class="note-tete"><span class="note-num">${numero}</span> ` +
-    `${referenceSource(s, page)}</p>${apropos(s)}</div>`
+    `<div class="note" id="note-${numero}"><span class="note-tete"><span class="note-num">${numero}</span> ` +
+    `${referenceSource(s, page)}</span> <details class="note-plus"><summary>détails</summary>` +
+    `<div class="note-detail">${detail}</div></details></div>`
   );
 }
 
 /** Note brève pour un chiffre déjà annoté plus haut dans la page. */
-export function noteRenvoi(numero: number, c: Chiffre, premiere: number): string {
+export function noteRenvoi(numero: number, premiere: number): string {
   return (
-    `<div class="note note-renvoi" id="note-${numero}"><p class="note-tete">` +
-    `<span class="note-num">${numero}</span> <span class="note-libelle">${echapper(c.libelle)}</span> : ` +
-    `<span class="note-valeur">${echapper(formaterValeur(c.valeur, c.unite))}</span>, voir la ` +
-    `<a href="#note-${premiere}">note ${premiere}</a>.</p></div>`
+    `<div class="note note-renvoi" id="note-${numero}"><span class="note-tete">` +
+    `<span class="note-num">${numero}</span> Même chiffre : voir la ` +
+    `<a href="#note-${premiere}">note ${premiere}</a>.</span></div>`
   );
 }

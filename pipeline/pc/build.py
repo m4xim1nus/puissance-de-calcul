@@ -267,7 +267,10 @@ def prix_horaire(natif: pl.DataFrame) -> pl.DataFrame:
     pas = pl.col("pas_min")
     couvert = (pl.col("prix_eur_mwh").is_not_null().cast(pl.Int32) * pas).sum()
     return (natif.group_by(pl.col("debut_utc").dt.truncate("1h").alias("heure_utc"))
-                 .agg(pl.when(couvert == 60).then(pl.col("prix_eur_mwh").mean()).otherwise(None)
+                 # Arrondi à 4 décimales (exact pour une moyenne de 4 prix au centime) puis + 0.0 :
+                 # supprime le bruit flottant et le zéro négatif (−0.0), qui faisait passer pour
+                 # négative une heure de moyenne nulle (signalé par l'agent du site, 2026-11-26).
+                 .agg(pl.when(couvert == 60).then(pl.col("prix_eur_mwh").mean().round(4) + 0.0).otherwise(None)
                         .alias("prix_eur_mwh"),
                       (pl.col("prix_eur_mwh") < 0).sum().cast(pl.Int32).alias("quarts_negatifs"))
                  .sort("heure_utc"))
@@ -298,7 +301,7 @@ COLONNES_CSV = [
     ("gaz", "gaz", 0),
     ("ech_physiques", "solde_echanges", 0),
     ("pompage", "pompage", 0),
-    ("prix_eur_mwh", "prix", 2),
+    ("prix_eur_mwh", "prix", 4),  # moyenne de quarts d'heure au centime : exacte à 4 décimales
     ("taux_co2", "taux_co2", 1),
 ]
 
@@ -378,7 +381,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 - Cellule vide = donnée absente, **jamais imputée** : heure répétée du passage à
   l'heure d'hiver (absente des fichiers RTE), raccord entre deux natures de
   données, heures pas encore publiées.
-- Arrondis : MW à l'unité, prix au centime, `taux_co2` au dixième.
+- Arrondis : MW à l'unité, prix à 4 décimales (moyenne exacte de 4 quarts d'heure au centime ; une heure négative s'écrit donc avec son signe, jamais `-0.0`), `taux_co2` au dixième.
 - Les autres filières (charbon, fioul, bioénergies), les échanges commerciaux par
   frontière et les sous-filières sont dans `../systeme_horaire.parquet`.
 - Agrégation horaire de l'éCO2mix : un point horodaté t décrit la demi-heure
