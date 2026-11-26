@@ -30,3 +30,5 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 - [ ] `pc check` : le contrôle de jonction historique / liste courante REMIT échouera vers le 07/12/2026 si EDF ne republie pas son historique (trimestriel) : relancer `pc download edf_remit` et voir (claude, 2026-11-26)
 - [ ] Exports : 14,0 Mo pour une limite de test à 15 Mo ; décider avant d'ajouter une colonne (parquet seul, ou découpage) (claude, 2026-11-26)
 - [ ] REMIT : biais de +0,1 à +0,4 pt du taux reconstruit sur RTE, inexpliqué ; l'heure répétée du passage à l'heure d'hiver est lue comme sa première occurrence (claude, 2026-11-26)
+- [ ] Référentiel : la règle « confiance A = autre éditeur » compare les éditeurs comme des chaînes (« RTE (open data ODRÉ) » ≠ « RTE ») ; normaliser l'éditeur, test à l'appui (claude, 2026-11-26)
+- [ ] éCO2mix : écart de bilan moyen de −65 à −80 MW depuis 2021 (quelques MW avant), et saut du gaz contre ses sous-filières ; cause non établie (batteries ?) (claude, 2026-11-26)

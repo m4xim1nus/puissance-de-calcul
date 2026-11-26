@@ -187,3 +187,35 @@ edf-remit:
   url: https://opendata.edf.fr/data-fair/api/v1/datasets/historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015
   consulte_le: 2026-11-26
   note: Licence Ouverte 2.0 ; date = dernier export de l'historique (liste courante mise à jour toutes les heures) ; périmètre EDF SA + Luminus
+
+rte-bp2025-fonctionnement:
+  editeur: RTE
+  titre: Bilan prévisionnel 2025-2035 — Fonctionnement du système électrique
+  date_publication: 2026-07-15
+  url: https://assets.rte-france.com/prod/public/2026-07/2026-07-15-bilan-previsionnel-fonctionnement-systeme-electrique.pdf
+  consulte_le: 2026-11-26
+  note: date de l'URL ; PDF créé le 30/06/2026 ; copie locale identique à l'original (SHA-256, contre-vérification du 26/11/2026)
+
+rte-hiver-2026-2027:
+  editeur: RTE
+  titre: Perspectives pour le système électrique pour l'hiver 2026-2027 — synthèse
+  date_publication: 2026-11-18
+  url: https://assets.rte-france.com/prod/public/2026-11/2026-11-18-synthese-perspectives-passage-hiver-2026-2027.pdf
+  consulte_le: 2026-11-26
+  note: date de l'URL ; couverture « novembre 2026 », PDF créé le 19/11/2026 ; figure de disponibilité nucléaire arrêtée au 13/11/2026
+
+rte-parametrage-mc-2026:
+  editeur: RTE
+  titre: Mécanisme de capacité — Rapport de paramétrage de la période de livraison 2026/2027
+  date_publication: 2026-02-12
+  url: https://assets.rte-france.com/prod/public/2026-02/2026-02-12-rapport-parametrage-mecanisme-capacite.pdf
+  consulte_le: 2026-11-26
+  note: couverture datée du 21/01/2026 ; version publiée le 12/02/2026, modifiée après la saisine de la CRE (note 7 p. 11, certification du parc et Cref)
+
+rte-enchere-mc-2026:
+  editeur: RTE
+  titre: Mécanisme de capacité — Rapport d'enchère de la période de livraison 2026/2027
+  date_publication: 2026-07-17
+  url: https://www.services-rte.com/files/live/sites/services-rte/files/rapport-enchere-public-pl-26-27.pdf
+  consulte_le: 2026-11-26
+  note: date de couverture ; lu par la contre-vérification du 26/11/2026, copie non versionnée

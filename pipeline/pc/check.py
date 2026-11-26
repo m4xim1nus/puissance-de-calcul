@@ -569,6 +569,252 @@ def controle_fuseau_remit(raw: Path, natif: pl.DataFrame, brut: pl.DataFrame, ev
 
 
 # --------------------------------------------------------------------------
+# « Quand ? » (data/export/quand.json, pc/quand.py, pc/export_quand.py)
+# --------------------------------------------------------------------------
+
+#: Tolérances d'arrondi de quand.json : MW à l'unité, TWh et parts à 4 décimales.
+TOL_MW = 1.0
+TOL_TWH = 2e-4
+TOL_PART = 2e-4
+
+#: Σ J (nucléaire déclaré disponible non produit) comparé à la modulation publiée : grandeurs
+#: différentes (frontière modulation / indisponibilité fixée par EDF, réserves, Flamanville 3),
+#: on vérifie seulement l'ordre de grandeur. Le spike trouvait 18 / 25 / 27-29 TWh pour 16 / 31 /
+#: 33 TWh. Échec si le rapport sort de [1/2, 2].
+RAPPORT_MODULATION = (0.5, 2.0)
+
+#: Colonnes d'éCO2mix : écarts admis (arrondis des sous-filières ; bilan de quelques dizaines de MW).
+TOL_HYDRO_MW = 3.0
+TOL_GAZ_MW = 30.0
+TOL_BILAN_MOYEN_MW = 150.0
+TOL_COUVERTURE_MW = 15.0  # somme de 11 termes arrondis au MW
+TOL_ECART_BILAN_TENDUES_MW = 300.0
+
+
+def _quand(export: Path) -> dict:
+    import json
+    return json.loads((export / "quand.json").read_text(encoding="utf-8"))
+
+
+def _table_arrondie(table: pl.DataFrame) -> pl.DataFrame:
+    """Colonnes de « Quand ? » arrondies comme les CSV publiés, RN et J (recalcul polars, indépendant
+    de pc/quand.py)."""
+    from .export_quand import COLONNES
+    t = table.select("heure_utc", annee_paris("heure_utc").alias("an"),
+                     *[pl.col(src).round(dec).alias(nom) for src, (nom, dec) in COLONNES.items()])
+    return t.with_columns(
+        (pl.col("consommation") - pl.col("eolien") - pl.col("solaire") - pl.col("nucleaire_disponible")).alias("rn"),
+        (pl.col("nucleaire_disponible") - pl.col("nucleaire")).clip(lower_bound=0).alias("j"))
+
+
+def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
+    """quand.json (Python pur) = recalcul polars : RN max et sa date, Σ J, charges plates, prix."""
+    r = Resultat("« Quand ? » : quand.json = recalcul indépendant (polars) — RN max et date, Σ J, parts tenues, "
+                 "heures au-delà du max, heures de prix ≤ 0 et < 0", "OK")
+    t = _table_arrondie(table)
+    for an, a in q["annees"].items():
+        d = t.filter(pl.col("an") == int(an))
+        rn = d.drop_nulls("rn").sort(["rn", "heure_utc"], descending=[True, False])
+        jv = d.drop_nulls("j")["j"]
+        fautes = []
+        rn_max = rn["rn"][0]
+        h_max = rn["heure_utc"][0].strftime("%Y-%m-%dT%H:%MZ")
+        if abs(a["charge_residuelle"]["max"]["valeur_mw"] - rn_max) > TOL_MW or a["charge_residuelle"]["max"]["heure_utc"] != h_max:
+            fautes.append(f"RN max {a['charge_residuelle']['max']} ≠ {rn_max} à {h_max}")
+        if abs(a["jeu_nucleaire"]["somme_twh"] - jv.sum() / 1e6) > TOL_TWH:
+            fautes.append(f"Σ J {a['jeu_nucleaire']['somme_twh']} ≠ {jv.sum() / 1e6:.4f}")
+        if (d["j"].drop_nulls() < 0).any():
+            fautes.append("J < 0")
+        for c in a["charges_plates"]:
+            x = c["x_mw"]
+            part = jv.clip(upper_bound=x).sum() / (x * jv.len())
+            au_dela = int((rn["rn"] + x > rn_max).sum())
+            if abs(c["part_dans_j"] - part) > TOL_PART or c["heures_rn_plus_x_au_dessus_du_max"] != au_dela \
+                    or c["heures_j_superieur_ou_egal_x"] != int((jv >= x).sum()):
+                fautes.append(f"X = {x} MW : part {c['part_dans_j']} / {part:.4f}, au-delà du max "
+                              f"{c['heures_rn_plus_x_au_dessus_du_max']} / {au_dela}")
+        top = rn.head(a["heures_tendues"]["n"])
+        if abs(a["heures_tendues"]["rn_moyenne_mw"] - top["rn"].mean()) > TOL_MW:
+            fautes.append(f"RN moyenne des heures tendues {a['heures_tendues']['rn_moyenne_mw']} ≠ {top['rn'].mean():.0f}")
+        p = d.drop_nulls("prix")
+        neg, nul = int((p["prix"] < 0).sum()), int((p["prix"] <= 0).sum())
+        if a["prix"]["heures_negatif"] != neg or a["prix"]["heures_nul_ou_negatif"] != nul:
+            fautes.append(f"prix < 0 : {a['prix']['heures_negatif']} / {neg} ; ≤ 0 : {a['prix']['heures_nul_ou_negatif']} / {nul}")
+        if fautes:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : RN max {_f(rn_max, 0)} MW ({h_max}), Σ J {_f(jv.sum() / 1e6, 2)} TWh"
+                        + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    return r
+
+
+def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
+    """Propriétés internes : J ≥ 0, profil mensuel = total, part tenue décroissante et ≤ 1,
+    Σ min(X, J) ≤ Σ J, monotone cohérente avec le maximum et les heures tendues, couverture qui boucle."""
+    r = Resultat("« Quand ? » : J ≥ 0 ; Σ mois = Σ année ; part tenue décroissante en X et ≤ 1 ; Σ min(X, J) ≤ Σ J ; "
+                 "monotone ↔ max ↔ heures tendues ; couverture des heures tendues = RN moyenne", "OK")
+    if sorted(int(a) for a in q["annees"]) != annees_pleines:
+        r.statut = "ÉCHEC"
+        r.lignes.append(f"années de quand.json {sorted(q['annees'])} ≠ années pleines {annees_pleines}")
+    for an, a in q["annees"].items():
+        cr, jeu, td, cp = a["charge_residuelle"], a["jeu_nucleaire"], a["heures_tendues"], a["charges_plates"]
+        fautes = []
+        if min(jeu["par_mois_twh"]) < 0 or jeu["somme_twh"] < 0:
+            fautes.append("J négatif")
+        if abs(sum(jeu["par_mois_twh"]) - jeu["somme_twh"]) > 12 * TOL_TWH:
+            fautes.append(f"Σ mois {sum(jeu['par_mois_twh']):.4f} ≠ {jeu['somme_twh']}")
+        parts = [c["part_dans_j"] for c in cp]
+        if any(p < 0 or p > 1 for p in parts) or any(b > a_ + TOL_PART for a_, b in zip(parts, parts[1:])):
+            fautes.append(f"parts tenues {parts}")
+        for c in cp:
+            if c["energie_dans_j_twh"] > jeu["somme_twh"] + TOL_TWH or c["energie_dans_j_twh"] > c["energie_ajoutee_twh"] + TOL_TWH:
+                fautes.append(f"X = {c['x_mw']} : Σ min(X, J) = {c['energie_dans_j_twh']} TWh > Σ J ou > énergie ajoutée")
+            if c["rn_max_plus_x_mw"] != cr["max"]["valeur_mw"] + c["x_mw"]:
+                fautes.append(f"X = {c['x_mw']} : RN max + X")
+        au_dela = [c["heures_rn_plus_x_au_dessus_du_max"] for c in cp]
+        if au_dela != sorted(au_dela) or au_dela[0] < 1:
+            fautes.append(f"heures au-delà du max non croissantes en X : {au_dela}")
+        mono = cr["monotone"]
+        valeurs = [v for _, v in mono]
+        if mono[0] != [1, cr["max"]["valeur_mw"]] or valeurs != sorted(valeurs, reverse=True) \
+                or mono[-1] != [cr["heures_valides"], cr["min"]["valeur_mw"]]:
+            fautes.append("monotone incohérente avec le max ou le min")
+        if [v for _, v in td["heures"]] != valeurs[:td["n"]] or td["rn_min_mw"] != valeurs[td["n"] - 1]:
+            fautes.append("heures tendues ≠ premiers rangs de la monotone")
+        qs = list(cr["quantiles_mw"].values())
+        if qs != sorted(qs) or qs[0] < cr["min"]["valeur_mw"] or qs[-1] > cr["max"]["valeur_mw"]:
+            fautes.append("quantiles non ordonnés")
+        if sum(td["par_mois"]) != td["n"] or sum(td["par_heure_paris"]) != td["n"]:
+            fautes.append("répartition des heures tendues")
+        cm = td["couverture_moyenne_mw"]
+        somme = sum(cm.values())
+        if td["heures_couverture"] != td["n"] or abs(somme - td["rn_moyenne_mw"]) > TOL_COUVERTURE_MW:
+            fautes.append(f"couverture {somme} MW ≠ RN moyenne {td['rn_moyenne_mw']} MW")
+        if abs(cm["ecart_bilan_eco2mix"]) > TOL_ECART_BILAN_TENDUES_MW:
+            fautes.append(f"écart de bilan aux heures tendues {cm['ecart_bilan_eco2mix']} MW")
+        if fautes:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : parts tenues {', '.join(_f(p * 100, 1) for p in parts)} % ; couverture "
+                        f"{_f(somme, 0)} MW pour RN moyenne {_f(td['rn_moyenne_mw'], 0)} MW (écart de bilan "
+                        f"{_f(cm['ecart_bilan_eco2mix'], 0)} MW)" + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    for an, motif in q["annees_exclues"].items():
+        r.lignes.append(f"{an} exclue : {motif}")
+    return r
+
+
+def controle_quand_heures_negatives(q: dict, table: pl.DataFrame) -> Resultat:
+    r = Resultat("« Quand ? » : heures à prix < 0 = Bilans RTE (référentiel heures_negatives_*) et = calcul de "
+                 "build.heures_negatives, chaque année", "OK")
+    from . import chiffres
+    ref = chiffres.charger().chiffres
+    calc = heures_negatives(table.select("heure_utc", "prix_eur_mwh"))
+    for an, a in q["annees"].items():
+        n = a["prix"]["heures_negatif"]
+        c = ref.get(f"heures_negatives_{an}")
+        ok = n == calc.get(int(an), 0) and (c is None or n == c["valeur"])
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : < 0 {n} h, ≤ 0 {a['prix']['heures_nul_ou_negatif']} h ; build {calc.get(int(an), 0)}"
+                        + (f", RTE {c['valeur']}" if c else " (non recoupé)") + ("" if ok else "  ← différent"))
+    return r
+
+
+def controle_quand_modulation(q: dict) -> Resultat:
+    """Ordre de grandeur de Σ J contre la modulation publiée (autre grandeur : pas d'égalité attendue)."""
+    from . import chiffres
+    from .export_quand import MODULATION_PUBLIEE
+    lo, hi = RAPPORT_MODULATION
+    r = Resultat(f"« Quand ? » : Σ J du même ordre que la modulation publiée par EDF (rapport dans [{_f(lo, 1)} ; "
+                 f"{_f(hi, 0)}]), sans l'égaler — écart affiché", "OK")
+    ref = chiffres.charger().chiffres
+    for an, cle in MODULATION_PUBLIEE.items():
+        a, m = q["annees"].get(str(an)), ref.get(cle)
+        if a is None or m is None:
+            r.statut = "ÉCHEC"
+            r.lignes.append(f"{an} : {'quand.json' if a is None else cle} absent")
+            continue
+        j, mod = a["jeu_nucleaire"]["somme_twh"], float(m["valeur"])
+        rapport = j / mod
+        ok = lo <= rapport <= hi
+        if not ok:
+            r.statut = "ÉCHEC"
+        f3 = a["jeu_nucleaire"].get("flamanville3")
+        r.lignes.append(f"{an} : Σ J {_f(j, 1)} TWh"
+                        + (f" (hors EPR : {_f(f3['somme_j_sans_disponible_epr_twh'], 1)} à {_f(j, 1)})" if f3 else "")
+                        + f", modulation EDF {_f(mod, 0)} TWh ({cle}) ; écart {_f(j - mod, 1)} TWh "
+                          f"({_pct(rapport - 1, 0)}){'' if ok else '  ← hors ordre de grandeur'}")
+    be = ref.get("modulation_nucleaire_2025_be")
+    if be and "2025" in q["annees"]:
+        j = q["annees"]["2025"]["jeu_nucleaire"]["somme_twh"]
+        r.lignes.append(f"2025 : RTE « de l'ordre d'une trentaine de TWh » ; écart {_f(j - float(be['valeur']), 1)} TWh")
+    r.lignes.append("grandeurs différentes : J compte le disponible DÉCLARÉ non produit (réserves comprises, arrêts pour "
+                    "économie de combustible déclarés indisponibles exclus) ; la modulation d'EDF suit sa propre frontière")
+    return r
+
+
+def controle_colonnes_eco2mix(table: pl.DataFrame, annees: list[int]) -> Resultat:
+    from .export_quand import verifier_colonnes_eco2mix
+    r = Resultat(f"Colonnes éCO2mix : hydraulique = Σ sous-filières (± {_f(TOL_HYDRO_MW, 0)} MW), gaz = Σ sous-filières "
+                 f"(± {_f(TOL_GAZ_MW, 0)} MW), consommation = Σ filières + pompage + solde (écart moyen ± "
+                 f"{_f(TOL_BILAN_MOYEN_MW, 0)} MW), pompage ≤ 0", "OK")
+    for an, v in verifier_colonnes_eco2mix(table, annees)["par_annee"].items():
+        ok = (v["hydraulique_moins_sous_filieres_max_mw"] <= TOL_HYDRO_MW and v["gaz_moins_sous_filieres_max_mw"] <= TOL_GAZ_MW
+              and abs(v["ecart_bilan_moyen_mw"]) <= TOL_BILAN_MOYEN_MW and v["pompage_max_mw"] <= 0)
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : hydraulique {_f(v['hydraulique_moins_sous_filieres_max_mw'], 1)} MW, gaz "
+                        f"{_f(v['gaz_moins_sous_filieres_max_mw'], 1)} MW ; bilan moyen {_f(v['ecart_bilan_moyen_mw'], 1)} "
+                        f"MW (max {_f(v['ecart_bilan_max_mw'], 0)}) ; pompage max {_f(v['pompage_max_mw'], 0)} MW"
+                        + ("" if ok else "  ← hors tolérance"))
+    return r
+
+
+def controle_quand_chiffres(q: dict, export: Path) -> Resultat:
+    """chiffres.json porte exactement les chiffres calculés depuis quand.json, au schéma du référentiel."""
+    import json
+    from . import chiffres
+    from .export_quand import MODULATION_PUBLIEE, SOURCE_QUAND, chiffres_calcules
+    r = Resultat("« Quand ? » : chiffres calculés de chiffres.json = quand.json ; référentiel fusionné valide", "OK")
+    ref = chiffres.charger()
+    modulation = {an: ref.chiffres[c] for an, c in MODULATION_PUBLIEE.items() if c in ref.chiffres}
+    attendus = chiffres_calcules(q, modulation)
+    publies = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
+    source = (publies.get(next(iter(attendus)), {}).get("source") or {})
+    fusion = chiffres.fusionner(ref, {SOURCE_QUAND: {k: v for k, v in source.items() if k != "cle"}}, attendus)
+    erreurs = chiffres.valider(fusion)
+    for cle, c in attendus.items():
+        p = publies.get(cle)
+        if p is None:
+            erreurs.append(f"{cle} absent de chiffres.json")
+        elif ({k: v for k, v in p.items() if k != "source"} != {k: v for k, v in c.items() if k != "source"}
+              or p["source"].get("cle") != SOURCE_QUAND):
+            erreurs.append(f"{cle} : chiffres.json ≠ quand.json (relancer `pc build`)")
+    orphelins = sorted(k for k, v in publies.items() if v.get("produit_par") and k not in attendus)
+    erreurs += [f"{k} : chiffre calculé orphelin" for k in orphelins]
+    if erreurs:
+        r.statut = "ÉCHEC"
+    r.lignes.append(f"{len(attendus)} chiffres calculés ; source « {SOURCE_QUAND} » datée du "
+                    f"{source.get('date_publication', '?')}")
+    r.lignes += erreurs
+    return r
+
+
+def controles_quand(export: Path, table: pl.DataFrame) -> list:
+    from .export_quand import annees_pleines
+    if not (export / "quand.json").exists():
+        return [lambda: Resultat("« Quand ? »", "ÉCHEC", ["quand.json absent : lancer `pc build`"])]
+    q = _quand(export)
+    pleines, _ = annees_pleines(table)
+    return [
+        lambda: controle_colonnes_eco2mix(table, pleines),
+        lambda: controle_quand_coherence(q, pleines),
+        lambda: controle_quand_recalcul(q, table),
+        lambda: controle_quand_heures_negatives(q, table),
+        lambda: controle_quand_modulation(q),
+        lambda: controle_quand_chiffres(q, export),
+    ]
+
+
+# --------------------------------------------------------------------------
 
 
 def controle_referentiel() -> Resultat:
@@ -610,6 +856,7 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None) -> int:
         lambda: controle_intensite(raw, table),
         lambda: controle_completude(table, annee_courante),
         *controles_remit,
+        *controles_quand(export, table),
     ]
     resultats = []
     for c in controles:

@@ -9,6 +9,13 @@
 # le passage a été relu à la source par un second agent, sinon « spike »),
 # note.
 #
+# Chiffres calculés : les identifiants `quand_*` ne sont PAS saisis ici. `pc
+# build` les calcule (pc/export_quand.py) et les ajoute à chiffres.json avec
+# le même schéma, plus `produit_par: pc build` (qui impose `calcul`),
+# `verification: pc check` et la source `pdc-quand` (data/export/quand.json,
+# datée de la dernière extraction des données). Un identifiant calculé qui
+# existerait déjà ici fait échouer le build.
+#
 # Confiance : A = source primaire + recoupement indépendant (autre
 # éditeur, autre méthode) ; B = source primaire, sans recoupement
 # indépendant (recoupement de même origine, ou aucun) ; C = source
@@ -781,6 +788,209 @@ chiffres:
     confiance: B
     verification: spike
     note: 35 sites annoncés en février 2025, 63 en 2025, 26 « déjà sécurisés par un porteur de projet » en janvier 2026 ; aucune liste nominative publiée
+
+  # ------------------------------------------- « Quand ? » : chiffres cités
+  # Citations relues à la source par la contre-vérification du 26/11/2026
+  # (docs/spike/quand-contre-verification.md), revérifiées dans les PDF locaux.
+  # Les chiffres calculés de « Quand ? » (quand_*) ne sont pas ici : `pc build`
+  # les produit dans chiffres.json (pc/export_quand.py).
+
+  marge_rte_hiver_2026_2027:
+    libelle: Marges de sécurité d'approvisionnement prévues pour l'hiver 2026-2027
+    valeur: [8, 10]
+    unite: GW
+    grandeur: marge_adequation
+    periode: hiver 2026-2027
+    perimetre: France ; marge en capacité équivalente par rapport au critère public de sécurité d'approvisionnement (espérance de défaillance de 3 h par an), calcul probabiliste ; selon la consommation, le rythme des EnR et la disponibilité nucléaire
+    source: rte-bp2025-fonctionnement
+    page: p. 13
+    citation: « le niveau de marges pour l'hiver 2026-2027 est évalué entre 8 et 10 GW par rapport au critère public de sécurité d'approvisionnement, et varie en fonction de la dynamique d'évolution de la consommation, des rythmes de développement des énergies renouvelables et de la disponibilité du parc nucléaire »
+    confiance: B
+    recoupements:
+      - source: rte-bp2025-resultats
+        valeur: « celles-ci se maintiendront autour de 8 à 10 GW par rapport au critère public de sécurité d'approvisionnement » (p. 15)
+        note: même éditeur, même exercice
+        independant: false
+    verification: contre-verification
+    note: évaluées avec les hypothèses du Bilan prévisionnel 2025, donc avant la synthèse de l'hiver 2026-2027 (novembre 2026), qui ne redonne aucune marge en GW (risque « significativement en dessous du critère », p. 15) et prévoit une disponibilité nucléaire plus basse ; pas un excédent de puissance observable à la pointe
+
+  marge_mc_certifiee_2026_2027:
+    libelle: Marge retenue pour dimensionner le besoin du mécanisme de capacité (scénario retenu)
+    valeur: 9.5
+    unite: GW
+    grandeur: marge_certifiee
+    periode: période de livraison 2026-2027
+    perimetre: GW certifiés au sens du mécanisme de capacité, scénario « décarbonation lente » (8,0 GW dans le scénario « décarbonation rapide ») ; ne se compare pas directement aux marges du Bilan prévisionnel
+    source: rte-parametrage-mc-2026
+    page: p. 10, tableau 5
+    citation: "« Tableau 5 : Valeurs de marge dans les scénarios de dimensionnement » ; colonne « Marge utilisée pour Cref » : « Décarbonation lente 9,5 GW »"
+    confiance: B
+    recoupements:
+      - source: rte-enchere-mc-2026
+        valeur: volume Cref arrêté de 79 000 MW (p. 9), soit la valeur du scénario lent (figure 4 du paramétrage, p. 12)
+        note: même éditeur ; confirme le scénario retenu, pas la marge
+        independant: false
+    verification: contre-verification
+    note: rapport daté du 21/01/2026, version publiée le 12/02/2026 (modifiée après la saisine de la CRE ; non vérifié si les marges ont changé entre les deux versions) ; scénario lent retenu sur proposition de la CRE (délibération 2026-43 du 10/02/2026, p. 9)
+
+  dispo_nucleaire_prevue_hiver_2026_2027:
+    libelle: Disponibilité moyenne prévue du parc nucléaire, novembre à mars
+    valeur: 48.5
+    unite: GW
+    grandeur: disponibilite_moyenne
+    periode: novembre 2026 - mars 2027
+    perimetre: parc nucléaire français ; prévision de RTE, disponibilité lissée sur 7 jours ; EPR de Flamanville 3 à l'arrêt tout l'hiver
+    source: rte-hiver-2026-2027
+    page: p. 8
+    citation: « les prévisions de RTE pour l'hiver 2026-2027 conduisent à une disponibilité moyenne du parc nucléaire estimée à 48,5 GW entre les mois de novembre et de mars (contre 50,5 GW en 2025-2026 sur la même période) »
+    confiance: B
+    verification: contre-verification
+    note: disponibilité, pas production ; à ne pas confondre avec les 48,5 GW de nucléaire CERTIFIÉ projetés par le paramétrage du mécanisme de capacité (autre grandeur) ; RTE ne chiffre pas la part de l'EPR dans la baisse
+
+  dispo_nucleaire_hiver_2025_2026:
+    libelle: Disponibilité moyenne du parc nucléaire, novembre à mars
+    valeur: 50.5
+    unite: GW
+    grandeur: disponibilite_moyenne
+    periode: novembre 2025 - mars 2026
+    perimetre: parc nucléaire français ; disponibilité lissée sur 7 jours
+    source: rte-hiver-2026-2027
+    page: p. 8
+    citation: « (contre 50,5 GW en 2025-2026 sur la même période) »
+    confiance: B
+    verification: contre-verification
+    note: ne pas comparer aux « 54 GW (hors EPR de Flamanville) entre les mois de décembre et de janvier » de la synthèse de l'hiver précédent (autre fenêtre, autre périmètre)
+
+  pointe_conso_2025:
+    libelle: Pointe annuelle de consommation
+    valeur: 88
+    unite: GW
+    grandeur: pointe_consommation
+    periode: 2025-01-14, 9 h
+    perimetre: consommation brute France, Corse comprise
+    source: rte-be2025
+    page: p. 10
+    citation: « La pointe annuelle de consommation a cependant été relevée le 14 janvier à 9 h (lors de la montée en charge du matin). […] la pointe de consommation de 2025 s'est établie à son niveau le plus élevé depuis 2021, en atteignant 88 GW. »
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: 87 713 MW le 14/01/2025 à 09:00 (demi-heure, éCO2mix définitif, hors Corse) ; 87 438 MW en moyenne de 8 h à 9 h (série horaire du site)
+        note: même éditeur (RTE) ; la série horaire du site ne redonne pas « 88 GW à 9 h » (moyenne horaire, hors Corse)
+        independant: false
+    verification: contre-verification
+
+  enr_renoncees_prix_negatifs_2025:
+    libelle: Production solaire et éolienne non produite lors des épisodes de prix négatifs
+    valeur: 3
+    unite: TWh
+    grandeur: energie
+    periode: "2025"
+    perimetre: éolien terrestre (1,3 TWh) et solaire (1,6 TWh), éolien en mer exclu ; estimation RTE
+    source: rte-be2025
+    page: p. 42 et note 19
+    citation: "« En 2025, les épisodes de prix négatifs ont conduit à renoncer à environ 3 TWh de production solaire et éolienne. » ; note 19 : « 1,3 TWh de production éolienne terrestre et 1,6 TWh de production solaire (estimation RTE) »"
+    confiance: B
+    verification: contre-verification
+    note: ne s'additionne pas aux 0,1 TWh écrêtés à la demande de RTE — les mêmes 1,3 et 1,6 TWh sont attribués aux deux causes ailleurs dans le rapport (p. 36 et 41), les deux volumes se recouvrent probablement ; jamais « 3,1 TWh »
+
+  enr_ecretees_rte_2025:
+    libelle: Production solaire et éolienne écrêtée par les ajustements à la baisse demandés par RTE
+    valeur: 0.1
+    unite: TWh
+    grandeur: energie
+    periode: "2025"
+    perimetre: solaire et éolien, éolien en mer compris (figure 2.30, p. 44)
+    source: rte-be2025
+    page: p. 43
+    citation: « En 2025, les ajustements à la baisse sollicités par RTE ont conduit à écrêter 0,1 TWh de production solaire et éolienne. »
+    confiance: B
+    verification: contre-verification
+    note: recouvre probablement en partie les ≈ 3 TWh « à prix négatifs » (voir ce chiffre) ; ne pas additionner
+
+  modulation_nucleaire_2025_be:
+    libelle: Modulation du parc nucléaire, toutes typologies confondues
+    valeur: 30
+    unite: TWh
+    grandeur: energie
+    periode: "2025"
+    perimetre: toutes causes de modulation (équilibrage du système, absence de débouchés économiques, gestion du parc dont économie de combustible) ; contraintes environnementales et grèves traitées à part (p. 32) ; estimation arrondie (« de l'ordre d'une trentaine »)
+    source: rte-be2025
+    page: p. 31
+    citation: « La modulation (toutes typologies confondues) a représenté de l'ordre d'une trentaine de TWh en 2025, un volume relativement stable par rapport à l'année précédente. »
+    confiance: B
+    recoupements:
+      - source: rte-bp2025-fonctionnement
+        valeur: 33 TWh en 2025, donnée provisoire, source EDF (p. 6, note 4)
+        note: chiffre EDF repris par RTE, même périmètre large ; compatible
+        independant: false
+    verification: contre-verification
+    note: un arrêt pour économie de combustible est compté à la fois comme modulation ici et comme indisponibilité dans le taux de disponibilité REMIT (BE2025, p. 25) ; ne pas combiner les deux dans un bilan d'énergie
+
+  modulation_nucleaire_2023_bp:
+    libelle: Modulation du parc nucléaire (chiffre EDF)
+    valeur: 16
+    unite: TWh
+    grandeur: energie
+    periode: "2023"
+    perimetre: "toutes causes de modulation (définition EDF, communiqué du 16/02/2026 : réacteur sous sa puissance maximale, arrêt compris, hors rechargement, maintenance, aléas, contraintes environnementales ou réglementaires)"
+    source: rte-bp2025-fonctionnement
+    page: p. 6 et note 4
+    citation: "« la modulation assimilable à des absences de débouchés économiques du parc nucléaire évolue à la hausse, et a contribué à faire passer la modulation de 16 TWh en 2023, à 31 TWh en 2024 puis 33 TWh en 2025 » ; note 4 : « Donnée provisoire, source EDF 2026_02_16_ETUDE_MODULATION.pdf »"
+    confiance: C
+    verification: contre-verification
+    note: source secondaire (chiffre EDF cité par RTE) ; la phrase du BP laisse croire à une modulation « économique » seule, mais le périmètre est toutes causes ; aucun document ne donne la modulation économique seule
+
+  modulation_nucleaire_2024_bp:
+    libelle: Modulation du parc nucléaire (chiffre EDF)
+    valeur: 31
+    unite: TWh
+    grandeur: energie
+    periode: "2024"
+    perimetre: toutes causes de modulation (définition EDF, communiqué du 16/02/2026)
+    source: rte-bp2025-fonctionnement
+    page: p. 6 et note 4
+    citation: « de 16 TWh en 2023, à 31 TWh en 2024 puis 33 TWh en 2025 »
+    confiance: C
+    verification: contre-verification
+    note: source secondaire (chiffre EDF cité par RTE) ; périmètre toutes causes, pas la seule absence de débouchés ; « production non utilisée intégrant d'autres causes » 38 TWh en 2024 (même page)
+
+  modulation_nucleaire_2025_bp:
+    libelle: Modulation du parc nucléaire (chiffre EDF, provisoire)
+    valeur: 33
+    unite: TWh
+    grandeur: energie
+    periode: "2025"
+    perimetre: toutes causes de modulation (définition EDF, communiqué du 16/02/2026)
+    source: rte-bp2025-fonctionnement
+    page: p. 6 et note 4
+    citation: "« puis 33 TWh en 2025 » ; note 4 : « Donnée provisoire, source EDF 2026_02_16_ETUDE_MODULATION.pdf »"
+    confiance: C
+    recoupements:
+      - source: rte-be2025
+        valeur: « de l'ordre d'une trentaine de TWh » (p. 31)
+        note: estimation arrondie de RTE, même périmètre ; compatible
+        independant: false
+    verification: contre-verification
+    note: source secondaire (chiffre EDF cité par RTE, provisoire) ; périmètre toutes causes
+
+  effacement_contractualise_mc_2026_2027:
+    libelle: Capacités d'effacement de consommation contractualisées au mécanisme de capacité
+    valeur: 4.4
+    unite: GW
+    grandeur: puissance_certifiee
+    periode: période de livraison 2026-2027
+    perimetre: MW certifiés retenus à l'enchère du 6 juillet 2026, pas une puissance d'effacement physique
+    source: rte-hiver-2026-2027
+    page: p. 13
+    citation: « Au cours de l'enchère du mécanisme de capacité organisée le 6 juillet 2026 au titre de la période de livraison 2026-2027, 4,4 GW de capacités d'effacement de consommation ont été contractualisées. »
+    confiance: B
+    recoupements:
+      - source: rte-enchere-mc-2026
+        valeur: filière Effacement, 5 031 MW certifiés, 4 361 MW contractualisés (p. 10)
+        note: même éditeur
+        independant: false
+    verification: contre-verification
+    note: ne pas comparer aux « capacités d'effacement estimées à 3,7 GW » de la synthèse de l'hiver 2025-2026 (autre grandeur)
 
 contraintes:
   - inferieur: [dc_conso_rpt_2024, dc_conso_sites_dedies_2024]

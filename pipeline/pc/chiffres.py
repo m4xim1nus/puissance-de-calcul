@@ -10,7 +10,10 @@ Règles vérifiées ici (voir CLAUDE.md, « Lectrice cible et exigence ») :
 - chaque chiffre cite sa source, la page et le passage exact ;
 - la confiance A exige un recoupement par une source d'un autre éditeur ;
 - les contraintes d'ordre déclarées (appelé ≤ raccordé ≤ réservé…)
-  tiennent après conversion d'unités.
+  tiennent après conversion d'unités ;
+- un chiffre calculé par le pipeline (`produit_par: pc build`, voir
+  `pc/export_quand.py`) décrit son calcul et n'écrase aucun chiffre saisi
+  (`fusionner`).
 """
 
 from __future__ import annotations
@@ -44,11 +47,23 @@ UNITES: dict[str, dict[str, float]] = {
     "pue": {"": 1.0},
     # Capacité pour laquelle des ouvrages sont conçus, sans engagement contractuel.
     "puissance_dimensionnement": _PUISSANCE,
+    # Grandeurs du système électrique (« Quand ? »). Chacune a son propre dictionnaire d'unités :
+    # une contrainte d'ordre entre deux grandeurs différentes est alors refusée (MW de marge ≠
+    # MW certifiés ≠ MW installés ≠ MW appelés), même si les unités se convertissent.
+    "pointe_consommation": dict(_PUISSANCE),  # puissance appelée maximale par la consommation nationale
+    "charge_residuelle": dict(_PUISSANCE),  # consommation − éolien − solaire − nucléaire disponible, MW moyens horaires
+    "disponibilite_moyenne": dict(_PUISSANCE),  # puissance disponible déclarée, moyenne sur une période
+    "marge_adequation": dict(_PUISSANCE),  # marge par rapport au critère de sécurité d'approvisionnement (capacité équivalente, calcul probabiliste)
+    "marge_certifiee": dict(_PUISSANCE),  # marge en MW certifiés du mécanisme de capacité
+    "puissance_certifiee": dict(_PUISSANCE),  # capacité certifiée ou contractualisée au mécanisme de capacité
 }
 CONFIANCES = {"A", "B", "C"}
 CHAMPS_SOURCE = ("editeur", "titre", "date_publication", "url")
 CHAMPS_CHIFFRE = ("libelle", "valeur", "unite", "grandeur", "periode", "perimetre",
                   "source", "page", "citation", "confiance")
+#: Valeur du champ `produit_par` d'un chiffre calculé par le pipeline (et non saisi à la main) :
+#: il doit alors décrire son `calcul`, et sa source est l'export qui le porte.
+PRODUIT_PAR_PIPELINE = "pc build"
 
 
 @dataclass
@@ -118,6 +133,11 @@ def valider(ref: Referentiel) -> list[str]:
             erreurs.append(f"chiffre {cle} : valeur invalide ({e})")
         if c["source"] not in ref.sources:
             erreurs.append(f"chiffre {cle} : source inconnue « {c['source']} »")
+        if c.get("produit_par") is not None:
+            if c["produit_par"] != PRODUIT_PAR_PIPELINE:
+                erreurs.append(f"chiffre {cle} : produit_par « {c['produit_par']} » inconnu")
+            if not c.get("calcul"):
+                erreurs.append(f"chiffre {cle} : chiffre calculé sans « calcul »")
         if c["confiance"] not in CONFIANCES:
             erreurs.append(f"chiffre {cle} : confiance « {c['confiance']} » hors A/B/C")
         recoupements = c.get("recoupements") or []
@@ -146,6 +166,22 @@ def valider(ref: Referentiel) -> list[str]:
             erreurs.append(f"contrainte non tenue : {a} ({ca['valeur']} {ca['unite']}) "
                            f"≤ {b} ({cb['valeur']} {cb['unite']}) — {k.get('motif', '')}")
     return erreurs
+
+
+def fusionner(ref: Referentiel, sources: dict[str, dict], chiffres: dict[str, dict]) -> Referentiel:
+    """Référentiel saisi + chiffres calculés par le pipeline (`produit_par: pc build`).
+
+    Un identifiant ou une clé de source déjà présents dans le référentiel saisi lèvent une
+    erreur : un chiffre calculé ne remplace jamais en silence un chiffre saisi.
+    """
+    doublons = sorted(set(chiffres) & set(ref.chiffres)) + sorted(set(sources) & set(ref.sources))
+    if doublons:
+        raise ValueError(f"identifiants calculés déjà présents dans le référentiel : {doublons}")
+    sans_marque = sorted(k for k, c in chiffres.items() if c.get("produit_par") != PRODUIT_PAR_PIPELINE)
+    if sans_marque:
+        raise ValueError(f"chiffres calculés sans « produit_par: {PRODUIT_PAR_PIPELINE} » : {sans_marque}")
+    return Referentiel(sources={**ref.sources, **sources}, chiffres={**ref.chiffres, **chiffres},
+                       contraintes=list(ref.contraintes))
 
 
 def exporter(ref: Referentiel, chemin: Path) -> None:

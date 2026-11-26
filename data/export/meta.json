@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-26T08:53:27+00:00",
+  "genere_le": "2026-11-26T09:12:22+00:00",
   "conventions": {
     "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
     "horodatage_eco2mix": "fin",
@@ -226,6 +226,7 @@
     ],
     "unites": "MW moyens sur l'heure (= MWh de l'heure)",
     "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens sur l'heure) : dénominateur d'un taux de disponibilité",
+    "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW moyens ; 0 avant le 18/12/2024) ; sa production n'est pas publiée à part",
     "evenements_retenus": 13695,
     "tranches": [
       "BELLEVILLE 1",
@@ -335,7 +336,7 @@
       "url_licence": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
-      "donnees": "nucleaire_disponible, nucleaire_puissance_max",
+      "donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3",
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "attribution": "EDF — indisponibilités des moyens de production d'EDF SA (REMIT), via opendata.edf.fr",
       "url_licence": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
@@ -681,8 +682,9 @@
     }
   },
   "fichiers": {
-    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max)",
+    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3)",
     "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
-    "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)"
+    "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
+    "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; définitions, unités et limites dans le fichier"
   }
 }

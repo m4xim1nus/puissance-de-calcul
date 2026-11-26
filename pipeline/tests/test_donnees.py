@@ -10,7 +10,7 @@ from pc.check import HEURES_NEGATIVES_RTE
 
 pytestmark = pytest.mark.donnees
 
-MES_FICHIERS = ("systeme_horaire.parquet", "prix_quart_horaire.csv", "meta.json", "horaire")
+MES_FICHIERS = ("systeme_horaire.parquet", "prix_quart_horaire.csv", "meta.json", "horaire", "quand.json")
 
 
 @pytest.fixture(scope="module")
@@ -104,3 +104,62 @@ def test_meta_nucleaire_disponible(export):
     ref = chiffres.charger().chiffres
     for an in range(2018, 2026):
         assert abs(n["taux_disponibilite_hors_flamanville3"][str(an)] - ref[f"dispo_nucleaire_rte_{an}"]["valeur"]) <= 0.5
+
+
+# --------------------------------------------------------------------------
+# « Quand ? » (quand.json, chiffres calculés)
+# --------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def q(export):
+    return json.loads((export / "quand.json").read_text(encoding="utf-8"))
+
+
+def test_quand_taille(export):
+    assert (export / "quand.json").stat().st_size < 500_000  # quelques centaines de Ko au plus
+
+
+def test_quand_structure(q):
+    assert list(q["annees"]) == [str(a) for a in range(2015, 2026)]
+    assert "2026" in q["annees_exclues"]
+    for an in ("2022", "2025"):
+        m = q["matrices_rn"][an]
+        assert len(m["jours"]) == 365 and all(len(ligne) == 24 for ligne in m["valeurs"])
+    a = q["annees"]["2025"]
+    assert [c["x_mw"] for c in a["charges_plates"]] == [500, 1000, 2000, 5000, 10000, 15000, 20000]
+    assert len(a["charge_residuelle"]["monotone"]) < 600 and a["heures_tendues"]["n"] == 100
+    assert {"charge_residuelle", "jeu_nucleaire", "charges_plates"} <= set(q["limites"])
+
+
+def test_quand_retrouve_depuis_les_csv_publies(export, q):
+    """Le simulateur lira horaire/AAAA.csv : la fonction de référence appliquée au CSV publié doit
+    redonner quand.json (hors couverture des heures tendues, qui lit des colonnes du parquet)."""
+    from pc import quand
+    for an in ("2022", "2025"):
+        d = pl.read_csv(export / "horaire" / f"{an}.csv")
+        t = {"heure_utc": d["heure_utc"].to_list(), **{c: d[c].to_list() for c in
+             ("consommation", "eolien", "solaire", "nucleaire", "nucleaire_disponible", "prix")}}
+        r = quand.indicateurs_annee(t)
+        a = q["annees"][an]
+        assert r["charge_residuelle"]["max"]["valeur_mw"] == a["charge_residuelle"]["max"]["valeur_mw"]
+        assert r["charge_residuelle"]["max"]["heure_utc"] == a["charge_residuelle"]["max"]["heure_utc"]
+        assert round(r["jeu_nucleaire"]["somme_twh"], 4) == a["jeu_nucleaire"]["somme_twh"]
+        for c, e in zip(r["charges_plates"], a["charges_plates"]):
+            assert round(c["part_dans_j"], 4) == e["part_dans_j"]
+            assert c["heures_rn_plus_x_au_dessus_du_max"] == e["heures_rn_plus_x_au_dessus_du_max"]
+        assert r["prix"]["heures_negatif"] == a["prix"]["heures_negatif"]
+        assert [h for h, _ in r["heures_tendues"]["heures"]] == [h for h, _ in a["heures_tendues"]["heures"]]
+
+
+def test_chiffres_calcules_publies(export):
+    c = json.loads((export / "chiffres.json").read_text(encoding="utf-8"))["chiffres"]
+    for an in (2023, 2024, 2025):
+        for cle in (f"quand_rn_max_{an}", f"quand_j_{an}", f"quand_part_j_1gw_{an}", f"quand_part_j_5gw_{an}",
+                    f"quand_part_j_10gw_{an}", f"quand_heures_rn_sup_max_5gw_{an}",
+                    f"quand_heures_rn_sup_max_10gw_{an}", f"quand_top100_hiver_{an}", f"quand_top100_plages_{an}"):
+            assert c[cle]["produit_par"] == "pc build" and c[cle]["source"]["cle"] == "pdc-quand"
+            assert c[cle]["calcul"] and c[cle]["confiance"] in ("B", "C")
+    # ordre de grandeur : RN max entre 20 et 45 GW ; Σ J entre 5 et 50 TWh
+    assert all(20 < c[f"quand_rn_max_{an}"]["valeur"] < 45 for an in (2022, 2023, 2024, 2025))
+    assert all(5 < c[f"quand_j_{an}"]["valeur"] < 50 for an in (2022, 2023, 2024, 2025))

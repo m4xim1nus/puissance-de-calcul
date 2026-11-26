@@ -332,3 +332,12 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   produits par `pc build` dans le référentiel, chiffres de RTE cités
   à partir des citations de la contre-vérification, contrôles. Claude
   écrira le texte de l'enquête sur ces chiffres.
+- l'agent des indicateurs rend `quand.json` (337 Ko), la fonction de
+  référence `pc/quand.py` et 7 cas de test partagés pour le futur
+  simulateur, 30 chiffres calculés produits par `pc build`, 13 chiffres
+  de RTE cités (revérifiés dans les PDF), 6 contrôles de plus (18 au
+  total) et 84 tests. Il signale cinq erreurs de son propre code,
+  toutes attrapées avant commit. Claude relance contrôles et tests, et
+  recalcule à part, sur les CSV publiés, la charge résiduelle maximale
+  2022-2025 avec sa date, le nucléaire disponible non produit et la
+  part tenue pour 5 GW : identiques.

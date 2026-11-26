@@ -1,7 +1,8 @@
 """Ligne de commande : pc download | build | check.
 
 - `pc download [clés…] [--force]` : sources → data/raw/ (+ manifeste.json) ;
-- `pc build` : data/raw/ → data/export/ ;
+- `pc build` : data/raw/ → data/export/ (dont `chiffres.json` : référentiel saisi + chiffres
+  calculés par le pipeline) ;
 - `pc check` : contrôles de cohérence sur data/export/ et les références
   de data/raw/ ; code de retour non nul si un contrôle échoue.
 
@@ -45,8 +46,15 @@ def main(argv=None) -> int:
         if erreurs:
             print("Référentiel des chiffres invalide :\n" + "\n".join(erreurs), file=sys.stderr)
             return 1
-        chiffres.exporter(ref, args.export / "chiffres.json")
-        build(args.raw, args.export)
+        from .export_quand import MODULATION_PUBLIEE
+        modulation = {an: ref.chiffres[cle] for an, cle in MODULATION_PUBLIEE.items() if cle in ref.chiffres}
+        sources_calc, chiffres_calc = build(args.raw, args.export, modulation)
+        complet = chiffres.fusionner(ref, sources_calc, chiffres_calc)
+        erreurs = chiffres.valider(complet)
+        if erreurs:
+            print("Chiffres calculés invalides :\n" + "\n".join(erreurs), file=sys.stderr)
+            return 1
+        chiffres.exporter(complet, args.export / "chiffres.json")
         return 0
     if args.commande == "check":
         from .check import check

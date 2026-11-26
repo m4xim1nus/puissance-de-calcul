@@ -13,7 +13,9 @@ Chaîne :
 4. indisponibilités nucléaires déclarées par EDF (REMIT) → puissance nucléaire
    disponible horaire (`pc/remit.py`) ;
 5. exports : `systeme_horaire.parquet`, `horaire/AAAA.csv`,
-   `prix_quart_horaire.csv`, `meta.json`.
+   `prix_quart_horaire.csv`, `meta.json` ;
+6. indicateurs de « Quand ? » → `quand.json` (`pc/quand.py`, `pc/export_quand.py`), et les
+   chiffres calculés que le texte cite, renvoyés à la CLI pour `chiffres.json`.
 
 Unités : les colonnes de puissance sont des **MW moyens** sur le pas de
 temps. Une heure de MW moyens vaut des MWh (× 1 h) ; une demi-heure, × 0,5 h.
@@ -28,7 +30,7 @@ from pathlib import Path
 
 import polars as pl
 
-from . import remit
+from . import export_quand, remit
 from .sources import (ANNEE_DEBUT, LICENCE_EDF, LICENCE_ODRE, LICENCE_PRIX, fichier, fichier_edf, fichiers_annuels,
                       lire_manifeste)
 
@@ -321,6 +323,10 @@ def debut_grille() -> datetime:
     return pl.Series([datetime(ANNEE_DEBUT, 1, 1)]).dt.replace_time_zone(TZ_PARIS).dt.convert_time_zone("UTC")[0]
 
 
+#: Colonnes REMIT de la table (MW moyens).
+COLONNES_NUCLEAIRE_DISPONIBLE = ("nucleaire_disponible", "nucleaire_puissance_max", "nucleaire_disponible_flamanville3")
+
+
 def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame, nuc_h: pl.DataFrame | None = None) -> pl.DataFrame:
     """Table horaire complète (grille sans trou depuis le 1er janvier de la première année, heure
     de Paris) : éCO2mix horaire + prix horaire + nucléaire disponible déclaré (REMIT). Les heures
@@ -330,13 +336,13 @@ def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame, nuc_h: pl.DataFrame | N
     g = grille_horaire(debut, fin)
     if nuc_h is None:
         nuc_h = pl.DataFrame(schema={"heure_utc": DATETIME_UTC, "nucleaire_disponible": pl.Float64,
-                                     "nucleaire_puissance_max": pl.Float64})
+                                     "nucleaire_puissance_max": pl.Float64,
+                                     "nucleaire_disponible_flamanville3": pl.Float64})
     t = (g.join(eco_h, on="heure_utc", how="left")
           .join(prix_h.select("heure_utc", "prix_eur_mwh", "quarts_negatifs"), on="heure_utc", how="left")
-          .join(nuc_h.select("heure_utc", "nucleaire_disponible", "nucleaire_puissance_max"), on="heure_utc",
-                how="left"))
+          .join(nuc_h.select("heure_utc", *COLONNES_NUCLEAIRE_DISPONIBLE), on="heure_utc", how="left"))
     cols_mw = [c for c in COLONNES_MW if c in t.columns]
-    cols_nuc = ["nucleaire_disponible", "nucleaire_puissance_max"]
+    cols_nuc = list(COLONNES_NUCLEAIRE_DISPONIBLE)
     return t.select(
         "heure_utc", "nature", *cols_mw, *cols_nuc, "taux_co2", "prix_eur_mwh", "quarts_negatifs",
         pl.col("couverture_min").fill_null(0).cast(pl.Int32),
@@ -357,6 +363,12 @@ def nucleaire_disponible(raw: Path, fin: datetime) -> tuple[pl.DataFrame | None,
     horizon = min(bornes["horizon"], fin + timedelta(hours=1))
     par_tranche = remit.disponible_horaire(ev, debut_grille(), horizon)
     nat = remit.national(par_tranche).rename({"nucleaire_pmax": "nucleaire_puissance_max"})
+    # Disponibilité déclarée de l'EPR, à part : sa production n'est pas publiée séparément dans
+    # éCO2mix, d'où un encadrement seulement de Σ J hors Flamanville 3 (pc/export_quand.py).
+    epr = (par_tranche.filter(pl.col("tranche").is_in(sorted(remit.HORS_TAUX_RTE)))
+                      .group_by("heure_utc").agg(pl.col("dispo").sum().alias("nucleaire_disponible_flamanville3")))
+    nat = (nat.join(epr, on="heure_utc", how="left")
+              .with_columns(pl.col("nucleaire_disponible_flamanville3").fill_null(0.0)))
     taux = remit.taux_annuels(par_tranche, remit.HORS_TAUX_RTE)
     info = {
         "evenements_retenus": ev.height,
@@ -434,6 +446,8 @@ NUCLEAIRE_DISPONIBLE_META = {
     "unites": "MW moyens sur l'heure (= MWh de l'heure)",
     "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens "
                                "sur l'heure) : dénominateur d'un taux de disponibilité",
+    "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW "
+                                         "moyens ; 0 avant le 18/12/2024) ; sa production n'est pas publiée à part",
 }
 
 
@@ -486,7 +500,31 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 """
 
 
-def build(raw: Path, export: Path) -> None:
+#: Familles de sources lues par les indicateurs de « Quand ? » (préfixes du manifeste).
+SOURCES_QUAND = {"eco2mix": ("eco2mix_cons_def/", "eco2mix_tr"), "edf_remit": ("edf_remit/",), "prix": ("prix_fr/",)}
+
+
+def extractions_quand(manifeste: dict) -> tuple[dict, str]:
+    """Dernière extraction de chaque famille de sources de « Quand ? », et la plus récente
+    (date de Paris), qui date les chiffres calculés."""
+    par_famille = {}
+    for famille, prefixes in SOURCES_QUAND.items():
+        dates = [v["extrait_le"] for k, v in manifeste.items() if k.startswith(prefixes) and v.get("extrait_le")]
+        par_famille[famille] = max(dates) if dates else None
+    dates = [d for d in par_famille.values() if d]
+    if not dates:
+        return par_famille, datetime.now(timezone.utc).date().isoformat()
+    derniere = max(datetime.fromisoformat(d) for d in dates)
+    jour = pl.Series([derniere]).dt.convert_time_zone(TZ_PARIS).dt.date()[0]
+    return par_famille, jour.isoformat()
+
+
+def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) -> tuple[dict, dict]:
+    """Construit les exports ; renvoie (sources, chiffres) calculés pour `chiffres.json`.
+
+    `modulation` : chiffres saisis de la modulation nucléaire publiée, par année (recoupement
+    d'ordre de grandeur des chiffres calculés de Σ J).
+    """
     export.mkdir(parents=True, exist_ok=True)
     eco, rapports = charger_eco2mix(raw)
     print(f"éCO2mix natif : {eco.height} points, {eco['ts_utc'].min()} → {eco['ts_utc'].max()}", file=sys.stderr)
@@ -541,20 +579,32 @@ def build(raw: Path, export: Path) -> None:
         "attributions": [
             {"donnees": "consommation, production, échanges, taux_co2", **LICENCE_ODRE},
             {"donnees": "prix day-ahead France", **LICENCE_PRIX},
-            {"donnees": "nucleaire_disponible, nucleaire_puissance_max", **LICENCE_EDF},
+            {"donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3", **LICENCE_EDF},
         ],
         "sources": {k: {c: v[c] for c in ("url", "extrait_le", "nature", "sha256", "lignes", "natures",
                                           "mis_a_jour_source", "fichier_source")
                         if c in v} for k, v in sorted(manifeste.items())},
         "fichiers": {
             "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, "
-                                       "nucleaire_disponible, nucleaire_puissance_max)",
+                                       "nucleaire_disponible, nucleaire_puissance_max, "
+                                       "nucleaire_disponible_flamanville3)",
             "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
             "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
+            "quand.json": "indicateurs de l'enquête « Quand ? » par année pleine (charge résiduelle nette du nucléaire "
+                          "disponible, nucléaire disponible non produit, charges plates, heures tendues, prix bas) ; "
+                          "définitions, unités et limites dans le fichier",
         },
     }
     (export / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
+
+    extractions, date_extraction = extractions_quand(manifeste)
+    q = export_quand.construire_quand(table, extractions)
+    export_quand.ecrire_quand(q, export / "quand.json")
+    calcules = export_quand.chiffres_calcules(q, modulation)
+    print(f"quand.json : années {', '.join(q['annees'])} ; exclues : {', '.join(q['annees_exclues']) or 'aucune'} ; "
+          f"{len(calcules)} chiffres calculés", file=sys.stderr)
     taille = sum(p.stat().st_size for p in export.rglob("*") if p.is_file())
     print(f"exports : {table.height} heures, {len(resume)} années, {taille / 1e6:.1f} Mo dans {export}",
           file=sys.stderr)
+    return {export_quand.SOURCE_QUAND: export_quand.source_quand(date_extraction)}, calcules
 

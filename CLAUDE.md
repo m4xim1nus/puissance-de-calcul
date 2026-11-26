@@ -151,7 +151,7 @@ uv run pytest -m "not donnees"        # tests synthétiques seuls, sans réseau 
   cours et les instantanés sont toujours retéléchargés. `--force` refait tout.
   energy-charts limite à 2 requêtes/min : compter ≈ 6 min pour un `--force`
   sur les prix.
-- Exports : `data/export/systeme_horaire.parquet`, `horaire/AAAA.csv` (unités
+- Exports : `data/export/systeme_horaire.parquet`, `quand.json`, `horaire/AAAA.csv` (unités
   dans `horaire/LISEZMOI.md`), `prix_quart_horaire.csv`, `meta.json`.
 - Convention d'horodatage éCO2mix : constante `HORODATAGE_ECO2MIX` dans
   `pipeline/pc/build.py`, seul endroit à changer.
