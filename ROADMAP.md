@@ -39,7 +39,7 @@ extérieur pour l'instant, jeton ENTSO-E.
       `m4xim1nus/puissance-de-calcul`, CI verte
 - [x] Cloudflare Pages relié au dépôt : en ligne sur
       https://pdc.technoperchoir.fr (2026-11-26)
-- [ ] Recette sur téléphone du site en ligne
+- [x] Recette sur téléphone du site en ligne (l'auteur, 2026-11-26)
 - [x] Relecture de l'auteur (2026-11-26, session 2) : « Combien ? » et
       « Méthode » sans remarque ; aucun retour sur un chiffre. Deux
       retours de lisibilité, traités en étape 3 (point 1)
@@ -64,8 +64,8 @@ Ordre de la session 2 :
          intégré au journal (session 1), replié par défaut. Les fichiers
          Markdown restent la source unique : le site les analyse, les
          formats imposés deviennent un contrat testé ;
-   - [ ] Recette sur téléphone (reportée de l'étape 2), après ces deux
-         chantiers.
+   - [x] Recette sur téléphone (reportée de l'étape 2) : faite par
+         l'auteur, « ok ».
 2. **Jeton ENTSO-E** : pas arrivé au 26/11 matin. Point sauté ; l'étape 3
    n'en dépend pas. Quand il arrive (`source/entsoe_token`, jamais
    versionné) : vérification d'accès par un agent Sonnet, puis
@@ -86,3 +86,24 @@ Ordre de la session 2 :
    modélise pas (réseau local, marginal).
 5. Relecture adverse « lectrice experte » de chaque page avant
    publication.
+
+## Étape 4 : session 3 — ordre prévu
+
+1. **Retours de l'auteur sur l'étape 3** (backlog, 26/11) :
+   - **éditorial** : proposer à l'auteur un message principal tranché,
+     maintenant que deux enquêtes sont faites (décision du 26/11 : pas
+     de thèse *avant* les enquêtes). L'auteur tranche le fond ; Claude
+     propose, avec ce que les deux enquêtes établissent et ce qu'elles
+     n'établissent pas ;
+   - **simulateur, forme** : l'outil tient sur un écran, sans
+     défilement ; le préambule et la lecture passent en replis ou en
+     page liée. Fond inchangé.
+2. **ENTSO-E** : le jeton est dans `source/entsoe_token` (arrivé le
+   26/11, non testé). Vérification d'accès (agent Sonnet), puis
+   branchement dans `pc download` : prix et mix des voisins, flux et
+   capacités d'échange. Sert l'enquête carbone, le recoupement des prix
+   energy-charts, et la question laissée ouverte par « Quand ? » (qui
+   servirait une consommation ajoutée : nucléaire, EnR moins arrêtées
+   ou exportations).
+3. Ensuite : enquête carbone (facteur moyen ≠ marginal), puis « Où ? »
+   (enquête courte sur ce qui manque).
