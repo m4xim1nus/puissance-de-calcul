@@ -5,6 +5,13 @@ l'auteur est citée telle quelle ; quand elle est elliptique, on écrit ce
 qu'elle recouvrait. Le coût est celui relevé par `/cost` quand l'auteur le
 fournit ; sinon il est marqué « non relevé ».
 
+> **Caviardage.** Le dépôt et le site sont publics. À la demande de
+> l'auteur, son prénom est remplacé par « l'auteur » dans tout le
+> making-of, une précision sur la lectrice est caviardée dans le brief et
+> une mention personnelle a été supprimée du journal. L'historique git a
+> été réécrit en conséquence le 26/11/2026, avant la première
+> publication : aucun commit public ne contient la version d'origine.
+
 ---
 
 ## Session 1 — 2026-11-25, à partir de 23 h 03 · lancement
@@ -99,6 +106,35 @@ fournit ; sinon il est marqué « non relevé ».
   et veut que la mise en ligne n'attende pas : les parties qui en
   dépendent s'affichent « en chantier » (WIP).
 
-**Agents** : 8 (6 Opus, 2 Sonnet).
+- pipeline commité ; `pc check` sur toutes les années révèle des
+  tolérances calibrées sur une seule année (consigné, recalibré) ;
+- page « Combien ? » et système visuel livrés par l'agent du site, qui
+  signale trois imprécisions dans le texte de Claude (consignées,
+  corrigées), puis hero de l'accueil (heatmap des prix 2015-2026) ;
+  l'agent du site repère aussi un défaut d'arrondi des prix du pipeline
+  (consigné, corrigé à la source) ;
+- caviardage : liste proposée par Claude, arbitrée par l'auteur (réponse
+  citée telle quelle, caviardée : *« Profil : je suis ta proposition.
+  [caviardé : mention personnelle] : à complétmeent supprimer.
+  [caviardé : prénom] : remplacer par l'auteur. Projets voisins à
+  conserver. »*, et pour l'adresse du site : *« pdc. »*). Explicitation :
+  l'auteur choisit une suppression pure pour un passage, sans marque, ce
+  qui déroge à la règle du caviardage visible ; Claude l'applique et le
+  signale globalement dans la note ci-dessus. Premier passage du script :
+  il remplaçait aussi un « Max » qui voulait dire « maximum » (en-tête de
+  tableau) et mettait une majuscule fautive en début de ligne ; repéré
+  sur un clone d'essai, corrigé avant application. Second défaut :
+  Claude avait écrit dans le registre des décisions le nom de ce qu'on
+  supprimait ; reformulé, filtre repassé ;
+- l'auteur demande de garder l'identité git habituelle : *« ok, garde
+  l'adresse [caviardé : adresse électronique] »* ;
+- en écrivant cette entrée, Claude a d'abord cité ces deux réponses
+  sans les caviarder, remettant dans le journal ce que le caviardage
+  retire. Repéré par Claude à la relecture, avant tout commit
+  (consigné dans `ERREURS.md`) ;
+- relecture adverse « lectrice experte » du site construit lancée (Opus)
+  avant toute publication.
+
+**Agents** : 9 (7 Opus, 2 Sonnet).
 
 **Durée / coût** : en cours.

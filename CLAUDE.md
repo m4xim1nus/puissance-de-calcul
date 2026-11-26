@@ -71,6 +71,10 @@ ou des tiers (chemins de sa machine, autres projets privés, personnes identifia
 (`[caviardé : motif]`), jamais en réécrivant en silence, y compris dans
 le brief « publié tel quel » et les demandes citées. En cas de doute,
 on demande à l'auteur avant le push.
+Avant chaque push : `git grep -n -w -i -e max -e wiki -e '@'` sur les
+fichiers versionnés (hors `package-lock.json`), et lecture des
+résultats. Une citation de l'auteur est caviardée **à l'intérieur** des
+guillemets si elle contient un élément caviardé.
 
 L'onglet « À toi » (missions à faire soi-même avec Claude Code) est
 rédigé en tutoiement, ton direct, zéro jargon de dev.

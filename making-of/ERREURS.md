@@ -67,3 +67,9 @@ Format :
 - **Repéré par** : l'agent du site, en confrontant son décompte au référentiel (513 h, RTE). Avant publication.
 - **Correction** : moyenne arrondie à 4 décimales (exacte pour 4 prix au centime) puis normalisée (`+ 0.0`) dès le calcul horaire ; le CSV donne directement 513 h (2025) et 568 h (2026, provisoire).
 - **Garde-fou ajouté** : aucun test automatique nouveau. Un contrôle « décompte sur le CSV publié = décompte de `pc check` » serait le bon garde-fou ; noté au backlog.
+
+### 2026-11-26 — Citation non caviardée dans le journal
+- **Faux** : en consignant les réponses de l'auteur sur le caviardage, Claude les a citées « telles quelles », ce qui remettait dans le journal ce que le caviardage venait de retirer (une mention personnelle, le prénom, une adresse électronique).
+- **Repéré par** : Claude lui-même, en relisant le fichier avant le commit (une recherche du prénom a remonté la ligne).
+- **Correction** : citation caviardée à l'intérieur des guillemets, marques visibles. Rien n'a été commité ni publié dans l'état fautif.
+- **Garde-fou ajouté** : avant chaque push, recherche du prénom, de « wiki » et de « @ » dans les fichiers versionnés (ajoutée à la section « Making-of » de `CLAUDE.md`).

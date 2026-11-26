@@ -1,3 +1,8 @@
+> **Note de publication.** Brief publié tel quel, à deux exceptions près,
+> décidées par l'auteur avant la première publication (26/11/2026) : son
+> prénom est remplacé par « l'auteur », et une précision sur la lectrice
+> est caviardée à l'endroit marqué.
+
 # Puissance de calcul — brief de lancement
 
 *Nom de travail, à challenger.*
