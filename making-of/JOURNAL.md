@@ -246,3 +246,19 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
     making-of utilisait un jeton de couleur inexistant (`--filet`), si
     bien que le filet entre sections ne s'affichait pas. Sans effet sur
     le contenu ; disparu avec la nouvelle page.
+- relecture adverse avant publication lancée (Opus) : ouverture de
+  l'accueil en lectrice experte puis en lecteur non spécialiste, et
+  fidélité mécanique du making-of rendu à ses fichiers source (rien de
+  perdu, tronqué ou déplacé, brief compris).
+- le spike « Quand ? » rend son rapport (`docs/spike/quand.md`). La
+  trouvaille principale : les indisponibilités nucléaires déclarées
+  par EDF au titre de REMIT sont en accès libre (Licence Ouverte), et
+  la disponibilité horaire qu'on en reconstruit retombe sur les taux
+  annuels de RTE à 0,3 point près depuis 2018. Aucune série horaire
+  publique de « marge » n'existe : la marge de RTE est le résultat
+  d'une simulation, publiée en quelques chiffres par hiver. L'agent
+  propose trois indicateurs et en écarte un (une « marge horaire »
+  capacité moins charge). Deux points restent ouverts : le fuseau des
+  dates REMIT, non documenté, et Flamanville 3 en 2025. Ses calculs
+  n'ont été relus par personne ; ils n'entrent pas dans `docs/` tels
+  quels.
