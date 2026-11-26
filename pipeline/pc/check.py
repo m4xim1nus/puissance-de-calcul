@@ -18,9 +18,10 @@ from pathlib import Path
 
 import polars as pl
 
-from .build import (DATETIME_UTC, PAS_MIN, annee_paris, charger_eco2mix, debut_periode, heures_negatives,
-                    mw_vers_mwh)
-from .sources import ANNEE_DEBUT, fichier, fichiers_annuels
+from . import remit
+from .build import (DATETIME_UTC, PAS_MIN, annee_paris, charger_eco2mix, debut_grille, debut_periode,
+                    heures_negatives, mw_vers_mwh)
+from .sources import ANNEE_DEBUT, fichier, fichiers_annuels, lire_manifeste
 
 # --------------------------------------------------------------------------
 # Références et tolérances
@@ -85,6 +86,55 @@ LACUNES_CONNUES = [
      "energy-charts FR : 96 quarts d'heure null pour la livraison du 21 novembre 2026, constaté "
      "dans la réponse du 2026-11-26 ; année en cours, à revérifier au prochain téléchargement"),
 ]
+
+#: Disponibilité nucléaire REMIT (pc/remit.py).
+#:
+#: (a) Taux annuel reconstruit hors Flamanville 3 comparé au Bilan électrique 2025 de RTE (fig. 2.5,
+#: p. 25), valeurs lues dans le référentiel (`dispo_nucleaire_rte_AAAA`, referentiels/chiffres.yaml).
+#: Tolérance ± 0,5 pt sur 2018-2025 ; 2015-2017 affichés sans tolérance (la méthode de RTE sur ces
+#: années n'est pas connue ; écarts de +0,2 à +0,4 pt au 2026-11-26). Écart typique observé :
+#: +0,1 à +0,3 pt, toujours positif (cause non établie ; l'accord par centrale est à ± 1 pt pour
+#: 187 centrales-années sur 198, BE2025 fig. 2.9, vérification manuelle du 2026-11-26).
+TOLERANCE_TAUX_RTE_PT = 0.5
+ANNEES_TAUX_CONTROLEES = range(2018, 2026)
+
+#: (b) Production nucléaire éCO2mix ≤ disponible déclaré + tolérance, heure par heure.
+#: La production peut dépasser le disponible déclaré sans erreur de reconstruction :
+#: - eau froide en hiver : la puissance nette d'une tranche dépasse sa puissance maximale
+#:   déclarée (EDF déclare parfois lui-même plus que la puissance maximale, ex. Blayais 2 à
+#:   960 MW pour 910) ; les dépassements se concentrent en décembre-février, parc très disponible ;
+#: - déclarations en escalier pendant les grèves ou les essais, alors que la puissance varie en
+#:   rampe (ex. 18/01/2023 20:00 UTC : quatre tranches déclarées en baisse « grève » à 20:00 UTC,
+#:   production encore en descente) ;
+#: Calibrage (2026-11-26) sur **toutes** les années 2015-2026 (≈ 104 000 h, pas une seule
+#: année : erreur du 26/11/2026, making-of/ERREURS.md) : dépassement relatif maximal 2,2 %
+#: (31/01/2017, grève), 1,9 % (2025), 1,85 % (2016) ; 99,9e centile ≤ 1,1 % chaque année. Une
+#: seule heure au-delà de 2,5 %, listée ci-dessous. Tolérance : 2,5 % du disponible déclaré.
+TOLERANCE_EXCES_RELATIVE = 0.025
+EXCES_EXPLIQUES = {
+    datetime(2023, 1, 18, 20, tzinfo=timezone.utc):
+        "grève : Belleville 2, Paluel 2, 3 et 4 déclarées en baisse à 20:00 UTC d'un seul coup (−3 200 MW), "
+        "production en rampe (+2 154 MW, 5,3 %) ; l'heure suivante est sous le disponible",
+}
+
+#: (c) Fuseau des dates REMIT (`remit.FUSEAU_REMIT`). La notice d'EDF (« Note explicative
+#: publication EDF », v3 du 28/03/2025, doaat.edf.fr, HTTP 403 pour un client automatisé ; lue
+#: dans sa copie archive.org) dit : « Les heures indiquées sont au format UTC pour la zone Central
+#: European Time », phrase ambiguë. Trois tests sur les données, tous en faveur de l'heure de
+#: Paris (CET l'hiver, CEST l'été) :
+#: 1. étude d'événements : pour les arrêts fortuits nets (tranche ≥ 880 MW à pleine
+#:    disponibilité depuis 6 h, puissance disponible ≤ 20 % de la maximale, début à la minute non
+#:    ronde, au moins 3 h), la plus forte baisse moyenne de la production nucléaire éCO2mix (pas
+#:    de 30 min) doit tomber dans la demi-heure qui contient le début déclaré lu en heure de
+#:    Paris, **séparément** en heure d'hiver et en heure d'été. En UTC, elle tomberait 1 h (hiver)
+#:    ou 2 h (été) plus tard ;
+#: 2. passage à l'heure d'été : aucune date (début, fin, publication, toutes filières) ne doit
+#:    tomber entre 02:00 et 02:59, heure qui n'existe pas à Paris ces jours-là ;
+#: 3. la dernière date de publication de l'historique, lue en heure de Paris, doit précéder la
+#:    date de dépôt du fichier sur data-fair (07/09/2026 07:36 UTC pour une publication à
+#:    « 07/09/2026 09:19 » : impossible en UTC).
+FUSEAU_FENETRE_MIN = 240
+FUSEAU_EVENEMENTS_MIN = 50
 
 
 @dataclass
@@ -350,6 +400,175 @@ def controle_completude(table: pl.DataFrame, annee_courante: int) -> Resultat:
 
 
 # --------------------------------------------------------------------------
+# Disponibilité nucléaire (REMIT)
+# --------------------------------------------------------------------------
+
+
+def _remit_par_tranche(raw: Path, table: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, dict]:
+    brut, ev, bornes = remit.depuis_raw(raw)
+    fin = min(bornes["horizon"], table["heure_utc"].max() + timedelta(hours=1))
+    return brut, ev, remit.disponible_horaire(ev, debut_grille(), fin), bornes
+
+
+def controle_remit_jonction(bornes: dict) -> Resultat:
+    """L'historique (exports ponctuels) et la liste courante (trois mois glissants) se recouvrent-ils ?"""
+    r = Resultat("REMIT : la liste courante remonte jusqu'au dernier export de l'historique (pas de trou)", "OK")
+    fh, dc = bornes["fin_historique"], bornes["debut_courante"]
+    r.lignes.append(f"historique : dernière publication {fh:%Y-%m-%d %H:%M} UTC ; liste courante : plus ancienne "
+                    f"fin d'événement {dc:%Y-%m-%d %H:%M} UTC" if dc else "liste courante absente")
+    if bornes["trou"]:
+        r.statut = "ÉCHEC"
+        r.lignes.append("← trou : des événements terminés entre ces deux dates manquent ; attendre ou chercher un "
+                        "nouvel export de l'historique sur opendata.edf.fr, puis `pc download edf_remit`")
+    else:
+        r.lignes.append(f"recouvrement de {(fh - dc).days} jour(s) ; série arrêtée à {bornes['horizon']:%Y-%m-%d %H:%M} UTC "
+                        "(extraction de la liste courante)")
+    return r
+
+
+def controle_taux_rte(par_tranche: pl.DataFrame, table: pl.DataFrame) -> Resultat:
+    from . import chiffres
+    r = Resultat("Taux de disponibilité nucléaire REMIT hors Flamanville 3 ≈ RTE, BE2025 fig. 2.5 "
+                 "(± 0,5 pt sur 2018-2025) ; export = recalcul", "OK")
+    ref = chiffres.charger().chiffres
+    calc = dict(remit.taux_annuels(par_tranche, remit.HORS_TAUX_RTE).select("an", "taux").iter_rows())
+    for an in range(ANNEE_DEBUT, max(calc) + 1):
+        c = ref.get(f"dispo_nucleaire_rte_{an}")
+        if c is None or an not in calc:
+            continue
+        ecart = calc[an] * 100 - float(c["valeur"])
+        controle = an in ANNEES_TAUX_CONTROLEES
+        ok = not controle or abs(ecart) <= TOLERANCE_TAUX_RTE_PT
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : reconstruit {_f(calc[an] * 100, 2)} %, RTE {_f(float(c['valeur']), 1)} % ; écart "
+                        f"{ecart:+.2f} pt".replace(".", ",")
+                        + ("" if controle else " (informatif)") + ("" if ok else "  ← hors tolérance"))
+    manquantes = [a for a in ANNEES_TAUX_CONTROLEES if f"dispo_nucleaire_rte_{a}" not in ref]
+    if manquantes:
+        r.statut = "ÉCHEC"
+        r.lignes.append(f"référence absente du référentiel : {manquantes}")
+    # cohérence de l'export avec le recalcul
+    nat = remit.national(par_tranche).select("heure_utc", "nucleaire_disponible")
+    j = table.select("heure_utc", pl.col("nucleaire_disponible").alias("export")).join(nat, on="heure_utc", how="full",
+                                                                                          coalesce=True)
+    diff = j.select((pl.col("export") - pl.col("nucleaire_disponible")).abs().max()).item()
+    nuls = j.filter(pl.col("export").is_null() != pl.col("nucleaire_disponible").is_null()).height
+    ok = diff is not None and diff <= 0.05 + 1e-9 and nuls == 0
+    if not ok:
+        r.statut = "ÉCHEC"
+    r.lignes.append(f"export contre recalcul : écart max {_f(diff or 0, 2)} MW (export arrondi au dixième), {nuls} heure(s) "
+                    f"renseignée(s) d'un seul côté{'' if ok else '  ← export à refaire (`pc build`)'}")
+    return r
+
+
+def controle_production_sous_disponible(table: pl.DataFrame) -> Resultat:
+    r = Resultat("Production nucléaire éCO2mix ≤ disponible REMIT + 2,5 % (toutes heures, toutes années)", "OK")
+    t = (table.drop_nulls(["nucleaire", "nucleaire_disponible"])
+              .with_columns((pl.col("nucleaire") - pl.col("nucleaire_disponible")).alias("exces"))
+              .with_columns((pl.col("exces") / pl.col("nucleaire_disponible")).alias("rel"),
+                            annee_paris("heure_utc").alias("an")))
+    if t.height == 0:
+        return Resultat(r.nom, "ÉCHEC", ["aucune heure avec production et disponible"])
+    hors = t.filter(pl.col("rel") > TOLERANCE_EXCES_RELATIVE)
+    for row in (t.group_by("an").agg(pl.len().alias("h"), (pl.col("exces") > 0).sum().alias("h0"),
+                                     (pl.col("rel") > 0.01).sum().alias("h1"), pl.col("exces").max().alias("max"),
+                                     pl.col("rel").max().alias("rmax")).sort("an").iter_rows(named=True)):
+        r.lignes.append(f"{row['an']} : {row['h']} h ; production > disponible {row['h0']} h, > 1 % {row['h1']} h ; "
+                        f"max {_f(row['max'], 0)} MW ({_f(row['rmax'] * 100, 2)} %)")
+    for h, exc, rel in hors.select("heure_utc", "exces", "rel").iter_rows():
+        motif = EXCES_EXPLIQUES.get(h)
+        if motif is None:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"    {h:%Y-%m-%d %H:%M} UTC : +{_f(exc, 0)} MW ({_f(rel * 100, 1)} %) — "
+                        f"{motif or 'INEXPLIQUÉ  ← hors tolérance'}")
+    return r
+
+
+def _arrets_fortuits_nets(ev: pl.DataFrame) -> pl.DataFrame:
+    """Arrêts fortuits francs : tranche ≥ 880 MW, disponible ≤ 20 %, ≥ 3 h, début à une minute non
+    ronde, sans autre événement de la tranche dans les 6 h qui précèdent."""
+    f = ev.filter((pl.col("type") == "Fortuite") & (pl.col("pdispo") <= 0.2 * pl.col("pmax"))
+                  & (pl.col("pmax") >= 880) & ((pl.col("fin") - pl.col("debut")) >= pl.duration(hours=3))
+                  & (pl.col("debut").dt.minute() % 30 != 0))
+    autres = ev.select("tranche", pl.col("debut").alias("d2"), pl.col("fin").alias("f2"), pl.col("id").alias("id2"))
+    avant = (f.join(autres, on="tranche")
+              .filter((pl.col("id") != pl.col("id2")) & (pl.col("d2") < pl.col("debut"))
+                      & (pl.col("f2") > pl.col("debut") - pl.duration(hours=6)))["id"].unique())
+    return f.filter(~pl.col("id").is_in(avant.to_list()))
+
+
+def _jours_passage_ete(annees: range) -> list[date]:
+    """Derniers dimanches de mars."""
+    jours = []
+    for an in annees:
+        d = date(an, 3, 31)
+        jours.append(d - timedelta(days=(d.weekday() + 1) % 7))
+    return jours
+
+
+def controle_fuseau_remit(raw: Path, natif: pl.DataFrame, brut: pl.DataFrame, ev: pl.DataFrame,
+                          bornes: dict) -> Resultat:
+    r = Resultat(f"Fuseau des dates REMIT = {remit.FUSEAU_REMIT} (arrêts fortuits contre éCO2mix, hiver et été ; "
+                 "passage à l'heure d'été ; date de dépôt)", "OK")
+    # 1. étude d'événements
+    p = (natif.filter(pl.col("pas_min") == 30)
+              .select(debut_periode(pl.col("ts_utc"), pl.col("pas_min")).alias("t0"), "nucleaire"))
+    f = (_arrets_fortuits_nets(ev)
+         .with_columns(pl.col("debut").dt.convert_time_zone(remit.FUSEAU_REMIT).dt.dst_offset().dt.total_minutes()
+                         .alias("ete"), pl.col("debut").dt.truncate("30m").alias("base")))
+    taus = pl.DataFrame({"tau": list(range(-FUSEAU_FENETRE_MIN, FUSEAU_FENETRE_MIN + 1, 30))})
+    x = (f.select("id", "ete", "base").join(taus, how="cross")
+          .with_columns((pl.col("base") + pl.duration(minutes=pl.col("tau"))).alias("t0"))
+          .join(p, on="t0", how="inner").sort("id", "tau")
+          .with_columns(pl.col("nucleaire").diff().over("id").alias("dd")).drop_nulls("dd"))
+    prof = x.group_by("ete", "tau").agg(pl.col("dd").mean().alias("moy"), pl.col("id").n_unique().alias("n"))
+    for ete, saison in ((0, "heure d'hiver"), (60, "heure d'été")):
+        d = prof.filter(pl.col("ete") == ete).sort("tau")
+        if d.height == 0 or d["n"].max() < FUSEAU_EVENEMENTS_MIN:
+            r.statut = "ÉCHEC"
+            r.lignes.append(f"{saison} : trop peu d'arrêts fortuits nets ({0 if d.height == 0 else d['n'].max()})")
+            continue
+        moy = dict(d.select("tau", "moy").iter_rows())
+        pire = min(moy, key=moy.get)
+        decal_utc = 60 if ete == 0 else 120
+        ok = pire == 0
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{saison} : {d['n'].max()} arrêts ; baisse moyenne la plus forte à {pire:+d} min du début "
+                        f"déclaré ({_f(moy[pire], 0)} MW par demi-heure) ; à +{decal_utc} min (lecture UTC) : "
+                        f"{_f(moy.get(decal_utc, float('nan')), 0)} MW{'' if ok else '  ← fuseau à revoir'}")
+    # 2. passage à l'heure d'été
+    annees = range(brut["publication_local"].min().year, brut["publication_local"].max().year + 1)
+    jours = _jours_passage_ete(annees)
+    voisins = [j + timedelta(days=k) for j in jours for k in range(-7, 8) if k]
+    for col in ("debut_local", "fin_local", "publication_local"):
+        heure2 = brut.filter(pl.col(col).dt.hour() == 2)
+        n = heure2.filter(pl.col(col).dt.date().is_in(jours)).height
+        attendu = heure2.filter(pl.col(col).dt.date().is_in(voisins)).height / 14
+        ok = n == 0
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"passage à l'heure d'été ({len(jours)} jours) : {n} date(s) « {col.removesuffix('_local')} » "
+                        f"entre 02:00 et 02:59 (inexistantes à Paris) ; ≈ {_f(attendu, 1)} attendues si les dates "
+                        f"étaient en UTC (moyenne des 14 jours voisins){'' if ok else '  ← fuseau à revoir'}")
+    # 3. date de dépôt de l'historique
+    m = lire_manifeste(raw).get("edf_remit/historique") or {}
+    depot = m.get("mis_a_jour_source")
+    if depot:
+        depot = datetime.fromisoformat(depot.replace("Z", "+00:00"))
+        derniere, locale = bornes["fin_historique"], bornes["fin_historique_local"]
+        ok = derniere <= depot
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"historique : dernière publication « {locale:%d/%m/%Y %H:%M} » = {derniere:%H:%M} UTC lue en "
+                        f"heure de Paris, déposé sur data-fair à {depot:%Y-%m-%d %H:%M} UTC"
+                        f"{'' if ok else '  ← publication postérieure au dépôt'} ; lue en UTC elle serait "
+                        f"{'postérieure' if locale.replace(tzinfo=timezone.utc) > depot else 'antérieure'} au dépôt")
+    return r
+
+
+# --------------------------------------------------------------------------
 
 
 def controle_referentiel() -> Resultat:
@@ -371,6 +590,16 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None) -> int:
     table = pl.read_parquet(chemin)
     natif, _ = charger_eco2mix(raw)
     assert set(PAS_MIN.values()) <= {15, 30}
+    try:
+        brut, ev, par_tranche, bornes = _remit_par_tranche(raw, table)
+        controles_remit = [
+            lambda: controle_remit_jonction(bornes),
+            lambda: controle_taux_rte(par_tranche, table),
+            lambda: controle_production_sous_disponible(table),
+            lambda: controle_fuseau_remit(raw, natif, brut, ev, bornes),
+        ]
+    except Exception as err:  # source absente ou illisible : échec, pas arrêt
+        controles_remit = [lambda err=err: Resultat("Disponibilité nucléaire REMIT", "ÉCHEC", [f"erreur : {err!r}"])]
     controles = [
         controle_referentiel,
         lambda: controle_consommation(raw, natif, annee_courante),
@@ -380,6 +609,7 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None) -> int:
         lambda: controle_heures_negatives(table),
         lambda: controle_intensite(raw, table),
         lambda: controle_completude(table, annee_courante),
+        *controles_remit,
     ]
     resultats = []
     for c in controles:

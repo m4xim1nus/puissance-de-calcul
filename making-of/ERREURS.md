@@ -108,3 +108,9 @@ Format :
 - **Repéré par** : la contre-vérification adverse (agent Opus distinct, sans accès aux conclusions du spike).
 - **Correction** : rapport du spike annoté ; l'agent du pipeline filtre explicitement la filière nucléaire et les tranches françaises.
 - **Garde-fou ajouté** : aucun nouveau ; la contre-vérification indépendante avant usage d'un chiffre de spike a fonctionné.
+
+### 2026-11-26 — Spike « Quand ? » : Fessenheim exclue à tort, dépassements de 2025 attribués à l'EPR
+- **Faux** : le prototype du spike « Quand ? » (agent Opus) excluait Fessenheim de toutes les années, au motif qu'elle n'a plus d'événement après sa fermeture ; elle a pourtant fonctionné jusqu'en 2020, ce qui faussait le dénominateur du taux de disponibilité de 2015 à 2020. Le même rapport écrivait que les 185 heures de 2025 où la production dépasse la disponibilité reconstruite « signal[aient] un traitement incertain de l'EPR » : l'analyse de la production régionale de Normandie n'en explique que 6,5 %, et des dépassements du même ordre existent en 2016-2018, 2022 et 2023.
+- **Repéré par** : l'agent du pipeline, en reprenant la reconstruction pour `pc build`.
+- **Correction** : Fessenheim comptée jusqu'à son dernier événement (22/02 et 29/06/2020) ; l'EPR compté à partir de son premier événement ; les dépassements bornés par un contrôle `pc check` calibré sur toutes les années. Rapport du spike annoté.
+- **Garde-fou ajouté** : aucun nouveau. Les chiffres d'un spike n'entrent sur le site qu'après passage dans le pipeline et `pc check` (règle déjà écrite dans le spike lui-même) : elle a joué.

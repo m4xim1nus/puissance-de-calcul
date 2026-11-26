@@ -10,7 +10,9 @@ Chaîne :
    d'imputation) ;
 3. prix day-ahead energy-charts → série native (60 puis 15 min) et vue
    horaire (moyenne des quarts d'heure, convention RTE) ;
-4. exports : `systeme_horaire.parquet`, `horaire/AAAA.csv`,
+4. indisponibilités nucléaires déclarées par EDF (REMIT) → puissance nucléaire
+   disponible horaire (`pc/remit.py`) ;
+5. exports : `systeme_horaire.parquet`, `horaire/AAAA.csv`,
    `prix_quart_horaire.csv`, `meta.json`.
 
 Unités : les colonnes de puissance sont des **MW moyens** sur le pas de
@@ -21,12 +23,14 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import polars as pl
 
-from .sources import ANNEE_DEBUT, LICENCE_ODRE, LICENCE_PRIX, fichier, fichiers_annuels, lire_manifeste
+from . import remit
+from .sources import (ANNEE_DEBUT, LICENCE_EDF, LICENCE_ODRE, LICENCE_PRIX, fichier, fichier_edf, fichiers_annuels,
+                      lire_manifeste)
 
 TZ_PARIS = "Europe/Paris"
 DATETIME_UTC = pl.Datetime("us", "UTC")
@@ -295,6 +299,7 @@ def charger_prix(raw: Path) -> pl.DataFrame:
 COLONNES_CSV = [
     ("consommation", "consommation", 0),
     ("nucleaire", "nucleaire", 0),
+    ("nucleaire_disponible", "nucleaire_disponible", 0),
     ("eolien", "eolien", 0),
     ("solaire", "solaire", 0),
     ("hydraulique", "hydraulique", 0),
@@ -311,19 +316,59 @@ def grille_horaire(debut: datetime, fin: datetime) -> pl.DataFrame:
                                       .cast(DATETIME_UTC)})
 
 
-def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame) -> pl.DataFrame:
+def debut_grille() -> datetime:
+    """Première heure UTC de la grille : 1er janvier de `ANNEE_DEBUT`, 00:00 heure de Paris."""
+    return pl.Series([datetime(ANNEE_DEBUT, 1, 1)]).dt.replace_time_zone(TZ_PARIS).dt.convert_time_zone("UTC")[0]
+
+
+def assembler(eco_h: pl.DataFrame, prix_h: pl.DataFrame, nuc_h: pl.DataFrame | None = None) -> pl.DataFrame:
     """Table horaire complète (grille sans trou depuis le 1er janvier de la première année, heure
-    de Paris) : éCO2mix horaire + prix horaire. Les heures sans donnée restent présentes, vides."""
-    debut = pl.Series([datetime(ANNEE_DEBUT, 1, 1)]).dt.replace_time_zone(TZ_PARIS).dt.convert_time_zone("UTC")[0]
+    de Paris) : éCO2mix horaire + prix horaire + nucléaire disponible déclaré (REMIT). Les heures
+    sans donnée restent présentes, vides."""
+    debut = debut_grille()
     fin = max(eco_h["heure_utc"].max(), prix_h["heure_utc"].max())
     g = grille_horaire(debut, fin)
+    if nuc_h is None:
+        nuc_h = pl.DataFrame(schema={"heure_utc": DATETIME_UTC, "nucleaire_disponible": pl.Float64,
+                                     "nucleaire_puissance_max": pl.Float64})
     t = (g.join(eco_h, on="heure_utc", how="left")
-          .join(prix_h.select("heure_utc", "prix_eur_mwh", "quarts_negatifs"), on="heure_utc", how="left"))
+          .join(prix_h.select("heure_utc", "prix_eur_mwh", "quarts_negatifs"), on="heure_utc", how="left")
+          .join(nuc_h.select("heure_utc", "nucleaire_disponible", "nucleaire_puissance_max"), on="heure_utc",
+                how="left"))
     cols_mw = [c for c in COLONNES_MW if c in t.columns]
+    cols_nuc = ["nucleaire_disponible", "nucleaire_puissance_max"]
     return t.select(
-        "heure_utc", "nature", *cols_mw, "taux_co2", "prix_eur_mwh", "quarts_negatifs",
+        "heure_utc", "nature", *cols_mw, *cols_nuc, "taux_co2", "prix_eur_mwh", "quarts_negatifs",
         pl.col("couverture_min").fill_null(0).cast(pl.Int32),
-    ).with_columns([pl.col(c).round(1) for c in cols_mw + ["taux_co2"]] + [pl.col("prix_eur_mwh").round(4)])
+    ).with_columns([pl.col(c).round(1) for c in cols_mw + cols_nuc + ["taux_co2"]]
+                   + [pl.col("prix_eur_mwh").round(4)])
+
+
+def nucleaire_disponible(raw: Path, fin: datetime) -> tuple[pl.DataFrame | None, dict]:
+    """Série nationale REMIT (`remit.serie_nationale`) sur la grille, et ses métadonnées.
+
+    Absente (source non téléchargée) : None, avec un avertissement ; `pc check` échoue alors.
+    """
+    if not fichier_edf(raw, "historique").exists():
+        print("AVERTISSEMENT : data/raw/edf_remit/ absent (`pc download edf_remit`) : "
+              "nucleaire_disponible reste vide", file=sys.stderr)
+        return None, {}
+    brut, ev, bornes = remit.depuis_raw(raw)
+    horizon = min(bornes["horizon"], fin + timedelta(hours=1))
+    par_tranche = remit.disponible_horaire(ev, debut_grille(), horizon)
+    nat = remit.national(par_tranche).rename({"nucleaire_pmax": "nucleaire_puissance_max"})
+    taux = remit.taux_annuels(par_tranche, remit.HORS_TAUX_RTE)
+    info = {
+        "evenements_retenus": ev.height,
+        "tranches": sorted(ev["tranche"].unique().to_list()),
+        "fin_historique_utc": bornes["fin_historique"].isoformat(),
+        "debut_liste_courante_utc": bornes["debut_courante"].isoformat() if bornes["debut_courante"] else None,
+        "trou_entre_fichiers": bornes["trou"],
+        "derniere_heure_utc": (horizon - timedelta(hours=1)).isoformat(),
+        "taux_disponibilite_hors_flamanville3": {
+            int(a): round(float(x) * 100, 2) for a, x, h in taux.iter_rows() if h >= 8760},
+    }
+    return nat, info
 
 
 def _fmt_heure(col: str) -> pl.Expr:
@@ -354,6 +399,44 @@ def ecrire_csv_annuels(table: pl.DataFrame, dossier: Path) -> dict[int, dict]:
     return dict(sorted(resume.items()))
 
 
+#: Description de la série `nucleaire_disponible` pour meta.json (méthode : pc/remit.py).
+NUCLEAIRE_DISPONIBLE_META = {
+    "definition": "puissance nucléaire disponible déclarée par EDF au titre de REMIT, MW moyens sur l'heure UTC, "
+                  "somme des tranches en exploitation (Flamanville 3 comprise à partir du 18/12/2024 13:50)",
+    "source": "EDF, indisponibilités des moyens de production d'EDF SA (REMIT), opendata.edf.fr (data-fair) : "
+              "historique depuis 2015 + liste courante ; tranches nucléaires françaises seulement (le jeu contient "
+              "aussi des unités belges de Luminus, sans nucléaire)",
+    "methode": [
+        "dernière version de chaque événement Planifié ou Fortuit ; retenu si elle est Active (annulées et "
+        "supprimées écartées, sauf une suppression documentée : Golfech 1, 15/08-12/12/2020, voir remit.py)",
+        "chroniques PMIN et aFRR ignorées (ce ne sont pas des indisponibilités)",
+        "superposition d'événements : puissance disponible minimale (règle d'EDF) ; hors événement : puissance "
+        "maximale déclarée de la tranche",
+        "moyenne exacte sur l'heure (escalier intégré, pas d'échantillonnage)",
+        "Fessenheim 1 et 2 comptées jusqu'à leur arrêt définitif (22/02/2020 02:00 et 29/06/2020 23:30, heure de "
+        "Paris, fin de leur dernier événement REMIT) ; Flamanville 3 à partir de son premier événement REMIT",
+        "dates REMIT lues en heure de Paris (testé par `pc check` : chute de production éCO2mix à l'heure "
+        "déclarée des arrêts fortuits, hiver comme été ; aucune heure inexistante du passage à l'heure d'été)",
+    ],
+    "limites": [
+        "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système, "
+        "modulation économique et baisses non déclarées n'y figurent pas",
+        "la production peut dépasser le disponible déclaré : surcroît de puissance nette par eau froide en hiver "
+        "(jusqu'à environ 2 % du parc), déclarations en escalier (grèves, essais) alors que la puissance varie "
+        "en rampe ; voir `pc check`",
+        "frontière modulation / indisponibilité fixée par EDF et invisible de l'extérieur (RTE, BE2025, fig. 2.5)",
+        "les dernières heures reflètent les déclarations au moment de l'extraction, révisables ; aucune heure "
+        "postérieure à l'extraction de la liste courante (pas de prévision)",
+        "l'historique n'est publié que par exports ponctuels (trimestriels) : si la liste courante (trois mois "
+        "glissants) ne remonte plus jusqu'à cet export, des événements manquent (`pc check` le détecte)",
+        "heure répétée du passage à l'heure d'hiver : ambiguë dans la source, lue comme la première (heure d'été)",
+    ],
+    "unites": "MW moyens sur l'heure (= MWh de l'heure)",
+    "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens "
+                               "sur l'heure) : dénominateur d'un taux de disponibilité",
+}
+
+
 LISEZMOI_HORAIRE = """\
 # Séries horaires nationales — un fichier par année
 
@@ -367,6 +450,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 | `heure_utc` | ISO 8601, UTC | **début** de l'heure décrite : `2024-06-01T10:00Z` = de 10:00 à 11:00 UTC |
 | `consommation` | MW moyen sur l'heure | consommation France continentale **hors Corse**, pertes comprises, pompage exclu (éCO2mix) |
 | `nucleaire` | MW moyen | production nucléaire |
+| `nucleaire_disponible` | MW moyen | puissance nucléaire **disponible déclarée** par EDF au titre de REMIT (somme des tranches en exploitation, Flamanville 3 comprise depuis le 18/12/2024) ; ce n'est **pas** une production. Voir la note ci-dessous |
 | `eolien` | MW moyen | production éolienne (terrestre + en mer) |
 | `solaire` | MW moyen | production photovoltaïque |
 | `hydraulique` | MW moyen | production hydraulique (dont turbinage des STEP) |
@@ -388,6 +472,15 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
   **qui se termine** à t (convention établie empiriquement, non documentée par
   RTE) ; l'heure h est la moyenne des points h:30 et h+1:00. Au pas de 15 min
   (données temps réel), même convention : points h:15, h:30, h:45, h+1:00.
+- `nucleaire_disponible` : reconstruit depuis les indisponibilités REMIT d'EDF
+  (opendata.edf.fr, Licence Ouverte 2.0). Pour chaque tranche, dernière version
+  active des arrêts et limitations planifiés ou fortuits ; si plusieurs se
+  superposent, la puissance disponible la plus faible (règle d'EDF) ; sinon la
+  puissance maximale. Moyenne exacte sur l'heure. Dates de la source lues en
+  heure de Paris (vérifié). Vide après l'heure d'extraction (pas de prévision).
+  La production peut le dépasser de quelques centaines de MW (eau froide en
+  hiver, déclarations en escalier pendant les grèves ou les essais). Méthode,
+  limites et taux annuels : `../meta.json`, clé `nucleaire_disponible`.
 - Les données de l'année en cours mêlent **consolidé** et **temps réel**
   (puissance instantanée, moins précise) : voir `natures` dans `../meta.json`.
 """
@@ -400,7 +493,9 @@ def build(raw: Path, export: Path) -> None:
     eco_h = vers_horaire(eco)
     prix = charger_prix(raw)
     prix_h = prix_horaire(prix)
-    table = assembler(eco_h, prix_h)
+    fin = max(eco_h["heure_utc"].max(), prix_h["heure_utc"].max())
+    nuc_h, nuc_info = nucleaire_disponible(raw, fin)
+    table = assembler(eco_h, prix_h, nuc_h)
 
     table.write_parquet(export / "systeme_horaire.parquet", compression="zstd", compression_level=19)
     resume = ecrire_csv_annuels(table, export / "horaire")
@@ -439,14 +534,21 @@ def build(raw: Path, export: Path) -> None:
                      "premier_quart_heure_utc": BASCULE_PRIX_15MIN.isoformat()},
         },
         "normalisation_eco2mix": rapports,
+        "nucleaire_disponible": {**NUCLEAIRE_DISPONIBLE_META, **nuc_info,
+                                 "extractions": {k: {c: v.get(c) for c in ("extrait_le", "mis_a_jour_source",
+                                                                           "fichier_source", "url")}
+                                                 for k, v in manifeste.items() if k.startswith("edf_remit/")}},
         "attributions": [
             {"donnees": "consommation, production, échanges, taux_co2", **LICENCE_ODRE},
             {"donnees": "prix day-ahead France", **LICENCE_PRIX},
+            {"donnees": "nucleaire_disponible, nucleaire_puissance_max", **LICENCE_EDF},
         ],
-        "sources": {k: {c: v[c] for c in ("url", "extrait_le", "nature", "sha256", "lignes", "natures")
+        "sources": {k: {c: v[c] for c in ("url", "extrait_le", "nature", "sha256", "lignes", "natures",
+                                          "mis_a_jour_source", "fichier_source")
                         if c in v} for k, v in sorted(manifeste.items())},
         "fichiers": {
-            "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature)",
+            "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, "
+                                       "nucleaire_disponible, nucleaire_puissance_max)",
             "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
             "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)",
         },

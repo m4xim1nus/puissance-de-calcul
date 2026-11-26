@@ -27,3 +27,6 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 - [ ] Relecture « lecteur non spécialiste » en plus de la relecture « lectrice experte » avant publication d'une page (accroche, enchaînement, jargon hors glossaire) : l'auteur joue ce rôle aujourd'hui, un agent pourrait le préparer (claude, 2026-11-26)
 - [ ] Making-of : garder les sauts de ligne d'une demande citée de l'auteur (aujourd'hui fondus au rendu, comme en Markdown standard) (relecture, 2026-11-26)
 - [ ] Site : commentaire de `heatmap.ts` (« au centime entre −1 et 1 ») à corriger ; renommer `ECRETAGE` / `ecretees` ; « 1er » en exposant (claude, 2026-11-26)
+- [ ] `pc check` : le contrôle de jonction historique / liste courante REMIT échouera vers le 07/12/2026 si EDF ne republie pas son historique (trimestriel) : relancer `pc download edf_remit` et voir (claude, 2026-11-26)
+- [ ] Exports : 14,0 Mo pour une limite de test à 15 Mo ; décider avant d'ajouter une colonne (parquet seul, ou découpage) (claude, 2026-11-26)
+- [ ] REMIT : biais de +0,1 à +0,4 pt du taux reconstruit sur RTE, inexpliqué ; l'heure répétée du passage à l'heure d'hiver est lue comme sa première occurrence (claude, 2026-11-26)

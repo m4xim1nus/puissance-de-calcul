@@ -50,12 +50,12 @@ Ordre de la session 2 :
 
 1. **Retours de relecture de l'auteur** (cités dans le journal,
    session 2) :
-   - [ ] **Accueil** : la question d'abord, visible sans défiler ; une
+   - [x] **Accueil** (en ligne le 26/11, après relecture adverse) : la question d'abord, visible sans défiler ; une
          ou deux phrases qui disent pourquoi regarder l'électricité
          heure par heure et ce que montre la carte des prix ; puis la
          heatmap, puis les enquêtes. Lisible par un non-spécialiste sans
          rien retirer pour l'experte ;
-   - [ ] **Making-of** : rendu structuré au lieu du Markdown à plat.
+   - [x] **Making-of** (en ligne le 26/11 ; fidélité aux sources testée en CI) : rendu structuré au lieu du Markdown à plat.
          Décisions en fiches (date, décision, raisons, étiquette « l'auteur
          / Claude », filtre par auteur de la décision) ; erreurs en fiches
          (Faux / Repéré par / Correction / Garde-fou, étiquette de qui l'a

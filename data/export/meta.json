@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-25T23:59:26+00:00",
+  "genere_le": "2026-11-26T08:53:27+00:00",
   "conventions": {
     "heure_utc": "début de l'heure décrite, UTC ; années civiles en heure de Paris",
     "horodatage_eco2mix": "fin",
@@ -205,6 +205,121 @@
     },
     "recouvrement_natures": 0
   },
+  "nucleaire_disponible": {
+    "definition": "puissance nucléaire disponible déclarée par EDF au titre de REMIT, MW moyens sur l'heure UTC, somme des tranches en exploitation (Flamanville 3 comprise à partir du 18/12/2024 13:50)",
+    "source": "EDF, indisponibilités des moyens de production d'EDF SA (REMIT), opendata.edf.fr (data-fair) : historique depuis 2015 + liste courante ; tranches nucléaires françaises seulement (le jeu contient aussi des unités belges de Luminus, sans nucléaire)",
+    "methode": [
+      "dernière version de chaque événement Planifié ou Fortuit ; retenu si elle est Active (annulées et supprimées écartées, sauf une suppression documentée : Golfech 1, 15/08-12/12/2020, voir remit.py)",
+      "chroniques PMIN et aFRR ignorées (ce ne sont pas des indisponibilités)",
+      "superposition d'événements : puissance disponible minimale (règle d'EDF) ; hors événement : puissance maximale déclarée de la tranche",
+      "moyenne exacte sur l'heure (escalier intégré, pas d'échantillonnage)",
+      "Fessenheim 1 et 2 comptées jusqu'à leur arrêt définitif (22/02/2020 02:00 et 29/06/2020 23:30, heure de Paris, fin de leur dernier événement REMIT) ; Flamanville 3 à partir de son premier événement REMIT",
+      "dates REMIT lues en heure de Paris (testé par `pc check` : chute de production éCO2mix à l'heure déclarée des arrêts fortuits, hiver comme été ; aucune heure inexistante du passage à l'heure d'été)"
+    ],
+    "limites": [
+      "puissance DÉCLARÉE disponible, pas une capacité physique garantie : réserves pour services système, modulation économique et baisses non déclarées n'y figurent pas",
+      "la production peut dépasser le disponible déclaré : surcroît de puissance nette par eau froide en hiver (jusqu'à environ 2 % du parc), déclarations en escalier (grèves, essais) alors que la puissance varie en rampe ; voir `pc check`",
+      "frontière modulation / indisponibilité fixée par EDF et invisible de l'extérieur (RTE, BE2025, fig. 2.5)",
+      "les dernières heures reflètent les déclarations au moment de l'extraction, révisables ; aucune heure postérieure à l'extraction de la liste courante (pas de prévision)",
+      "l'historique n'est publié que par exports ponctuels (trimestriels) : si la liste courante (trois mois glissants) ne remonte plus jusqu'à cet export, des événements manquent (`pc check` le détecte)",
+      "heure répétée du passage à l'heure d'hiver : ambiguë dans la source, lue comme la première (heure d'été)"
+    ],
+    "unites": "MW moyens sur l'heure (= MWh de l'heure)",
+    "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens sur l'heure) : dénominateur d'un taux de disponibilité",
+    "evenements_retenus": 13695,
+    "tranches": [
+      "BELLEVILLE 1",
+      "BELLEVILLE 2",
+      "BLAYAIS 1",
+      "BLAYAIS 2",
+      "BLAYAIS 3",
+      "BLAYAIS 4",
+      "BUGEY 2",
+      "BUGEY 3",
+      "BUGEY 4",
+      "BUGEY 5",
+      "CATTENOM 1",
+      "CATTENOM 2",
+      "CATTENOM 3",
+      "CATTENOM 4",
+      "CHINON 1",
+      "CHINON 2",
+      "CHINON 3",
+      "CHINON 4",
+      "CHOOZ 1",
+      "CHOOZ 2",
+      "CIVAUX 1",
+      "CIVAUX 2",
+      "CRUAS 1",
+      "CRUAS 2",
+      "CRUAS 3",
+      "CRUAS 4",
+      "DAMPIERRE 1",
+      "DAMPIERRE 2",
+      "DAMPIERRE 3",
+      "DAMPIERRE 4",
+      "FESSENHEIM 1",
+      "FESSENHEIM 2",
+      "FLAMANVILLE 1",
+      "FLAMANVILLE 2",
+      "FLAMANVILLE 3",
+      "GOLFECH 1",
+      "GOLFECH 2",
+      "GRAVELINES 1",
+      "GRAVELINES 2",
+      "GRAVELINES 3",
+      "GRAVELINES 4",
+      "GRAVELINES 5",
+      "GRAVELINES 6",
+      "NOGENT 1",
+      "NOGENT 2",
+      "PALUEL 1",
+      "PALUEL 2",
+      "PALUEL 3",
+      "PALUEL 4",
+      "PENLY 1",
+      "PENLY 2",
+      "ST ALBAN 1",
+      "ST ALBAN 2",
+      "ST LAURENT 1",
+      "ST LAURENT 2",
+      "TRICASTIN 1",
+      "TRICASTIN 2",
+      "TRICASTIN 3",
+      "TRICASTIN 4"
+    ],
+    "fin_historique_utc": "2026-09-07T07:19:00+00:00",
+    "debut_liste_courante_utc": "2026-08-28T00:00:00+00:00",
+    "trou_entre_fichiers": false,
+    "derniere_heure_utc": "2026-11-26T07:00:00+00:00",
+    "taux_disponibilite_hors_flamanville3": {
+      "2015": 79.88,
+      "2016": 72.37,
+      "2017": 71.45,
+      "2018": 74.23,
+      "2019": 71.88,
+      "2020": 65.3,
+      "2021": 70.03,
+      "2022": 54.35,
+      "2023": 62.97,
+      "2024": 71.76,
+      "2025": 74.31
+    },
+    "extractions": {
+      "edf_remit/courante": {
+        "extrait_le": "2026-11-26T08:51:44+00:00",
+        "mis_a_jour_source": "2026-11-26T08:00:33.988Z",
+        "fichier_source": "Export_toutes_versions.csv",
+        "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/indisponibilites-des-moyens-de-production-edf-sa/raw"
+      },
+      "edf_remit/historique": {
+        "extrait_le": "2026-11-26T08:39:25+00:00",
+        "mis_a_jour_source": "2026-09-07T07:36:29.348Z",
+        "fichier_source": "Historique des indispo des moyens de production - depuis 2015 - 07092026.csv",
+        "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015/raw"
+      }
+    }
+  },
   "attributions": [
     {
       "donnees": "consommation, production, échanges, taux_co2",
@@ -218,6 +333,12 @@
       "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
       "attribution": "Bundesnetzagentur | SMARD.de, via energy-charts.info (Fraunhofer ISE)",
       "url_licence": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "donnees": "nucleaire_disponible, nucleaire_puissance_max",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "attribution": "EDF — indisponibilités des moyens de production d'EDF SA (REMIT), via opendata.edf.fr",
+      "url_licence": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
     }
   ],
   "sources": {
@@ -350,6 +471,24 @@
       "natures": {
         "Données temps réel": 8256
       }
+    },
+    "edf_remit/courante": {
+      "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/indisponibilites-des-moyens-de-production-edf-sa/raw",
+      "extrait_le": "2026-11-26T08:51:44+00:00",
+      "nature": "indisponibilités des moyens de production d'EDF SA déclarées au titre de REMIT, une ligne par version d'événement (CSV latin-1, « ; ») : historique depuis 2015 (export ponctuel) et liste courante (événements terminés depuis moins de trois mois, mise à jour horaire)",
+      "sha256": "144c811f2491103e8f67dfd4400c2c429ea83586371d2d38676c8a861a111bf2",
+      "lignes": 29717,
+      "mis_a_jour_source": "2026-11-26T08:00:33.988Z",
+      "fichier_source": "Export_toutes_versions.csv"
+    },
+    "edf_remit/historique": {
+      "url": "https://opendata.edf.fr/data-fair/api/v1/datasets/historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015/raw",
+      "extrait_le": "2026-11-26T08:39:25+00:00",
+      "nature": "indisponibilités des moyens de production d'EDF SA déclarées au titre de REMIT, une ligne par version d'événement (CSV latin-1, « ; ») : historique depuis 2015 (export ponctuel) et liste courante (événements terminés depuis moins de trois mois, mise à jour horaire)",
+      "sha256": "971fe62d492e0564ca9525864377943c39f6b05c13e974d64b74b3a488bd6266",
+      "lignes": 413289,
+      "mis_a_jour_source": "2026-09-07T07:36:29.348Z",
+      "fichier_source": "Historique des indispo des moyens de production - depuis 2015 - 07092026.csv"
     },
     "odre_conso_annuelle": {
       "url": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/consommation-annuelle-brute/exports/parquet",
@@ -542,7 +681,7 @@
     }
   },
   "fichiers": {
-    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature)",
+    "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, nucleaire_disponible, nucleaire_puissance_max)",
     "horaire/AAAA.csv": "colonnes principales par année civile (heure de Paris), voir horaire/LISEZMOI.md",
     "prix_quart_horaire.csv": "prix day-ahead natifs au pas de 15 min depuis le 2025-10-01 (début de période, UTC)"
   }

@@ -313,3 +313,16 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   dates REMIT est établi en heure de Paris par un test sur 121
   déclenchements de réacteurs. Informations transmises à l'agent du
   pipeline.
+- l'agent du pipeline rend la source `edf_remit` : série horaire
+  `nucleaire_disponible`, 4 nouveaux contrôles (12 au total, tous
+  passés), 59 tests. Taux annuels reconstruits à +0,07 à +0,38 point
+  de ceux de RTE sur 2015-2025. Le fuseau des dates est établi en
+  heure de Paris par un second test indépendant, concordant avec la
+  contre-vérification. Il corrige deux erreurs du spike (Fessenheim,
+  attribution des dépassements à l'EPR ; consignées) et en signale
+  trois de son propre code, attrapées par ses tests ou à la lecture de
+  `pc check` avant tout usage. Il propose une correction manuelle de
+  la donnée EDF (Golfech 1, 2020) : Claude la vérifie dans le fichier
+  et la retient (registre des décisions). Claude relance `pc build`,
+  `pc check` et les tests, et passe les 11 taux de RTE en
+  « contre-vérifiés » dans le référentiel.

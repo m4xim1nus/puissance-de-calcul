@@ -10,6 +10,7 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
 | `heure_utc` | ISO 8601, UTC | **début** de l'heure décrite : `2024-06-01T10:00Z` = de 10:00 à 11:00 UTC |
 | `consommation` | MW moyen sur l'heure | consommation France continentale **hors Corse**, pertes comprises, pompage exclu (éCO2mix) |
 | `nucleaire` | MW moyen | production nucléaire |
+| `nucleaire_disponible` | MW moyen | puissance nucléaire **disponible déclarée** par EDF au titre de REMIT (somme des tranches en exploitation, Flamanville 3 comprise depuis le 18/12/2024) ; ce n'est **pas** une production. Voir la note ci-dessous |
 | `eolien` | MW moyen | production éolienne (terrestre + en mer) |
 | `solaire` | MW moyen | production photovoltaïque |
 | `hydraulique` | MW moyen | production hydraulique (dont turbinage des STEP) |
@@ -31,5 +32,14 @@ modifier à la main. Métadonnées (dates d'extraction, natures, licences) :
   **qui se termine** à t (convention établie empiriquement, non documentée par
   RTE) ; l'heure h est la moyenne des points h:30 et h+1:00. Au pas de 15 min
   (données temps réel), même convention : points h:15, h:30, h:45, h+1:00.
+- `nucleaire_disponible` : reconstruit depuis les indisponibilités REMIT d'EDF
+  (opendata.edf.fr, Licence Ouverte 2.0). Pour chaque tranche, dernière version
+  active des arrêts et limitations planifiés ou fortuits ; si plusieurs se
+  superposent, la puissance disponible la plus faible (règle d'EDF) ; sinon la
+  puissance maximale. Moyenne exacte sur l'heure. Dates de la source lues en
+  heure de Paris (vérifié). Vide après l'heure d'extraction (pas de prévision).
+  La production peut le dépasser de quelques centaines de MW (eau froide en
+  hiver, déclarations en escalier pendant les grèves ou les essais). Méthode,
+  limites et taux annuels : `../meta.json`, clé `nucleaire_disponible`.
 - Les données de l'année en cours mêlent **consolidé** et **temps réel**
   (puissance instantanée, moins précise) : voir `natures` dans `../meta.json`.

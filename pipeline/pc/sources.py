@@ -16,7 +16,15 @@ Deux familles de sources :
   retélécharge tant qu'elle ne l'est pas ;
 - **instantanés** (éCO2mix temps réel, références annuelles ODRÉ) : un seul
   fichier, retéléchargé à chaque exécution, car ces jeux changent (fenêtre
-  glissante, révisions).
+  glissante, révisions) ;
+- **indisponibilités EDF (REMIT)** (`edf_remit`, opendata.edf.fr, data-fair) :
+  deux fichiers CSV gardés tels quels, l'historique depuis 2015 (export ponctuel
+  d'EDF, 112 Mo) et la liste courante (mise à jour toutes les heures). La liste
+  courante est retéléchargée à chaque exécution ; l'historique aussi, **sauf**
+  si le fichier local a déjà le md5 que data-fair publie pour le fichier en
+  ligne (même contenu octet pour octet : le retélécharger ne changerait rien).
+  Les métadonnées data-fair (date de mise à jour des données, nom du fichier
+  d'origine, md5) sont notées dans le manifeste.
 
 Les exports ODRÉ passent par `/exports/parquet` (l'endpoint `/records` est
 plafonné à 10 000 lignes) : sans jeton, mais lents (1 à 5 min par an et par
@@ -39,6 +47,7 @@ import polars as pl
 
 ODRE = "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets"
 EC = "https://api.energy-charts.info"
+EDF = "https://opendata.edf.fr/data-fair/api/v1/datasets"
 
 ANNEE_DEBUT = 2015
 MANIFESTE = "manifeste.json"
@@ -56,6 +65,13 @@ LICENCE_PRIX = {
     "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
     "attribution": "Bundesnetzagentur | SMARD.de, via energy-charts.info (Fraunhofer ISE)",
     "url_licence": "https://creativecommons.org/licenses/by/4.0/",
+}
+# Licence lue dans les métadonnées data-fair des deux jeux (champ `license`, 2026-11-26) et sur
+# data.gouv.fr (spike « Quand ? », docs/spike/quand.md § 2.1).
+LICENCE_EDF = {
+    "licence": "Licence Ouverte v2.0 (Etalab)",
+    "attribution": "EDF — indisponibilités des moyens de production d'EDF SA (REMIT), via opendata.edf.fr",
+    "url_licence": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
 }
 
 
@@ -102,6 +118,17 @@ SOURCES: dict[str, dict] = {
         "nature": "consommation brute annuelle par région, GWh",
         **LICENCE_ODRE,
     },
+    "edf_remit": {
+        "type": "edf_datafair",
+        "jeux": {
+            "historique": "historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015",
+            "courante": "indisponibilites-des-moyens-de-production-edf-sa",
+        },
+        "nature": "indisponibilités des moyens de production d'EDF SA déclarées au titre de REMIT, une ligne "
+                  "par version d'événement (CSV latin-1, « ; ») : historique depuis 2015 (export ponctuel) "
+                  "et liste courante (événements terminés depuis moins de trois mois, mise à jour horaire)",
+        **LICENCE_EDF,
+    },
 }
 
 
@@ -137,6 +164,19 @@ def fichier(raw: Path, cle: str, annee: int | None = None) -> Path:
     """Chemin du fichier brut d'une source (une année, ou l'instantané)."""
     ext = "json" if SOURCES[cle]["type"].startswith("energy_charts") else "parquet"
     return raw / cle / (f"{annee}.{ext}" if annee is not None else f"{cle}.{ext}")
+
+
+def fichier_edf(raw: Path, partie: str) -> Path:
+    """Fichier brut REMIT d'EDF : `partie` = « historique » ou « courante »."""
+    return raw / "edf_remit" / f"{partie}.csv"
+
+
+def md5_fichier(chemin: Path) -> str:
+    h = hashlib.md5()
+    with chemin.open("rb") as f:
+        for bloc in iter(lambda: f.read(1 << 20), b""):
+            h.update(bloc)
+    return h.hexdigest()
 
 
 def fichiers_annuels(raw: Path, cle: str) -> list[Path]:
@@ -185,10 +225,18 @@ def _natures_parquet(chemin: Path) -> tuple[int, dict | None]:
     return df.height, natures
 
 
+def _lignes_csv(chemin: Path) -> int:
+    """Nombre d'enregistrements d'un CSV « ; » (en-tête exclu ; un champ entre guillemets peut contenir
+    un saut de ligne, d'où une vraie lecture plutôt qu'un comptage de lignes)."""
+    return pl.read_csv(chemin, separator=";", encoding="utf8-lossy", infer_schema_length=0, columns=[0]).height
+
+
 def _entree(cle: str, url: str, dest: Path, annee: int | None) -> dict:
     src = SOURCES[cle]
     if dest.suffix == ".parquet":
         lignes, natures = _natures_parquet(dest)
+    elif dest.suffix == ".csv":
+        lignes, natures = _lignes_csv(dest), None
     else:
         d = json.loads(dest.read_text())
         lignes, natures = len(d.get("unix_seconds") or []), None
@@ -220,6 +268,35 @@ def _annee_close(cle: str, annee: int, entree: dict | None, aujourd_hui: date) -
     return True
 
 
+def _download_edf(client: httpx.Client, raw: Path, cle: str, manifeste: dict, force: bool) -> None:
+    """Jeux data-fair d'EDF : métadonnées (petites) puis fichier brut (`/raw`) si nécessaire."""
+    for partie, slug in SOURCES[cle]["jeux"].items():
+        cle_m = f"{cle}/{partie}"
+        dest = fichier_edf(raw, partie)
+        r = client.get(f"{EDF}/{slug}")
+        r.raise_for_status()
+        meta = r.json()
+        original = meta.get("originalFile") or meta.get("file") or {}
+        md5_distant = original.get("md5")
+        source = {
+            "mis_a_jour_source": meta.get("dataUpdatedAt"),
+            "fichier_source": original.get("name"),
+            "md5_source": md5_distant,
+        }
+        if (partie == "historique" and not force and dest.exists() and md5_distant
+                and cle_m in manifeste and md5_fichier(dest) == md5_distant):
+            print(f"  {partie} : inchangé en ligne (md5 {md5_distant}), pas retéléchargé", file=sys.stderr)
+            entree = {**manifeste[cle_m], **source, "verifie_le": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            maj_manifeste(raw, cle_m, entree)
+            continue
+        url = _telecharger(client, f"{EDF}/{slug}/raw", None, dest)
+        if md5_distant and md5_fichier(dest) != md5_distant:
+            # la liste courante change toutes les heures : les métadonnées lues juste avant peuvent
+            # déjà être périmées. On le note, sans échouer.
+            print(f"  {partie} : md5 local ≠ md5 annoncé ({md5_distant}), mise à jour entre-temps ?", file=sys.stderr)
+        maj_manifeste(raw, cle_m, {**_entree(cle, url, dest, None), **source})
+
+
 def download(raw: Path, cles: list[str] | None = None, force: bool = False,
              aujourd_hui: date | None = None) -> None:
     aujourd_hui = aujourd_hui or date.today()
@@ -235,6 +312,9 @@ def download(raw: Path, cles: list[str] | None = None, force: bool = False,
         for cle in cles or list(SOURCES):
             src = SOURCES[cle]
             print(f"{cle} ({src['type']})", file=sys.stderr)
+            if src["type"] == "edf_datafair":
+                _download_edf(client, raw, cle, manifeste, force)
+                continue
             if src["type"] == "odre_instantane":
                 dest = fichier(raw, cle)
                 url = _telecharger(client, f"{ODRE}/{src['jeu']}/exports/parquet", None, dest)

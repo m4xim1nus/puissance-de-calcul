@@ -553,6 +553,220 @@ chiffres:
         independant: true
     verification: contre-verification
 
+  # ------------------------------------- disponibilité nucléaire (REMIT)
+  # Références du contrôle `pc check` (taux annuels reconstruits depuis REMIT, hors EPR).
+  # Valeurs lues sur les étiquettes de la figure (texte extrait du PDF, 2026-11-26) ;
+  # contre-vérification indépendante en cours : à ne pas publier avant son retour.
+
+  dispo_nucleaire_rte_2015:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 79.5
+    unite: "%"
+    grandeur: part
+    periode: "2015"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 79,5 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2016:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 72.2
+    unite: "%"
+    grandeur: part
+    periode: "2016"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 72,2 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2017:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 71.1
+    unite: "%"
+    grandeur: part
+    periode: "2017"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 71,1 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2018:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 74.0
+    unite: "%"
+    grandeur: part
+    periode: "2018"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 74,0 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2019:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 71.6
+    unite: "%"
+    grandeur: part
+    periode: "2019"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 71,6 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2020:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 65.2
+    unite: "%"
+    grandeur: part
+    periode: "2020"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 65,2 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2021:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 69.8
+    unite: "%"
+    grandeur: part
+    periode: "2021"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 69,8 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2022:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 54.2
+    unite: "%"
+    grandeur: part
+    periode: "2022"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 54,2 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2023:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 62.9
+    unite: "%"
+    grandeur: part
+    periode: "2023"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: étiquette « 62,9 % » de la figure 2.5, « Évolution du taux annuel de disponibilité* du parc nucléaire français entre 2015 et 2025 »
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2024:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 71.5
+    unite: "%"
+    grandeur: part
+    periode: "2024"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: « sur l’ensemble de l’année 2025, celle-ci s’est élevée à 74,0 % soit un niveau supérieur de deux points et demi à celui observé l’année précédente (71,5 %) » ; étiquette de la figure 2.5
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
+  dispo_nucleaire_rte_2025:
+    libelle: Taux annuel de disponibilité du parc nucléaire
+    valeur: 74.0
+    unite: "%"
+    grandeur: part
+    periode: "2025"
+    perimetre: parc nucléaire français hors EPR de Flamanville 3, « sur la base des indisponibilités déclarées au titre de REMIT » ; toutes indisponibilités comptées, quelle qu'en soit la cause (donc inférieur au Kd d'EDF)
+    source: rte-be2025
+    page: p. 25, fig. 2.5
+    citation: « sur l’ensemble de l’année 2025, celle-ci s’est élevée à 74,0 % soit un niveau supérieur de deux points et demi à celui observé l’année précédente (71,5 %) » ; étiquette de la figure 2.5
+    confiance: B
+    recoupements:
+      - source: edf-remit
+        valeur: recalcul du site (`pc check`) depuis les mêmes déclarations REMIT
+        note: mêmes données sources que RTE ; ce n'est pas un recoupement indépendant
+        independant: false
+    verification: contre-verification
+    note: valeur relue dans le BE2025 par la contre-vérification du 26/11/2026 (`docs/spike/quand-contre-verification.md`, n° 2) ; référence du contrôle `pc check`, tolérance ± 0,5 pt sur 2018-2025
+
   # ------------------------------------------------------------- les sites
   dc_sites_identifies_etat:
     libelle: Sites identifiés par l'État pour accueillir des data centers

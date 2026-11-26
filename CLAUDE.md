@@ -145,7 +145,7 @@ uv run pytest -m "not donnees"        # tests synthétiques seuls, sans réseau 
 
 - Clés de `pc download` : `eco2mix_cons_def`, `eco2mix_tr`, `prix_fr`,
   `odre_nucleaire`, `odre_ges_conso`, `odre_conso_annuelle`,
-  `odre_conso_annuelle_regionale` (défaut : toutes).
+  `odre_conso_annuelle_regionale`, `edf_remit` (défaut : toutes).
 - Incrémental : une année close déjà téléchargée n'est pas refaite (pour
   éCO2mix, seulement si elle était entièrement « définitive ») ; l'année en
   cours et les instantanés sont toujours retéléchargés. `--force` refait tout.

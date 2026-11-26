@@ -179,3 +179,11 @@ rte-eco2mix-odre:
   url: https://odre.opendatasoft.com/explore/dataset/eco2mix-national-cons-def/
   consulte_le: 2026-11-26
   note: date = date d'extraction par `pc download` ; Licence Ouverte 2.0
+
+edf-remit:
+  editeur: EDF
+  titre: Indisponibilités des moyens de production d'EDF SA (REMIT) — historique depuis 2015 et liste courante (opendata.edf.fr, data-fair)
+  date_publication: 2026-09-07
+  url: https://opendata.edf.fr/data-fair/api/v1/datasets/historique-des-indisponibilites-des-moyens-de-production-de-edf-sa-depuis-2015
+  consulte_le: 2026-11-26
+  note: Licence Ouverte 2.0 ; date = dernier export de l'historique (liste courante mise à jour toutes les heures) ; périmètre EDF SA + Luminus

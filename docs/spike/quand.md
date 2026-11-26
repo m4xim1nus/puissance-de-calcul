@@ -148,7 +148,7 @@ des puissances disponibles des événements couvrant le milieu de l'heure (règl
 EDF de superposition : « retenir la puissance disponible minimale », description
 du jeu), sinon puissance maximale de la tranche. Dates supposées en heure de
 Paris (non documenté). Fessenheim exclue (aucun événement après sa fermeture :
-elle compterait à pleine puissance). Σ des puissances maximales hors Flamanville 3
+elle compterait à pleine puissance). *[annotation de la session principale, 26/11 : à tort pour 2015-2020, où Fessenheim fonctionnait ; corrigé dans le pipeline, voir `making-of/ERREURS.md`]* Σ des puissances maximales hors Flamanville 3
 et Fessenheim : **61 370 MW**, identique au registre ODRÉ au 31/12/2024
 (61,37 GW, spike système § 3).
 
@@ -181,7 +181,7 @@ Autres contrôles (vérifiés) :
   janvier 2026 » (RTE, valeur lissée sur 7 jours : non comparable strictement) ;
 - production éCO2mix ≤ disponible reconstruit : en 2024, une seule heure en
   dépassement (−11 MW). En 2025, 185 heures en dépassement (jusqu'à −1 052 MW)
-  si Flamanville 3 est compté, ce qui signale un traitement incertain de l'EPR
+  si Flamanville 3 est compté, ce qui signale un traitement incertain de l'EPR *[annotation, 26/11 : attribution contredite par l'agent du pipeline, la Normandie n'explique que 6,5 % de l'excès]*
   pendant sa montée en puissance (premiers événements REMIT de F3 :
   18/12/2024). **À résoudre avant usage sur 2025.**
 
