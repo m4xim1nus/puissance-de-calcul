@@ -9,7 +9,7 @@ Ce simulateur ajoute une consommation, un parc de data centers par exemple, à u
 observée du système électrique français, **heure par heure**, et montre ce qu'elle y
 rencontre : les heures tendues, les heures de surplus, les prix. Il prolonge l'enquête
 [« Quand ? »](/quand) : mêmes séries, mêmes définitions, mêmes limites, mais les hypothèses
-se règlent ci-dessous.
+se règlent dans le panneau « Hypothèses ».
 
 ## Ce que le simulateur ne modélise pas
 

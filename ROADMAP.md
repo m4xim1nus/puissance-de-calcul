@@ -132,6 +132,11 @@ Ordre de la session 2 :
    sensibilité publiée, « au plus » requalifié, report dans le
    simulateur et les notes ; relecture adverse. Prioritaire : la page est
    en ligne.
-5. Ensuite : enquête carbone (spike fait : `docs/spike/carbone.md`,
-   à relire de façon adverse avant toute écriture), puis « Où ? »
+5. **Enquête carbone, courte d'abord** (décision de l'auteur, 26/11) :
+   intensité moyenne et pourquoi elle trompe, ce que disent les
+   institutions, aucun facteur marginal français récent publié ; encart
+   « en chantier » pour le marginal. Spike relu
+   (`docs/relectures/2026-11-26-spike-carbone.md`) : en suivre le plan
+   minimal. Puis statistique descriptive des heures d'export et calcul
+   « si… alors » ; puis « Où ? »
    (enquête courte sur ce qui manque).

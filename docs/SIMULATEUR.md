@@ -14,10 +14,13 @@ mains de la lectrice.
 Il **ne** modélise **pas** : le dispatch, la formation des prix (le prix
 affiché est celui observé, sans la consommation ajoutée), les échanges
 et les voisins, le réseau local, le risque de défaillance au sens de
-RTE. Il le dit en tête de page, pas en note : premier élément sous le
-titre, un repli « Ce que fait le simulateur, et ce qu'il ne modélise
-pas », à un clic (révisé le 26/11 : l'outil tient sur un écran, retour
-de l'auteur).
+RTE. Il le dit en tête de page, pas en note : premier lien à côté du
+titre, « Ce que fait le simulateur, et ce qu'il ne modélise pas », qui
+ouvre la notice de l'outil sur ce texte, à un clic (révisé le 26/11 :
+l'outil tient dans la fenêtre sans défilement sur ordinateur, retours de
+l'auteur ; la notice est un panneau latéral avec JavaScript, du texte
+dans le flux sans ; rapport :
+`docs/relectures/2026-11-26-simulateur-ux-agent.md`).
 
 ## Hypothèses réglables (v1)
 
@@ -37,8 +40,11 @@ scénario par lien : `?annee=2022&x=5&effacement=100&froid=4.5&plancher=0.5`,
 valeurs par défaut omises ; une adresse antérieure aux nouveaux réglages,
 sans `froid` ni `plancher`, garde leurs défauts et redonne le même
 scénario). Chaque résultat montre son qualificatif (« au plus », « à peu
-près ») et sa valeur ; ses réserves et ses sources sont dans son repli
-« Détail ».
+près ») et sa valeur, et sa seconde valeur s'il en a une (« avec la
+disponibilité déclarée par EDF ») ; ses réserves et ses sources sont dans
+la notice, ouverte sur lui par son lien « Détail ». Aucun réglage ne
+fait bouger la mise en page (hauteurs réservées, testé aux tailles
+d'écran de référence).
 
 Les valeurs par défaut des deux réglages ajoutés le 26/11/2026 (froid nul,
 plancher de 1 GW) redonnent exactement les résultats d'avant : test

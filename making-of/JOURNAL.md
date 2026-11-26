@@ -726,3 +726,34 @@ session 1, la relecture du contexte en cache domine.
   187 tests du pipeline, 173 du site. Un champ « Révision » ajouté par
   Claude à une erreur du registre cassait son format imposé, et le test
   de fidélité l'a vu : fondu dans « Correction » ;
+- limites et correction des arrêts pour modulation **publiées**
+  (commit `0d1f513`, en ligne vérifié). Relecture adverse du spike
+  carbone lancée (agent Opus), préalable à l'écriture de l'enquête ;
+- **retours de l'auteur sur le simulateur** (cités tels quels, avec
+  deux captures) : *« continue, mais lance un ss agent pour régler 1
+  point d'UIUX sur le simulateur : [captures] : passer d'un profil plat
+  nul à non nul ajoute une ligne dans le sstitre de résultats, ce qui
+  décale tout, pas agréable. Par ailleurs, pas de distinction claire
+  visuellement entre hypôhtèses et résultats (en haut à droite ET tout
+  en bas) Par ailleurs, le simulateur déborde en haut/bas : pas possible
+  de le repenser pour se régler en pleine page non scrollable sur
+  desktop ? Expérience testée vite fait sur le mobile, pas pratique du
+  tout non plus (3 hauteur d'écran, donc pas de visibilité de l'output
+  quand on touche aux hypothèses... mais ptetre plus difficile que pour
+  le desktop, je laisse le ss agent et toi régler ça) »*. Explicitation :
+  aucun réglage ne doit faire bouger la mise en page ; hypothèses et
+  résultats, graphique compris, doivent se distinguer d'un coup d'œil ;
+  sur desktop, l'outil entier tient dans la fenêtre sans défilement ; sur
+  téléphone, l'effet d'un réglage doit rester visible. Agent Opus lancé,
+  fond inchangé ;
+- **relecture adverse du spike carbone** : chiffres recalculés à
+  l'identique, lecture causale non établie (8 points de fond). Claude
+  vérifie dans le spike le recoupement annoncé (démenti par son propre
+  tableau) ; erreur consignée, spike annoté. Question à l'auteur sur le
+  périmètre de l'enquête, réponse : *« Courte d'abord (Recommandé) »* ;
+- **simulateur, UX** (agent Opus, `docs/relectures/2026-11-26-simulateur-ux-agent.md`) :
+  phrase du scénario de hauteur fixe, sous les réglages ; réglages dans
+  un panneau teinté, résultats et graphique sur le fond de page ; sur
+  ordinateur, page sans défilement aux trois tailles testées, textes
+  longs dans une notice latérale ; sur téléphone, réglages collés en
+  haut en onglets, résultats et graphique visibles pendant qu'on règle ;

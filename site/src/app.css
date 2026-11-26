@@ -13,6 +13,10 @@
   --sous-zero: #1c7c7d;
   --sur-zero: #b4642d;
   --sur-signal: #16263a; /* texte posé sur --signal, dans les deux modes */
+  /* Pupitre du simulateur : la zone où la lectrice règle les hypothèses, distincte du papier où
+     s'affichent les résultats. */
+  --pupitre: #dde5e9;
+  --pupitre-bord: #b3c0c8;
 
   /* Couleurs de données (validées avec le skill dataviz sur --papier, clair et sombre) :
      --donnee : série principale ; --donnee-faible : second pas de la même rampe (ordinal) ;
@@ -73,6 +77,8 @@
     color-scheme: dark;
     --papier: #101a26;
     --papier-2: #172331;
+    --pupitre: #1b2a3b;
+    --pupitre-bord: #3a4d62;
     --encre: #e3e9ec;
     --encre-2: #a3b1bd;
     --trait: #2e3d4e;
@@ -109,6 +115,8 @@
   color-scheme: dark;
   --papier: #101a26;
   --papier-2: #172331;
+  --pupitre: #1b2a3b;
+  --pupitre-bord: #3a4d62;
   --encre: #e3e9ec;
   --encre-2: #a3b1bd;
   --trait: #2e3d4e;

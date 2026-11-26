@@ -3,10 +3,25 @@
   // navigateur par le moteur (./moteur.ts, parité testée avec pipeline/pc/quand.py) sur le CSV de
   // l'année servi par le site. Le texte des hypothèses est rendu au prérendu ; les résultats
   // demandent JavaScript, et le disent.
-  import { onMount } from 'svelte';
+  //
+  // Mise en page revue le 26/11/2026 (retours de l'auteur ; rapport :
+  // docs/relectures/2026-11-26-simulateur-ux-agent.md) :
+  // - sur ordinateur, l'outil entier (réglages, résultats chiffrés, monotone) tient dans la fenêtre,
+  //   sans défilement de la page ; les textes longs (ce que le simulateur ne modélise pas, détail de
+  //   chaque résultat, lecture, définitions, sources) sont dans une notice, panneau latéral ouvert à
+  //   la demande, à un clic de l'outil, qui laisse les réglages utilisables ;
+  // - aucun réglage ne fait bouger la mise en page : la phrase du scénario a une hauteur réservée
+  //   (gabarit invisible de la phrase la plus longue), les tuiles ont des hauteurs fixes, les
+  //   résultats précédents restent affichés (atténués) pendant le chargement d'une autre année ;
+  // - hypothèses (pupitre teinté, à gauche) et résultats (sur le papier, à droite, monotone
+  //   comprise) se distinguent ;
+  // - sur téléphone, le pupitre reste collé en haut de l'écran, une hypothèse à la fois, choisie
+  //   par des onglets qui affichent toutes les valeurs : on voit l'effet en réglant.
+  // Sans JavaScript, tout est dans le flux : réglages (inactifs) avec leurs raisons, puis la notice.
+  import { onMount, tick, type Snippet } from 'svelte';
   import { typographier } from '$lib/markdown';
   import { afterNavigate, replaceState } from '$app/navigation';
-  import { dateParis, formaterDate, formaterNombre } from '$lib/format';
+  import { FINE, dateParis, formaterDate, formaterNombre } from '$lib/format';
   import { gw } from '$lib/quand';
   import { lireCsvHoraire } from './csv';
   import {
@@ -21,8 +36,11 @@
   import { heures, part, puissanceReglee, twh } from './format';
   import { phrases } from './phrases';
   import MonotoneAvantApres from './MonotoneAvantApres.svelte';
+  import TableauMonotone from './TableauMonotone.svelte';
+  import TexteAnnote from './TexteAnnote.svelte';
   import { simuler, type TableHoraire } from './moteur';
   import type { References } from './references';
+  import type { Section } from './sections';
 
   interface Props {
     annees: number[];
@@ -32,21 +50,14 @@
     extractions: Record<string, string>;
     /** Maximum pluriannuel et chiffres du référentiel cités (préparés au prérendu). */
     references: References;
-    /** Ancre du texte de lecture (un repli <details> de la page), lié sous les résultats. */
-    lienLecture?: string;
+    /** Texte d'en-tête rendu au prérendu (ce que fait le simulateur, ce qu'il ne modélise pas). */
+    enTete: string[];
+    /** Texte de lecture rendu au prérendu, une section par titre de niveau 2. */
+    lecture: Section[];
+    /** Titre de la page, posé en tête de l'outil. */
+    tete: Snippet;
   }
-  let { annees, sources, extractions, references, lienLecture }: Props = $props();
-
-  /** Détail des tuiles : replié par défaut (l'outil tient sur un écran), dépliable d'un coup. */
-  let detailsOuverts = $state<boolean[]>([]);
-  const toutDeplie = (n: number) =>
-    n > 0 && Array.from({ length: n }, (_, k) => detailsOuverts[k] === true).every(Boolean);
-
-  /** Suit l'ancre du texte de lecture et ouvre son repli (tous les navigateurs ne le font pas). */
-  function ouvrirLecture() {
-    const cible = lienLecture ? document.getElementById(lienLecture.slice(1)) : null;
-    if (cible instanceof HTMLDetailsElement) cible.open = true;
-  }
+  let { annees, sources, extractions, references, enTete, lecture, tete }: Props = $props();
 
   /** Rangs exacts de la monotone (zoom du graphique) ; au-delà, un rang sur PAS. */
   const ZOOM = 600;
@@ -85,11 +96,23 @@
     }
   }
 
+  /** Outil en pleine fenêtre (ordinateur) : le tracé prend la hauteur qui reste. */
+  const PLEIN = '(min-width: 62rem) and (min-height: 36rem)';
+  let plein = $state(false);
+
   onMount(() => {
     const lu = lireEtat(location.search, annees);
     etat = lu.etat;
     ecarts = lu.ecarts;
     monte = true;
+    const mq = matchMedia(PLEIN);
+    const suivre = () => (plein = mq.matches);
+    suivre();
+    mq.addEventListener('change', suivre);
+    // Anciennes ancres (#presentation, #lecture-1…) et ancres de la notice : la notice s'ouvre.
+    const ancre = decodeURIComponent(location.hash.slice(1));
+    if (ancre && document.getElementById(ancre)?.closest('#notice')) ouvrirNotice(ancre, null);
+    return () => mq.removeEventListener('change', suivre);
   });
 
   $effect(() => {
@@ -162,6 +185,35 @@
       (etat.froidC ? `, froid supplémentaire de ${degres(etat.froidC)}` : '')
   );
 
+  /** Résultats du scénario réglé, ou null tant que les séries de l'année ne sont pas chargées. */
+  const vue = $derived.by(() => {
+    if (!sim || !plate) return null;
+    return {
+      annee: etat.annee,
+      libelle,
+      sim,
+      ph: phrases(
+        etat,
+        sim,
+        plate,
+        references,
+        {
+          maxReglable: BORNES.effacement.max,
+          derniereAnnee: annees[annees.length - 1]
+        },
+        seul
+      )
+    };
+  });
+  // Pendant le chargement d'une autre année, les résultats précédents restent en place, atténués :
+  // la mise en page ne saute pas.
+  let derniere = $state.raw<NonNullable<typeof vue> | null>(null);
+  $effect(() => {
+    if (vue) derniere = vue;
+  });
+  const affiche = $derived(vue ?? derniere);
+  const perime = $derived(vue === null && derniere !== null);
+
   const NOMS: Record<string, string> = {
     eco2mix: 'éCO2mix',
     edf_remit: 'REMIT (EDF)',
@@ -176,6 +228,28 @@
           .join(', ') +
         '.'
     )
+  );
+  /** Ligne courte, sous les résultats : le détail est dans la notice. */
+  const sourcesCourtes = $derived(
+    Object.keys(extractions)
+      .map((k) => NOMS[k] ?? k)
+      .join(', ')
+  );
+
+  /** Rang de la tuile du nucléaire disponible non produit dans l'ordre de `phrases` : la seule qui
+   * porte une seconde valeur (sa hauteur est réservée, qu'elle soit là ou non), et rangs des tuiles
+   * dont la valeur peut être longue (« non calculable ici », « au plus 52 à 66 % »). Les tuiles
+   * d'une rangée ont la hauteur de la plus haute : la réserve vaut pour toute la rangée. */
+  const RESERVE = 5;
+  const LONGUES = [1, 5];
+
+  /** Gabarit de hauteur de la phrase du scénario : la plus longue possible (effacement et froid,
+   * épisode à cheval sur deux années), jamais affichée, seulement mesurée. */
+  const GABARIT = typographier(
+    '2025 : consommation ajoutée de 12,5 GW à toutes les heures sauf pendant les 500 heures de ' +
+      'charge résiduelle la plus élevée, froid compris (au moins 45,3 GW). Froid supplémentaire de ' +
+      '11,5 °C pendant les 7 jours les plus tendus, du 28 déc. 2024 au 4 janv. 2025 : 27,6 GW de ' +
+      'consommation en plus à chaque heure.'
   );
 
   // Résumé pour les lecteurs d'écran, différé : un curseur qu'on fait glisser n'annonce pas
@@ -201,17 +275,142 @@
     const t = setTimeout(() => (annonce = texte), 700);
     return () => clearTimeout(t);
   });
+
+  /* ---------- Notice : panneau latéral (avec JavaScript), texte dans le flux (sans) ---------- */
+
+  let noticeOuverte = $state(false);
+  let invocateur: HTMLElement | null = null;
+
+  /** Ouvre la notice sur une section (ou un résultat) et y porte le focus. */
+  async function ouvrirNotice(id: string, ev: MouseEvent | null) {
+    if (ev) {
+      if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      ev.preventDefault();
+      if (!noticeOuverte) invocateur = ev.currentTarget as HTMLElement;
+    }
+    noticeOuverte = true;
+    await tick();
+    const cible = document.getElementById(id);
+    if (!cible) return;
+    cible.scrollIntoView({ block: 'start' });
+    const focus = cible.matches('h2, h3') ? cible : cible.querySelector<HTMLElement>('h2, h3');
+    (focus ?? cible).focus({ preventScroll: true });
+  }
+  function fermerNotice() {
+    noticeOuverte = false;
+    invocateur?.focus();
+    invocateur = null;
+  }
+  const lien = (id: string) => ({
+    href: `#${id}`,
+    ouvrir: (ev: MouseEvent) => ouvrirNotice(id, ev)
+  });
+
+  /* ---------- Pupitre sur téléphone : une hypothèse à la fois ---------- */
+
+  type Champ = 'annee' | 'xGw' | 'effacement' | 'froidC' | 'plancherGw';
+  let reglageActif = $state<Champ>('xGw');
+  const onglets = $derived<{ champ: Champ; nom: string; complet: string; valeur: string }[]>([
+    { champ: 'annee', nom: 'Année', complet: 'Année observée', valeur: String(etat.annee) },
+    {
+      champ: 'xGw',
+      nom: 'Puissance',
+      complet: 'Puissance appelée ajoutée',
+      valeur: puissanceReglee(etat.xGw)
+    },
+    {
+      champ: 'effacement',
+      nom: 'Effacement',
+      complet: 'Effacement',
+      valeur: `${formaterNombre(etat.effacement)}${FINE}h`
+    },
+    {
+      champ: 'froidC',
+      nom: 'Froid',
+      complet: 'Froid supplémentaire',
+      valeur: degres(etat.froidC)
+    },
+    {
+      champ: 'plancherGw',
+      nom: 'Plancher',
+      complet: 'Nucléaire non mobilisable',
+      valeur: puissanceReglee(etat.plancherGw)
+    }
+  ]);
+  const aDefauts = $derived(JSON.stringify(etat) === JSON.stringify(DEFAUTS));
+  function remettreDefauts() {
+    etat = { ...DEFAUTS };
+    ecarts = [];
+  }
 </script>
 
-<!-- L'outil tient sur un écran d'ordinateur portable : réglages à gauche, résultats chiffrés à
-droite ; justifications, définitions et détail des résultats en replis. Sur téléphone, les deux
-colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
-<div class="outil">
-  <section class="hypotheses" aria-labelledby="hypotheses-titre">
-    <h2 id="hypotheses-titre">Hypothèses</h2>
-    <p class="consigne">Le lien de la page porte le scénario.</p>
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === 'Escape' && noticeOuverte && monte) fermerNotice();
+  }}
+/>
 
-    <div class="hypothese">
+<!-- Ordinateur : titre et accès à la notice en tête ; réglages à gauche (pupitre), scénario dessous ;
+résultats à droite (chiffres, puis monotone). Téléphone : titre, pupitre collé en haut, scénario,
+résultats. -->
+<div class="outil" class:js={monte}>
+  <div class="tete">
+    {@render tete()}
+    <ul class="acces" aria-label="Notice du simulateur">
+      <li>
+        <a
+          href="#presentation"
+          aria-controls="notice"
+          onclick={(e) => ouvrirNotice('presentation', e)}
+          >Ce que fait le simulateur, et ce qu’il ne modélise pas</a
+        >
+      </li>
+      <li>
+        <a href="#lecture-1" aria-controls="notice" onclick={(e) => ouvrirNotice('lecture-1', e)}
+          >Lire ces résultats</a
+        >
+      </li>
+      <li>
+        <a
+          href="#notice-definitions"
+          aria-controls="notice"
+          onclick={(e) => ouvrirNotice('notice-definitions', e)}>Définitions et sources</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <section class="hypotheses" aria-labelledby="hypotheses-titre">
+    <div class="zone-tete">
+      <h2 id="hypotheses-titre">Hypothèses</h2>
+      {#if monte}
+        <button type="button" class="bouton remise" disabled={aDefauts} onclick={remettreDefauts}
+          >Revenir aux valeurs par défaut</button
+        >
+      {/if}
+      <p class="consigne">À régler. Le lien de la page porte le scénario.</p>
+    </div>
+
+    {#if monte}
+      <!-- Téléphone : une hypothèse à la fois ; les onglets affichent toutes les valeurs. -->
+      <div class="onglets" role="group" aria-label="Hypothèse à régler">
+        {#each onglets as o (o.champ)}
+          <button
+            type="button"
+            class="onglet"
+            aria-controls="hyp-{o.champ}"
+            aria-expanded={reglageActif === o.champ}
+            onclick={() => (reglageActif = o.champ)}
+            ><span class="onglet-nom"
+              >{o.nom}{#if o.complet !== o.nom}<span class="lecteur">{' '}({o.complet})</span
+                >{/if}</span
+            ><span class="onglet-valeur">{o.valeur}</span></button
+          >
+        {/each}
+      </div>
+    {/if}
+
+    <div class="hypothese" class:actif={reglageActif === 'annee'} id="hyp-annee">
       <div class="ligne-nom">
         <label class="nom" for="sim-annee">Année observée</label>
         <select
@@ -243,9 +442,21 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
       </details>
     </div>
 
-    <div class="hypothese">
-      <div class="ligne-nom">
-        <label class="nom" for="sim-x">Puissance appelée ajoutée</label>
+    <div class="hypothese" class:actif={reglageActif === 'xGw'} id="hyp-xGw">
+      <label class="nom" for="sim-x">Puissance appelée ajoutée</label>
+      <div class="ligne-reglage">
+        <input
+          id="sim-x-curseur"
+          type="range"
+          min={BORNES.xGw.min}
+          max={BORNES.xGw.max}
+          step={BORNES.xGw.pas}
+          value={etat.xGw}
+          disabled={!monte}
+          aria-label="Puissance appelée ajoutée, en GW (curseur)"
+          aria-valuetext={puissanceReglee(etat.xGw)}
+          oninput={(e) => regler('xGw', Number((e.currentTarget as HTMLInputElement).value))}
+        />
         <span class="saisie"
           ><input
             id="sim-x"
@@ -260,18 +471,6 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
           /> GW</span
         >
       </div>
-      <input
-        id="sim-x-curseur"
-        type="range"
-        min={BORNES.xGw.min}
-        max={BORNES.xGw.max}
-        step={BORNES.xGw.pas}
-        value={etat.xGw}
-        disabled={!monte}
-        aria-label="Puissance appelée ajoutée, en GW (curseur)"
-        aria-valuetext={puissanceReglee(etat.xGw)}
-        oninput={(e) => regler('xGw', Number((e.currentTarget as HTMLInputElement).value))}
-      />
       <details class="pourquoi">
         <summary
           ><span class="defaut"
@@ -287,9 +486,21 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
       </details>
     </div>
 
-    <div class="hypothese">
-      <div class="ligne-nom">
-        <label class="nom" for="sim-effacement">Profil : plat, avec effacement</label>
+    <div class="hypothese" class:actif={reglageActif === 'effacement'} id="hyp-effacement">
+      <label class="nom" for="sim-effacement">Profil : plat, avec effacement</label>
+      <div class="ligne-reglage">
+        <input
+          id="sim-effacement-curseur"
+          type="range"
+          min={BORNES.effacement.min}
+          max={BORNES.effacement.max}
+          step={BORNES.effacement.pas}
+          value={etat.effacement}
+          disabled={!monte}
+          aria-label="Heures d’effacement par an (curseur)"
+          aria-valuetext={heures(etat.effacement)}
+          oninput={(e) => regler('effacement', Number((e.currentTarget as HTMLInputElement).value))}
+        />
         <span class="saisie"
           ><input
             id="sim-effacement"
@@ -305,18 +516,6 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
           /> h/an</span
         >
       </div>
-      <input
-        id="sim-effacement-curseur"
-        type="range"
-        min={BORNES.effacement.min}
-        max={BORNES.effacement.max}
-        step={BORNES.effacement.pas}
-        value={etat.effacement}
-        disabled={!monte}
-        aria-label="Heures d’effacement par an (curseur)"
-        aria-valuetext={heures(etat.effacement)}
-        oninput={(e) => regler('effacement', Number((e.currentTarget as HTMLInputElement).value))}
-      />
       <details class="pourquoi">
         <summary
           ><span class="defaut">Défaut : 0 h (plat) ; 0 à {BORNES.effacement.max} h par an.</span>
@@ -333,9 +532,21 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
       </details>
     </div>
 
-    <div class="hypothese">
-      <div class="ligne-nom">
-        <label class="nom" for="sim-froid">Froid supplémentaire</label>
+    <div class="hypothese" class:actif={reglageActif === 'froidC'} id="hyp-froidC">
+      <label class="nom" for="sim-froid">Froid supplémentaire</label>
+      <div class="ligne-reglage">
+        <input
+          id="sim-froid-curseur"
+          type="range"
+          min={BORNES.froidC.min}
+          max={BORNES.froidC.max}
+          step={BORNES.froidC.pas}
+          value={etat.froidC}
+          disabled={!monte}
+          aria-label="Froid supplémentaire sur l’épisode, en degrés (curseur)"
+          aria-valuetext={degres(etat.froidC)}
+          oninput={(e) => regler('froidC', Number((e.currentTarget as HTMLInputElement).value))}
+        />
         <span class="saisie"
           ><input
             id="sim-froid"
@@ -350,18 +561,6 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
           /> °C</span
         >
       </div>
-      <input
-        id="sim-froid-curseur"
-        type="range"
-        min={BORNES.froidC.min}
-        max={BORNES.froidC.max}
-        step={BORNES.froidC.pas}
-        value={etat.froidC}
-        disabled={!monte}
-        aria-label="Froid supplémentaire sur l’épisode, en degrés (curseur)"
-        aria-valuetext={degres(etat.froidC)}
-        oninput={(e) => regler('froidC', Number((e.currentTarget as HTMLInputElement).value))}
-      />
       <details class="pourquoi">
         <summary
           ><span class="defaut">Défaut : 0 °C ; 0 à {BORNES.froidC.max} °C, sur 7 jours.</span>
@@ -391,9 +590,21 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
       </details>
     </div>
 
-    <div class="hypothese">
-      <div class="ligne-nom">
-        <label class="nom" for="sim-plancher">Nucléaire non mobilisable</label>
+    <div class="hypothese" class:actif={reglageActif === 'plancherGw'} id="hyp-plancherGw">
+      <label class="nom" for="sim-plancher">Nucléaire non mobilisable</label>
+      <div class="ligne-reglage">
+        <input
+          id="sim-plancher-curseur"
+          type="range"
+          min={BORNES.plancherGw.min}
+          max={BORNES.plancherGw.max}
+          step={BORNES.plancherGw.pas}
+          value={etat.plancherGw}
+          disabled={!monte}
+          aria-label="Plancher de nucléaire non mobilisable, en GW (curseur)"
+          aria-valuetext={puissanceReglee(etat.plancherGw)}
+          oninput={(e) => regler('plancherGw', Number((e.currentTarget as HTMLInputElement).value))}
+        />
         <span class="saisie"
           ><input
             id="sim-plancher"
@@ -409,18 +620,6 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
           /> GW</span
         >
       </div>
-      <input
-        id="sim-plancher-curseur"
-        type="range"
-        min={BORNES.plancherGw.min}
-        max={BORNES.plancherGw.max}
-        step={BORNES.plancherGw.pas}
-        value={etat.plancherGw}
-        disabled={!monte}
-        aria-label="Plancher de nucléaire non mobilisable, en GW (curseur)"
-        aria-valuetext={puissanceReglee(etat.plancherGw)}
-        oninput={(e) => regler('plancherGw', Number((e.currentTarget as HTMLInputElement).value))}
-      />
       <details class="pourquoi">
         <summary
           ><span class="defaut"
@@ -449,20 +648,43 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     {#if ecarts.length}
       <p class="ecarts" role="status">Adresse corrigée : {ecarts.join(' ; ')}.</p>
     {/if}
-    {#if monte && JSON.stringify(etat) !== JSON.stringify(DEFAUTS)}
-      <button
-        type="button"
-        class="bouton"
-        onclick={() => {
-          etat = { ...DEFAUTS };
-          ecarts = [];
-        }}>Revenir aux valeurs par défaut</button
-      >
-    {/if}
   </section>
 
-  <section class="resultats" aria-labelledby="resultats-titre">
-    <h2 id="resultats-titre">Résultats</h2>
+  <!-- Le scénario, appliqué à l'année : les réglages traduits dans les séries (seuil d'effacement,
+  dates de l'épisode de froid). Hauteur réservée par le gabarit : elle ne bouge pas avec les
+  réglages. -->
+  <div class="scenario" class:perime aria-labelledby="scenario-titre" role="region">
+    <div class="scenario-tete">
+      <p class="scenario-titre" id="scenario-titre">Scénario appliqué à l’année</p>
+      {#if monte}
+        <button
+          type="button"
+          class="bouton remise-telephone"
+          disabled={aDefauts}
+          onclick={remettreDefauts}>Revenir aux défauts</button
+        >
+      {/if}
+    </div>
+    <div class="scenario-cadre">
+      <p class="scenario-texte">{affiche ? affiche.ph.scenario : ''}</p>
+      <p class="scenario-texte gabarit" aria-hidden="true">{GABARIT}</p>
+    </div>
+  </div>
+
+  <section class="resultats" aria-labelledby="resultats-titre" aria-busy={perime}>
+    <div class="zone-tete">
+      <h2 id="resultats-titre">Résultats</h2>
+      <p class="consigne">Ce que le calcul en tire, heure par heure, sur l’année observée.</p>
+      {#if erreur}
+        <p class="etat-calcul erreur" role="alert">
+          Les séries de {etat.annee} n’ont pas pu être chargées ({erreur}). Rechargez la page.
+        </p>
+      {:else if monte}
+        <p class="etat-calcul" role="status">
+          {#if !vue}Chargement des séries de {etat.annee}…{/if}
+        </p>
+      {/if}
+    </div>
     <noscript>
       <p class="sans-js">
         Les résultats sont calculés dans le navigateur, à partir des séries horaires de l’année :
@@ -475,166 +697,352 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     </noscript>
 
     {#if monte}
-      {#if erreur}
-        <p class="etat-calcul erreur" role="alert">
-          Les séries de {etat.annee} n’ont pas pu être chargées ({erreur}). Rechargez la page.
-        </p>
-      {:else if !sim || !plate}
-        <p class="etat-calcul" role="status">Chargement des séries horaires de {etat.annee}…</p>
-      {:else}
-        {@const ph = phrases(
-          etat,
-          sim,
-          plate,
-          references,
-          {
-            maxReglable: BORNES.effacement.max,
-            derniereAnnee: annees[annees.length - 1]
-          },
-          seul
-        )}
-        <p class="scenario">{ph.scenario}</p>
-
-        <dl class="tuiles">
-          {#each ph.tuiles as tu, k (tu.titre)}
-            <div class="tuile">
+      <dl class="tuiles" class:perime>
+        {#if affiche}
+          {#each affiche.ph.tuiles as tu, k (tu.titre)}
+            <div class="tuile" class:reserve={k === RESERVE} class:longue={LONGUES.includes(k)}>
               <dt>{tu.titre}</dt>
               <dd class="valeur">
                 {#if tu.qualif}<span class="qualif">{tu.qualif}</span>{/if}
                 {tu.valeur}
               </dd>
-              {#if tu.complement}<dd class="complement">{tu.complement}</dd>{/if}
-              <dd class="detail-tuile">
-                <details bind:open={detailsOuverts[k]}>
-                  <summary>{tu.notes?.length ? 'Détail et sources' : 'Détail'}</summary>
-                  <p class="detail">{tu.detail}</p>
-                  {#if tu.notes?.length}
-                    <div class="notes-tuile">
-                      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                      {#each tu.notes as n, j (j)}{@html n}{/each}
-                    </div>
-                  {/if}
-                </details>
+              {#if k === RESERVE || tu.complement}<dd class="complement">
+                  {tu.complement ?? ''}
+                </dd>{/if}
+              <dd class="lien-detail">
+                <a
+                  href="#notice-tuile-{k}"
+                  aria-controls="notice"
+                  onclick={(e) => ouvrirNotice(`notice-tuile-${k}`, e)}
+                  >Détail<span class="lecteur">{' '}et sources : {tu.titre}</span></a
+                >
               </dd>
             </div>
           {/each}
-        </dl>
+        {:else}
+          {#each { length: 7 }, k (k)}
+            <div
+              class="tuile vide"
+              class:reserve={k === RESERVE}
+              class:longue={LONGUES.includes(k)}
+              aria-hidden="true"
+            >
+              <dt>&nbsp;</dt>
+              <dd class="valeur">…</dd>
+              {#if k === RESERVE}<dd class="complement"></dd>{/if}
+              <dd class="lien-detail">&nbsp;</dd>
+            </div>
+          {/each}
+        {/if}
+      </dl>
 
-        <div class="actions">
-          <button
-            type="button"
-            class="bouton"
-            onclick={() => {
-              const v = !toutDeplie(ph.tuiles.length);
-              detailsOuverts = ph.tuiles.map(() => v);
-            }}
-            >{toutDeplie(ph.tuiles.length)
-              ? 'Replier les détails'
-              : 'Déplier tous les détails'}</button
-          >
-          {#if lienLecture}
-            <a href={lienLecture} onclick={ouvrirLecture}>Lire ces résultats</a>
-          {/if}
-        </div>
+      <div class="graphique" class:perime>
+        {#if affiche && affiche.sim.rn_max_mw !== null}
+          <MonotoneAvantApres
+            annee={affiche.annee}
+            libelle={affiche.libelle}
+            avant={affiche.sim.monotone_avant}
+            apres={affiche.sim.monotone_apres}
+            rnMaxMw={affiche.sim.rn_max_mw}
+            rnMaxPluriMw={references.maxPluriannuel.valeur_mw}
+            anneesPluri={references.maxPluriannuel.annees}
+            zoom={ZOOM}
+            {plein}
+            notes={lien('notice-graphique')}
+          />
+        {/if}
+      </div>
 
-        <details class="definitions-repli">
-          <summary>Définitions et heures renseignées</summary>
-          <dl class="definitions">
-            <div>
-              <dt>Charge résiduelle</dt>
-              <dd>
-                consommation − éolien − solaire − nucléaire <strong>disponible</strong> déclaré par EDF
-                (REMIT), heure par heure : ce que doivent fournir l’hydraulique, le thermique, les importations
-                et le stockage. Ce n’est pas une marge.
-              </dd>
-            </div>
-            <div>
-              <dt>Nucléaire disponible non produit</dt>
-              <dd>
-                nucléaire déclaré disponible − nucléaire produit, heure par heure : une puissance
-                restée inemployée, pas un gisement d’énergie. Il dépend de ce qu’EDF déclare
-                indisponible, y compris des arrêts « pour modulation » : le résultat donne aussi la
-                valeur en réintégrant ceux de moins de 7 jours, économiques. Ce n’est pas la «
-                modulation » publiée par EDF.
-              </dd>
-            </div>
-            <div>
-              <dt>Prix day-ahead</dt>
-              <dd>
-                prix de gros de la zone France, fixé la veille pour le lendemain, heure par heure.
-              </dd>
-            </div>
-          </dl>
-          <p class="couverture">
-            Heures de {etat.annee} (année civile, heure de Paris) : {formaterNombre(sim.heures)}.
-            Charge résiduelle renseignée : {formaterNombre(sim.heures_rn_valides)} ; nucléaire disponible
-            et produit : {formaterNombre(sim.heures_j_valides)} ; prix : {formaterNombre(
-              sim.heures_prix_valides
-            )}. Chaque résultat porte sur les heures où ses données sont renseignées.
-          </p>
-        </details>
-        <p class="sources-outil">
-          <span class="cle">Sources</span>
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html ligneSources}
-          <a href="/donnees/horaire/{etat.annee}.csv" download
-            >Télécharger les séries de {etat.annee}</a
-          > (CSV).
-        </p>
-      {/if}
+      <p class="sources-outil">
+        <span class="cle">Sources</span>
+        {sourcesCourtes} ; calcul du site, dans le navigateur.
+        <a
+          href="#notice-sources"
+          aria-controls="notice"
+          onclick={(e) => ouvrirNotice('notice-sources', e)}>Détail, dates d’extraction, CSV</a
+        >
+      </p>
     {/if}
     <p class="lecteur" aria-live="polite">{annonce}</p>
   </section>
 </div>
 
-{#if monte && sim && plate && sim.rn_max_mw !== null}
-  <MonotoneAvantApres
-    annee={etat.annee}
-    {libelle}
-    avant={sim.monotone_avant}
-    apres={sim.monotone_apres}
-    rnMaxMw={sim.rn_max_mw}
-    rnMaxPluriMw={references.maxPluriannuel.valeur_mw}
-    anneesPluri={references.maxPluriannuel.annees}
-    effacement={sim.x_mw > 0 && sim.heures_effacees.length > 0}
-    zoom={ZOOM}
-    sources={ligneSources}
-  />
-{/if}
+<!-- Notice : avec JavaScript, panneau latéral fermé par défaut, ouvert depuis l'outil (les
+réglages restent utilisables à côté, le détail des résultats suit les réglages) ; sans JavaScript,
+texte dans le flux, sous l'outil. -->
+<aside
+  id="notice"
+  class="notice"
+  class:tiroir={monte}
+  hidden={monte && !noticeOuverte}
+  aria-labelledby="notice-titre"
+>
+  <div class="notice-tete">
+    <p class="notice-titre" id="notice-titre">Notice du simulateur</p>
+    {#if monte}
+      <button type="button" class="bouton" onclick={fermerNotice}>Fermer</button>
+    {/if}
+    <ul class="notice-sommaire">
+      <li>
+        <a href="#presentation" onclick={(e) => ouvrirNotice('presentation', e)}
+          >Ce qu’il ne modélise pas</a
+        >
+      </li>
+      <li>
+        <a href="#notice-resultats" onclick={(e) => ouvrirNotice('notice-resultats', e)}
+          >Détail des résultats</a
+        >
+      </li>
+      <li>
+        <a href="#lecture-1" onclick={(e) => ouvrirNotice('lecture-1', e)}>Lire ces résultats</a>
+      </li>
+      <li>
+        <a href="#notice-definitions" onclick={(e) => ouvrirNotice('notice-definitions', e)}
+          >Définitions</a
+        >
+      </li>
+      <li>
+        <a href="#notice-sources" onclick={(e) => ouvrirNotice('notice-sources', e)}
+          >Sources et données</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <section class="notice-section" aria-labelledby="presentation">
+    <h2 id="presentation" tabindex="-1">Ce que fait le simulateur, et ce qu’il ne modélise pas</h2>
+    <TexteAnnote blocs={enTete} />
+  </section>
+
+  <section class="notice-section" aria-labelledby="notice-resultats">
+    <h2 id="notice-resultats" tabindex="-1">Détail des résultats</h2>
+    {#if affiche}
+      <p class="notice-scenario">{affiche.ph.scenario}</p>
+      {#each affiche.ph.tuiles as tu, k (tu.titre)}
+        <div class="notice-tuile" id="notice-tuile-{k}">
+          <h3 tabindex="-1">{tu.titre}</h3>
+          <p class="valeur">
+            {#if tu.qualif}<span class="qualif">{tu.qualif}</span>{/if}
+            {tu.valeur}
+          </p>
+          {#if tu.complement}<p class="complement">{tu.complement}</p>{/if}
+          <p class="detail">{tu.detail}</p>
+          {#if tu.notes?.length}
+            <div class="notes-tuile">
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {#each tu.notes as n, j (j)}{@html n}{/each}
+            </div>
+          {/if}
+        </div>
+      {/each}
+    {:else}
+      <p>
+        Les résultats sont calculés dans le navigateur, à partir des séries horaires de l’année :
+        ils demandent JavaScript.
+      </p>
+    {/if}
+  </section>
+
+  {#each lecture as s, i (i)}
+    <section class="notice-section" aria-labelledby="lecture-{i + 1}">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      <h2 id="lecture-{i + 1}" tabindex="-1">{@html s.titre}</h2>
+      <TexteAnnote blocs={[s.html]} />
+    </section>
+  {/each}
+
+  <section class="notice-section" aria-labelledby="notice-definitions">
+    <h2 id="notice-definitions" tabindex="-1">Définitions et heures renseignées</h2>
+    <dl class="definitions">
+      <div>
+        <dt>Charge résiduelle</dt>
+        <dd>
+          consommation − éolien − solaire − nucléaire <strong>disponible</strong> déclaré par EDF (REMIT),
+          heure par heure : ce que doivent fournir l’hydraulique, le thermique, les importations et le
+          stockage. Ce n’est pas une marge.
+        </dd>
+      </div>
+      <div>
+        <dt>Nucléaire disponible non produit</dt>
+        <dd>
+          nucléaire déclaré disponible − nucléaire produit, heure par heure : une puissance restée
+          inemployée, pas un gisement d’énergie. Il dépend de ce qu’EDF déclare indisponible, y
+          compris des arrêts « pour modulation » : le résultat donne aussi la valeur en réintégrant
+          ceux de moins de 7 jours, économiques. Ce n’est pas la « modulation » publiée par EDF.
+        </dd>
+      </div>
+      <div>
+        <dt>Prix day-ahead</dt>
+        <dd>prix de gros de la zone France, fixé la veille pour le lendemain, heure par heure.</dd>
+      </div>
+    </dl>
+    {#if affiche}
+      {@const s = affiche.sim}
+      <p class="couverture">
+        Heures de {affiche.annee} (année civile, heure de Paris) : {formaterNombre(s.heures)}.
+        Charge résiduelle renseignée : {formaterNombre(s.heures_rn_valides)} ; nucléaire disponible et
+        produit : {formaterNombre(s.heures_j_valides)} ; prix : {formaterNombre(
+          s.heures_prix_valides
+        )}. Chaque résultat porte sur les heures où ses données sont renseignées.
+      </p>
+    {/if}
+  </section>
+
+  <section class="notice-section" aria-labelledby="notice-sources">
+    <h2 id="notice-sources" tabindex="-1">Sources et données</h2>
+    <p class="sources-detail">
+      <span class="cle">Sources</span>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html ligneSources}
+      <a href="/donnees/horaire/{etat.annee}.csv" download>Télécharger les séries de {etat.annee}</a
+      > (CSV).
+    </p>
+    {#if affiche && affiche.sim.rn_max_mw !== null}
+      <div id="notice-graphique">
+        <h3 tabindex="-1">
+          Graphique : charge résiduelle de {affiche.annee}, heures classées de la plus tendue à la
+          moins tendue : observée et avec {affiche.libelle}
+        </h3>
+        <p>
+          En GW, moyenne de chaque heure. D’abord toute l’année, puis les {formaterNombre(ZOOM)} heures
+          les plus tendues, sur une autre échelle. Chaque courbe est classée pour elle-même : l’heure
+          de rang 1 n’est pas forcément la même avant et après.
+        </p>
+        <p>
+          Charge résiduelle = consommation − éolien − solaire − nucléaire disponible déclaré par
+          EDF. Au-dessus du maximum de l’année, le système aurait dû couvrir plus que cette année-là
+          ; au-dessus du maximum 2015-2025, plus que toutes les années observées. Ni l’un ni l’autre
+          n’est une défaillance.{affiche.sim.x_mw > 0 && affiche.sim.heures_effacees.length > 0
+            ? ' Les heures effacées gardent leur charge résiduelle observée : elles se rangent en haut de la courbe « avec », qui s’y confond avec la courbe observée.'
+            : ''} Au-delà des {formaterNombre(ZOOM)} premières heures, une heure sur dix est tracée.
+        </p>
+        <p class="sources-detail">
+          <span class="cle">Sources</span>
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html ligneSources}
+        </p>
+        <h4>Tableau des données : charge résiduelle à quelques rangs, observée et simulée</h4>
+        <TableauMonotone
+          annee={affiche.annee}
+          libelle={affiche.libelle}
+          avant={affiche.sim.monotone_avant}
+          apres={affiche.sim.monotone_apres}
+        />
+      </div>
+    {/if}
+  </section>
+</aside>
 
 <style>
-  /* Deux colonnes dès 62rem : réglages (largeur fixe) et résultats. */
+  /* ---------- Ossature ---------- */
   .outil {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    grid-template-areas: 'tete' 'hyp' 'scen' 'res';
+    gap: 1rem;
+  }
+  .tete {
+    grid-area: tete;
+  }
+  .hypotheses {
+    grid-area: hyp;
+  }
+  .scenario {
+    grid-area: scen;
+  }
+  .resultats {
+    grid-area: res;
+    container: resultats / inline-size;
   }
   @media (min-width: 62rem) {
     .outil {
       grid-template-columns: 22rem minmax(0, 1fr);
-      gap: 2.5rem;
-      align-items: start;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas: 'tete tete' 'hyp res' 'scen res';
+      gap: 0.75rem 2rem;
     }
   }
+  /* Pleine fenêtre : l'outil prend la hauteur que lui laisse la page ; le pupitre défile en
+     interne si une raison dépliée dépasse ; les résultats donnent au graphique la hauteur qui
+     reste. */
+  @media (min-width: 62rem) and (min-height: 36rem) {
+    .outil {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .hypotheses {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .resultats {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .graphique {
+      flex: 1 1 0;
+      min-height: 11rem;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  /* ---------- Tête : titre et accès à la notice ---------- */
+  .tete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 2rem;
+  }
+  .acces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--sans);
+    font-size: 0.98rem;
+  }
+  .acces li {
+    margin: 0;
+  }
+
+  /* ---------- Hypothèses : le pupitre (teinté, encadré) ---------- */
+  /* Position relative : les textes masqués à l'écran (.lecteur, en absolu) restent dans le pupitre
+     et ne font pas défiler la page quand une raison est dépliée. */
+  .hypotheses {
+    position: relative;
+    padding: 0.6rem 0.9rem 0.7rem;
+    background: var(--pupitre);
+    border: 1px solid var(--pupitre-bord);
+    border-radius: 6px;
+  }
+  .zone-tete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.75rem;
+    margin: 0 0 0.35rem;
+  }
   h2 {
-    margin: 0 0 0.3rem;
+    margin: 0;
     font-size: 1.25rem;
   }
   .consigne {
-    margin: 0 0 0.5rem;
-    max-width: var(--mesure);
+    margin: 0;
     font-family: var(--sans);
-    font-size: 0.95rem;
-    line-height: 1.35;
+    font-size: 0.92rem;
+    line-height: 1.3;
     color: var(--encre-2);
   }
   .hypothese {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.15rem;
-    max-width: var(--mesure);
-    padding: 0.4rem 0 0.35rem;
-    border-top: 1px solid var(--trait);
+    gap: 0.05rem;
+    padding: 0.3rem 0 0.25rem;
+    border-top: 1px solid var(--pupitre-bord);
   }
   .ligne-nom {
     display: flex;
@@ -647,30 +1055,42 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
   .nom {
     font-family: var(--sans);
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     line-height: 1.25;
   }
+  /* Curseur et saisie sur une ligne : la hauteur d'un réglage ne dépend pas de son nom. */
+  .ligne-reglage {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
   input[type='range'] {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     margin: 0.1rem 0;
     accent-color: var(--encre);
   }
   .saisie {
     white-space: nowrap;
+    font-family: var(--sans);
   }
   input[type='number'],
   select {
     font: inherit;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     font-variant-numeric: tabular-nums;
     color: var(--encre);
     background: var(--papier);
     border: 1px solid var(--encre-2);
     border-radius: 3px;
-    padding: 0.15rem 0.4rem;
+    padding: 0.1rem 0.4rem;
   }
   input[type='number'] {
-    width: 4.5rem;
+    width: 4.2rem;
+  }
+  .saisie {
+    display: inline-block;
+    min-width: 6.6rem;
   }
   :disabled {
     opacity: 0.6;
@@ -678,13 +1098,13 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
   /* Le défaut et la plage sont dans le résumé du repli « Raison » : une ligne par réglage. */
   .defaut {
     font-family: var(--sans);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     line-height: 1.3;
     color: var(--encre-2);
   }
   .raison-lien {
     font-family: var(--sans);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--encre);
     text-decoration: underline;
     text-underline-offset: 0.15em;
@@ -694,52 +1114,107 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     cursor: pointer;
     line-height: 1.3;
   }
-  .notes-raison {
-    margin: 0.2rem 0 0.3rem;
-    padding-top: 0.3rem;
-    border-top: 1px solid var(--trait);
-    font-size: 0.8125rem;
-    line-height: 1.4;
-  }
-  .detail-tuile summary,
-  .definitions-repli > summary {
-    width: fit-content;
-    font-size: 0.95rem;
-  }
   .raison {
     margin: 0.3rem 0 0.2rem;
     padding-left: 0.6rem;
-    border-left: 2px solid var(--trait);
-    font-size: 0.95rem;
+    border-left: 2px solid var(--pupitre-bord);
+    font-size: 0.92rem;
     line-height: 1.5;
+  }
+  .notes-raison {
+    margin: 0.2rem 0 0.3rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--pupitre-bord);
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
   .ecarts {
     margin: 0.5rem 0;
     font-family: var(--sans);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     border-left: 3px solid var(--signal);
     padding-left: 0.6rem;
-    max-width: var(--mesure);
   }
   .bouton {
     font: inherit;
     font-family: var(--sans);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: var(--encre);
-    background: none;
+    background: var(--papier);
     border: 1px solid var(--encre-2);
     border-radius: 3px;
     padding: 0.15rem 0.6rem;
     cursor: pointer;
   }
-  .hypotheses .bouton {
-    margin-top: 0.5rem;
-  }
-  .bouton:hover {
+  .bouton:hover:not(:disabled) {
     background: var(--papier-2);
   }
-  .sans-js,
+  .bouton:disabled {
+    cursor: default;
+  }
+  .remise {
+    margin-left: auto;
+    font-size: 0.85rem;
+    padding: 0.05rem 0.45rem;
+  }
+  .hypotheses .consigne {
+    flex-basis: 100%;
+    font-size: 0.86rem;
+  }
+  .resultats .consigne {
+    flex-basis: auto;
+  }
+  .remise-telephone {
+    display: none;
+  }
+  .scenario-tete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .onglets {
+    display: none;
+  }
+
+  /* ---------- Scénario appliqué (hauteur réservée) ---------- */
+  .scenario {
+    font-family: var(--sans);
+  }
+  .scenario-titre {
+    margin: 0 0 0.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--encre-2);
+  }
+  .scenario-cadre {
+    display: grid;
+  }
+  .scenario-texte {
+    grid-area: 1 / 1;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.32;
+  }
+  .gabarit {
+    visibility: hidden;
+    user-select: none;
+  }
+
+  /* ---------- Résultats (sur le papier) ---------- */
+  .resultats .zone-tete {
+    margin-bottom: 0.4rem;
+  }
   .etat-calcul {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    color: var(--encre-2);
+  }
+  .etat-calcul:empty {
+    display: none;
+  }
+  .sans-js {
     font-family: var(--sans);
     color: var(--encre-2);
     max-width: var(--mesure);
@@ -749,69 +1224,293 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     border-left: 3px solid var(--sur-zero);
     padding-left: 0.6rem;
   }
-  .scenario {
-    margin: 0 0 0.6rem;
-    font-family: var(--sans);
-    font-size: 1.05rem;
-    line-height: 1.35;
-    max-width: 46rem;
+  .perime {
+    opacity: 0.45;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .tuiles,
+    .graphique,
+    .scenario {
+      transition: opacity 0.2s;
+    }
+  }
+
+  /* Tuiles : hauteurs fixes (titre sur deux lignes, valeur sur une, seconde valeur réservée sur la
+     deuxième rangée) ; la valeur ne passe pas à la ligne. */
   .tuiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-    gap: 0.75rem 1.5rem;
-    margin: 0 0 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem 1rem;
+    margin: 0 0 0.6rem;
   }
-  @media (max-width: 36rem) {
+  @container resultats (min-width: 36rem) {
     .tuiles {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem 1.25rem;
     }
-    .tuile dd.valeur {
-      font-size: 1.35rem;
-    }
-    /* Un détail déplié prend toute la largeur : une demi-colonne serait illisible. */
-    .tuile:has(details[open]) {
-      grid-column: 1 / -1;
+  }
+  @container resultats (min-width: 54rem) {
+    .tuiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
   .tuile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'titre lien' 'valeur valeur' 'complement complement';
+    align-content: start;
+    column-gap: 0.5rem;
     border-top: 2px solid var(--encre);
-    padding-top: 0.4rem;
+    padding-top: 0.3rem;
   }
   .tuile dt {
+    grid-area: titre;
+    min-height: 2.4em;
     font-family: var(--sans);
     font-weight: 500;
-    font-size: 0.95rem;
-    line-height: 1.25;
+    font-size: 0.9rem;
+    line-height: 1.2;
     color: var(--encre-2);
   }
   .tuile dd {
     margin: 0;
   }
   .tuile dd.valeur {
+    grid-area: valeur;
     font-family: var(--sans);
     font-weight: 600;
-    font-size: 1.6rem;
+    font-size: 1.45rem;
     line-height: 1.2;
-    margin: 0.1rem 0 0.1rem;
+    margin: 0.05rem 0 0;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .qualif {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 500;
   }
   .tuile dd.complement {
-    margin: 0 0 0.1rem;
+    grid-area: complement;
     font-family: var(--sans);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     line-height: 1.25;
     color: var(--encre-2);
   }
-  .detail {
-    margin: 0.3rem 0 0;
+  .tuile.reserve dd.complement {
+    min-height: 5em;
+  }
+  .lien-detail {
+    grid-area: lien;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+  .tuile.vide dd.valeur {
+    color: var(--encre-2);
+  }
+  /* Tuiles étroites (téléphone, deux colonnes) : la valeur peut passer à la ligne, sur deux lignes
+     réservées ; le lien du détail passe sous la valeur. */
+  @container resultats (max-width: 35.99rem) {
+    .tuile {
+      grid-template-areas: 'titre titre' 'valeur valeur' 'complement complement' 'lien lien';
+    }
+    .tuile dd.valeur {
+      white-space: normal;
+      font-size: 1.3rem;
+    }
+    .tuile.longue dd.valeur {
+      min-height: 2.4em;
+    }
+    .tuile.reserve dd.complement {
+      min-height: 6.25em;
+    }
+    .lien-detail {
+      margin-top: 0.15rem;
+    }
+  }
+
+  .sources-outil {
+    margin: 0.5rem 0 0;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: var(--encre-2);
+  }
+  .sources-outil .cle,
+  .sources-detail .cle {
+    font-weight: 600;
+    color: var(--encre);
+  }
+
+  /* ---------- Téléphone et tablette étroite : pupitre collé en haut, une hypothèse à la fois ---------- */
+  @media (max-width: 61.99rem) {
+    .outil.js .hypotheses {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      max-height: 60dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 0.45rem 0.6rem 0.4rem;
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+    }
+    .outil.js .hypotheses .zone-tete {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .outil.js .onglets {
+      display: flex;
+      gap: 0.25rem;
+      margin: 0 0 0.25rem;
+      overflow-x: auto;
+    }
+    .outil.js .hypothese:not(.actif),
+    .outil.js .remise {
+      display: none;
+    }
+    .outil.js .remise-telephone {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      padding: 0.05rem 0.45rem;
+    }
+    .outil.js .hypothese {
+      border-top: 0;
+      padding: 0.1rem 0 0;
+    }
+    .onglet {
+      flex: 1 1 0;
+      min-width: 3.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.15rem 0.15rem 0.2rem;
+      font: inherit;
+      font-family: var(--sans);
+      line-height: 1.15;
+      color: var(--encre);
+      background: var(--papier);
+      border: 1px solid var(--pupitre-bord);
+      border-bottom-width: 3px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .onglet[aria-expanded='true'] {
+      border-color: var(--encre);
+    }
+    .onglet-nom {
+      font-size: 0.74rem;
+      color: var(--encre-2);
+      white-space: nowrap;
+    }
+    .onglet-valeur {
+      font-size: 0.92rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .onglet[aria-expanded='true'] .onglet-valeur {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.2em;
+    }
+    .tete {
+      display: block;
+    }
+    .acces {
+      margin-top: 0.25rem;
+    }
+  }
+
+  /* ---------- Notice ---------- */
+  .notice {
+    margin-top: 2rem;
+    border-top: 1px solid var(--encre);
+  }
+  .notice-tete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.3rem 1rem;
+    padding: 0.6rem 0 0.5rem;
+    font-family: var(--sans);
+  }
+  .notice-titre {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .notice-sommaire {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     font-size: 0.92rem;
-    line-height: 1.45;
+  }
+  .notice-sommaire li {
+    margin: 0;
+  }
+  .notice-section {
+    max-width: var(--large);
+    border-top: 1px solid var(--trait);
+    padding-top: 0.25rem;
+  }
+  .notice-section > h2 {
+    margin: 0.6rem 0 0.5rem;
+    font-size: 1.3rem;
+    scroll-margin-top: 6rem;
+  }
+  .notice-section > h2:focus {
+    outline: none;
+  }
+  .notice-section > h2:focus-visible {
+    outline: 2px solid var(--encre);
+  }
+  .notice-scenario {
+    font-family: var(--sans);
+    color: var(--encre-2);
+    max-width: var(--mesure);
+  }
+  .notice-tuile {
+    max-width: var(--mesure);
+    margin: 0 0 1.1rem;
+    padding-top: 0.35rem;
+    border-top: 2px solid var(--encre);
+    scroll-margin-top: 6rem;
+  }
+  .notice-tuile h3,
+  #notice-graphique h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--encre-2);
+  }
+  .notice-tuile .valeur {
+    margin: 0.05rem 0 0.1rem;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+  .notice-tuile .complement {
+    margin: 0 0 0.3rem;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--encre-2);
+  }
+  .notice-tuile .detail {
+    margin: 0.2rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
   .notes-tuile {
     margin-top: 0.4rem;
@@ -820,23 +1519,11 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     font-size: 0.8125rem;
     line-height: 1.4;
   }
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem 1.25rem;
-    margin: 0 0 0.5rem;
-    font-family: var(--sans);
-    font-size: 0.95rem;
-  }
-  .definitions-repli {
-    margin: 0 0 0.4rem;
-  }
   .definitions {
     display: grid;
     gap: 0.35rem;
     margin: 0.4rem 0 0.6rem;
-    max-width: 46rem;
+    max-width: var(--mesure);
     font-size: 0.95rem;
     line-height: 1.45;
   }
@@ -853,18 +1540,84 @@ colonnes s'empilent dans cet ordre. La monotone suit l'outil. -->
     margin: 0;
   }
   .couverture,
-  .sources-outil {
-    margin: 0;
+  .sources-detail {
+    max-width: var(--mesure);
     font-family: var(--sans);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     line-height: 1.4;
     color: var(--encre-2);
   }
-  .couverture {
-    max-width: 46rem;
+  #notice-graphique {
+    max-width: var(--mesure);
+    margin-top: 1.25rem;
+    padding-top: 0.35rem;
+    border-top: 2px solid var(--encre);
+    scroll-margin-top: 6rem;
   }
-  .sources-outil .cle {
-    font-weight: 600;
-    color: var(--encre);
+  #notice-graphique p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  #notice-graphique h4 {
+    margin: 1rem 0 0;
+    font-size: 1rem;
+  }
+  /* Dans la notice, les notes du texte vont sous leur paragraphe (pas de marge de notes). */
+  .notice :global(.texte-annote .avec-notes) {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .notice :global(.texte-annote .notes) {
+    float: none !important;
+    width: auto !important;
+    margin: 0 0 1.1rem !important;
+  }
+  .notice :global(.texte-annote h2) {
+    font-size: 1.15rem;
+    margin-top: 1.4em;
+  }
+
+  /* Avec JavaScript : panneau latéral, à droite, par-dessus les résultats ; le pupitre reste
+     visible et utilisable à gauche. Plein écran sur téléphone. */
+  .notice.tiroir {
+    position: fixed;
+    z-index: 30;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(46rem, 100vw - 21rem);
+    margin: 0;
+    padding: 0 1.25rem 3rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--papier);
+    border-top: 0;
+    border-left: 1px solid var(--encre-2);
+    box-shadow: -6px 0 18px rgb(0 0 0 / 0.22);
+  }
+  .notice.tiroir[hidden] {
+    display: none;
+  }
+  .notice.tiroir .notice-tete {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--papier);
+    border-bottom: 1px solid var(--trait);
+    margin: 0 -1.25rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  @media (max-width: 61.99rem) {
+    .notice.tiroir {
+      width: 100vw;
+      padding: 0 1rem 3rem;
+      border-left: 0;
+    }
+    .notice.tiroir .notice-tete {
+      margin: 0 -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 </style>

@@ -6,8 +6,11 @@
 > 461 essais à puissance stable et 54 textes réduits à un lien. Le décompte retenu
 > est de 407 événements (2019-2026), règle dans `pipeline/pc/remit.py`
 > (`MOTIF_MODULATION`), rapport `docs/relectures/2026-11-26-modulation-agent.md`.
-> Ce rapport n'a pas encore eu de relecture adverse ; ses autres chiffres sont à
-> vérifier avant tout usage.
+> **Relu de façon adverse le 26/11/2026** (`docs/relectures/2026-11-26-spike-carbone.md`) :
+> chiffres C2 et C4 recalculés à l'identique, mais lecture causale non établie (météo
+> commune), « recoupé par deux méthodes » faux en 2024-2025, « 3 à 5 fois » surévalué (2,8
+> à 3,7), les trois cas de C4 ne sont pas des bornes, effet « lit d'eau » décrit à l'envers.
+> Ne rien reprendre de ce rapport sans la relecture.
 
 *Rédigé le 26/11/2026 par un agent (Opus), avec trois agents de recherche documentaire
 (sources institutionnelles, littérature académique, facteurs d'émission). C'est un rapport de
