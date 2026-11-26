@@ -280,7 +280,7 @@ comparer à renewables.ninja).
 ## Pour reproduire
 
 ```
-cd /home/max/dev/puissance-de-calcul
+cd puissance-de-calcul   # racine du dépôt
 uv run --with httpx,pyshp python pipeline/explo/spike_reseau.py            # tout sauf renewables.ninja
 uv run --with httpx,pyshp python pipeline/explo/spike_reseau.py ninja      # 1 requête anonyme (quota 5/jour annoncé)
 ```
