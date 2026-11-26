@@ -384,3 +384,13 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   nouvelle limite « le système change ». Les quatre raisonnements
   fautifs sont consignés. Les nouveaux chiffres attendent que l'agent
   du simulateur ait fini avec `pc/quand.py`.
+- l'agent du simulateur rend la v1 : `simuler` dans la référence
+  Python (5 cas calculés à la main, tests de propriétés), moteur
+  TypeScript dont la parité est testée sur tous les cas partagés et sur
+  2022 et 2025 réelles, page `/simulateur` (année, puissance appelée,
+  effacement ; état dans l'adresse), CSV horaires servis par une route
+  prérendue, sans copie dans le dépôt. Vérifié sur un clone propre avec
+  `build.sh`. Il signale une erreur de son code attrapée par un
+  parcours automatisé (adresse invalide bloquant le chargement) et des
+  phrases mal accordées repérées sur captures. Commité ; non publié
+  avant sa relecture adverse.

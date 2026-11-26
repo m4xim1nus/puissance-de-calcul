@@ -14,6 +14,7 @@
     { href: '/', libelle: 'Accueil' },
     { href: '/combien', libelle: 'Combien' },
     { href: '/quand', libelle: 'Quand' },
+    { href: '/simulateur', libelle: 'Simulateur' },
     { href: '/methode', libelle: 'Méthode' },
     { href: '/making-of', libelle: 'Making-of' },
     { href: '/a-toi', libelle: 'À toi' }

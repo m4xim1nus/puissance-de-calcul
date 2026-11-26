@@ -36,6 +36,8 @@ def executer(cas: dict):
         return quand.matrice_jour_heure(e["heures_utc"], e["valeurs"])
     if cas["fonction"] == "quantile":
         return quand.quantile(e["tries"], e["q"])
+    if cas["fonction"] == "simuler":
+        return quand.simuler(e, **p)
     raise ValueError(cas["fonction"])
 
 
@@ -99,3 +101,79 @@ def test_proprietes_sur_serie_aleatoire():
     assert sum(r["jeu_nucleaire"]["par_mois_twh"]) == pytest.approx(r["jeu_nucleaire"]["somme_twh"])
     q = list(cr["quantiles_mw"].values())
     assert q == sorted(q) and cr["min"]["valeur_mw"] <= q[0] and q[-1] <= cr["max"]["valeur_mw"]
+
+
+def table_aleatoire(graine: int, n: int = 500) -> dict:
+    rng = random.Random(graine)
+    heures = [f"2025-01-{1 + i // 24:02d}T{i % 24:02d}:00Z" for i in range(n)]
+    dispo = [float(rng.randint(40000, 60000)) for _ in range(n)]
+    return {
+        "heure_utc": heures,
+        "consommation": [float(rng.randint(40000, 90000)) if rng.random() > 0.02 else None for _ in range(n)],
+        "eolien": [float(rng.randint(0, 15000)) for _ in range(n)],
+        "solaire": [float(rng.randint(0, 10000)) for _ in range(n)],
+        "nucleaire_disponible": dispo,
+        "nucleaire": [d - rng.randint(-500, 15000) if rng.random() > 0.02 else None for d in dispo],
+        "prix": [round(rng.uniform(-20, 200), 2) if rng.random() > 0.02 else None for _ in range(n)],
+        "ech_physiques": [float(rng.randint(-15000, 8000)) for _ in range(n)],
+    }
+
+
+@pytest.mark.parametrize("x_mw", [500, 3000, 12000])
+def test_simuler_sans_effacement_egale_charge_plate(x_mw):
+    """Sans effacement, `simuler` redonne exactement `charge_plate` et la monotone d'`indicateurs_annee`."""
+    t = table_aleatoire(7)
+    s = quand.simuler(t, x_mw)
+    a = quand.indicateurs_annee(t, charges_mw=(x_mw,))
+    cp = a["charges_plates"][0]
+    assert s["energie_ajoutee_twh"] == pytest.approx(cp["energie_ajoutee_twh"], rel=1e-12)
+    assert s["energie_dans_j_twh"] == pytest.approx(cp["energie_dans_j_twh"], rel=1e-12)
+    assert s["part_dans_j"] == pytest.approx(cp["part_dans_j"], rel=1e-12)
+    assert s["heures_j_couvre_charge"] == cp["heures_j_superieur_ou_egal_x"]
+    assert s["solde_echanges_moyen_heures_j_couvre_mw"] == pytest.approx(cp["solde_echanges_moyen_heures_j_ge_x_mw"])
+    assert s["max_apres"]["valeur_mw"] == cp["rn_max_plus_x_mw"]
+    assert s["heures_au_dessus_du_max"] == cp["heures_rn_plus_x_au_dessus_du_max"]
+    assert s["rn_max_mw"] == a["charge_residuelle"]["max"]["valeur_mw"]
+    assert s["monotone_avant"] == a["charge_residuelle"]["monotone"]
+    assert s["prix_moyen_pondere_eur_mwh"] == pytest.approx(s["prix_moyen_eur_mwh"], rel=1e-12)
+    # Heures effacées = heures tendues d'indicateurs_annee, dans le même ordre.
+    s2 = quand.simuler(t, x_mw, 40)
+    a2 = quand.indicateurs_annee(t, charges_mw=(x_mw,), n_tendues=40)
+    assert s2["heures_effacees"] == [h for h, _ in a2["heures_tendues"]["heures"]]
+
+
+def test_simuler_effacement_minimal_pour_rester_sous_le_max():
+    """Effacer les N* heures où RN + X dépasse le maximum (N* = résultat sans effacement) suffit, et
+    il ne faut pas moins : prévision parfaite, la charge n'est retirée qu'aux heures les plus tendues."""
+    t = table_aleatoire(11)
+    x = 8000
+    n_etoile = quand.simuler(t, x)["heures_au_dessus_du_max"]
+    assert n_etoile > 1
+    assert quand.simuler(t, x, n_etoile)["heures_au_dessus_du_max"] == 0
+    assert quand.simuler(t, x, n_etoile - 1)["heures_au_dessus_du_max"] == 1
+    au_dela = [quand.simuler(t, x, n)["heures_au_dessus_du_max"] for n in range(0, n_etoile + 3)]
+    assert au_dela == sorted(au_dela, reverse=True)
+
+
+def test_simuler_proprietes():
+    t = table_aleatoire(3)
+    for x, n in [(1000, 0), (1000, 50), (6000, 200), (20000, 10_000)]:
+        s = quand.simuler(t, x, n)
+        effacees = min(n, s["heures_rn_valides"])
+        assert len(s["heures_effacees"]) == effacees == s["heures_charge_nulle"]
+        assert s["energie_ajoutee_twh"] == pytest.approx(x * (s["heures"] - effacees) / 1e6)
+        assert 0 <= s["part_dans_j"] <= 1
+        assert 0 <= s["part_prix_negatif"] <= s["part_prix_nul_ou_negatif"] <= 1
+        assert s["max_apres"]["valeur_mw"] >= s["rn_max_mw"]
+        assert s["monotone_apres"][0][1] == s["max_apres"]["valeur_mw"]
+        assert len(s["monotone_avant"]) == len(s["monotone_apres"])
+
+
+def test_simuler_refuse_les_parametres_invalides():
+    t = table_aleatoire(1, 10)
+    with pytest.raises(ValueError):
+        quand.simuler(t, -1)
+    with pytest.raises(ValueError):
+        quand.simuler(t, 1000, -1)
+    with pytest.raises(ValueError):
+        quand.simuler(t, 1000, 1.5)

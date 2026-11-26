@@ -24,7 +24,9 @@ Indicateurs (décision du 26/11/2026, making-of/DECISIONS.md) :
   `J = max(0, nucléaire disponible − nucléaire produit)`, en MW. **Borne haute** de ce qu'une
   charge ajoutée trouverait sans autre moyen (voir `LIMITES_J`), jamais appelée « modulation » ;
 - **charge plate de X MW** : part de son énergie qui tiendrait dans J, et nombre d'heures où
-  `RN + X` dépasse le RN maximal observé de l'année (un écart à l'observé, pas une défaillance).
+  `RN + X` dépasse le RN maximal observé de l'année (un écart à l'observé, pas une défaillance) ;
+- **simulateur** (`simuler`, docs/SIMULATEUR.md) : la même charge, effacée pendant les N heures
+  de RN observée la plus élevée, et ce qu'elle rencontre (J, maximum observé, prix observés).
 
 Conventions communes (à reproduire à l'identique) :
 
@@ -203,6 +205,143 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, sold
         "rn_max_plus_x_mw": None if rn_max is None else rn_max + x_mw,
         "heures_rn_plus_x_au_dessus_du_max": None if rn_max is None else sum(1 for v in rnv if v + x_mw > rn_max),
         "solde_echanges_moyen_heures_j_ge_x_mw": _moyenne(soldes),
+    }
+
+
+# --------------------------------------------------------------------------
+# Simulateur : une charge ajoutée heure par heure
+# --------------------------------------------------------------------------
+
+
+def classement_tendues(heures_utc: list[str], rn: list) -> list[int]:
+    """Indices des heures où RN est renseignée, de la plus tendue à la moins tendue (RN
+    décroissant, puis `heure_utc` croissante en cas d'égalité : même ordre que les heures tendues)."""
+    return sorted((i for i in range(len(rn)) if rn[i] is not None), key=lambda i: (-rn[i], heures_utc[i]))
+
+
+def profil_effacement(heures_utc: list[str], rn: list, x_mw: float, heures_effacement: int = 0) -> list[float]:
+    """Charge ajoutée heure par heure : X partout, 0 pendant les `heures_effacement` heures **valides**
+    (RN renseignée) où RN observée est la plus élevée (`classement_tendues`).
+
+    Prévision parfaite : l'effacement tombe exactement sur les heures les plus tendues de l'année
+    observée, ce qu'aucun opérateur ne sait faire (borne optimiste). Une heure où RN manque n'est pas
+    classée : la charge y reste X. Au-delà du nombre d'heures valides, toutes les heures valides sont
+    effacées.
+    """
+    if x_mw < 0:
+        raise ValueError("puissance ajoutée négative")
+    if heures_effacement < 0 or int(heures_effacement) != heures_effacement:
+        raise ValueError("nombre d'heures d'effacement négatif ou non entier")
+    charge = [float(x_mw)] * len(rn)
+    for i in classement_tendues(heures_utc, rn)[:int(heures_effacement)]:
+        charge[i] = 0.0
+    return charge
+
+
+def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: list[float],
+                 solde: list | None = None, n_exact: int = N_MONOTONE_EXACT, pas: int = PAS_MONOTONE) -> dict:
+    """Ce qu'une charge ajoutée `charge` (MW par heure, une valeur par heure, jamais None) rencontre
+    dans une année observée. Généralise `charge_plate` (charge constante) à un profil quelconque.
+
+    1. `energie_ajoutee_twh` = Σ charge, toutes les heures de la table ;
+    2. `part_dans_j` = Σ min(charge, J) / Σ charge, sommes sur les heures où J est renseigné :
+       part qui tiendrait **au plus** dans le nucléaire disponible non produit (`LIMITES_J`) ; None
+       si la charge y est nulle. `heures_j_couvre_charge` : heures où charge > 0 et J ≥ charge ;
+       `solde_echanges_moyen_heures_j_couvre_mw` : solde moyen des échanges (positif = import) à
+       ces heures, quand il est renseigné ;
+    3. sur les heures où RN est renseignée : `rn_max_mw` (maximum observé), `max_apres` (maximum de
+       RN + charge, même départage que les heures tendues), `heures_au_dessus_du_max` = heures où
+       RN + charge > RN max observé (strictement : un écart à l'observé, pas une défaillance) ;
+    4. sur les heures où le prix est renseigné : `part_prix_negatif` (prix < 0),
+       `part_prix_nul_ou_negatif` (prix ≤ 0), parts de l'énergie ajoutée ; `prix_moyen_pondere_eur_mwh`
+       = Σ charge × prix / Σ charge (prix **observé**, sans effet en retour de la charge ajoutée) ;
+       `prix_moyen_eur_mwh` = moyenne simple des prix (ce que paierait une charge plate) ; None si
+       la charge y est nulle ;
+    5. `monotone_avant`, `monotone_apres` : monotones de RN et de RN + charge (chacune triée pour
+       elle-même), sous-échantillonnées comme `monotone`.
+    """
+    n = len(heures_utc)
+    for nom, v in (("rn", rn), ("j", j), ("prix", prix), ("charge", charge)):
+        if len(v) != n:
+            raise ValueError(f"{nom} : {len(v)} valeurs pour {n} heures")
+    if any(c is None or c < 0 for c in charge):
+        raise ValueError("charge ajoutée absente ou négative")
+    solde = [None] * n if solde is None else solde
+
+    # 2. Nucléaire disponible non produit
+    ij = [i for i in range(n) if j[i] is not None]
+    base_j = sum(charge[i] for i in ij)
+    tenu = sum(min(charge[i], j[i]) for i in ij)
+    couvre = [i for i in ij if charge[i] > 0 and j[i] >= charge[i]]
+    soldes = [solde[i] for i in couvre if solde[i] is not None]
+
+    # 3. Charge résiduelle
+    irn = [i for i in range(n) if rn[i] is not None]
+    rn_max = max((rn[i] for i in irn), default=None)
+    apres = {i: rn[i] + charge[i] for i in irn}
+    i_max = min(irn, key=lambda i: (-apres[i], heures_utc[i])) if irn else None
+
+    # 4. Prix
+    ip = [i for i in range(n) if prix[i] is not None]
+    base_p = sum(charge[i] for i in ip)
+
+    def part_prix(pred) -> float | None:
+        return sum(charge[i] for i in ip if pred(prix[i])) / base_p if base_p > 0 else None
+
+    return {
+        "heures": n,
+        "energie_ajoutee_twh": sum(charge) / 1e6,
+        "heures_charge_nulle": sum(1 for c in charge if c == 0),
+        "heures_j_valides": len(ij),
+        "energie_dans_j_twh": tenu / 1e6,
+        "part_dans_j": tenu / base_j if base_j > 0 else None,
+        "heures_j_couvre_charge": len(couvre),
+        "solde_echanges_moyen_heures_j_couvre_mw": _moyenne(soldes),
+        "heures_rn_valides": len(irn),
+        "rn_max_mw": rn_max,
+        "max_apres": None if i_max is None else _instant(heures_utc, i_max, apres[i_max]),
+        "heures_au_dessus_du_max": None if rn_max is None else sum(1 for i in irn if apres[i] > rn_max),
+        "heures_prix_valides": len(ip),
+        "energie_prix_valide_twh": base_p / 1e6,
+        "part_prix_negatif": part_prix(lambda p: p < 0),
+        "part_prix_nul_ou_negatif": part_prix(lambda p: p <= 0),
+        "prix_moyen_pondere_eur_mwh": sum(charge[i] * prix[i] for i in ip) / base_p if base_p > 0 else None,
+        "prix_moyen_eur_mwh": _moyenne([prix[i] for i in ip]),
+        "monotone_avant": monotone([rn[i] for i in irn], n_exact, pas),
+        "monotone_apres": monotone([apres[i] for i in irn], n_exact, pas),
+    }
+
+
+def simuler(table: dict[str, list], x_mw: float, heures_effacement: int = 0,
+            n_exact: int = N_MONOTONE_EXACT, pas_monotone: int = PAS_MONOTONE) -> dict:
+    """Simulateur v1 (docs/SIMULATEUR.md) : X MW ajoutés à toutes les heures de la table, sauf
+    pendant les `heures_effacement` heures valides de RN observée la plus élevée (`profil_effacement`).
+
+    Mêmes entrées que `indicateurs_annee` (colonnes `heure_utc`, `consommation`, `eolien`,
+    `solaire`, `nucleaire`, `nucleaire_disponible`, `prix` ; `ech_physiques` facultative). Sortie :
+    celle d'`effet_charge`, plus les paramètres, `heures_effacees` (heures UTC effacées, de la plus
+    tendue à la moins tendue) et `rn_seuil_effacement_mw` (RN de la moins tendue des heures effacées,
+    None sans effacement). Avec `heures_effacement = 0` et X > 0, les grandeurs communes avec
+    `charge_plate` sont identiques.
+    """
+    hu = table["heure_utc"]
+    n = len(hu)
+    for c, v in table.items():
+        if len(v) != n:
+            raise ValueError(f"colonne {c} : {len(v)} valeurs pour {n} heures")
+    rn = [charge_residuelle(*vals) for vals in zip(table["consommation"], table["eolien"], table["solaire"],
+                                                   table["nucleaire_disponible"])]
+    j = [jeu_nucleaire(d, p) for d, p in zip(table["nucleaire_disponible"], table["nucleaire"])]
+    charge = profil_effacement(hu, rn, x_mw, heures_effacement)
+    effacees = classement_tendues(hu, rn)[:int(heures_effacement)]
+    r = effet_charge(hu, rn, j, table.get("prix", [None] * n), charge, table.get("ech_physiques"),
+                     n_exact, pas_monotone)
+    return {
+        "x_mw": x_mw,
+        "heures_effacement": int(heures_effacement),
+        "heures_effacees": [hu[i] for i in effacees],
+        "rn_seuil_effacement_mw": rn[effacees[-1]] if effacees else None,
+        **r,
     }
 
 

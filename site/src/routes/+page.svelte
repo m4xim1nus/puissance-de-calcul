@@ -1,5 +1,4 @@
 <script lang="ts">
-  import EnChantier from '$lib/EnChantier.svelte';
   import HeroPrix from '$lib/graphiques/HeroPrix.svelte';
 
   let { data } = $props();
@@ -53,12 +52,15 @@
       <span class="question">{data.quand.question}</span>
       <span class="lire">Lire l’enquête →</span>
     </a>
-    <EnChantier
-      titre="Simulateur"
-      manque="Le module de simulation n’est pas encore publié."
-      pourquoi="Son modèle est en cours de spécification, à partir des séries horaires de l’enquête « Quand ? » ; il sera décrit et testé avant d’être mis en ligne."
-      viendra="Un outil où l’on règle la puissance et le profil d’un parc de data centers pour voir, heure par heure, ce qu’il ajoute au système."
-    />
+    <a class="enquete" href="/simulateur">
+      <span class="etat">Simulateur</span>
+      <span class="titre">Une consommation de plus</span>
+      <span class="question"
+        >Ajouter X GW à une année observée, heure par heure, avec ou sans effacement aux heures les
+        plus tendues : énergie, nucléaire disponible non produit, maximum observé, prix.</span
+      >
+      <span class="lire">Ouvrir le simulateur →</span>
+    </a>
   </div>
 </section>
 
