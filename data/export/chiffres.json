@@ -21,9 +21,9 @@
    "confiance": "B",
    "recoupements": [
     {
-     "source": "rte-be2024",
-     "valeur": "440,1 TWh (somme éCO2mix, hors Corse) + 2,3 TWh (Corse, ODRÉ)",
-     "note": "recalcul du pipeline (pc check) ; même éditeur, mais données horaires distinctes du bilan publié",
+     "source": "rte-eco2mix-odre",
+     "valeur": "440,0 TWh (somme éCO2mix, hors Corse) + 2,3 TWh (Corse, ODRÉ)",
+     "note": "recalcul du site ; même éditeur, mais données horaires distinctes du bilan publié",
      "independant": false
     }
    ],
@@ -105,8 +105,8 @@
    "recoupements": [
     {
      "source": "ademe-prospective-2026",
-     "valeur": "9,91 TWh (8,16 inventoriés + 3,5 modélisés)",
-     "note": "méthode d'inventaire et de modélisation, distincte des comptages ; écart non résolu avec le SDES sur la colocation",
+     "valeur": "9,91 TWh — colocation inventoriée (6,46 TWh) et estimation surfacique des centres privés, publics et des salles internes (3,5 TWh)",
+     "note": "méthode d'inventaire et d'extrapolation, distincte des comptages ; l'inventaire complet (8,16 TWh) compte aussi des centres privés et publics que l'estimation surfacique remplace ; écart non résolu avec le SDES sur la colocation",
      "independant": true
     }
    ],
@@ -160,7 +160,7 @@
    "unite": "TWh",
    "grandeur": "energie",
    "periode": "2024",
-   "perimetre": "data centers sur sites dédiés raccordés au réseau public de distribution d'Enedis",
+   "perimetre": "data centers raccordés au réseau public de distribution d'Enedis (sites dédiés par inférence du contexte, la parenthèse de la source ne le précise pas)",
    "source": {
     "cle": "rte-be2025",
     "editeur": "RTE",
@@ -342,13 +342,33 @@
    "confiance": "B",
    "verification": "contre-verification"
   },
-  "dc_signe_fouju_terme": {
-   "libelle": "Campus IA (Fouju), puissance de raccordement visée à terme",
-   "valeur": 1400,
+  "dc_signe_fouju_2029": {
+   "libelle": "Campus IA (Fouju), second palier de puissance de raccordement",
+   "valeur": 700,
    "unite": "MW",
    "grandeur": "puissance_signee",
+   "periode": "avant fin 2029",
+   "perimetre": "contrat de raccordement fast-track signé le 26/01/2026 ; puissance mise à disposition, pas une mise en service du data center",
+   "source": {
+    "cle": "rte-cp-campusia-2026",
+    "editeur": "RTE",
+    "titre": "Campus IA et RTE signent un contrat de raccordement accéléré (communiqué)",
+    "date_publication": "2026-01-26",
+    "url": "https://assets.rte-france.com/prod/public/2026-01/20260122_CP_RACCORDEMENT_FASTTRACK_CAMPUSIA_VDEF_0.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "communiqué",
+   "citation": "« un premier palier de puissance de 240 MW d'ici fin 2027, suivi d'un second palier de 700 MW avant fin 2029 »",
+   "confiance": "B",
+   "verification": "contre-verification"
+  },
+  "dc_signe_fouju_terme": {
+   "libelle": "Campus IA (Fouju), dimensionnement des ouvrages à terme (non contractuel)",
+   "valeur": 1400,
+   "unite": "MW",
+   "grandeur": "puissance_dimensionnement",
    "periode": "à terme (non daté)",
-   "perimetre": "contrat de raccordement fast-track signé le 26/01/2026",
+   "perimetre": "capacité pour laquelle les infrastructures sont conçues ; ce n'est pas un palier du contrat signé le 26/01/2026",
    "source": {
     "cle": "rte-cp-campusia-2026",
     "editeur": "RTE",
@@ -391,12 +411,12 @@
    "verification": "contre-verification"
   },
   "dc_raccorde_rpd_2025": {
-   "libelle": "Puissance des data centers en fonctionnement sur le réseau d'Enedis",
+   "libelle": "Puissance raccordée des data centers en service sur le réseau d'Enedis",
    "valeur": 0.9,
    "unite": "GW",
    "grandeur": "puissance_raccordee",
    "periode": "2025",
-   "perimetre": "réseau de distribution d'Enedis ; environ 400 data centers en opération ; nature exacte de la puissance non précisée",
+   "perimetre": "réseau de distribution d'Enedis ; environ 400 data centers en opération",
    "source": {
     "cle": "rte-tdb-electrification-2026",
     "editeur": "RTE",
@@ -407,9 +427,10 @@
     "note": "date de publication approchée au mois"
    },
    "page": "p. 26",
-   "citation": "« 0,9 GW en fonctionnement en 2025 »",
-   "confiance": "C",
-   "verification": "spike"
+   "citation": "« 0,9 GW en fonctionnement en 2025 » ; graphique « Puissance raccordée pour des datacenters [MW] »",
+   "confiance": "B",
+   "verification": "contre-verification",
+   "note": "en baisse en 2025 par construction — « Depuis l'été 2025, un nouveau cadre réglementaire […] permet de procéder à des baisses de puissance de raccordement lorsque celles-ci sont surdimensionnées »"
   },
   "dc_appele_moyen_rpt_2025": {
    "libelle": "Puissance moyenne appelée par les data centers raccordés au réseau de transport",
@@ -454,6 +475,26 @@
    "confiance": "C",
    "verification": "contre-verification",
    "note": "rapport moyen (définition BP2025, chap. Consommation, p. 28, note 15), pas une pointe ; on ne le retrouve pas à partir de 1 TWh et 770 MW (≈ 15 %) — écart non résolu"
+  },
+  "dc_taux_utilisation_rpt_2025_12": {
+   "libelle": "Part de la puissance contractuelle de raccordement utilisée par les data centers déjà raccordés (réseau de transport)",
+   "valeur": 20,
+   "unite": "%",
+   "grandeur": "part",
+   "periode": "décembre 2025",
+   "perimetre": "data centers déjà raccordés au réseau de transport ; définition du calcul non donnée",
+   "source": {
+    "cle": "rte-bp2025-resultats",
+    "editeur": "RTE",
+    "titre": "Bilan prévisionnel 2025 — Principaux résultats",
+    "date_publication": "2025-12-16",
+    "url": "https://assets.rte-france.com/prod/public/2025-12/2025-12-16-bilan-previsionnel-principaux-resultats-2025.pdf",
+    "consulte_le": "2026-11-25"
+   },
+   "page": "p. 23",
+   "citation": "« les datacenters déjà raccordés n'utilisant par exemple à date que 20% de leur puissance contractuelle de raccordement »",
+   "confiance": "C",
+   "verification": "contre-verification"
   },
   "dc_pointe_cohorte_2022_2024": {
    "libelle": "Pointe appelée en 2024 par les data centers raccordés au réseau de transport entre 2022 et 2024",
@@ -650,7 +691,7 @@
    "unite": "%",
    "grandeur": "part",
    "periode": "2030",
-   "perimetre": "projets ayant demandé un raccordement au réseau de transport, mise en service prévue avant 2030 (soit 4,3 GW)",
+   "perimetre": "projets disposant d'un accès réservé au réseau de transport pour une mise en service avant 2030 (assiette ≈ 7,2 GW ; soit 4,3 GW concrétisés)",
    "source": {
     "cle": "rte-bp2025-consommation",
     "editeur": "RTE",
@@ -670,7 +711,7 @@
    "unite": "%",
    "grandeur": "part",
    "periode": "2030",
-   "perimetre": "projets ayant demandé un raccordement au réseau de transport",
+   "perimetre": "projets disposant d'un accès réservé au réseau de transport pour une mise en service avant 2030 (assiette ≈ 8 GW ; soit 2,4 GW concrétisés)",
    "source": {
     "cle": "rte-bp2025-consommation",
     "editeur": "RTE",
@@ -710,7 +751,7 @@
    "unite": "TWh",
    "grandeur": "energie",
    "periode": "2035",
-   "perimetre": "territoire français, centres internes compris (base 2024 ≈ 9,91 TWh)",
+   "perimetre": "centres de données situés en France, centres internes compris (base 2024 ≈ 9,91 TWh), dans un scénario construit à partir des usages numériques des Français (hors demande étrangère explicite)",
    "source": {
     "cle": "ademe-prospective-2026",
     "editeur": "ADEME",
@@ -747,7 +788,7 @@
    "recoupements": [
     {
      "source": "energy-charts-prix",
-     "valeur": "147 h (recalcul de `pc check` sur les prix SMARD / energy-charts)",
+     "valeur": "147 h (recalcul du site sur les prix SMARD / energy-charts)",
      "independant": true
     }
    ],
@@ -775,7 +816,7 @@
    "recoupements": [
     {
      "source": "energy-charts-prix",
-     "valeur": "352 h (recalcul de `pc check`)",
+     "valeur": "352 h (recalcul du site sur les prix SMARD / energy-charts)",
      "independant": true
     }
    ],
@@ -804,7 +845,7 @@
    "recoupements": [
     {
      "source": "energy-charts-prix",
-     "valeur": "513 h (recalcul de `pc check`)",
+     "valeur": "513 h (recalcul du site sur les prix SMARD / energy-charts)",
      "independant": true
     }
    ],

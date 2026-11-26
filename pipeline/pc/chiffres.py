@@ -42,6 +42,8 @@ UNITES: dict[str, dict[str, float]] = {
     "intensite_moyenne": {"gCO2/kWh": 1.0, "gCO2eq/kWh": 1.0},
     "prix": {"€/MWh": 1.0},
     "pue": {"": 1.0},
+    # Capacité pour laquelle des ouvrages sont conçus, sans engagement contractuel.
+    "puissance_dimensionnement": _PUISSANCE,
 }
 CONFIANCES = {"A", "B", "C"}
 CHAMPS_SOURCE = ("editeur", "titre", "date_publication", "url")

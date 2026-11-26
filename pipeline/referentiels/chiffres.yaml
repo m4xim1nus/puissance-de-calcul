@@ -9,9 +9,10 @@
 # le passage a été relu à la source par un second agent, sinon « spike »),
 # note.
 #
-# Confiance : A = source primaire + recoupement indépendant ; B = source
-# primaire, recoupement partiel ou de même origine ; C = source unique,
-# secondaire, ou définition floue.
+# Confiance : A = source primaire + recoupement indépendant (autre
+# éditeur, autre méthode) ; B = source primaire, sans recoupement
+# indépendant (recoupement de même origine, ou aucun) ; C = source
+# secondaire, ou grandeur mal définie par la source.
 
 chiffres:
 
@@ -28,9 +29,9 @@ chiffres:
     citation: « La consommation brute d'électricité de l'année 2024 s'est élevée à 442,2 TWh »
     confiance: B
     recoupements:
-      - source: rte-be2024
-        valeur: 440,1 TWh (somme éCO2mix, hors Corse) + 2,3 TWh (Corse, ODRÉ)
-        note: recalcul du pipeline (pc check) ; même éditeur, mais données horaires distinctes du bilan publié
+      - source: rte-eco2mix-odre
+        valeur: 440,0 TWh (somme éCO2mix, hors Corse) + 2,3 TWh (Corse, ODRÉ)
+        note: recalcul du site ; même éditeur, mais données horaires distinctes du bilan publié
         independant: false
     verification: contre-verification
     note: révisé à 442,3 TWh dans ODRÉ (recalcul de l'autoconsommation photovoltaïque)
@@ -79,8 +80,8 @@ chiffres:
     confiance: B
     recoupements:
       - source: ademe-prospective-2026
-        valeur: 9,91 TWh (8,16 inventoriés + 3,5 modélisés)
-        note: méthode d'inventaire et de modélisation, distincte des comptages ; écart non résolu avec le SDES sur la colocation
+        valeur: 9,91 TWh — colocation inventoriée (6,46 TWh) et estimation surfacique des centres privés, publics et des salles internes (3,5 TWh)
+        note: méthode d'inventaire et d'extrapolation, distincte des comptages ; l'inventaire complet (8,16 TWh) compte aussi des centres privés et publics que l'estimation surfacique remplace ; écart non résolu avec le SDES sur la colocation
         independant: true
     verification: contre-verification
 
@@ -116,7 +117,7 @@ chiffres:
     unite: TWh
     grandeur: energie
     periode: "2024"
-    perimetre: data centers sur sites dédiés raccordés au réseau public de distribution d'Enedis
+    perimetre: data centers raccordés au réseau public de distribution d'Enedis (sites dédiés par inférence du contexte, la parenthèse de la source ne le précise pas)
     source: rte-be2025
     page: p. 18
     citation: « (3 TWh sur le réseau public de distribution d'Enedis en 2024) »
@@ -231,13 +232,26 @@ chiffres:
     confiance: B
     verification: contre-verification
 
-  dc_signe_fouju_terme:
-    libelle: Campus IA (Fouju), puissance de raccordement visée à terme
-    valeur: 1400
+  dc_signe_fouju_2029:
+    libelle: Campus IA (Fouju), second palier de puissance de raccordement
+    valeur: 700
     unite: MW
     grandeur: puissance_signee
+    periode: avant fin 2029
+    perimetre: contrat de raccordement fast-track signé le 26/01/2026 ; puissance mise à disposition, pas une mise en service du data center
+    source: rte-cp-campusia-2026
+    page: communiqué
+    citation: « un premier palier de puissance de 240 MW d'ici fin 2027, suivi d'un second palier de 700 MW avant fin 2029 »
+    confiance: B
+    verification: contre-verification
+
+  dc_signe_fouju_terme:
+    libelle: Campus IA (Fouju), dimensionnement des ouvrages à terme (non contractuel)
+    valeur: 1400
+    unite: MW
+    grandeur: puissance_dimensionnement
     periode: à terme (non daté)
-    perimetre: contrat de raccordement fast-track signé le 26/01/2026
+    perimetre: capacité pour laquelle les infrastructures sont conçues ; ce n'est pas un palier du contrat signé le 26/01/2026
     source: rte-cp-campusia-2026
     page: communiqué
     citation: « permettre, à terme, une montée en puissance jusqu'à 1 400 MW »
@@ -262,17 +276,18 @@ chiffres:
     verification: contre-verification
 
   dc_raccorde_rpd_2025:
-    libelle: Puissance des data centers en fonctionnement sur le réseau d'Enedis
+    libelle: Puissance raccordée des data centers en service sur le réseau d'Enedis
     valeur: 0.9
     unite: GW
     grandeur: puissance_raccordee
     periode: "2025"
-    perimetre: réseau de distribution d'Enedis ; environ 400 data centers en opération ; nature exacte de la puissance non précisée
+    perimetre: réseau de distribution d'Enedis ; environ 400 data centers en opération
     source: rte-tdb-electrification-2026
     page: p. 26
-    citation: « 0,9 GW en fonctionnement en 2025 »
-    confiance: C
-    verification: spike
+    citation: « 0,9 GW en fonctionnement en 2025 » ; graphique « Puissance raccordée pour des datacenters [MW] »
+    confiance: B
+    verification: contre-verification
+    note: en baisse en 2025 par construction — « Depuis l'été 2025, un nouveau cadre réglementaire […] permet de procéder à des baisses de puissance de raccordement lorsque celles-ci sont surdimensionnées »
 
   dc_appele_moyen_rpt_2025:
     libelle: Puissance moyenne appelée par les data centers raccordés au réseau de transport
@@ -301,6 +316,19 @@ chiffres:
     confiance: C
     verification: contre-verification
     note: rapport moyen (définition BP2025, chap. Consommation, p. 28, note 15), pas une pointe ; on ne le retrouve pas à partir de 1 TWh et 770 MW (≈ 15 %) — écart non résolu
+
+  dc_taux_utilisation_rpt_2025_12:
+    libelle: Part de la puissance contractuelle de raccordement utilisée par les data centers déjà raccordés (réseau de transport)
+    valeur: 20
+    unite: "%"
+    grandeur: part
+    periode: décembre 2025
+    perimetre: data centers déjà raccordés au réseau de transport ; définition du calcul non donnée
+    source: rte-bp2025-resultats
+    page: p. 23
+    citation: « les datacenters déjà raccordés n'utilisant par exemple à date que 20% de leur puissance contractuelle de raccordement »
+    confiance: C
+    verification: contre-verification
 
   dc_pointe_cohorte_2022_2024:
     libelle: Pointe appelée en 2024 par les data centers raccordés au réseau de transport entre 2022 et 2024
@@ -426,7 +454,7 @@ chiffres:
     unite: "%"
     grandeur: part
     periode: "2030"
-    perimetre: projets ayant demandé un raccordement au réseau de transport, mise en service prévue avant 2030 (soit 4,3 GW)
+    perimetre: projets disposant d'un accès réservé au réseau de transport pour une mise en service avant 2030 (assiette ≈ 7,2 GW ; soit 4,3 GW concrétisés)
     source: rte-bp2025-consommation
     page: p. 27-28
     citation: « la trajectoire de décarbonation rapide correspond à un taux de concrétisation d'environ 60 % (4,3 GW) pour les projets ayant demandé un raccordement au réseau de transport d'électricité et dont la mise en service est prévue avant 2030 »
@@ -439,7 +467,7 @@ chiffres:
     unite: "%"
     grandeur: part
     periode: "2030"
-    perimetre: projets ayant demandé un raccordement au réseau de transport
+    perimetre: projets disposant d'un accès réservé au réseau de transport pour une mise en service avant 2030 (assiette ≈ 8 GW ; soit 2,4 GW concrétisés)
     source: rte-bp2025-consommation
     page: p. 28
     citation: « la trajectoire de décarbonation lente correspond quant à elle à un taux de concrétisation d'environ 30 % pour les projets ayant demandé un raccordement au réseau de transport »
@@ -465,7 +493,7 @@ chiffres:
     unite: TWh
     grandeur: energie
     periode: "2035"
-    perimetre: territoire français, centres internes compris (base 2024 ≈ 9,91 TWh)
+    perimetre: centres de données situés en France, centres internes compris (base 2024 ≈ 9,91 TWh), dans un scénario construit à partir des usages numériques des Français (hors demande étrangère explicite)
     source: ademe-prospective-2026
     page: p. 8, tableau
     citation: tableau des scénarios, ligne « Tendanciel », colonne 2035
@@ -486,7 +514,7 @@ chiffres:
     confiance: A
     recoupements:
       - source: energy-charts-prix
-        valeur: 147 h (recalcul de `pc check` sur les prix SMARD / energy-charts)
+        valeur: 147 h (recalcul du site sur les prix SMARD / energy-charts)
         independant: true
     verification: contre-verification
 
@@ -503,7 +531,7 @@ chiffres:
     confiance: A
     recoupements:
       - source: energy-charts-prix
-        valeur: 352 h (recalcul de `pc check`)
+        valeur: 352 h (recalcul du site sur les prix SMARD / energy-charts)
         independant: true
     verification: contre-verification
     note: révisé depuis 361 h (Bilan 2024) — RTE retient les données Nord Pool pendant le découplage d'EPEX du 26 juin 2024 (BE2025, p. 64)
@@ -521,7 +549,7 @@ chiffres:
     confiance: A
     recoupements:
       - source: energy-charts-prix
-        valeur: 513 h (recalcul de `pc check`)
+        valeur: 513 h (recalcul du site sur les prix SMARD / energy-charts)
         independant: true
     verification: contre-verification
 
@@ -547,7 +575,7 @@ contraintes:
     motif: les sites dédiés sont une partie de l'ensemble
   - inferieur: [dc_appele_moyen_rpt_2025, dc_raccorde_rpt_2025_12]
     motif: on n'appelle pas en moyenne plus que la puissance de raccordement
-  - inferieur: [dc_signe_fouju_2027, dc_signe_fouju_terme]
+  - inferieur: [dc_signe_fouju_2027, dc_signe_fouju_2029]
     motif: paliers successifs
   - inferieur: [traj_bp2025_lente_2030, traj_bp2025_rapide_2030]
     motif: ordre des trajectoires

@@ -171,3 +171,11 @@ energy-charts-prix:
   url: https://api.energy-charts.info/price?bzn=FR
   consulte_le: 2026-11-26
   note: licence CC BY 4.0 (energy-charts.info, SMARD.de) ; date = date d'extraction par `pc download`
+
+rte-eco2mix-odre:
+  editeur: RTE (open data ODRÉ)
+  titre: éCO2mix national (données définitives) et consommation annuelle brute régionale
+  date_publication: 2026-11-26
+  url: https://odre.opendatasoft.com/explore/dataset/eco2mix-national-cons-def/
+  consulte_le: 2026-11-26
+  note: date = date d'extraction par `pc download` ; Licence Ouverte 2.0

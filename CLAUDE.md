@@ -88,6 +88,11 @@ rédigé en tutoiement, ton direct, zéro jargon de dev.
 - Tout agent écrit dans un fichier qui lui est propre, ne commite pas,
   et signale ses doutes. Ses chiffres sont relus avant d'entrer dans
   `docs/` ou sur le site.
+- Un signalement (d'agent, de relecture, de test) se vérifie **à la
+  source** avant correction : on ne corrige jamais sur la seule foi du
+  signalement (erreur du 26/11/2026, surcorrection Enedis).
+- Avant chaque publication d'une page : relecture adverse « lectrice
+  experte » par un agent Opus, rapport dans `docs/relectures/`.
 
 ## Arborescence
 
