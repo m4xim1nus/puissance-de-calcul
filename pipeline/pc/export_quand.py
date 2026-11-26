@@ -234,9 +234,14 @@ LIMITES = {
     "jeu_nucleaire": list(quand.LIMITES_J),
     "charges_plates": [
         "heures_rn_plus_x_au_dessus_du_max compte des heures au-delà du maximum OBSERVÉ de l'année : un écart à "
-        "l'observé, pas une défaillance ni un risque de défaillance",
-        "part_dans_j est un plafond (voir limites.jeu_nucleaire) ; le reste de l'énergie viendrait d'autres moyens "
-        "ou de moins d'exports",
+        "l'observé, pas une défaillance ni un risque de défaillance. Le seuil est UNE heure : le compte vaut au "
+        "moins 1 (l'heure du maximum se dépasse elle-même) et dépend de la forme du sommet de la monotone, pas de la "
+        "tension ; d'où le seuil pluriannuel (heures_rn_plus_x_au_dessus_du_max_reference, maximum 2015-2025, "
+        "`rn_max_pluriannuel`), que le système a couvert avec d'autres moyens (charbon, imports massifs, prix "
+        "extrêmes)",
+        "part_dans_j est un plafond (voir limites.jeu_nucleaire), lâche : part_dans_j_plancher en donne la "
+        "sensibilité à un plancher non mobilisable (hypothèse du site) ; qui servirait le reste de l'énergie dépend "
+        "de la saturation des interconnexions, non déterminable sans les données des voisins",
         "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; "
         "RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du "
         "26/11/2026, n° 13)",
@@ -265,16 +270,42 @@ def encadrement_flamanville3(t: dict[str, list]) -> dict | None:
     }
 
 
+def limites_chiffrees(annees: dict[str, dict]) -> list[str]:
+    """Les limites de J, chiffrées sur la dernière année pleine (quand.json arrondi)."""
+    an = max(annees)
+    a = annees[an]
+    pc = a["jeu_nucleaire"]["prix_chers"]
+    c5 = next(c for c in a["charges_plates"] if c["x_mw"] == 5000)
+    prod = a["production_nucleaire_twh"]
+    lignes = []
+    if pc["j_moyenne_mw"] is not None:
+        lignes.append(f"plancher, chiffré ({an}) : J moyen {_fr(pc['j_moyenne_mw'] / 1000, 2)} GW aux {pc['heures']} "
+                      f"heures où le prix day-ahead dépasse {pc['seuil_eur_mwh']} EUR/MWh (seuil choisi par le site) ; "
+                      f"avec un plancher de {_fr(c5['plancher_mw'] / 1000, 1)} GW, la part tenue pour 5 GW passe de "
+                      f"{_fr(c5['part_dans_j'] * 100, 0)} % à {_fr(c5['part_dans_j_plancher'] * 100, 0)} %")
+    lignes.append(f"énergie, chiffrée ({an}) : 5 GW plats tenus dans J, ce serait {_fr(c5['energie_dans_j_twh'], 1)} TWh "
+                  f"de nucléaire en plus de la production observée ({_fr(prod, 1)} TWh, somme éCO2mix), soit "
+                  f"{_fr(prod + c5['energie_dans_j_twh'], 0)} TWh sur l'année, à comparer aux prévisions de production "
+                  "(référentiel : prod_nucleaire_prevision_*)")
+    return lignes
+
+
 def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
     """Contenu de quand.json (arrondi) à partir de la table horaire exportée."""
     pleines, exclues = annees_pleines(table)
+    tables = {an: table_annee(table, an) for an in pleines}
+    # 1. maximum pluriannuel de RN (seuil extérieur à chaque année)
+    pluri = quand.max_pluriannuel({str(an): quand.max_charge_residuelle(t) for an, t in tables.items()})
+    reference = pluri["valeur_mw"] if pluri else None
+    # 2. indicateurs de chaque année
     annees = {}
-    for an in pleines:
-        t = table_annee(table, an)
-        a = quand.indicateurs_annee(t)
+    for an, t in tables.items():
+        a = quand.indicateurs_annee(t, rn_max_reference_mw=reference)
         f3 = encadrement_flamanville3(t)
         if f3:
             a["jeu_nucleaire"]["flamanville3"] = f3
+        prod = [v for v in t["nucleaire"] if v is not None]
+        a["production_nucleaire_twh"] = sum(prod) / 1e6
         annees[str(an)] = arrondir(a)
     matrices = {}
     for an in sorted({ANNEE_CRISE, pleines[-1]} & set(pleines)):
@@ -299,7 +330,7 @@ def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
                   "en heure légale de Paris ; mois et heures de Paris indexés à partir de 0 (janvier = 0, 0 h = 0)",
         "definitions": DEFINITIONS,
         "signes": SIGNES,
-        "limites": LIMITES,
+        "limites": {**LIMITES, "jeu_nucleaire": LIMITES["jeu_nucleaire"] + limites_chiffrees(annees)},
         "parametres": {
             "charges_plates_mw": list(quand.CHARGES_PLATES_MW),
             "heures_tendues": quand.N_HEURES_TENDUES,
@@ -310,7 +341,15 @@ def construire_quand(table: pl.DataFrame, extractions: dict) -> dict:
             "plages_7_11_17_21": "heures de Paris de début 7, 8, 9, 10, 17, 18, 19 et 20 ([7 h, 11 h[ et [17 h, 21 h[)",
             "plages_pp_rte": "[7 h, 10 h[ et [17 h, 20 h[ (plages PP du mécanisme de capacité 2026/2027, BP2025, "
                              "« Fonctionnement », note 38 p. 30)",
+            "plancher_j_mw": f"{quand.PLANCHER_J_MW} : HYPOTHÈSE DU SITE, retranchée à J pour part_dans_j_plancher et "
+                             "energie_dans_j_plancher_twh (J' = max(0, J − plancher))",
+            "seuil_prix_cher_eur_mwh": f"{quand.SEUIL_PRIX_CHER_EUR_MWH} : CHOISI PAR LE SITE ; jeu_nucleaire.prix_chers "
+                                       "= J moyen aux heures où le prix day-ahead est strictement supérieur",
+            "rn_max_reference": "maximum de RN sur les années pleines (rn_max_pluriannuel) ; "
+                                "heures_rn_plus_x_au_dessus_du_max_reference = heures où RN + X le dépasse (strictement)",
+            "production_nucleaire_twh": "somme de la production nucléaire éCO2mix de l'année (MW moyens horaires × 1 h)",
         },
+        "rn_max_pluriannuel": {**arrondir(pluri), "annees": f"{pleines[0]}-{pleines[-1]}"} if pluri else None,
         "colonnes_eco2mix": verifier_colonnes_eco2mix(table, pleines),
         "annees_exclues": {str(a): m for a, m in exclues.items()},
         "annees": annees,
@@ -398,6 +437,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 "note": "autre grandeur (frontière modulation / indisponibilité fixée par EDF) : ordre de grandeur "
                         "seulement, l'écart est affiché par `pc check`", "independant": False})
         f3 = jeu.get("flamanville3")
+        f3 = f3 if f3 and f3["disponible_declare_epr_twh"] >= SEUIL_EPR_TWH else None  # sinon encadrement trivial
         note_f3 = (f" ; comprend Flamanville 3 (EPR en essais, {_fr(f3['disponible_declare_epr_twh'], 2)} TWh "
                    f"déclarés disponibles) : hors EPR, entre {_fr(f3['somme_j_sans_disponible_epr_twh'], 1)} et "
                    f"{_fr(jeu['somme_twh'], 1)} TWh") if f3 else ""
@@ -409,8 +449,9 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
             "calcul": "Σ max(0, nucléaire disponible déclaré − nucléaire produit) sur les heures de l'année, MW moyens "
                       "horaires × 1 h",
             **({"recoupements": recoupements} if recoupements else {}),
-            "note": "au plus : réserves de services système, économie de combustible et baisse des exports non "
-                    "déduites ; ce n'est pas la modulation publiée par EDF" + note_f3,
+            "note": "au plus : réserves de services système (plancher non mobilisable) et contrainte d'énergie "
+                    "(combustible, calendrier des arrêts) non déduites ; ce n'est pas la modulation publiée par EDF"
+                    + note_f3,
         }
         for gw in (1, 5, 10):
             c = cp[gw * 1000]
@@ -422,8 +463,10 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].part_dans_j",
                 "calcul": f"Σ min({gw} 000 MW, J) / ({gw} 000 MW × heures où J est renseigné), "
                           "J = max(0, nucléaire disponible − produit)",
-                "note": f"borne haute ; énergie ajoutée {_fr(c['energie_ajoutee_twh'], 2)} TWh sur l'année ; une "
-                        "charge ajoutée serait d'abord servie en partie par moins d'exports",
+                "note": f"borne haute, lâche : avec un plancher non mobilisable de {_fr(c['plancher_mw'] / 1000, 0)} GW "
+                        f"(hypothèse du site), {_fr(c['part_dans_j_plancher'] * 100, 0)} % ; énergie ajoutée "
+                        f"{_fr(c['energie_ajoutee_twh'], 2)} TWh sur l'année ; qui servirait le reste dépend de la "
+                        "saturation des interconnexions, non déterminable sans les données des voisins",
             }
         for gw in (5, 10):
             c = cp[gw * 1000]
@@ -477,9 +520,10 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 "citation": f"annees.{an}.charges_plates[x_mw = 5000].solde_echanges_moyen_heures_j_ge_x_mw",
                 "calcul": "moyenne de `ech_physiques` d'éCO2mix sur les heures où J = max(0, nucléaire disponible "
                           "− produit) ≥ 5 000 MW ; signe d'éCO2mix conservé (positif = import)",
-                "note": f"sur {c5['heures_j_superieur_ou_egal_x']} heures (quand_heures_j5_{an}) ; négatif : "
-                        "à ces heures la France exporte déjà, une charge ajoutée y serait d'abord servie en partie "
-                        "par moins d'exports",
+                "note": f"sur {c5['heures_j_superieur_ou_egal_x']} heures de l'année ; négatif : à ces heures la "
+                        "France exporte déjà ; qui servirait une charge ajoutée (nucléaire inemployé ou moins "
+                        "d'exports) dépend de la saturation des interconnexions, non déterminable sans les données "
+                        "des voisins",
             }
         out[f"quand_heures_j5_{an}"] = {
             **commun,
@@ -542,5 +586,103 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 "note": f"Σ J hors EPR est compris entre cette valeur et Σ J ({_fr(jeu['somme_twh'], 1)} TWh, EPR "
                         f"compris) ; EPR en essais, {_fr(f3['disponible_declare_epr_twh'], 2)} TWh déclarés "
                         "disponibles sur l'année",
+            }
+    out.update(chiffres_calcules_toutes_annees(q, commun))
+    return out
+
+
+def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
+    """Chiffres calculés pour chaque année pleine (2015-2025) et le maximum pluriannuel (relecture
+    adverse de « Quand ? », 26/11/2026, F1 à F3 et P3)."""
+    out: dict[str, dict] = {}
+    pluri = q.get("rn_max_pluriannuel")
+    if pluri:
+        p = _paris(pluri["debut_paris"])
+        out["quand_rn_max_pluri"] = {
+            **commun,
+            "libelle": f"Charge résiduelle nette du nucléaire disponible, maximum horaire sur {pluri['annees']}",
+            **_valeur(pluri["valeur_mw"] / 1000, "GW"), "grandeur": "charge_residuelle",
+            "periode": f"{p:%Y-%m-%d}, {p.hour} h-{p.hour + 1} h (heure de Paris)",
+            "perimetre": PERIMETRE.replace("année civile en heure de Paris", f"années pleines {pluri['annees']}"),
+            "citation": f"rn_max_pluriannuel (heure UTC {pluri['heure_utc']})",
+            "calcul": "maximum des maxima annuels de RN = consommation − éolien − solaire − nucléaire disponible "
+                      "déclaré ; à égalité, l'heure la plus ancienne",
+            "note": "couvert à l'époque avec d'autres moyens que ceux d'aujourd'hui (charbon, imports, prix) ; une "
+                    "valeur observée, pas un risque",
+        }
+    for an_s, a in q["annees"].items():
+        an = int(an_s)
+        cr, jeu, td = a["charge_residuelle"], a["jeu_nucleaire"], a["heures_tendues"]
+        cp = {c["x_mw"]: c for c in a["charges_plates"]}
+        out[f"quand_top100_rn_moyenne_{an}"] = {
+            **commun,
+            "libelle": f"Charge résiduelle nette du nucléaire disponible, moyenne des {td['n']} heures les plus tendues "
+                       "de l'année",
+            **_valeur(td["rn_moyenne_mw"] / 1000, "GW"), "grandeur": "charge_residuelle", "periode": an_s,
+            "citation": f"annees.{an}.heures_tendues.rn_moyenne_mw",
+            "calcul": f"moyenne de RN sur les {td['n']} heures de RN la plus élevée de l'année",
+            "note": "mesure moins dépendante d'une seule heure que le maximum",
+        }
+        if pluri:
+            for gw in (5, 10):
+                c = cp[gw * 1000]
+                out[f"quand_heures_rn_sup_max_pluri_{gw}gw_{an}"] = {
+                    **commun,
+                    "libelle": f"Heures où la charge résiduelle augmentée de {gw} GW dépasse son maximum observé sur "
+                               f"{pluri['annees']}",
+                    **_valeur(c["heures_rn_plus_x_au_dessus_du_max_reference"], "heures"), "grandeur": "nombre",
+                    "periode": an_s,
+                    "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}]"
+                                ".heures_rn_plus_x_au_dessus_du_max_reference",
+                    "calcul": f"nombre d'heures de {an} où RN + {gw} 000 MW > {pluri['valeur_mw']} MW (maximum de RN sur "
+                              f"{pluri['annees']}, atteint le {_paris(pluri['debut_paris']):%d/%m/%Y})",
+                    "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens "
+                            "(charbon, imports, prix extrêmes)",
+                }
+        pc = jeu["prix_chers"]
+        out[f"quand_heures_prix_chers_{an}"] = {
+            **commun,
+            "libelle": f"Heures où le prix day-ahead dépasse {pc['seuil_eur_mwh']} €/MWh (seuil choisi par le site)",
+            **_valeur(pc["heures"], "heures"), "grandeur": "nombre", "periode": an_s,
+            "citation": f"annees.{an}.jeu_nucleaire.prix_chers.heures",
+            "calcul": f"heures où le prix day-ahead France est strictement supérieur à {pc['seuil_eur_mwh']} €/MWh et "
+                      "où J est renseigné",
+        }
+        if pc["j_moyenne_mw"] is not None:
+            out[f"quand_j_heures_cheres_{an}"] = {
+                **commun,
+                "libelle": "Nucléaire déclaré disponible et non produit, moyenne aux heures où le prix day-ahead "
+                           f"dépasse {pc['seuil_eur_mwh']} €/MWh",
+                **_valeur(pc["j_moyenne_mw"] / 1000, "GW"), "grandeur": "puissance_moyenne", "periode": an_s,
+                "citation": f"annees.{an}.jeu_nucleaire.prix_chers.j_moyenne_mw",
+                "calcul": f"moyenne de J = max(0, nucléaire disponible − produit) sur les {pc['heures']} heures où le "
+                          f"prix est strictement supérieur à {pc['seuil_eur_mwh']} €/MWh (seuil choisi par le site)",
+                "note": "J ne tombe pas à zéro même quand l'énergie est chère : réserves, rampes, fins de cycle, "
+                        "décalage entre déclaration et puissance réelle ; cette part n'est pas mobilisable",
+            }
+        for gw in (5, 10):
+            c = cp[gw * 1000]
+            out[f"quand_part_j_plancher_{gw}gw_{an}"] = {
+                **commun,
+                "libelle": f"Part de l'énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire "
+                           f"disponible non produit, après un plancher non mobilisable de "
+                           f"{_fr(c['plancher_mw'] / 1000, 0)} GW (hypothèse du site)",
+                **_valeur(c["part_dans_j_plancher"] * 100, "%"), "grandeur": "part", "periode": an_s,
+                "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].part_dans_j_plancher",
+                "calcul": f"Σ min({gw} 000 MW, max(0, J − {c['plancher_mw']} MW)) / ({gw} 000 MW × heures où J est "
+                          "renseigné)",
+                "note": f"sans plancher : {_fr(c['part_dans_j'] * 100, 0)} % ; le plancher est une hypothèse du site, "
+                        "pas une donnée publiée",
+            }
+            out[f"quand_energie_j_{gw}gw_{an}"] = {
+                **commun,
+                "libelle": f"Énergie d'une consommation plate de {gw} GW qui tiendrait dans le nucléaire disponible non "
+                           "produit (nucléaire produit en plus, au plus)",
+                **_valeur(c["energie_dans_j_twh"], "TWh"), "grandeur": "energie", "periode": an_s,
+                "citation": f"annees.{an}.charges_plates[x_mw = {gw * 1000}].energie_dans_j_twh",
+                "calcul": f"Σ min({gw} 000 MW, J) sur les heures de l'année, MW moyens horaires × 1 h",
+                "note": f"production nucléaire observée {_fr(a['production_nucleaire_twh'], 1)} TWh (somme éCO2mix) : "
+                        f"ce serait {_fr(a['production_nucleaire_twh'] + c['energie_dans_j_twh'], 0)} TWh sur l'année, "
+                        "si le combustible et le calendrier des arrêts le permettaient",
             }
     return out

@@ -5,13 +5,15 @@
  "cas": [
   {
    "nom": "hiver, 4 heures complètes, 2 heures tendues, monotone sous-échantillonnée",
-   "explication": "RN = 23 000, 28 000, 8 000, −5 000 MW ; J = 2 000, 0, 7 000, 11 000 MW. X = 1 GW : Σ min(X, J) = 3 000 MWh sur 4 000 → 0,75 ; X = 5 GW : 12 000 sur 20 000 → 0,6. RN + 5 000 > 28 000 seulement pour 28 000 (23 000 + 5 000 = 28 000 n'est pas strictement au-dessus). Quantiles type 7 sur [−5 000, 8 000, 23 000, 28 000]. Couverture des 2 heures tendues : la somme des termes (25 500) redonne la RN moyenne. Solde moyen des échanges aux heures où J ≥ X : X = 1 GW, heures 1, 3 et 4 (2 000, 2 000, 0) → 4 000 / 3 ; X = 5 GW, heures 3 et 4 → 1 000.",
+   "explication": "RN = 23 000, 28 000, 8 000, −5 000 MW ; J = 2 000, 0, 7 000, 11 000 MW. X = 1 GW : Σ min(X, J) = 3 000 MWh sur 4 000 → 0,75 ; X = 5 GW : 12 000 sur 20 000 → 0,6. RN + 5 000 > 28 000 seulement pour 28 000 (23 000 + 5 000 = 28 000 n'est pas strictement au-dessus). Quantiles type 7 sur [−5 000, 8 000, 23 000, 28 000]. Couverture des 2 heures tendues : la somme des termes (25 500) redonne la RN moyenne. Solde moyen des échanges aux heures où J ≥ X : X = 1 GW, heures 1, 3 et 4 (2 000, 2 000, 0) → 4 000 / 3 ; X = 5 GW, heures 3 et 4 → 1 000. Plancher de 1 000 MW : J' = 1 000, 0, 6 000, 10 000 ; X = 1 GW : 3 000 sur 4 000 → 0,75 ; X = 5 GW : 1 000 + 0 + 5 000 + 5 000 = 11 000 sur 20 000 → 0,55. Seuil extérieur de 25 000 MW : X = 1 GW, seul 28 000 + 1 000 le dépasse ; X = 5 GW, 23 000 + 5 000 et 28 000 + 5 000 → 2. Prix strictement au-dessus de 10 EUR/MWh : la seule heure à 50, où J = 7 000.",
    "fonction": "indicateurs_annee",
    "parametres": {
     "charges_mw": [1000, 5000],
     "n_tendues": 2,
     "n_exact": 1,
-    "pas_monotone": 2
+    "pas_monotone": 2,
+    "rn_max_reference_mw": 25000,
+    "seuil_prix_cher_eur_mwh": 10
    },
    "entree": {
     "heure_utc": ["2025-01-14T06:00Z", "2025-01-14T07:00Z", "2025-01-14T08:00Z", "2025-01-14T09:00Z"],
@@ -100,7 +102,17 @@
     "prix.rn_moyenne_prix_nul_ou_negatif_mw": 15333.333333333334,
     "prix.j_moyenne_prix_negatif_mw": 6500,
     "charges_plates.0.solde_echanges_moyen_heures_j_ge_x_mw": 1333.3333333333333,
-    "charges_plates.1.solde_echanges_moyen_heures_j_ge_x_mw": 1000
+    "charges_plates.1.solde_echanges_moyen_heures_j_ge_x_mw": 1000,
+    "charges_plates.0.plancher_mw": 1000,
+    "charges_plates.0.energie_dans_j_plancher_twh": 0.003,
+    "charges_plates.0.part_dans_j_plancher": 0.75,
+    "charges_plates.0.heures_rn_plus_x_au_dessus_du_max_reference": 1,
+    "charges_plates.1.energie_dans_j_plancher_twh": 0.011,
+    "charges_plates.1.part_dans_j_plancher": 0.55,
+    "charges_plates.1.heures_rn_plus_x_au_dessus_du_max_reference": 2,
+    "jeu_nucleaire.prix_chers.seuil_eur_mwh": 10,
+    "jeu_nucleaire.prix_chers.heures": 1,
+    "jeu_nucleaire.prix_chers.j_moyenne_mw": 7000
    }
   },
   {
@@ -147,7 +159,7 @@
   },
   {
    "nom": "données manquantes, égalités, passage à l'heure d'été, changement d'année en heure de Paris",
-   "explication": "Heure 2 sans consommation (RN absente, J présente) ; heure 4 sans nucléaire produit (J absente, RN présente) ; production > disponible à l'heure 3 (J = 0). RN valides : −5 000, −5 000, −2 000. Égalité de RN minimale départagée par l'heure UTC la plus ancienne. 2024-12-31T23:00Z est le 1er janvier 2025 à minuit, heure de Paris ; 2025-03-30T02:00Z est 4 h (heure d'été). Énergie ajoutée sur les 4 heures de la table, part tenue sur les 3 heures où J est renseignée. Sans colonnes de couverture ni prix : moyennes absentes. Sans colonne de solde des échanges : solde moyen absent.",
+   "explication": "Heure 2 sans consommation (RN absente, J présente) ; heure 4 sans nucléaire produit (J absente, RN présente) ; production > disponible à l'heure 3 (J = 0). RN valides : −5 000, −5 000, −2 000. Égalité de RN minimale départagée par l'heure UTC la plus ancienne. 2024-12-31T23:00Z est le 1er janvier 2025 à minuit, heure de Paris ; 2025-03-30T02:00Z est 4 h (heure d'été). Énergie ajoutée sur les 4 heures de la table, part tenue sur les 3 heures où J est renseignée. Sans colonnes de couverture ni prix : moyennes absentes. Sans colonne de solde des échanges : solde moyen absent. Plancher par défaut (1 000 MW) : J' = 4 000, 4 000, 0 → Σ min(2 000, J') = 4 000 → 2/3. Sans seuil extérieur : compte absent. Sans prix : aucune heure chère.",
    "fonction": "indicateurs_annee",
    "parametres": {
     "charges_mw": [2000],
@@ -205,7 +217,12 @@
     "prix.heures_valides": 0,
     "prix.heures_negatif": 0,
     "prix.rn_moyenne_prix_negatif_mw": null,
-    "charges_plates.0.solde_echanges_moyen_heures_j_ge_x_mw": null
+    "charges_plates.0.solde_echanges_moyen_heures_j_ge_x_mw": null,
+    "charges_plates.0.part_dans_j_plancher": 0.6666666666666666,
+    "charges_plates.0.energie_dans_j_plancher_twh": 0.004,
+    "charges_plates.0.heures_rn_plus_x_au_dessus_du_max_reference": null,
+    "jeu_nucleaire.prix_chers.heures": 0,
+    "jeu_nucleaire.prix_chers.j_moyenne_mw": null
    }
   },
   {
@@ -501,6 +518,62 @@
    },
    "attendu": {
     "": 7
+   }
+  },
+  {
+   "nom": "plancher non mobilisable plus grand que J à certaines heures",
+   "explication": "J = 500, 1 500, 3 000 MW ; plancher 1 000 : J' = 0, 500, 2 000. X = 1 GW : Σ min(X, J) = 500 + 1 000 + 1 000 = 2 500 sur 3 000 ; Σ min(X, J') = 0 + 500 + 1 000 = 1 500 sur 3 000 → 0,5.",
+   "fonction": "indicateurs_annee",
+   "parametres": {
+    "charges_mw": [1000],
+    "plancher_j_mw": 1000
+   },
+   "entree": {
+    "heure_utc": ["2025-06-01T10:00Z", "2025-06-01T11:00Z", "2025-06-01T12:00Z"],
+    "consommation": [50000, 50000, 50000],
+    "eolien": [5000, 5000, 5000],
+    "solaire": [10000, 10000, 10000],
+    "nucleaire": [44500, 43500, 42000],
+    "nucleaire_disponible": [45000, 45000, 45000],
+    "prix": [200, 160, 150]
+   },
+   "attendu": {
+    "charges_plates.0.part_dans_j": 0.8333333333333334,
+    "charges_plates.0.part_dans_j_plancher": 0.5,
+    "charges_plates.0.energie_dans_j_plancher_twh": 0.0015,
+    "jeu_nucleaire.prix_chers.heures": 2,
+    "jeu_nucleaire.prix_chers.j_moyenne_mw": 1000
+   }
+  },
+  {
+   "nom": "maximum pluriannuel : valeur la plus élevée, puis heure la plus ancienne",
+   "explication": "Deux années au même maximum (38 000 MW) : la plus ancienne l'emporte ; une année sans maximum est ignorée.",
+   "fonction": "max_pluriannuel",
+   "entree": {
+    "maxima": {
+     "2018": {
+      "valeur_mw": 38000,
+      "heure_utc": "2018-02-27T18:00Z",
+      "debut_paris": "2018-02-27T19:00+01:00"
+     },
+     "2022": {
+      "valeur_mw": 38000,
+      "heure_utc": "2022-12-12T07:00Z",
+      "debut_paris": "2022-12-12T08:00+01:00"
+     },
+     "2025": {
+      "valeur_mw": 31433,
+      "heure_utc": "2025-01-14T07:00Z",
+      "debut_paris": "2025-01-14T08:00+01:00"
+     },
+     "2026": null
+    }
+   },
+   "attendu": {
+    "valeur_mw": 38000,
+    "heure_utc": "2018-02-27T18:00Z",
+    "debut_paris": "2018-02-27T19:00+01:00",
+    "annee": "2018"
    }
   }
  ]

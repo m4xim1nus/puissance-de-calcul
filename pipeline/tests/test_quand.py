@@ -34,6 +34,8 @@ def executer(cas: dict):
         return quand.indicateurs_annee(e, **p)
     if cas["fonction"] == "matrice_jour_heure":
         return quand.matrice_jour_heure(e["heures_utc"], e["valeurs"])
+    if cas["fonction"] == "max_pluriannuel":
+        return quand.max_pluriannuel(e["maxima"])
     if cas["fonction"] == "quantile":
         return quand.quantile(e["tries"], e["q"])
     if cas["fonction"] == "simuler":

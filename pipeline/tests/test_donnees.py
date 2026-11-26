@@ -167,6 +167,19 @@ def test_chiffres_calcules_publies(export):
     assert c["quand_j_2025_hors_epr"]["valeur"] < c["quand_j_2025"]["valeur"]
     assert c["quand_top100_plages_pp_2025"]["valeur"] <= c["quand_top100_plages_2025"]["valeur"]
     assert c["quand_heures_j5_2025"]["unite"] == "heures"
+    # relecture adverse de « Quand ? » : chiffres de toutes les années pleines, maximum pluriannuel
+    assert c["quand_rn_max_pluri"]["valeur"] >= max(c[f"quand_rn_max_{an}"]["valeur"] for an in (2022, 2023, 2024, 2025))
+    for an in range(2015, 2026):
+        for cle in (f"quand_top100_rn_moyenne_{an}", f"quand_heures_rn_sup_max_pluri_5gw_{an}",
+                    f"quand_heures_rn_sup_max_pluri_10gw_{an}", f"quand_part_j_plancher_5gw_{an}",
+                    f"quand_part_j_plancher_10gw_{an}", f"quand_energie_j_5gw_{an}", f"quand_energie_j_10gw_{an}",
+                    f"quand_heures_prix_chers_{an}"):
+            assert cle in c, cle
+        assert c[f"quand_part_j_plancher_5gw_{an}"]["valeur"] <= c[f"quand_part_j_5gw_2025"]["valeur"] or an != 2025
+    for an in (2024, 2025):
+        assert 0 < c[f"quand_j_heures_cheres_{an}"]["valeur"] < 3
+    assert "25,1 et 25,1" not in c["quand_j_2024"]["note"]  # relecture Fo1
+    assert not [k for k, v in c.items() if v.get("produit_par") and "quand_" in v.get("note", "")]  # Fo2
     # publié = arrondi : GW et TWh à 0,1, % à l'entier
     for cle, v in c.items():
         if v.get("produit_par"):

@@ -26,8 +26,8 @@
  },
  "limites": {
   "charge_residuelle": ["observé, pas simulé : 2015-2025 ne contient aucune vague de froid du type de février 2012 ; une monotone observée n'est pas une distribution de risque (RTE simule des centaines de scénarios climatiques)", "éolien et solaire observés = après écrêtement : aux heures de prix négatif, RN est surestimée", "nucléaire disponible DÉCLARÉ (REMIT), pas une capacité physique garantie ; réserves de services système comprises", "hydraulique de lac et STEP : contraintes d'énergie (stock) ; leur puissance n'est pas disponible à toute heure", "les imports ne sont pas une marge ferme (vagues de froid communes à l'Europe)", "pointe horaire ≠ pointe à la demi-heure ou au quart d'heure ; consommation hors Corse"],
-  "jeu_nucleaire": ["borne haute : une partie du nucléaire disponible est réservée aux services système (réserves primaire et secondaire), elle n'est pas mobilisable pour une charge ajoutée", "une baisse de production pour économiser le combustible déplace de l'énergie dans le temps : ce n'est pas de l'énergie perdue", "une charge ajoutée serait d'abord servie en partie par moins d'exports (la France exporte aux heures où J est grand) ; ce qui manquerait alors aux voisins relève du facteur d'émission marginal européen, pas de ce calcul", "disponibilité DÉCLARÉE par EDF (REMIT) : la frontière entre indisponibilité et modulation est fixée par EDF ; un arrêt pour économie de combustible peut être déclaré indisponible et sortir de J", "J n'est pas la « modulation » publiée par EDF ou RTE (périmètre et méthode différents) : seul l'ordre de grandeur se compare"],
-  "charges_plates": ["heures_rn_plus_x_au_dessus_du_max compte des heures au-delà du maximum OBSERVÉ de l'année : un écart à l'observé, pas une défaillance ni un risque de défaillance", "part_dans_j est un plafond (voir limites.jeu_nucleaire) ; le reste de l'énergie viendrait d'autres moyens ou de moins d'exports", "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du 26/11/2026, n° 13)"]
+  "jeu_nucleaire": ["borne haute : une partie du nucléaire disponible est réservée aux services système (réserves primaire et secondaire), elle n'est pas mobilisable pour une charge ajoutée", "plancher : J ne tombe pas à zéro, même aux heures les plus chères (réserves, rampes de redémarrage, fins de cycle, décalage entre déclaration et puissance réelle) ; cette part n'est pas mobilisable. `part_dans_j_plancher` retranche à J un plancher uniforme (`PLANCHER_J_MW`, hypothèse du site) ; `jeu_nucleaire.prix_chers` donne J moyen aux heures où le prix dépasse `SEUIL_PRIX_CHER_EUR_MWH`", "contrainte d'énergie : J est une marge en puissance heure par heure, pas un gisement d'énergie annuel. Le combustible et le calendrier des arrêts plafonnent la production de l'année ; une baisse de production pour économiser le combustible déplace de l'énergie dans le temps. `energie_dans_j_twh` serait du nucléaire produit EN PLUS de la production observée, à comparer aux prévisions de production de l'exploitant et de RTE", "qui servirait la charge ajoutée (nucléaire inemployé, moins d'exports, autres moyens) dépend de la saturation des interconnexions : non déterminable sans les données des voisins", "disponibilité DÉCLARÉE par EDF (REMIT) : la frontière entre indisponibilité et modulation est fixée par EDF ; un arrêt pour économie de combustible peut être déclaré indisponible et sortir de J", "J n'est pas la « modulation » publiée par EDF ou RTE (périmètre et méthode différents) : seul l'ordre de grandeur se compare", "plancher, chiffré (2025) : J moyen 0,54 GW aux 278 heures où le prix day-ahead dépasse 150 EUR/MWh (seuil choisi par le site) ; avec un plancher de 1,0 GW, la part tenue pour 5 GW passe de 52 % à 39 %", "énergie, chiffrée (2025) : 5 GW plats tenus dans J, ce serait 22,8 TWh de nucléaire en plus de la production observée (372,9 TWh, somme éCO2mix), soit 396 TWh sur l'année, à comparer aux prévisions de production (référentiel : prod_nucleaire_prevision_*)"],
+  "charges_plates": ["heures_rn_plus_x_au_dessus_du_max compte des heures au-delà du maximum OBSERVÉ de l'année : un écart à l'observé, pas une défaillance ni un risque de défaillance. Le seuil est UNE heure : le compte vaut au moins 1 (l'heure du maximum se dépasse elle-même) et dépend de la forme du sommet de la monotone, pas de la tension ; d'où le seuil pluriannuel (heures_rn_plus_x_au_dessus_du_max_reference, maximum 2015-2025, `rn_max_pluriannuel`), que le système a couvert avec d'autres moyens (charbon, imports massifs, prix extrêmes)", "part_dans_j est un plafond (voir limites.jeu_nucleaire), lâche : part_dans_j_plancher en donne la sensibilité à un plancher non mobilisable (hypothèse du site) ; qui servirait le reste de l'énergie dépend de la saturation des interconnexions, non déterminable sans les données des voisins", "une charge plate ne représente pas un data center réel (montée en charge, profil, effacement possible) ; RTE n'écrit pas qu'un GW de consommation à la pointe retire un GW de marge (contre-vérification du 26/11/2026, n° 13)"]
  },
  "parametres": {
   "charges_plates_mw": [500, 1000, 2000, 5000, 10000, 15000, 20000],
@@ -36,7 +36,18 @@
   "quantiles": "interpolation linéaire entre rangs (type 7 de Hyndman et Fan), sur les heures valides",
   "hiver": "novembre à mars (heure de Paris) ; part_dec_fev : décembre à février",
   "plages_7_11_17_21": "heures de Paris de début 7, 8, 9, 10, 17, 18, 19 et 20 ([7 h, 11 h[ et [17 h, 21 h[)",
-  "plages_pp_rte": "[7 h, 10 h[ et [17 h, 20 h[ (plages PP du mécanisme de capacité 2026/2027, BP2025, « Fonctionnement », note 38 p. 30)"
+  "plages_pp_rte": "[7 h, 10 h[ et [17 h, 20 h[ (plages PP du mécanisme de capacité 2026/2027, BP2025, « Fonctionnement », note 38 p. 30)",
+  "plancher_j_mw": "1000 : HYPOTHÈSE DU SITE, retranchée à J pour part_dans_j_plancher et energie_dans_j_plancher_twh (J' = max(0, J − plancher))",
+  "seuil_prix_cher_eur_mwh": "150 : CHOISI PAR LE SITE ; jeu_nucleaire.prix_chers = J moyen aux heures où le prix day-ahead est strictement supérieur",
+  "rn_max_reference": "maximum de RN sur les années pleines (rn_max_pluriannuel) ; heures_rn_plus_x_au_dessus_du_max_reference = heures où RN + X le dépasse (strictement)",
+  "production_nucleaire_twh": "somme de la production nucléaire éCO2mix de l'année (MW moyens horaires × 1 h)"
+ },
+ "rn_max_pluriannuel": {
+  "valeur_mw": 38582,
+  "heure_utc": "2018-02-27T18:00Z",
+  "debut_paris": "2018-02-27T19:00+01:00",
+  "annee": "2018",
+  "annees": "2015-2025"
  },
  "colonnes_eco2mix": {
   "constats": ["hydraulique = fil de l'eau et éclusées + lacs + turbinage des STEP (écart horaire maximal par année ci-dessous : arrondis) ; le turbinage des STEP est donc DANS l'hydraulique, et rendu à part ici", "gaz = cycles combinés + turbines à combustion + cogénération + autres (écart : arrondis des sous-filières)", "consommation = Σ des filières + pompage + solde des échanges physiques, à quelques dizaines de MW près (écart moyen ci-dessous) : la consommation éCO2mix EXCLUT le pompage (sinon l'écart serait du GW), et le solde est positif à l'import", "pompage ≤ 0 à toutes les heures (consommation des STEP, comptée négative)", "écart de bilan moyen de quelques MW jusqu'en 2020, de −65 à −80 MW depuis 2021 (même saut, de 2 à environ 22 MW, pour le gaz contre ses sous-filières) : cause non établie (hypothèse non vérifiée : stockage par batteries, sans colonne dans le jeu définitif) ; l'écart est rendu tel quel dans la couverture des heures tendues (`ecart_bilan_eco2mix`)"],
@@ -819,7 +830,12 @@
     "somme_twh": 25.3011,
     "par_mois_twh": [1.2359, 0.5769, 1.3124, 2.5279, 3.4196, 2.6197, 2.7632, 3.208, 2.3638, 1.4949, 1.7811, 1.9978],
     "heures_positif": 8755,
-    "moyenne_mw": 2889
+    "moyenne_mw": 2889,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 0,
+     "j_moyenne_mw": null
+    }
    },
    "charges_plates": [
     {
@@ -830,7 +846,11 @@
      "heures_j_superieur_ou_egal_x": 8368,
      "rn_max_plus_x_mw": 29018,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7501
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7501,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 3.4914,
+     "part_dans_j_plancher": 0.7973,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -840,7 +860,11 @@
      "heures_j_superieur_ou_egal_x": 7481,
      "rn_max_plus_x_mw": 29518,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7661
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7661,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.4929,
+     "part_dans_j_plancher": 0.7414,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -850,7 +874,11 @@
      "heures_j_superieur_ou_egal_x": 5493,
      "rn_max_plus_x_mw": 30518,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7960
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7960,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.7425,
+     "part_dans_j_plancher": 0.6133,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -860,7 +888,11 @@
      "heures_j_superieur_ou_egal_x": 1123,
      "rn_max_plus_x_mw": 33518,
      "heures_rn_plus_x_au_dessus_du_max": 29,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8122
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8122,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 15.5258,
+     "part_dans_j_plancher": 0.3546,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 10000,
@@ -870,7 +902,11 @@
      "heures_j_superieur_ou_egal_x": 107,
      "rn_max_plus_x_mw": 38518,
      "heures_rn_plus_x_au_dessus_du_max": 181,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5399
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5399,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 16.9626,
+     "part_dans_j_plancher": 0.1937,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 15000,
@@ -880,7 +916,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 43518,
      "heures_rn_plus_x_au_dessus_du_max": 609,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 17.0109,
+     "part_dans_j_plancher": 0.1295,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 29
     },
     {
      "x_mw": 20000,
@@ -890,7 +930,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 48518,
      "heures_rn_plus_x_au_dessus_du_max": 1412,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 17.0109,
+     "part_dans_j_plancher": 0.0971,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 180
     }
    ],
    "prix": {
@@ -900,7 +944,8 @@
     "rn_moyenne_prix_negatif_mw": null,
     "rn_moyenne_prix_nul_ou_negatif_mw": null,
     "j_moyenne_prix_negatif_mw": null
-   }
+   },
+   "production_nucleaire_twh": 416.3594
   },
   "2016": {
    "heures": 8784,
@@ -1599,7 +1644,12 @@
     "somme_twh": 17.6044,
     "par_mois_twh": [1.5864, 1.3687, 0.9997, 1.1431, 2.0147, 1.8266, 2.1082, 2.003, 1.5278, 1.2351, 1.089, 0.702],
     "heures_positif": 8700,
-    "moyenne_mw": 2005
+    "moyenne_mw": 2005,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 15,
+     "j_moyenne_mw": 661
+    }
    },
    "charges_plates": [
     {
@@ -1610,7 +1660,11 @@
      "heures_j_superieur_ou_egal_x": 8091,
      "rn_max_plus_x_mw": 31879,
      "heures_rn_plus_x_au_dessus_du_max": 4,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -4905
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4905,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.9671,
+     "part_dans_j_plancher": 0.6757,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -1620,7 +1674,11 @@
      "heures_j_superieur_ou_egal_x": 6702,
      "rn_max_plus_x_mw": 32379,
      "heures_rn_plus_x_au_dessus_du_max": 7,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5224
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5224,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.0696,
+     "part_dans_j_plancher": 0.5773,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -1630,7 +1688,11 @@
      "heures_j_superieur_ou_egal_x": 3365,
      "rn_max_plus_x_mw": 33379,
      "heures_rn_plus_x_au_dessus_du_max": 13,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6027
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6027,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 7.3515,
+     "part_dans_j_plancher": 0.4186,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -1640,7 +1702,11 @@
      "heures_j_superieur_ou_egal_x": 391,
      "rn_max_plus_x_mw": 36379,
      "heures_rn_plus_x_au_dessus_du_max": 58,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6190
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6190,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.2048,
+     "part_dans_j_plancher": 0.2096,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 10000,
@@ -1650,7 +1716,11 @@
      "heures_j_superieur_ou_egal_x": 21,
      "rn_max_plus_x_mw": 41379,
      "heures_rn_plus_x_au_dessus_du_max": 306,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5081
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5081,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.6669,
+     "part_dans_j_plancher": 0.1101,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 18
     },
     {
      "x_mw": 15000,
@@ -1660,7 +1730,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 46379,
      "heures_rn_plus_x_au_dessus_du_max": 857,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.6711,
+     "part_dans_j_plancher": 0.0734,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 168
     },
     {
      "x_mw": 20000,
@@ -1670,7 +1744,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51379,
      "heures_rn_plus_x_au_dessus_du_max": 1918,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.6711,
+     "part_dans_j_plancher": 0.0551,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 551
     }
    ],
    "prix": {
@@ -1680,7 +1758,8 @@
     "rn_moyenne_prix_negatif_mw": -6362,
     "rn_moyenne_prix_nul_ou_negatif_mw": -6362,
     "j_moyenne_prix_negatif_mw": 8787
-   }
+   },
+   "production_nucleaire_twh": 383.6235
   },
   "2017": {
    "heures": 8760,
@@ -2377,7 +2456,12 @@
     "somme_twh": 16.2786,
     "par_mois_twh": [0.3944, 0.6199, 0.9206, 1.1987, 1.722, 2.0365, 2.2439, 2.0824, 1.649, 1.2332, 1.0127, 1.1654],
     "heures_positif": 8635,
-    "moyenne_mw": 1859
+    "moyenne_mw": 1859,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 16,
+     "j_moyenne_mw": 230
+    }
    },
    "charges_plates": [
     {
@@ -2388,7 +2472,11 @@
      "heures_j_superieur_ou_egal_x": 7847,
      "rn_max_plus_x_mw": 35741,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5163
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5163,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.7792,
+     "part_dans_j_plancher": 0.6347,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -2398,7 +2486,11 @@
      "heures_j_superieur_ou_egal_x": 6367,
      "rn_max_plus_x_mw": 36241,
      "heures_rn_plus_x_au_dessus_du_max": 4,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5514
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5514,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 4.7378,
+     "part_dans_j_plancher": 0.541,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -2408,7 +2500,11 @@
      "heures_j_superieur_ou_egal_x": 3214,
      "rn_max_plus_x_mw": 37241,
      "heures_rn_plus_x_au_dessus_du_max": 10,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6027
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6027,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.8894,
+     "part_dans_j_plancher": 0.3933,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -2418,7 +2514,11 @@
      "heures_j_superieur_ou_egal_x": 254,
      "rn_max_plus_x_mw": 40241,
      "heures_rn_plus_x_au_dessus_du_max": 58,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6091
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6091,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.3345,
+     "part_dans_j_plancher": 0.1903,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 6
     },
     {
      "x_mw": 10000,
@@ -2428,7 +2528,11 @@
      "heures_j_superieur_ou_egal_x": 15,
      "rn_max_plus_x_mw": 45241,
      "heures_rn_plus_x_au_dessus_du_max": 270,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -4855
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4855,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.5478,
+     "part_dans_j_plancher": 0.0976,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 102
     },
     {
      "x_mw": 15000,
@@ -2438,7 +2542,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 50241,
      "heures_rn_plus_x_au_dessus_du_max": 709,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.5509,
+     "part_dans_j_plancher": 0.0651,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 381
     },
     {
      "x_mw": 20000,
@@ -2448,7 +2556,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 55241,
      "heures_rn_plus_x_au_dessus_du_max": 1369,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.5509,
+     "part_dans_j_plancher": 0.0488,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 902
     }
    ],
    "prix": {
@@ -2458,7 +2570,8 @@
     "rn_moyenne_prix_negatif_mw": -9598,
     "rn_moyenne_prix_nul_ou_negatif_mw": -9598,
     "j_moyenne_prix_negatif_mw": 9880
-   }
+   },
+   "production_nucleaire_twh": 378.7983
   },
   "2018": {
    "heures": 8760,
@@ -3155,7 +3268,12 @@
     "somme_twh": 17.5401,
     "par_mois_twh": [1.6828, 0.3382, 0.7398, 1.9134, 2.0579, 1.9605, 2.0335, 1.7168, 1.7229, 1.3378, 0.8921, 1.1444],
     "heures_positif": 8601,
-    "moyenne_mw": 2003
+    "moyenne_mw": 2003,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 14,
+     "j_moyenne_mw": 400
+    }
    },
    "charges_plates": [
     {
@@ -3166,7 +3284,11 @@
      "heures_j_superieur_ou_egal_x": 7819,
      "rn_max_plus_x_mw": 39082,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7641
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7641,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.9422,
+     "part_dans_j_plancher": 0.6719,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 1
     },
     {
      "x_mw": 1000,
@@ -3176,7 +3298,11 @@
      "heures_j_superieur_ou_egal_x": 6627,
      "rn_max_plus_x_mw": 39582,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8055
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8055,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.0897,
+     "part_dans_j_plancher": 0.5812,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 2
     },
     {
      "x_mw": 2000,
@@ -3186,7 +3312,11 @@
      "heures_j_superieur_ou_egal_x": 3514,
      "rn_max_plus_x_mw": 40582,
      "heures_rn_plus_x_au_dessus_du_max": 3,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8684
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8684,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 7.3912,
+     "part_dans_j_plancher": 0.422,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 3
     },
     {
      "x_mw": 5000,
@@ -3196,7 +3326,11 @@
      "heures_j_superieur_ou_egal_x": 403,
      "rn_max_plus_x_mw": 43582,
      "heures_rn_plus_x_au_dessus_du_max": 11,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8907
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8907,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.2552,
+     "part_dans_j_plancher": 0.2114,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 11
     },
     {
      "x_mw": 10000,
@@ -3206,7 +3340,11 @@
      "heures_j_superieur_ou_egal_x": 40,
      "rn_max_plus_x_mw": 48582,
      "heures_rn_plus_x_au_dessus_du_max": 44,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -4158
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4158,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.7253,
+     "part_dans_j_plancher": 0.111,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 44
     },
     {
      "x_mw": 15000,
@@ -3216,7 +3354,11 @@
      "heures_j_superieur_ou_egal_x": 5,
      "rn_max_plus_x_mw": 53582,
      "heures_rn_plus_x_au_dessus_du_max": 174,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -384
+     "solde_echanges_moyen_heures_j_ge_x_mw": -384,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.7913,
+     "part_dans_j_plancher": 0.0745,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 174
     },
     {
      "x_mw": 20000,
@@ -3226,7 +3368,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 58582,
      "heures_rn_plus_x_au_dessus_du_max": 438,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.7913,
+     "part_dans_j_plancher": 0.0559,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 438
     }
    ],
    "prix": {
@@ -3236,7 +3382,8 @@
     "rn_moyenne_prix_negatif_mw": -7884,
     "rn_moyenne_prix_nul_ou_negatif_mw": -7744,
     "j_moyenne_prix_negatif_mw": 13583
-   }
+   },
+   "production_nucleaire_twh": 392.9078
   },
   "2019": {
    "heures": 8760,
@@ -3933,7 +4080,12 @@
     "somme_twh": 18.3176,
     "par_mois_twh": [0.6596, 0.7543, 1.7339, 1.461, 1.813, 2.3809, 1.8195, 2.0309, 1.8441, 1.3359, 0.8596, 1.6249],
     "heures_positif": 8735,
-    "moyenne_mw": 2092
+    "moyenne_mw": 2092,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 0,
+     "j_moyenne_mw": null
+    }
    },
    "charges_plates": [
     {
@@ -3944,7 +4096,11 @@
      "heures_j_superieur_ou_egal_x": 8059,
      "rn_max_plus_x_mw": 35692,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7120
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7120,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.9889,
+     "part_dans_j_plancher": 0.6826,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -3954,7 +4110,11 @@
      "heures_j_superieur_ou_egal_x": 6716,
      "rn_max_plus_x_mw": 36192,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7648
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7648,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.1809,
+     "part_dans_j_plancher": 0.5916,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -3964,7 +4124,11 @@
      "heures_j_superieur_ou_egal_x": 3558,
      "rn_max_plus_x_mw": 37192,
      "heures_rn_plus_x_au_dessus_du_max": 8,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8081
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8081,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 7.5918,
+     "part_dans_j_plancher": 0.4334,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -3974,7 +4138,11 @@
      "heures_j_superieur_ou_egal_x": 517,
      "rn_max_plus_x_mw": 40192,
      "heures_rn_plus_x_au_dessus_du_max": 46,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7229
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7229,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.8245,
+     "part_dans_j_plancher": 0.2244,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 4
     },
     {
      "x_mw": 10000,
@@ -3984,7 +4152,11 @@
      "heures_j_superieur_ou_egal_x": 35,
      "rn_max_plus_x_mw": 45192,
      "heures_rn_plus_x_au_dessus_du_max": 198,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5560
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5560,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.3852,
+     "part_dans_j_plancher": 0.1186,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 75
     },
     {
      "x_mw": 15000,
@@ -3994,7 +4166,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 50192,
      "heures_rn_plus_x_au_dessus_du_max": 467,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.3908,
+     "part_dans_j_plancher": 0.0791,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 253
     },
     {
      "x_mw": 20000,
@@ -4004,7 +4180,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 55192,
      "heures_rn_plus_x_au_dessus_du_max": 972,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.3908,
+     "part_dans_j_plancher": 0.0593,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 582
     }
    ],
    "prix": {
@@ -4014,7 +4194,8 @@
     "rn_moyenne_prix_negatif_mw": -8713,
     "rn_moyenne_prix_nul_ou_negatif_mw": -8632,
     "j_moyenne_prix_negatif_mw": 9339
-   }
+   },
+   "production_nucleaire_twh": 379.1454
   },
   "2020": {
    "heures": 8784,
@@ -4713,7 +4894,12 @@
     "somme_twh": 20.0176,
     "par_mois_twh": [0.895, 1.7531, 1.7655, 2.4743, 2.3059, 1.7684, 1.4926, 1.8006, 1.5614, 1.5792, 1.4978, 1.1237],
     "heures_positif": 8756,
-    "moyenne_mw": 2279
+    "moyenne_mw": 2279,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 2,
+     "j_moyenne_mw": 1994
+    }
    },
    "charges_plates": [
     {
@@ -4724,7 +4910,11 @@
      "heures_j_superieur_ou_egal_x": 8241,
      "rn_max_plus_x_mw": 31558,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5225
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5225,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 3.2259,
+     "part_dans_j_plancher": 0.7347,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -4734,7 +4924,11 @@
      "heures_j_superieur_ou_egal_x": 7198,
      "rn_max_plus_x_mw": 32058,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5015
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5015,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.4774,
+     "part_dans_j_plancher": 0.6237,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -4744,7 +4938,11 @@
      "heures_j_superieur_ou_egal_x": 3627,
      "rn_max_plus_x_mw": 33058,
      "heures_rn_plus_x_au_dessus_du_max": 6,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5173
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5173,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.0013,
+     "part_dans_j_plancher": 0.4555,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -4754,7 +4952,11 @@
      "heures_j_superieur_ou_egal_x": 683,
      "rn_max_plus_x_mw": 36058,
      "heures_rn_plus_x_au_dessus_du_max": 38,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -4966
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4966,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.6579,
+     "part_dans_j_plancher": 0.2427,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 10000,
@@ -4764,7 +4966,11 @@
      "heures_j_superieur_ou_egal_x": 96,
      "rn_max_plus_x_mw": 41058,
      "heures_rn_plus_x_au_dessus_du_max": 145,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -3291
+     "solde_echanges_moyen_heures_j_ge_x_mw": -3291,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 11.7983,
+     "part_dans_j_plancher": 0.1343,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 9
     },
     {
      "x_mw": 15000,
@@ -4774,7 +4980,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 46058,
      "heures_rn_plus_x_au_dessus_du_max": 430,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 11.8579,
+     "part_dans_j_plancher": 0.09,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 84
     },
     {
      "x_mw": 20000,
@@ -4784,7 +4994,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51058,
      "heures_rn_plus_x_au_dessus_du_max": 1614,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 11.8579,
+     "part_dans_j_plancher": 0.0675,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 230
     }
    ],
    "prix": {
@@ -4794,7 +5008,8 @@
     "rn_moyenne_prix_negatif_mw": -5007,
     "rn_moyenne_prix_nul_ou_negatif_mw": -5015,
     "j_moyenne_prix_negatif_mw": 8418
-   }
+   },
+   "production_nucleaire_twh": 335.1477
   },
   "2021": {
    "heures": 8760,
@@ -5491,7 +5706,12 @@
     "somme_twh": 15.953,
     "par_mois_twh": [0.7592, 0.9171, 1.1326, 1.1369, 1.8135, 1.4036, 1.9879, 2.0838, 1.5671, 1.4993, 0.6827, 0.9693],
     "heures_positif": 8750,
-    "moyenne_mw": 1822
+    "moyenne_mw": 1822,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 2047,
+     "j_moyenne_mw": 1148
+    }
    },
    "charges_plates": [
     {
@@ -5502,7 +5722,11 @@
      "heures_j_superieur_ou_egal_x": 8116,
      "rn_max_plus_x_mw": 37206,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5698
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5698,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.7735,
+     "part_dans_j_plancher": 0.6334,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -5512,7 +5736,11 @@
      "heures_j_superieur_ou_egal_x": 6450,
      "rn_max_plus_x_mw": 37706,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6881
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6881,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 4.5882,
+     "part_dans_j_plancher": 0.5239,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -5522,7 +5750,11 @@
      "heures_j_superieur_ou_egal_x": 2774,
      "rn_max_plus_x_mw": 38706,
      "heures_rn_plus_x_au_dessus_du_max": 6,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -8554
+     "solde_echanges_moyen_heures_j_ge_x_mw": -8554,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.3424,
+     "part_dans_j_plancher": 0.3621,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 1
     },
     {
      "x_mw": 5000,
@@ -5532,7 +5764,11 @@
      "heures_j_superieur_ou_egal_x": 278,
      "rn_max_plus_x_mw": 41706,
      "heures_rn_plus_x_au_dessus_du_max": 34,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7947
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7947,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 7.674,
+     "part_dans_j_plancher": 0.1752,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 11
     },
     {
      "x_mw": 10000,
@@ -5542,7 +5778,11 @@
      "heures_j_superieur_ou_egal_x": 24,
      "rn_max_plus_x_mw": 46706,
      "heures_rn_plus_x_au_dessus_du_max": 222,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -4188
+     "solde_echanges_moyen_heures_j_ge_x_mw": -4188,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.0036,
+     "part_dans_j_plancher": 0.0914,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 131
     },
     {
      "x_mw": 15000,
@@ -5552,7 +5792,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51706,
      "heures_rn_plus_x_au_dessus_du_max": 568,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.0063,
+     "part_dans_j_plancher": 0.0609,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 389
     },
     {
      "x_mw": 20000,
@@ -5562,7 +5806,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 56706,
      "heures_rn_plus_x_au_dessus_du_max": 1164,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.0063,
+     "part_dans_j_plancher": 0.0457,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 914
     }
    ],
    "prix": {
@@ -5572,7 +5820,8 @@
     "rn_moyenne_prix_negatif_mw": -9220,
     "rn_moyenne_prix_nul_ou_negatif_mw": -9185,
     "j_moyenne_prix_negatif_mw": 8862
-   }
+   },
+   "production_nucleaire_twh": 360.4295
   },
   "2022": {
    "heures": 8760,
@@ -6269,7 +6518,12 @@
     "somme_twh": 13.4385,
     "par_mois_twh": [0.4777, 0.7248, 0.7577, 1.0965, 1.4161, 1.0514, 1.3302, 1.3367, 1.3354, 1.2911, 1.4185, 1.2023],
     "heures_positif": 8368,
-    "moyenne_mw": 1534
+    "moyenne_mw": 1534,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 7487,
+     "j_moyenne_mw": 1313
+    }
    },
    "charges_plates": [
     {
@@ -6280,7 +6534,11 @@
      "heures_j_superieur_ou_egal_x": 7491,
      "rn_max_plus_x_mw": 38573,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": 1679
+     "solde_echanges_moyen_heures_j_ge_x_mw": 1679,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.5579,
+     "part_dans_j_plancher": 0.5841,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -6290,7 +6548,11 @@
      "heures_j_superieur_ou_egal_x": 6178,
      "rn_max_plus_x_mw": 39073,
      "heures_rn_plus_x_au_dessus_du_max": 3,
-     "solde_echanges_moyen_heures_j_ge_x_mw": 1604
+     "solde_echanges_moyen_heures_j_ge_x_mw": 1604,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 4.05,
+     "part_dans_j_plancher": 0.4624,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 1
     },
     {
      "x_mw": 2000,
@@ -6300,7 +6562,11 @@
      "heures_j_superieur_ou_egal_x": 2158,
      "rn_max_plus_x_mw": 40073,
      "heures_rn_plus_x_au_dessus_du_max": 8,
-     "solde_echanges_moyen_heures_j_ge_x_mw": 343
+     "solde_echanges_moyen_heures_j_ge_x_mw": 343,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.2649,
+     "part_dans_j_plancher": 0.3006,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 5
     },
     {
      "x_mw": 5000,
@@ -6310,7 +6576,11 @@
      "heures_j_superieur_ou_egal_x": 123,
      "rn_max_plus_x_mw": 43073,
      "heures_rn_plus_x_au_dessus_du_max": 50,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -2312
+     "solde_echanges_moyen_heures_j_ge_x_mw": -2312,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.9423,
+     "part_dans_j_plancher": 0.1357,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 41
     },
     {
      "x_mw": 10000,
@@ -6320,7 +6590,11 @@
      "heures_j_superieur_ou_egal_x": 1,
      "rn_max_plus_x_mw": 48073,
      "heures_rn_plus_x_au_dessus_du_max": 230,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5113
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5113,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.0015,
+     "part_dans_j_plancher": 0.0685,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 210
     },
     {
      "x_mw": 15000,
@@ -6330,7 +6604,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 53073,
      "heures_rn_plus_x_au_dessus_du_max": 595,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.0015,
+     "part_dans_j_plancher": 0.0457,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 546
     },
     {
      "x_mw": 20000,
@@ -6340,7 +6618,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 58073,
      "heures_rn_plus_x_au_dessus_du_max": 1465,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 6.0015,
+     "part_dans_j_plancher": 0.0343,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 1349
     }
    ],
    "prix": {
@@ -6350,7 +6632,8 @@
     "rn_moyenne_prix_negatif_mw": -2522,
     "rn_moyenne_prix_nul_ou_negatif_mw": -4289,
     "j_moyenne_prix_negatif_mw": 7100
-   }
+   },
+   "production_nucleaire_twh": 278.7435
   },
   "2023": {
    "heures": 8760,
@@ -7047,7 +7330,12 @@
     "somme_twh": 18.3294,
     "par_mois_twh": [1.0391, 0.3434, 1.3201, 1.1457, 1.6205, 1.5331, 1.921, 1.8812, 2.0826, 2.0457, 1.5204, 1.8766],
     "heures_positif": 8596,
-    "moyenne_mw": 2093
+    "moyenne_mw": 2093,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 940,
+     "j_moyenne_mw": 576
+    }
    },
    "charges_plates": [
     {
@@ -7058,7 +7346,11 @@
      "heures_j_superieur_ou_egal_x": 7692,
      "rn_max_plus_x_mw": 37901,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6579
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6579,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 2.8757,
+     "part_dans_j_plancher": 0.6567,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -7068,7 +7360,11 @@
      "heures_j_superieur_ou_egal_x": 6506,
      "rn_max_plus_x_mw": 38401,
      "heures_rn_plus_x_au_dessus_du_max": 2,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6944
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6944,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 4.8788,
+     "part_dans_j_plancher": 0.5571,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -7078,7 +7374,11 @@
      "heures_j_superieur_ou_egal_x": 3214,
      "rn_max_plus_x_mw": 39401,
      "heures_rn_plus_x_au_dessus_du_max": 4,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7336
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7336,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 7.1392,
+     "part_dans_j_plancher": 0.4076,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 1
     },
     {
      "x_mw": 5000,
@@ -7088,7 +7388,11 @@
      "heures_j_superieur_ou_egal_x": 702,
      "rn_max_plus_x_mw": 42401,
      "heures_rn_plus_x_au_dessus_du_max": 30,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -6383
+     "solde_echanges_moyen_heures_j_ge_x_mw": -6383,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.7884,
+     "part_dans_j_plancher": 0.2235,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 16
     },
     {
      "x_mw": 10000,
@@ -7098,7 +7402,11 @@
      "heures_j_superieur_ou_egal_x": 50,
      "rn_max_plus_x_mw": 47401,
      "heures_rn_plus_x_au_dessus_du_max": 110,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5815
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5815,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.654,
+     "part_dans_j_plancher": 0.1216,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 86
     },
     {
      "x_mw": 15000,
@@ -7108,7 +7416,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 52401,
      "heures_rn_plus_x_au_dessus_du_max": 286,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.6802,
+     "part_dans_j_plancher": 0.0813,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 233
     },
     {
      "x_mw": 20000,
@@ -7118,7 +7430,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 57401,
      "heures_rn_plus_x_au_dessus_du_max": 689,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 10.6802,
+     "part_dans_j_plancher": 0.061,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 582
     }
    ],
    "prix": {
@@ -7128,7 +7444,8 @@
     "rn_moyenne_prix_negatif_mw": -4562,
     "rn_moyenne_prix_nul_ou_negatif_mw": -5456,
     "j_moyenne_prix_negatif_mw": 7466
-   }
+   },
+   "production_nucleaire_twh": 320.1395
   },
   "2024": {
    "heures": 8784,
@@ -7828,6 +8145,11 @@
     "par_mois_twh": [0.9539, 0.8748, 1.7326, 2.744, 2.9811, 2.6857, 2.8766, 3.0357, 2.719, 2.1007, 1.1009, 1.3144],
     "heures_positif": 8778,
     "moyenne_mw": 2860,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 95,
+     "j_moyenne_mw": 572
+    },
     "flamanville3": {
      "disponible_declare_epr_twh": 0.001,
      "somme_j_sans_disponible_epr_twh": 25.1186,
@@ -7843,7 +8165,11 @@
      "heures_j_superieur_ou_egal_x": 8271,
      "rn_max_plus_x_mw": 30077,
      "heures_rn_plus_x_au_dessus_du_max": 6,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10355
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10355,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 3.0774,
+     "part_dans_j_plancher": 0.7008,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -7853,7 +8179,11 @@
      "heures_j_superieur_ou_egal_x": 6745,
      "rn_max_plus_x_mw": 30577,
      "heures_rn_plus_x_au_dessus_du_max": 8,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10718
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10718,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.5424,
+     "part_dans_j_plancher": 0.6311,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -7863,7 +8193,11 @@
      "heures_j_superieur_ou_egal_x": 4326,
      "rn_max_plus_x_mw": 31577,
      "heures_rn_plus_x_au_dessus_du_max": 12,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10516
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10516,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 8.9565,
+     "part_dans_j_plancher": 0.5099,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -7873,7 +8207,11 @@
      "heures_j_superieur_ou_egal_x": 1314,
      "rn_max_plus_x_mw": 34577,
      "heures_rn_plus_x_au_dessus_du_max": 42,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -7978
+     "solde_echanges_moyen_heures_j_ge_x_mw": -7978,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 13.8534,
+     "part_dans_j_plancher": 0.3155,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 10000,
@@ -7883,7 +8221,11 @@
      "heures_j_superieur_ou_egal_x": 338,
      "rn_max_plus_x_mw": 39577,
      "heures_rn_plus_x_au_dessus_du_max": 130,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -3819
+     "solde_echanges_moyen_heures_j_ge_x_mw": -3819,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 16.6575,
+     "part_dans_j_plancher": 0.1897,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 8
     },
     {
      "x_mw": 15000,
@@ -7893,7 +8235,11 @@
      "heures_j_superieur_ou_egal_x": 21,
      "rn_max_plus_x_mw": 44577,
      "heures_rn_plus_x_au_dessus_du_max": 312,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -1510
+     "solde_echanges_moyen_heures_j_ge_x_mw": -1510,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 17.044,
+     "part_dans_j_plancher": 0.1294,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 52
     },
     {
      "x_mw": 20000,
@@ -7903,7 +8249,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 49577,
      "heures_rn_plus_x_au_dessus_du_max": 694,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 17.0454,
+     "part_dans_j_plancher": 0.097,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 155
     }
    ],
    "prix": {
@@ -7913,7 +8263,8 @@
     "rn_moyenne_prix_negatif_mw": -7068,
     "rn_moyenne_prix_nul_ou_negatif_mw": -8358,
     "j_moyenne_prix_negatif_mw": 9409
-   }
+   },
+   "production_nucleaire_twh": 361.6224
   },
   "2025": {
    "heures": 8760,
@@ -8611,6 +8962,11 @@
     "par_mois_twh": [1.5058, 0.5269, 1.7497, 2.6356, 3.7075, 3.5097, 3.3743, 3.6581, 4.064, 2.2476, 1.4207, 0.7485],
     "heures_positif": 8574,
     "moyenne_mw": 3329,
+    "prix_chers": {
+     "seuil_eur_mwh": 150,
+     "heures": 278,
+     "j_moyenne_mw": 535
+    },
     "flamanville3": {
      "disponible_declare_epr_twh": 2.6667,
      "somme_j_sans_disponible_epr_twh": 27.129,
@@ -8626,7 +8982,11 @@
      "heures_j_superieur_ou_egal_x": 7617,
      "rn_max_plus_x_mw": 31933,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10876
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10876,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 3.0301,
+     "part_dans_j_plancher": 0.692,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 1000,
@@ -8636,7 +8996,11 @@
      "heures_j_superieur_ou_egal_x": 6493,
      "rn_max_plus_x_mw": 32433,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10967
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10967,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 5.6843,
+     "part_dans_j_plancher": 0.6491,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 2000,
@@ -8646,7 +9010,11 @@
      "heures_j_superieur_ou_egal_x": 4972,
      "rn_max_plus_x_mw": 33433,
      "heures_rn_plus_x_au_dessus_du_max": 1,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -10802
+     "solde_echanges_moyen_heures_j_ge_x_mw": -10802,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 9.916,
+     "part_dans_j_plancher": 0.5662,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 5000,
@@ -8656,7 +9024,11 @@
      "heures_j_superieur_ou_egal_x": 1939,
      "rn_max_plus_x_mw": 36433,
      "heures_rn_plus_x_au_dessus_du_max": 4,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -9176
+     "solde_echanges_moyen_heures_j_ge_x_mw": -9176,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 16.918,
+     "part_dans_j_plancher": 0.3864,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 0
     },
     {
      "x_mw": 10000,
@@ -8666,7 +9038,11 @@
      "heures_j_superieur_ou_egal_x": 483,
      "rn_max_plus_x_mw": 41433,
      "heures_rn_plus_x_au_dessus_du_max": 36,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5765
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5765,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 20.848,
+     "part_dans_j_plancher": 0.2381,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 2
     },
     {
      "x_mw": 15000,
@@ -8676,7 +9052,11 @@
      "heures_j_superieur_ou_egal_x": 50,
      "rn_max_plus_x_mw": 46433,
      "heures_rn_plus_x_au_dessus_du_max": 145,
-     "solde_echanges_moyen_heures_j_ge_x_mw": -5042
+     "solde_echanges_moyen_heures_j_ge_x_mw": -5042,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 21.5039,
+     "part_dans_j_plancher": 0.1637,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 15
     },
     {
      "x_mw": 20000,
@@ -8686,7 +9066,11 @@
      "heures_j_superieur_ou_egal_x": 0,
      "rn_max_plus_x_mw": 51433,
      "heures_rn_plus_x_au_dessus_du_max": 450,
-     "solde_echanges_moyen_heures_j_ge_x_mw": null
+     "solde_echanges_moyen_heures_j_ge_x_mw": null,
+     "plancher_mw": 1000,
+     "energie_dans_j_plancher_twh": 21.5438,
+     "part_dans_j_plancher": 0.123,
+     "heures_rn_plus_x_au_dessus_du_max_reference": 83
     }
    ],
    "prix": {
@@ -8696,7 +9080,8 @@
     "rn_moyenne_prix_negatif_mw": -9807,
     "rn_moyenne_prix_nul_ou_negatif_mw": -11116,
     "j_moyenne_prix_negatif_mw": 9169
-   }
+   },
+   "production_nucleaire_twh": 372.9099
   }
  },
  "matrices_rn": {

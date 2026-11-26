@@ -610,7 +610,8 @@ def _table_arrondie(table: pl.DataFrame) -> pl.DataFrame:
 def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
     """quand.json (Python pur) = recalcul polars : RN max et sa date, Σ J, charges plates, prix."""
     r = Resultat("« Quand ? » : quand.json = recalcul indépendant (polars) — RN max et date, Σ J, parts tenues, "
-                 "heures au-delà du max, solde aux heures J ≥ X, couverture des heures tendues (échanges, gaz, "
+                 "heures au-delà du max (annuel et pluriannuel), part avec plancher, J aux prix chers, production, "
+                 "solde aux heures J ≥ X, couverture des heures tendues (échanges, gaz, "
                  "hydraulique), heures de "
                  "prix ≤ 0 et < 0", "OK")
     t = _table_arrondie(table)
@@ -641,6 +642,23 @@ def controle_quand_recalcul(q: dict, table: pl.DataFrame) -> Resultat:
                     or c["heures_j_superieur_ou_egal_x"] != int((jv >= x).sum()):
                 fautes.append(f"X = {x} MW : part {c['part_dans_j']} / {part:.4f}, au-delà du max "
                               f"{c['heures_rn_plus_x_au_dessus_du_max']} / {au_dela}")
+        from .quand import PLANCHER_J_MW, SEUIL_PRIX_CHER_EUR_MWH
+        ref_pluri = (q.get("rn_max_pluriannuel") or {}).get("valeur_mw")
+        jp = (jv - PLANCHER_J_MW).clip(lower_bound=0)
+        for c in a["charges_plates"]:
+            x = c["x_mw"]
+            part_p = jp.clip(upper_bound=x).sum() / (x * jv.len())
+            au_dela_ref = None if ref_pluri is None else int((rn["rn"] + x > ref_pluri).sum())
+            if abs(c["part_dans_j_plancher"] - part_p) > TOL_PART or c["heures_rn_plus_x_au_dessus_du_max_reference"] != au_dela_ref:
+                fautes.append(f"X = {x} MW : part avec plancher {c['part_dans_j_plancher']} / {part_p:.4f}, au-delà du "
+                              f"max pluriannuel {c['heures_rn_plus_x_au_dessus_du_max_reference']} / {au_dela_ref}")
+        ch = d.filter(pl.col("prix") > SEUIL_PRIX_CHER_EUR_MWH).drop_nulls("j")["j"]
+        pc_ = a["jeu_nucleaire"]["prix_chers"]
+        if pc_["heures"] != ch.len() or (ch.len() and abs(pc_["j_moyenne_mw"] - ch.mean()) > TOL_MW):
+            fautes.append(f"J aux prix > {SEUIL_PRIX_CHER_EUR_MWH} : {pc_} ≠ {ch.len()} h, {ch.mean()}")
+        prod = d["nucleaire"].drop_nulls().sum() / 1e6
+        if abs(a["production_nucleaire_twh"] - prod) > TOL_TWH:
+            fautes.append(f"production nucléaire {a['production_nucleaire_twh']} ≠ {prod:.4f} TWh")
         top = rn.head(a["heures_tendues"]["n"])
         if abs(a["heures_tendues"]["rn_moyenne_mw"] - top["rn"].mean()) > TOL_MW:
             fautes.append(f"RN moyenne des heures tendues {a['heures_tendues']['rn_moyenne_mw']} ≠ {top['rn'].mean():.0f}")
@@ -682,6 +700,17 @@ def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
                 fautes.append(f"X = {c['x_mw']} : Σ min(X, J) = {c['energie_dans_j_twh']} TWh > Σ J ou > énergie ajoutée")
             if c["rn_max_plus_x_mw"] != cr["max"]["valeur_mw"] + c["x_mw"]:
                 fautes.append(f"X = {c['x_mw']} : RN max + X")
+        parts_p = [c["part_dans_j_plancher"] for c in cp]
+        if any(pp > p_ + TOL_PART or pp < 0 for pp, p_ in zip(parts_p, parts)) \
+                or any(b > a_ + TOL_PART for a_, b in zip(parts_p, parts_p[1:])) \
+                or any(c["energie_dans_j_plancher_twh"] > c["energie_dans_j_twh"] + TOL_TWH for c in cp):
+            fautes.append(f"parts avec plancher {parts_p} (≤ sans plancher, décroissantes en X)")
+        ref = [c["heures_rn_plus_x_au_dessus_du_max_reference"] for c in cp]
+        if ref != sorted(ref) or any(r_ > c["heures_rn_plus_x_au_dessus_du_max"] for r_, c in zip(ref, cp)):
+            fautes.append(f"heures au-delà du max pluriannuel {ref} (croissantes en X, ≤ au-delà du max annuel)")
+        pluri = q.get("rn_max_pluriannuel")
+        if not pluri or cr["max"]["valeur_mw"] > pluri["valeur_mw"]:
+            fautes.append("maximum annuel au-dessus du maximum pluriannuel")
         au_dela = [c["heures_rn_plus_x_au_dessus_du_max"] for c in cp]
         if au_dela != sorted(au_dela) or au_dela[0] < 1:
             fautes.append(f"heures au-delà du max non croissantes en X : {au_dela}")
@@ -708,6 +737,14 @@ def controle_quand_coherence(q: dict, annees_pleines: list[int]) -> Resultat:
         r.lignes.append(f"{an} : parts tenues {', '.join(_f(p * 100, 1) for p in parts)} % ; couverture "
                         f"{_f(somme, 0)} MW pour RN moyenne {_f(td['rn_moyenne_mw'], 0)} MW (écart de bilan "
                         f"{_f(cm['ecart_bilan_eco2mix'], 0)} MW)" + ("" if not fautes else "  ← " + " ; ".join(fautes)))
+    pluri = q.get("rn_max_pluriannuel") or {}
+    origine = q["annees"].get(str(pluri.get("annee")), {}).get("charge_residuelle", {}).get("max")
+    if not origine or {k: origine[k] for k in ("valeur_mw", "heure_utc")} != {k: pluri[k] for k in ("valeur_mw", "heure_utc")}:
+        r.statut = "ÉCHEC"
+        r.lignes.append(f"maximum pluriannuel {pluri} ≠ maximum de son année")
+    else:
+        r.lignes.append(f"maximum pluriannuel {pluri['annees']} : {_f(pluri['valeur_mw'], 0)} MW, {pluri['debut_paris']} "
+                        f"(heure de Paris de début)")
     for an, motif in q["annees_exclues"].items():
         r.lignes.append(f"{an} exclue : {motif}")
     return r
@@ -760,6 +797,33 @@ def controle_quand_modulation(q: dict) -> Resultat:
         r.lignes.append(f"2025 : RTE « de l'ordre d'une trentaine de TWh » ; écart {_f(j - float(be['valeur']), 1)} TWh")
     r.lignes.append("grandeurs différentes : J compte le disponible DÉCLARÉ non produit (réserves comprises, arrêts pour "
                     "économie de combustible déclarés indisponibles exclus) ; la modulation d'EDF suit sa propre frontière")
+    return r
+
+
+#: Production nucléaire publiée (BE2025) contre la somme éCO2mix : même éditeur, périmètres proches
+#: (la phrase de RTE ne précise pas l'EPR) ; une erreur d'unité ou d'heures donnerait bien plus.
+TOL_PRODUCTION_RELATIVE = 0.005
+
+
+def controle_quand_production(q: dict) -> Resultat:
+    from . import chiffres
+    r = Resultat("« Quand ? » : production nucléaire éCO2mix (somme horaire) ≈ RTE, BE2025 (± 0,5 %)", "OK")
+    ref = chiffres.charger().chiffres
+    for an, a in q["annees"].items():
+        c = ref.get(f"prod_nucleaire_{an}")
+        prod = a["production_nucleaire_twh"]
+        if c is None:
+            r.lignes.append(f"{an} : {_f(prod, 1)} TWh (non recoupé)")
+            continue
+        ecart = prod / float(c["valeur"]) - 1
+        ok = abs(ecart) <= TOL_PRODUCTION_RELATIVE
+        if not ok:
+            r.statut = "ÉCHEC"
+        r.lignes.append(f"{an} : éCO2mix {_f(prod, 1)} TWh, RTE {_f(float(c['valeur']), 1)} TWh ; écart {_pct(ecart, 2)}"
+                        + ("" if ok else "  ← hors tolérance"))
+    if not any(k.startswith("prod_nucleaire_") and k[-4:].isdigit() for k in ref):
+        r.statut = "ÉCHEC"
+        r.lignes.append("aucune production nucléaire de référence dans le référentiel")
     return r
 
 
@@ -827,6 +891,7 @@ def controles_quand(export: Path, table: pl.DataFrame) -> list:
         lambda: controle_quand_recalcul(q, table),
         lambda: controle_quand_heures_negatives(q, table),
         lambda: controle_quand_modulation(q),
+        lambda: controle_quand_production(q),
         lambda: controle_quand_chiffres(q, export),
     ]
 

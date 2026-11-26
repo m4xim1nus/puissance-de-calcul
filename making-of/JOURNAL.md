@@ -394,3 +394,13 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   parcours automatisé (adresse invalide bloquant le chargement) et des
   phrases mal accordées repérées sur captures. Commité ; non publié
   avant sa relecture adverse.
+- l'agent des indicateurs produit les chiffres demandés par la relecture
+  (maximum pluriannuel, plancher de 1 GW, nucléaire non produit aux
+  heures chères, énergie nécessaire, production nucléaire 2025 et
+  prévisions, relues par lui dans le PDF) et retire partout
+  l'affirmation sur les exportations ; la parité du moteur du
+  simulateur est étendue aux nouvelles sorties. Claude vérifie dans les
+  données l'heure du maximum de 2018 avant d'écrire comment le système
+  l'avait couvert (charbon, fioul, importations ; prix de 159 €/MWh,
+  donc pas « extrêmes » comme en décembre 2022 : la première rédaction
+  le disait, corrigée avant commit).

@@ -1006,6 +1006,67 @@ chiffres:
     verification: contre-verification
     note: « près de » 50 % ; l'autre moitié glisse vers la soirée et la nuit, ce n'est pas « tout se joue à la pointe » ; section 5.3.4, « à moyen terme » ; les plages coïncident par construction avec les plages PP du mécanisme de capacité 2026/2027 (note 38, même page), ce n'est pas une confirmation indépendante
 
+  prod_nucleaire_2025:
+    libelle: Production nucléaire en France
+    valeur: 373.0
+    unite: TWh
+    grandeur: energie
+    periode: "2025"
+    perimetre: production nucléaire française totale (la phrase ne précise pas le traitement de l'EPR de Flamanville 3, en essais)
+    source: rte-be2025
+    page: p. 24 (repris p. 25)
+    citation: « La production nucléaire française totale a augmenté pour la troisième année consécutive après le point bas atteint lors de l'année 2022. Elle s'est établie à 373,0 TWh, soit 11,3 TWh de plus qu'en 2024 (+3 %). »
+    confiance: B
+    recoupements:
+      - source: rte-eco2mix-odre
+        valeur: somme horaire de la production nucléaire éCO2mix du site (quand.json, production_nucleaire_twh), écart contrôlé par `pc check` (± 0,5 %)
+        note: même éditeur (RTE)
+        independant: false
+    verification: contre-verification
+    note: citation relue dans le PDF par Claude le 26/11/2026 (le rapport de contre-vérification ne la couvrait pas)
+
+  prod_nucleaire_prevision_2026_2027:
+    libelle: Production nucléaire projetée par l'exploitant
+    valeur: [350, 370]
+    unite: TWh
+    grandeur: energie
+    periode: chacune des années 2026 et 2027
+    perimetre: parc nucléaire d'EDF en France ; fourchette annuelle
+    source: rte-be2025
+    page: p. 25 et note 3
+    citation: "« Enfin, l'exploitant projette pour 2026 et 2027 une fourchette de 350 à 370 TWh » ; note 3 : « EDF, Communiqué de presse : Estimation de production nucléaire d'EDF en France, 18 décembre 2025 »"
+    confiance: C
+    verification: contre-verification
+    note: source secondaire (projection d'EDF rapportée par RTE, communiqué du 18/12/2025 non lu) ; citation relue dans le PDF par Claude le 26/11/2026
+
+  prod_nucleaire_reference_cre_2026_2028:
+    libelle: Niveau de référence de production nucléaire retenu par la CRE
+    valeur: 362
+    unite: TWh
+    grandeur: energie
+    periode: chaque année de 2026 à 2028
+    perimetre: centrales électronucléaires historiques (rapport de la CRE sur les coûts complets de production)
+    source: rte-be2025
+    page: p. 25 et note 2
+    citation: "« Ainsi, la Commission de régulation de l'énergie considère un niveau de référence de 362 TWh/ an entre 2026 et 2028. » ; note 2 : « Dans son rapport de septembre 2025 sur l'évaluation des coûts complets de la filière : CRE, Evaluation des coûts complets de production de l'électricité au moyen des centrales électronucléaires historiques pour la période 2026-2028, septembre 2025 »"
+    confiance: C
+    verification: contre-verification
+    note: source secondaire (chiffre de la CRE rapporté par RTE, rapport de la CRE non lu) ; citation relue dans le PDF par Claude le 26/11/2026
+
+  prod_nucleaire_projection_bp_2030:
+    libelle: Niveau central des projections de production nucléaire des Bilans prévisionnels de RTE
+    valeur: [360, 365]
+    unite: TWh
+    grandeur: energie
+    periode: chaque année d'ici à 2030
+    perimetre: niveau central des projections des Bilans prévisionnels 2023 et 2025 ; « autour de »
+    source: rte-be2025
+    page: p. 25
+    citation: « Dans les Bilan prévisionnels 2023 et 2025 de RTE, le niveau central des projections de production se situe autour de 360-365 TWh/ an d'ici à 2030. »
+    confiance: B
+    verification: contre-verification
+    note: RTE résume ses propres projections ; citation relue dans le PDF par Claude le 26/11/2026
+
 contraintes:
   - inferieur: [dc_conso_rpt_2024, dc_conso_sites_dedies_2024]
     motif: le transport est une partie des sites dédiés

@@ -76,7 +76,12 @@ def test_chiffres_calcules_au_schema_du_referentiel():
            "quand_top100_hiver_2023", "quand_top100_plages_2023", "quand_top100_solde_2023",
            "quand_top100_gaz_2023", "quand_top100_lacs_step_2023", "quand_top100_fil_eau_2023",
            "quand_top100_plages_pp_2023", "quand_heures_j5_2023", "quand_solde_j5_2023"}
-    assert set(calc) == ids  # pas d'EPR : pas de quand_j_2023_hors_epr
+    toutes = {"quand_rn_max_pluri", "quand_top100_rn_moyenne_2023", "quand_heures_rn_sup_max_pluri_5gw_2023",
+              "quand_heures_rn_sup_max_pluri_10gw_2023", "quand_heures_prix_chers_2023",
+              "quand_part_j_plancher_5gw_2023", "quand_part_j_plancher_10gw_2023", "quand_energie_j_5gw_2023",
+              "quand_energie_j_10gw_2023"}
+    # pas d'EPR : pas de quand_j_2023_hors_epr ; aucun prix > 150 €/MWh : pas de quand_j_heures_cheres_2023
+    assert set(calc) == ids | toutes
     # RN = 70 000 − 5 000 − 1 000 − 45 000 à 17 h UTC (18 h à Paris en hiver)
     assert calc["quand_rn_max_2023"]["valeur"] == 19.0 and calc["quand_rn_max_2023"]["unite"] == "GW"
     assert calc["quand_rn_max_2023"]["periode"] == "2023-01-01, 18 h-19 h (heure de Paris)"
@@ -110,3 +115,33 @@ def test_couverture_et_borne_hors_epr_publiees():
     assert calc["quand_solde_j5_2023"]["valeur"] == -3.2
     for c in calc.values():
         assert c["valeur"] == chiffres.arrondi_publie(c["valeur_calculee"], c["precision"])
+
+
+def test_chiffres_du_plancher_du_seuil_pluriannuel_et_des_prix_chers():
+    """Deux années : le maximum pluriannuel vient de la plus tendue ; J = 5 000 MW partout,
+    plancher 1 000 MW → J' = 4 000 MW ; heures chères (prix 200 €/MWh) la moitié du temps."""
+    debut = datetime(2022, 12, 31, 23, tzinfo=timezone.utc)
+    t = table_synthetique(debut, 8760 + 8784)
+    t = t.with_columns(
+        pl.when(pl.col("heure_utc") == datetime(2023, 1, 10, 17, tzinfo=timezone.utc)).then(70000.0)
+          .when(pl.col("heure_utc").dt.convert_time_zone("Europe/Paris").dt.year() == 2024).then(64000.0)
+          .otherwise(60000.0).alias("consommation"),
+        pl.when(pl.col("heure_utc").dt.hour() < 12).then(200.0).otherwise(50.0).alias("prix_eur_mwh"))
+    q = json.loads(export_quand._dumps(export_quand.construire_quand(t, {})))
+    assert q["rn_max_pluriannuel"]["valeur_mw"] == 19000 and q["rn_max_pluriannuel"]["annee"] == "2023"
+    calc = export_quand.chiffres_calcules(q)
+    assert calc["quand_rn_max_pluri"]["valeur"] == 19.0
+    assert calc["quand_rn_max_pluri"]["periode"] == "2023-01-10, 18 h-19 h (heure de Paris)"
+    # 2024 : RN = 64 000 − 6 000 − 45 000 = 13 000 ; + 5 GW = 18 000 < 19 000 ; + 10 GW > 19 000 partout
+    assert calc["quand_heures_rn_sup_max_pluri_5gw_2024"]["valeur"] == 0
+    assert calc["quand_heures_rn_sup_max_pluri_10gw_2024"]["valeur"] == 8784
+    assert calc["quand_heures_rn_sup_max_5gw_2024"]["valeur"] == 8784  # maximum annuel : toutes égales
+    assert calc["quand_part_j_plancher_5gw_2023"]["valeur"] == 80  # 4 000 / 5 000
+    assert calc["quand_part_j_5gw_2023"]["valeur"] == 100
+    assert calc["quand_energie_j_10gw_2023"]["valeur"] == 43.8  # 5 000 MW × 8 760 h
+    assert calc["quand_heures_prix_chers_2023"]["valeur"] == 4380
+    assert calc["quand_j_heures_cheres_2023"]["valeur"] == 5.0
+    assert calc["quand_top100_rn_moyenne_2023"]["valeur_calculee"] == 9.1  # (19 000 + 99 × 9 000) / 100
+    for c in calc.values():
+        assert "quand_" not in c.get("note", ""), "identifiant interne dans une note (relecture Fo2)"
+        assert "servie en partie par moins d'exports" not in c.get("note", "")

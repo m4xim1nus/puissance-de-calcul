@@ -29,6 +29,10 @@ export interface TableHoraire {
 }
 
 export const N_MONOTONE_EXACT = 100;
+/** Plancher retranché à J (MW) pour `part_dans_j_plancher` : hypothèse du site (PLANCHER_J_MW). */
+export const PLANCHER_J_MW = 1000;
+/** Seuil de prix « cher » (EUR/MWh), choisi par le site (SEUIL_PRIX_CHER_EUR_MWH). */
+export const SEUIL_PRIX_CHER_EUR_MWH = 150;
 export const PAS_MONOTONE = 20;
 
 /** Une monotone : [rang (1 = la plus élevée), valeur]. */
@@ -178,6 +182,10 @@ export interface ChargePlate {
   rn_max_plus_x_mw: number | null;
   heures_rn_plus_x_au_dessus_du_max: number | null;
   solde_echanges_moyen_heures_j_ge_x_mw: number | null;
+  plancher_mw: number;
+  energie_dans_j_plancher_twh: number;
+  part_dans_j_plancher: number | null;
+  heures_rn_plus_x_au_dessus_du_max_reference: number | null;
 }
 
 /** Charge constante de `xMw` MW (comme `charge_plate` de la référence). */
@@ -186,12 +194,15 @@ export function chargePlate(
   j: readonly (number | null)[],
   xMw: number,
   heures: number = rn.length,
-  solde?: readonly (number | null)[]
+  solde?: readonly (number | null)[],
+  plancherMw: number = PLANCHER_J_MW,
+  rnMaxReferenceMw: number | null = null
 ): ChargePlate {
   if (!(xMw > 0)) throw new Error('charge plate nulle ou négative');
   const jv = j.filter((v): v is number => v !== null);
   const rnv = rn.filter((v): v is number => v !== null);
   const tenu = jv.reduce((s, v) => s + Math.min(xMw, v), 0);
+  const tenuPlancher = jv.reduce((s, v) => s + Math.min(xMw, Math.max(0, v - plancherMw)), 0);
   const rnMax = rnv.length ? Math.max(...rnv) : null;
   const soldes: number[] = [];
   if (solde)
@@ -208,7 +219,12 @@ export function chargePlate(
     rn_max_plus_x_mw: rnMax === null ? null : rnMax + xMw,
     heures_rn_plus_x_au_dessus_du_max:
       rnMax === null ? null : rnv.filter((v) => v + xMw > rnMax).length,
-    solde_echanges_moyen_heures_j_ge_x_mw: moyenne(soldes)
+    solde_echanges_moyen_heures_j_ge_x_mw: moyenne(soldes),
+    plancher_mw: plancherMw,
+    energie_dans_j_plancher_twh: tenuPlancher / 1e6,
+    part_dans_j_plancher: jv.length ? tenuPlancher / (xMw * jv.length) : null,
+    heures_rn_plus_x_au_dessus_du_max_reference:
+      rnMaxReferenceMw === null ? null : rnv.filter((v) => v + xMw > rnMaxReferenceMw).length
   };
 }
 
@@ -227,13 +243,19 @@ export function resumeAnnee(
     n_tendues?: number;
     n_exact?: number;
     pas_monotone?: number;
+    plancher_j_mw?: number;
+    seuil_prix_cher_eur_mwh?: number;
+    rn_max_reference_mw?: number | null;
   } = {}
 ) {
   const {
     charges_mw = [],
     n_tendues = 100,
     n_exact = N_MONOTONE_EXACT,
-    pas_monotone = PAS_MONOTONE
+    pas_monotone = PAS_MONOTONE,
+    plancher_j_mw = PLANCHER_J_MW,
+    seuil_prix_cher_eur_mwh = SEUIL_PRIX_CHER_EUR_MWH,
+    rn_max_reference_mw = null
   } = options;
   const hu = table.heure_utc;
   const n = hu.length;
@@ -248,6 +270,11 @@ export function resumeAnnee(
   const jv = j.filter((v): v is number => v !== null);
   const prix = table.prix ?? new Array<number | null>(n).fill(null);
   const pv = prix.filter((v): v is number => v !== null);
+  const cheres: number[] = [];
+  prix.forEach((p, i) => {
+    const v = j[i];
+    if (p !== null && v !== null && p > seuil_prix_cher_eur_mwh) cheres.push(v);
+  });
   const Q = {
     p01: 0.01,
     p05: 0.05,
@@ -286,15 +313,40 @@ export function resumeAnnee(
       heures_valides: jv.length,
       somme_twh: jv.reduce((s, v) => s + v, 0) / 1e6,
       heures_positif: jv.filter((v) => v > 0).length,
-      moyenne_mw: moyenne(jv)
+      moyenne_mw: moyenne(jv),
+      prix_chers: {
+        seuil_eur_mwh: seuil_prix_cher_eur_mwh,
+        heures: cheres.length,
+        j_moyenne_mw: moyenne(cheres)
+      }
     },
-    charges_plates: charges_mw.map((x) => chargePlate(rn, j, x, n, table.ech_physiques)),
+    charges_plates: charges_mw.map((x) =>
+      chargePlate(rn, j, x, n, table.ech_physiques, plancher_j_mw, rn_max_reference_mw)
+    ),
     prix: {
       heures_valides: pv.length,
       heures_negatif: pv.filter((p) => p < 0).length,
       heures_nul_ou_negatif: pv.filter((p) => p <= 0).length
     }
   };
+}
+
+/** Maximum de plusieurs maxima annuels : valeur la plus élevée, puis heure UTC la plus ancienne
+ * (comme `max_pluriannuel` de la référence) ; l'année d'origine est ajoutée. */
+export function maxPluriannuel(
+  maxima: Record<string, Instant | null>
+): (Instant & { annee: string }) | null {
+  let meilleur: (Instant & { annee: string }) | null = null;
+  for (const [annee, m] of Object.entries(maxima)) {
+    if (!m) continue;
+    if (
+      !meilleur ||
+      m.valeur_mw > meilleur.valeur_mw ||
+      (m.valeur_mw === meilleur.valeur_mw && avant(m.heure_utc, meilleur.heure_utc) < 0)
+    )
+      meilleur = { ...m, annee };
+  }
+  return meilleur;
 }
 
 /* ---------- Simulateur ---------- */

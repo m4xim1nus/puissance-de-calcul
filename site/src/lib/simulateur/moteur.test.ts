@@ -9,7 +9,15 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { lireCsvHoraire } from './csv';
-import { debutParis, quantile, resumeAnnee, simuler, type TableHoraire } from './moteur';
+import {
+  debutParis,
+  maxPluriannuel,
+  quantile,
+  resumeAnnee,
+  simuler,
+  type Instant,
+  type TableHoraire
+} from './moteur';
 
 const RACINE = resolve(process.cwd(), '..');
 const lireJson = (chemin: string) => JSON.parse(readFileSync(resolve(RACINE, chemin), 'utf8'));
@@ -69,6 +77,8 @@ function executer(cas: Cas): unknown {
         p.n_exact as number | undefined,
         p.pas_monotone as number | undefined
       );
+    case 'max_pluriannuel':
+      return maxPluriannuel(e.maxima as Record<string, Instant | null>);
     case 'quantile':
       return quantile(e.tries as number[], e.q as number);
     default:

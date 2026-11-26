@@ -89,15 +89,32 @@ COMPOSANTES = (
     "gaz", "charbon", "fioul", "bioenergies", "pompage", "ech_physiques",
 )
 
+#: Plancher retranché à J pour la sensibilité `part_dans_j_plancher` (MW) : **hypothèse du site**,
+#: pas une donnée. J ne tombe jamais à zéro, même aux heures les plus chères (réserves FCR et aFRR
+#: portées par le parc, rampes de redémarrage, fins de cycle, décalage entre déclaration et
+#: puissance réelle) : J' = max(0, J − plancher) écarte cette part non mobilisable.
+PLANCHER_J_MW = 1000
+
+#: Seuil de prix day-ahead (EUR/MWh) au-dessus duquel une heure est dite « chère » : **choisi par
+#: le site** pour montrer que J reste positif quand le système manque d'énergie (`prix_chers`).
+SEUIL_PRIX_CHER_EUR_MWH = 150
+
 #: Limites de I2, portées en clair dans l'export.
 LIMITES_J = (
     "borne haute : une partie du nucléaire disponible est réservée aux services système "
     "(réserves primaire et secondaire), elle n'est pas mobilisable pour une charge ajoutée",
-    "une baisse de production pour économiser le combustible déplace de l'énergie dans le "
-    "temps : ce n'est pas de l'énergie perdue",
-    "une charge ajoutée serait d'abord servie en partie par moins d'exports (la France exporte "
-    "aux heures où J est grand) ; ce qui manquerait alors aux voisins relève du facteur "
-    "d'émission marginal européen, pas de ce calcul",
+    "plancher : J ne tombe pas à zéro, même aux heures les plus chères (réserves, rampes de "
+    "redémarrage, fins de cycle, décalage entre déclaration et puissance réelle) ; cette part "
+    "n'est pas mobilisable. `part_dans_j_plancher` retranche à J un plancher uniforme "
+    "(`PLANCHER_J_MW`, hypothèse du site) ; `jeu_nucleaire.prix_chers` donne J moyen aux heures "
+    "où le prix dépasse `SEUIL_PRIX_CHER_EUR_MWH`",
+    "contrainte d'énergie : J est une marge en puissance heure par heure, pas un gisement "
+    "d'énergie annuel. Le combustible et le calendrier des arrêts plafonnent la production de "
+    "l'année ; une baisse de production pour économiser le combustible déplace de l'énergie dans "
+    "le temps. `energie_dans_j_twh` serait du nucléaire produit EN PLUS de la production observée, "
+    "à comparer aux prévisions de production de l'exploitant et de RTE",
+    "qui servirait la charge ajoutée (nucléaire inemployé, moins d'exports, autres moyens) dépend "
+    "de la saturation des interconnexions : non déterminable sans les données des voisins",
     "disponibilité DÉCLARÉE par EDF (REMIT) : la frontière entre indisponibilité et modulation "
     "est fixée par EDF ; un arrêt pour économie de combustible peut être déclaré indisponible "
     "et sortir de J",
@@ -175,7 +192,8 @@ def _instant(heures_utc: list[str], i: int, rn: float) -> dict:
     return {"valeur_mw": rn, "heure_utc": heures_utc[i], "debut_paris": p.isoformat(timespec="minutes")}
 
 
-def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, solde: list | None = None) -> dict:
+def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, solde: list | None = None,
+                 plancher_mw: float = PLANCHER_J_MW, rn_max_reference_mw: float | None = None) -> dict:
     """Effet d'une consommation supplémentaire constante de `x_mw` MW sur une année.
 
     - `energie_ajoutee_twh` = X × heures de l'année (toutes les heures de la table) ;
@@ -186,7 +204,11 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, sold
       observée (un écart à l'observé, pas une défaillance) ; `rn_max_plus_x_mw` ;
     - `solde_echanges_moyen_heures_j_ge_x_mw` : solde moyen des échanges physiques (`solde`,
       positif = import, négatif = export) aux heures où J ≥ X et où le solde est renseigné ;
-      None sans solde ou sans telle heure. Négatif : à ces heures, la France exporte déjà.
+      None sans solde ou sans telle heure. Négatif : à ces heures, la France exporte déjà ;
+    - `energie_dans_j_plancher_twh`, `part_dans_j_plancher` : mêmes calculs avec
+      J' = max(0, J − `plancher_mw`) (sensibilité au plancher non mobilisable, hypothèse du site) ;
+    - `heures_rn_plus_x_au_dessus_du_max_reference` : heures où RN + X > `rn_max_reference_mw`
+      (strictement), un seuil fixé hors de l'année (maximum pluriannuel) ; None sans seuil.
     """
     if x_mw <= 0:
         raise ValueError("charge plate nulle ou négative")
@@ -194,6 +216,7 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, sold
     jv = [v for v in j if v is not None]
     rnv = [v for v in rn if v is not None]
     tenu = sum(min(x_mw, v) for v in jv)
+    tenu_plancher = sum(min(x_mw, max(0.0, v - plancher_mw)) for v in jv)
     rn_max = max(rnv) if rnv else None
     soldes = [] if solde is None else [e for v, e in zip(j, solde) if v is not None and e is not None and v >= x_mw]
     return {
@@ -205,6 +228,11 @@ def charge_plate(rn: list, j: list, x_mw: float, heures: int | None = None, sold
         "rn_max_plus_x_mw": None if rn_max is None else rn_max + x_mw,
         "heures_rn_plus_x_au_dessus_du_max": None if rn_max is None else sum(1 for v in rnv if v + x_mw > rn_max),
         "solde_echanges_moyen_heures_j_ge_x_mw": _moyenne(soldes),
+        "plancher_mw": plancher_mw,
+        "energie_dans_j_plancher_twh": tenu_plancher / 1e6,
+        "part_dans_j_plancher": tenu_plancher / (x_mw * len(jv)) if jv else None,
+        "heures_rn_plus_x_au_dessus_du_max_reference": None if rn_max_reference_mw is None
+        else sum(1 for v in rnv if v + x_mw > rn_max_reference_mw),
     }
 
 
@@ -351,11 +379,16 @@ def simuler(table: dict[str, list], x_mw: float, heures_effacement: int = 0,
 
 
 def indicateurs_annee(table: dict[str, list], charges_mw=CHARGES_PLATES_MW, n_tendues: int = N_HEURES_TENDUES,
-                      n_exact: int = N_MONOTONE_EXACT, pas_monotone: int = PAS_MONOTONE) -> dict:
+                      n_exact: int = N_MONOTONE_EXACT, pas_monotone: int = PAS_MONOTONE,
+                      plancher_j_mw: float = PLANCHER_J_MW, seuil_prix_cher_eur_mwh: float = SEUIL_PRIX_CHER_EUR_MWH,
+                      rn_max_reference_mw: float | None = None) -> dict:
     """Tous les indicateurs « Quand ? » d'une table horaire (en général une année civile, heure de Paris).
 
     Sorties en unités de base : MW (moyens horaires), TWh, nombres d'heures, parts entre 0 et 1.
-    Aucun arrondi : l'export arrondit.
+    Aucun arrondi : l'export arrondit. `rn_max_reference_mw` : seuil extérieur à l'année (en
+    pratique le maximum pluriannuel, `max_pluriannuel`) pour `heures_rn_plus_x_au_dessus_du_max_reference`.
+    `jeu_nucleaire.prix_chers` : J moyen aux heures où le prix est strictement supérieur à
+    `seuil_prix_cher_eur_mwh` et J renseigné, et le nombre de ces heures.
     """
     hu = table["heure_utc"]
     n = len(hu)
@@ -433,9 +466,12 @@ def indicateurs_annee(table: dict[str, list], charges_mw=CHARGES_PLATES_MW, n_te
         "heures_positif": sum(1 for v in jv if v > 0),
         "moyenne_mw": _moyenne(jv),
     }
+    prix = table.get("prix", [None] * n)
+    cheres = [j[i] for i in range(n) if prix[i] is not None and j[i] is not None and prix[i] > seuil_prix_cher_eur_mwh]
+    jeu["prix_chers"] = {"seuil_eur_mwh": seuil_prix_cher_eur_mwh, "heures": len(cheres),
+                         "j_moyenne_mw": _moyenne(cheres)}
 
     # Prix nuls ou négatifs
-    prix = table.get("prix", [None] * n)
     ip = [i for i in range(n) if prix[i] is not None]
     neg = [i for i in ip if prix[i] < 0]
     nul_neg = [i for i in ip if prix[i] <= 0]
@@ -453,9 +489,29 @@ def indicateurs_annee(table: dict[str, list], charges_mw=CHARGES_PLATES_MW, n_te
         "charge_residuelle": cr,
         "heures_tendues": tendues,
         "jeu_nucleaire": jeu,
-        "charges_plates": [charge_plate(rn, j, x, n, table.get("ech_physiques")) for x in charges_mw],
+        "charges_plates": [charge_plate(rn, j, x, n, table.get("ech_physiques"), plancher_j_mw, rn_max_reference_mw)
+                           for x in charges_mw],
         "prix": prix_bas,
     }
+
+
+def max_charge_residuelle(table: dict[str, list]) -> dict | None:
+    """Maximum de RN d'une table (même départage que les heures tendues), ou None."""
+    hu = table["heure_utc"]
+    rn = [charge_residuelle(*vals) for vals in zip(table["consommation"], table["eolien"], table["solaire"],
+                                                   table["nucleaire_disponible"])]
+    idx = classement_tendues(hu, rn)
+    return _instant(hu, idx[0], rn[idx[0]]) if idx else None
+
+
+def max_pluriannuel(maxima: dict[str, dict | None]) -> dict | None:
+    """Maximum de plusieurs maxima annuels ({année: {valeur_mw, heure_utc, debut_paris}}) : valeur la
+    plus élevée, puis heure UTC la plus ancienne ; l'année d'origine est ajoutée (`annee`)."""
+    candidats = [(a, m) for a, m in maxima.items() if m is not None]
+    if not candidats:
+        return None
+    a, m = min(candidats, key=lambda am: (-am[1]["valeur_mw"], am[1]["heure_utc"]))
+    return {**m, "annee": a}
 
 
 def matrice_jour_heure(heures_utc: list[str], valeurs: list) -> dict:
