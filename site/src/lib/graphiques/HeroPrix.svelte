@@ -415,11 +415,6 @@
     </li>
   </ul>
 
-  <p class="question">
-    Le système électrique français peut-il accueillir la vague de data centers, et à quelles
-    conditions&#8239;?
-  </p>
-
   <div class="negatives">
     <p>
       {phraseNegatives}<strong class="nombre"
@@ -614,12 +609,8 @@
     box-shadow: 0 0 0 1px var(--papier);
     pointer-events: none;
   }
-  .question {
-    margin: 1.5rem 0 0.6rem;
-    font-family: var(--serif);
-    font-size: clamp(1.3rem, 1.1rem + 1vw, 1.65rem);
-    line-height: 1.3;
-    max-width: var(--mesure);
+  .negatives {
+    margin-top: 1.2rem;
   }
   .negatives p {
     margin: 0;

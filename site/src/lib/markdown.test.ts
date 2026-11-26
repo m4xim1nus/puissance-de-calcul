@@ -14,6 +14,16 @@ describe('markdown de base', () => {
     expect(paragraphes('a\nb\n\n*c*')).toBe('<p>a b</p><p><em>c</em></p>');
   });
 });
+describe('typographie', () => {
+  it('pose les insécables, et ne courbe l’apostrophe qu’en typographie complète', () => {
+    expect(enLigne("l'heure : « oui » ?", { typographie: true })).toBe(
+      'l’heure\u00a0: «\u00a0oui\u00a0»\u202f?'
+    );
+    expect(enLigne("l'heure : « oui » ?", { typographie: 'espaces' })).toBe(
+      "l'heure\u00a0: «\u00a0oui\u00a0»\u202f?"
+    );
+  });
+});
 describe('markdown complet', () => {
   it('protège le code inline de toute autre mise en forme', () => {
     expect(enLigne('`a *b* <c>` et *d*')).toBe('<code>a *b* &lt;c&gt;</code> et <em>d</em>');

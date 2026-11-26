@@ -22,14 +22,20 @@ export interface OptionsMarkdown {
    * d'un item de liste (`li`, sans la balise `<li>`).
    */
   envelopper?: (html: string, contexte: 'p' | 'li') => string;
-  /** Typographie française : fine avant ; ! ?, insécable avant : et dans « », apostrophe courbe. */
-  typographie?: boolean;
+  /**
+   * Typographie française : fine avant ; ! ?, insécable avant : et dans « », apostrophe courbe.
+   * `'espaces'` : les espaces seulement, sans toucher aux caractères du texte (textes publiés
+   * tels quels : citations, brief).
+   */
+  typographie?: boolean | 'espaces';
 }
 
-/** Remplace les espaces ordinaires autour de la ponctuation haute par des espaces insécables. */
-export function typographier(t: string): string {
-  return t
-    .replace(/(\p{L})'(?=\p{L})/gu, '$1’')
+/**
+ * Remplace les espaces ordinaires autour de la ponctuation haute par des espaces insécables et,
+ * sauf `espacesSeules`, l'apostrophe droite par l'apostrophe courbe.
+ */
+export function typographier(t: string, espacesSeules = false): string {
+  return (espacesSeules ? t : t.replace(/(\p{L})'(?=\p{L})/gu, '$1’'))
     .replace(/ ([;!?])/g, '\u202f$1')
     .replace(/ :/g, '\u00a0:')
     .replace(/« /g, '«\u00a0')
@@ -56,7 +62,7 @@ export function enLigne(texte: string, options: OptionsMarkdown = {}): string {
     t = t.replace(RE_JETON, (_, e: string) => reserver(jeton(e.replace(/\s+/g, ' '))));
   }
   const echappe = echapper(t);
-  return (options.typographie ? typographier(echappe) : echappe)
+  return (options.typographie ? typographier(echappe, options.typographie === 'espaces') : echappe)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*]+?)\*/g, '$1<em>$2</em>')
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t: string, url: string) =>
@@ -84,7 +90,8 @@ const RE_TABLE_SEP = /^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$/;
 const RE_DIRECTIVE = /^\s{0,3}:::\s*([\w-]+)(?:\s+(.*?))?\s*:::\s*$/;
 const RE_COMMENTAIRE = /^\s{0,3}<!--/;
 
-const cellules = (ligne: string): string[] =>
+/** Cellules d'une ligne de tableau `| a | b |`, rognées ; un pipe échappé `\|` reste dans sa cellule. */
+export const cellules = (ligne: string): string[] =>
   ligne
     .trim()
     .replace(/^\|/, '')

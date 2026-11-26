@@ -13,7 +13,24 @@
   />
 </svelte:head>
 
-<h1 class="lecteur">Puissance de calcul : le système électrique français face aux data centers</h1>
+<!-- La question d'abord, visible sans défiler ; puis pourquoi l'heure par heure, et ce que montre
+     la carte. Aucune thèse : la page pose la question (décision de l'auteur, 2026-11-26). -->
+<header class="ouverture">
+  <h1>
+    Le système électrique français peut-il accueillir la vague de data centers, et à quelles
+    conditions&#8239;?
+  </h1>
+  <p>
+    En moyenne sur l’année, la France produit une électricité abondante et largement décarbonée.
+    Mais une consommation supplémentaire s’ajoute à chaque heure, et l’état du système change d’une
+    heure à l’autre&nbsp;: la question se joue à l’heure, au poste électrique et au prix.
+  </p>
+  <p>
+    La carte ci-dessous en montre une année&nbsp;: une case par heure, une ligne par jour, et pour
+    couleur le prix de gros day-ahead en France, fixé la veille pour le lendemain. On y voit les
+    heures chères et les heures à prix négatif.
+  </p>
+</header>
 
 <HeroPrix annees={data.annees} initiale={data.initiale} references={data.references} />
 
@@ -45,6 +62,18 @@
 </section>
 
 <style>
+  .ouverture h1 {
+    margin: 0.9rem 0 0.8rem;
+    max-width: 22em;
+    font-size: clamp(1.75rem, 1.25rem + 1.9vw, 2.5rem);
+    line-height: 1.12;
+  }
+  .ouverture p {
+    max-width: var(--mesure);
+    margin: 0 0 0.6rem;
+    font-size: 1.125rem;
+    line-height: 1.55;
+  }
   .enquetes h2 {
     margin-top: 0;
     font-size: 1.45rem;

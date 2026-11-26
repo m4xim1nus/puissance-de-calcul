@@ -220,3 +220,29 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   rien à consigner dans `ERREURS.md` à ce stade. Les deux défauts
   relevés sont des défauts de conception (lisibilité), pas des erreurs
   de fond ; ils sont tracés ici et dans `DECISIONS.md`.
+- deux agents lancés en parallèle (Opus) : site (accueil réordonné,
+  making-of structuré, brief replié dans le journal) ; spike de sources
+  de « Quand ? » (marge à la pointe, disponibilité du parc, surplus et
+  écrêtement, effacements, ce que RTE dit d'une charge plate
+  supplémentaire, indicateurs de marge défendables).
+- l'agent du site rend son travail (tests, vérification de types, build
+  et format au vert ; captures aux deux tailles, clair et sombre, et
+  sans JS). Accueil : la question devient le titre visible, suivie de
+  deux phrases sans chiffre, puis la carte. Making-of : décisions et
+  erreurs en fiches filtrables, journal en sessions repliables, brief
+  replié dans la session 1 ; le contrat des formats est testé sur les
+  vrais fichiers. Claude relit les captures et reprend deux points :
+  - une phrase de l'accueil disait le système « tantôt tendu, tantôt en
+    excédent ». L'agent l'avait lui-même signalée comme un constat que
+    la carte ne démontre pas pour « tendu », et c'est la question de
+    « Quand ? ». Remplacée par « l'état du système change d'une heure à
+    l'autre » ;
+  - le test du contrat a trouvé une entrée d'`ERREURS.md` hors format
+    (la relecture « lectrice experte » : préambule et liste au lieu des
+    champs Faux et Repéré par). Claude la remet au format sans changer
+    son texte : le préambule devient le champ Repéré par, la liste
+    passe sous Faux ;
+  - l'agent signale un défaut de la session 1 : l'ancienne page
+    making-of utilisait un jeton de couleur inexistant (`--filet`), si
+    bien que le filet entre sections ne s'affichait pas. Sans effet sur
+    le contenu ; disparu avec la nouvelle page.
