@@ -267,7 +267,8 @@ def profil_effacement(heures_utc: list[str], rn: list, x_mw: float, heures_effac
 
 
 def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: list[float],
-                 solde: list | None = None, n_exact: int = N_MONOTONE_EXACT, pas: int = PAS_MONOTONE) -> dict:
+                 solde: list | None = None, n_exact: int = N_MONOTONE_EXACT, pas: int = PAS_MONOTONE,
+                 plancher_mw: float = PLANCHER_J_MW, rn_max_reference_mw: float | None = None) -> dict:
     """Ce qu'une charge ajoutée `charge` (MW par heure, une valeur par heure, jamais None) rencontre
     dans une année observée. Généralise `charge_plate` (charge constante) à un profil quelconque.
 
@@ -276,15 +277,23 @@ def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: l
        part qui tiendrait **au plus** dans le nucléaire disponible non produit (`LIMITES_J`) ; None
        si la charge y est nulle. `heures_j_couvre_charge` : heures où charge > 0 et J ≥ charge ;
        `solde_echanges_moyen_heures_j_couvre_mw` : solde moyen des échanges (positif = import) à
-       ces heures, quand il est renseigné ;
+       ces heures, quand il est renseigné. Constat, pas causalité : qui servirait la charge
+       ajoutée dépend de la saturation des interconnexions (`LIMITES_J`) ;
+       `part_dans_j_plancher`, `energie_dans_j_plancher_twh` : mêmes calculs avec
+       J' = max(0, J − `plancher_mw`) (plancher non mobilisable, hypothèse du site) ;
     3. sur les heures où RN est renseignée : `rn_max_mw` (maximum observé), `max_apres` (maximum de
        RN + charge, même départage que les heures tendues), `heures_au_dessus_du_max` = heures où
-       RN + charge > RN max observé (strictement : un écart à l'observé, pas une défaillance) ;
+       RN + charge > RN max observé (strictement : un écart à l'observé, pas une défaillance ; dès
+       que la charge est positive à l'heure du maximum, cette heure-là compte) ;
+       `heures_au_dessus_du_max_reference` : heures où RN + charge > `rn_max_reference_mw`, seuil
+       fixé hors de l'année (maximum pluriannuel) ; None sans seuil ;
     4. sur les heures où le prix est renseigné : `part_prix_negatif` (prix < 0),
        `part_prix_nul_ou_negatif` (prix ≤ 0), parts de l'énergie ajoutée ; `prix_moyen_pondere_eur_mwh`
-       = Σ charge × prix / Σ charge (prix **observé**, sans effet en retour de la charge ajoutée) ;
+       = Σ charge × prix / Σ charge (prix **observé**, sans effet en retour de la charge ajoutée ; non
+       affiché par le site, qui le lirait comme une économie : relecture du simulateur, SF5) ;
        `prix_moyen_eur_mwh` = moyenne simple des prix (ce que paierait une charge plate) ; None si
-       la charge y est nulle ;
+       la charge y est nulle ; `heures_prix_nul_ou_negatif_charge` : heures à prix ≤ 0 où la charge
+       est positive, dont `heures_prix_nul_ou_negatif_j_couvre` où J ≥ charge ;
     5. `monotone_avant`, `monotone_apres` : monotones de RN et de RN + charge (chacune triée pour
        elle-même), sous-échantillonnées comme `monotone`.
     """
@@ -300,6 +309,7 @@ def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: l
     ij = [i for i in range(n) if j[i] is not None]
     base_j = sum(charge[i] for i in ij)
     tenu = sum(min(charge[i], j[i]) for i in ij)
+    tenu_plancher = sum(min(charge[i], max(0.0, j[i] - plancher_mw)) for i in ij)
     couvre = [i for i in ij if charge[i] > 0 and j[i] >= charge[i]]
     soldes = [solde[i] for i in couvre if solde[i] is not None]
 
@@ -312,6 +322,7 @@ def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: l
     # 4. Prix
     ip = [i for i in range(n) if prix[i] is not None]
     base_p = sum(charge[i] for i in ip)
+    bas = [i for i in ip if prix[i] <= 0 and charge[i] > 0]
 
     def part_prix(pred) -> float | None:
         return sum(charge[i] for i in ip if pred(prix[i])) / base_p if base_p > 0 else None
@@ -323,25 +334,34 @@ def effet_charge(heures_utc: list[str], rn: list, j: list, prix: list, charge: l
         "heures_j_valides": len(ij),
         "energie_dans_j_twh": tenu / 1e6,
         "part_dans_j": tenu / base_j if base_j > 0 else None,
+        "plancher_mw": plancher_mw,
+        "energie_dans_j_plancher_twh": tenu_plancher / 1e6,
+        "part_dans_j_plancher": tenu_plancher / base_j if base_j > 0 else None,
         "heures_j_couvre_charge": len(couvre),
         "solde_echanges_moyen_heures_j_couvre_mw": _moyenne(soldes),
         "heures_rn_valides": len(irn),
         "rn_max_mw": rn_max,
         "max_apres": None if i_max is None else _instant(heures_utc, i_max, apres[i_max]),
         "heures_au_dessus_du_max": None if rn_max is None else sum(1 for i in irn if apres[i] > rn_max),
+        "rn_max_reference_mw": rn_max_reference_mw,
+        "heures_au_dessus_du_max_reference": None if rn_max_reference_mw is None
+        else sum(1 for i in irn if apres[i] > rn_max_reference_mw),
         "heures_prix_valides": len(ip),
         "energie_prix_valide_twh": base_p / 1e6,
         "part_prix_negatif": part_prix(lambda p: p < 0),
         "part_prix_nul_ou_negatif": part_prix(lambda p: p <= 0),
         "prix_moyen_pondere_eur_mwh": sum(charge[i] * prix[i] for i in ip) / base_p if base_p > 0 else None,
         "prix_moyen_eur_mwh": _moyenne([prix[i] for i in ip]),
+        "heures_prix_nul_ou_negatif_charge": len(bas),
+        "heures_prix_nul_ou_negatif_j_couvre": sum(1 for i in bas if j[i] is not None and j[i] >= charge[i]),
         "monotone_avant": monotone([rn[i] for i in irn], n_exact, pas),
         "monotone_apres": monotone([apres[i] for i in irn], n_exact, pas),
     }
 
 
 def simuler(table: dict[str, list], x_mw: float, heures_effacement: int = 0,
-            n_exact: int = N_MONOTONE_EXACT, pas_monotone: int = PAS_MONOTONE) -> dict:
+            n_exact: int = N_MONOTONE_EXACT, pas_monotone: int = PAS_MONOTONE,
+            plancher_mw: float = PLANCHER_J_MW, rn_max_reference_mw: float | None = None) -> dict:
     """Simulateur v1 (docs/SIMULATEUR.md) : X MW ajoutés à toutes les heures de la table, sauf
     pendant les `heures_effacement` heures valides de RN observée la plus élevée (`profil_effacement`).
 
@@ -349,8 +369,10 @@ def simuler(table: dict[str, list], x_mw: float, heures_effacement: int = 0,
     `solaire`, `nucleaire`, `nucleaire_disponible`, `prix` ; `ech_physiques` facultative). Sortie :
     celle d'`effet_charge`, plus les paramètres, `heures_effacees` (heures UTC effacées, de la plus
     tendue à la moins tendue) et `rn_seuil_effacement_mw` (RN de la moins tendue des heures effacées,
-    None sans effacement). Avec `heures_effacement = 0` et X > 0, les grandeurs communes avec
-    `charge_plate` sont identiques.
+    None sans effacement), `energie_effacee_twh` (X × heures effacées : énergie **perdue**, reportée
+    ni dans le temps ni sur un autre site) et `production_nucleaire_twh` (Σ de la production
+    nucléaire observée, heures renseignées). Avec `heures_effacement = 0` et X > 0, les grandeurs
+    communes avec `charge_plate` sont identiques.
     """
     hu = table["heure_utc"]
     n = len(hu)
@@ -363,12 +385,14 @@ def simuler(table: dict[str, list], x_mw: float, heures_effacement: int = 0,
     charge = profil_effacement(hu, rn, x_mw, heures_effacement)
     effacees = classement_tendues(hu, rn)[:int(heures_effacement)]
     r = effet_charge(hu, rn, j, table.get("prix", [None] * n), charge, table.get("ech_physiques"),
-                     n_exact, pas_monotone)
+                     n_exact, pas_monotone, plancher_mw, rn_max_reference_mw)
     return {
         "x_mw": x_mw,
         "heures_effacement": int(heures_effacement),
         "heures_effacees": [hu[i] for i in effacees],
         "rn_seuil_effacement_mw": rn[effacees[-1]] if effacees else None,
+        "energie_effacee_twh": x_mw * len(effacees) / 1e6,
+        "production_nucleaire_twh": sum(v for v in table["nucleaire"] if v is not None) / 1e6,
         **r,
     }
 

@@ -13,6 +13,7 @@
   import { phrases } from './phrases';
   import MonotoneAvantApres from './MonotoneAvantApres.svelte';
   import { simuler, type TableHoraire } from './moteur';
+  import type { References } from './references';
 
   interface Props {
     annees: number[];
@@ -20,8 +21,10 @@
     sources: string;
     /** Dates d'extraction ISO (quand.json, `donnees.extractions`). */
     extractions: Record<string, string>;
+    /** Maximum pluriannuel et chiffres du référentiel cités (préparés au prérendu). */
+    references: References;
   }
-  let { annees, sources, extractions }: Props = $props();
+  let { annees, sources, extractions, references }: Props = $props();
 
   /** Rangs exacts de la monotone (zoom du graphique) ; au-delà, un rang sur PAS. */
   const ZOOM = 600;
@@ -92,13 +95,20 @@
 
   const pret = $derived(table !== null && anneeTable === etat.annee);
   const xMw = $derived(Math.round(etat.xGw * 1000));
-  const sim = $derived(pret && table ? simuler(table, xMw, etat.effacement, ZOOM, PAS) : null);
-  /** Même puissance sans effacement : sert de comparaison (heures au-delà du maximum, prix). */
+  const reference = $derived(references.maxPluriannuel.valeur_mw);
+  const sim = $derived(
+    pret && table ? simuler(table, xMw, etat.effacement, ZOOM, PAS, undefined, reference) : null
+  );
+  /** Même puissance sans effacement : comparaison des heures au-delà des maxima. */
   const plate = $derived(
-    !sim || !table ? null : etat.effacement === 0 ? sim : simuler(table, xMw, 0, 1, 1e9)
+    !sim || !table
+      ? null
+      : etat.effacement === 0
+        ? sim
+        : simuler(table, xMw, 0, 1, 1e9, undefined, reference)
   );
   const libelle = $derived(
-    `${puissanceReglee(etat.xGw)}${etat.effacement ? `, effacés ${heures(etat.effacement)}` : ''}`
+    `${puissanceReglee(etat.xGw)}${etat.effacement && xMw > 0 ? `, effacés ${heures(etat.effacement)}` : ''}`
   );
 
   const NOMS: Record<string, string> = {
@@ -125,10 +135,11 @@
     if (!s) return;
     const texte =
       `${etat.annee}, ${libelle} : ${twh(s.energie_ajoutee_twh)} ajoutés ; ` +
-      (s.part_dans_j === null
+      (s.part_dans_j === null || s.part_dans_j_plancher === null
         ? ''
-        : `au plus ${part(s.part_dans_j)} dans le nucléaire disponible non produit ; `) +
-      `${heures(s.heures_au_dessus_du_max ?? 0)} au-delà du maximum observé` +
+        : `au plus ${part(s.part_dans_j_plancher)} à ${part(s.part_dans_j)} dans le nucléaire disponible non produit ; `) +
+      `${heures(s.heures_au_dessus_du_max ?? 0)} au-delà du maximum de l’année, ` +
+      `${heures(s.heures_au_dessus_du_max_reference ?? 0)} au-delà du maximum ${references.maxPluriannuel.annees}` +
       (s.part_prix_nul_ou_negatif === null
         ? '.'
         : ` ; ${part(s.part_prix_nul_ou_negatif)} de l’énergie à prix nul ou négatif.`);
@@ -205,9 +216,10 @@
       de 0,1 GW.
     </p>
     <p class="raison">
-      Puissance <strong>consommée</strong> en moyenne sur chaque heure, pas puissance réservée ni
-      raccordée : un data center raccordé n’utilise qu’une partie de sa puissance de raccordement
-      (voir <a href="/combien">« Combien ? »</a>).
+      Puissance <strong>consommée</strong> en moyenne sur chaque heure, au périmètre de la
+      consommation nationale (pertes de réseau comprises), pas puissance réservée ni raccordée : un
+      data center raccordé n’utilise qu’une partie de sa puissance de raccordement (voir
+      <a href="/combien">« Combien ? »</a>).
     </p>
   </div>
 
@@ -246,10 +258,11 @@
       par an.
     </p>
     <p class="raison">
-      Aucune courbe de charge de data center n’est publiée : la consommation est supposée constante.
-      L’effacement la met à zéro pendant les heures où la charge résiduelle
-      <strong>observée</strong> est la plus élevée, comme si on les connaissait à l’avance : c’est une
-      borne optimiste.
+      Aucune courbe de charge de data center n’est publiée, à notre connaissance : la consommation
+      est supposée constante. L’effacement la met à zéro pendant les heures où la charge résiduelle
+      <strong>observée</strong> est la plus élevée, comme si on les connaissait à l’avance. Les heures
+      d’effacement qu’il faudrait sont donc une borne basse. L’énergie effacée est perdue : elle n’est
+      reportée ni sur d’autres heures ni sur un autre site.
     </p>
   </div>
 
@@ -289,8 +302,35 @@
     {:else if !sim || !plate}
       <p class="etat-calcul" role="status">Chargement des séries horaires de {etat.annee}…</p>
     {:else}
-      {@const ph = phrases(etat, sim, plate, BORNES.effacement.max)}
+      {@const ph = phrases(etat, sim, plate, references, {
+        maxReglable: BORNES.effacement.max,
+        derniereAnnee: annees[annees.length - 1]
+      })}
       <p class="scenario">{ph.scenario}</p>
+
+      <dl class="definitions">
+        <div>
+          <dt>Charge résiduelle</dt>
+          <dd>
+            consommation − éolien − solaire − nucléaire <strong>disponible</strong> déclaré par EDF (REMIT),
+            heure par heure : ce que doivent fournir l’hydraulique, le thermique, les importations et
+            le stockage. Ce n’est pas une marge.
+          </dd>
+        </div>
+        <div>
+          <dt>Nucléaire disponible non produit</dt>
+          <dd>
+            nucléaire déclaré disponible − nucléaire produit, heure par heure : une puissance restée
+            inemployée, pas un gisement d’énergie. Ce n’est pas la « modulation » publiée par EDF.
+          </dd>
+        </div>
+        <div>
+          <dt>Prix day-ahead</dt>
+          <dd>
+            prix de gros de la zone France, fixé la veille pour le lendemain, heure par heure.
+          </dd>
+        </div>
+      </dl>
 
       <dl class="tuiles">
         {#each ph.tuiles as tu (tu.titre)}
@@ -301,6 +341,12 @@
               {tu.valeur}
             </dd>
             <dd class="detail">{tu.detail}</dd>
+            {#if tu.notes?.length}
+              <dd class="notes-tuile">
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {#each tu.notes as n, k (k)}{@html n}{/each}
+              </dd>
+            {/if}
           </div>
         {/each}
       </dl>
@@ -323,6 +369,9 @@
           avant={sim.monotone_avant}
           apres={sim.monotone_apres}
           rnMaxMw={sim.rn_max_mw}
+          rnMaxPluriMw={references.maxPluriannuel.valeur_mw}
+          anneesPluri={references.maxPluriannuel.annees}
+          effacement={sim.x_mw > 0 && sim.heures_effacees.length > 0}
           zoom={ZOOM}
           sources={ligneSources}
         />
@@ -468,6 +517,33 @@
   .detail {
     font-size: 0.92rem;
     line-height: 1.45;
+  }
+  .definitions {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0 0 1.25rem;
+    max-width: 46rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .definitions dt {
+    display: inline;
+    font-family: var(--sans);
+    font-weight: 600;
+  }
+  .definitions dt::after {
+    content: '\00a0: ';
+  }
+  .definitions dd {
+    display: inline;
+    margin: 0;
+  }
+  .notes-tuile {
+    margin-top: 0.4rem !important;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--trait);
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
   .couverture {
     font-family: var(--sans);

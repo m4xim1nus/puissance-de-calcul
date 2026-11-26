@@ -17,11 +17,27 @@
     avant: Monotone;
     apres: Monotone;
     rnMaxMw: number;
+    /** Maximum pluriannuel (repère extérieur à l'année) et ses années. */
+    rnMaxPluriMw: number;
+    anneesPluri: string;
+    /** Des heures sont effacées : la légende dit où elles se rangent. */
+    effacement: boolean;
     /** Dernier rang tracé une à une dans le zoom (le moteur doit rendre ces rangs exacts). */
     zoom: number;
     sources: string;
   }
-  let { annee, libelle, avant, apres, rnMaxMw, zoom, sources }: Props = $props();
+  let {
+    annee,
+    libelle,
+    avant,
+    apres,
+    rnMaxMw,
+    rnMaxPluriMw,
+    anneesPluri,
+    effacement,
+    zoom,
+    sources
+  }: Props = $props();
 
   const couleurAvant = 'var(--donnee-faible)';
   const couleurApres = 'var(--donnee)';
@@ -86,9 +102,9 @@
   sousTitre="En GW, moyenne de chaque heure. D’abord toute l’année, puis les {formaterNombre(
     zoom
   )} heures les plus tendues, sur une autre échelle. Chaque courbe est classée pour elle-même : l’heure de rang 1 n’est pas forcément la même avant et après."
-  remarques="Charge résiduelle = consommation − éolien − solaire − nucléaire disponible déclaré par EDF ; au-dessus du maximum observé, le système serait allé là où il n’a pas été vu fonctionner cette année-là, ce qui n’est pas une défaillance. Au-delà des {formaterNombre(
-    zoom
-  )} premières heures, une heure sur dix est tracée."
+  remarques="Charge résiduelle = consommation − éolien − solaire − nucléaire disponible déclaré par EDF. Au-dessus d’un maximum observé, le système serait allé là où il n’a pas été vu fonctionner, ce qui n’est pas une défaillance.{effacement
+    ? ' Les heures effacées gardent leur charge résiduelle observée : elles se rangent en haut de la courbe « avec », qui s’y confond avec la courbe observée.'
+    : ''} Au-delà des {formaterNombre(zoom)} premières heures, une heure sur dix est tracée."
   {sources}
   titreTableau="Tableau des données : charge résiduelle à quelques rangs, observée et simulée"
 >
@@ -106,8 +122,15 @@
     <span class="cle"
       ><svg width="24" height="12" aria-hidden="true"
         ><line class="max" x1="1" x2="23" y1="6" y2="6" /></svg
-      >maximum observé de l’année</span
+      >maximum de {annee}</span
     >
+    {#if rnMaxPluriMw !== rnMaxMw}
+      <span class="cle"
+        ><svg width="24" height="12" aria-hidden="true"
+          ><line class="max-pluri" x1="1" x2="23" y1="6" y2="6" /></svg
+        >maximum {anneesPluri}</span
+      >
+    {/if}
   {/snippet}
 
   {#snippet trace(largeur: number)}
@@ -124,7 +147,7 @@
           .domain([p === 'annee' ? 0 : 1, p === 'annee' ? n : Math.min(zoom, n)])
           .range([M.gauche, Lp - M.droite])}
         {@const bas = Math.min(av[av.length - 1][1], ap[ap.length - 1][1])}
-        {@const haut = Math.max(av[0][1], ap[0][1], rnMaxMw)}
+        {@const haut = Math.max(av[0][1], ap[0][1], rnMaxMw, rnMaxPluriMw)}
         {@const y = scaleLinear()
           .domain([Math.min(bas, p === 'annee' ? 0 : bas), haut])
           .nice()
@@ -170,9 +193,28 @@
                 >rang de l’heure</text
               >
               <line class="max" x1={M.gauche} x2={Lp - M.droite} y1={y(rnMaxMw)} y2={y(rnMaxMw)} />
-              <text class="mention" x={Lp - M.droite} y={y(rnMaxMw) - 6} text-anchor="end"
-                >maximum observé, {gw(rnMaxMw)}</text
-              >
+              {#if rnMaxPluriMw === rnMaxMw}
+                <text class="mention" x={Lp - M.droite} y={y(rnMaxMw) - 6} text-anchor="end"
+                  >maximum de {annee} et de {anneesPluri}, {gw(rnMaxMw)}</text
+                >
+              {:else}
+                <line
+                  class="max-pluri"
+                  x1={M.gauche}
+                  x2={Lp - M.droite}
+                  y1={y(rnMaxPluriMw)}
+                  y2={y(rnMaxPluriMw)}
+                />
+                <text class="mention" x={Lp - M.droite} y={y(rnMaxPluriMw) - 6} text-anchor="end"
+                  >maximum {anneesPluri}, {gw(rnMaxPluriMw)}</text
+                >
+                <text
+                  class="mention"
+                  x={Lp - M.droite}
+                  y={y(rnMaxMw) + (y(rnMaxMw) - y(rnMaxPluriMw) < 18 ? 14 : -6)}
+                  text-anchor="end">maximum de {annee}, {gw(rnMaxMw)}</text
+                >
+              {/if}
               {#if actif?.p === p}
                 <line
                   class="repere"
@@ -312,6 +354,12 @@
     stroke: var(--encre);
     stroke-width: 1.25;
     stroke-dasharray: 5 4;
+  }
+  .max-pluri {
+    stroke: var(--encre-2);
+    stroke-width: 1.25;
+    stroke-dasharray: 1.5 3;
+    stroke-linecap: round;
   }
   .mention {
     fill: var(--encre);

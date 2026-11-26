@@ -19,11 +19,22 @@ se règlent ci-dessous.
 - **La formation des prix.** Le prix affiché est le prix day-ahead **observé**, formé sans
   cette consommation. Avec elle, certains prix auraient été plus élevés ; le simulateur ne
   dit pas de combien.
-- **Les échanges et les voisins.** Une partie de la consommation ajoutée serait servie par
-  moins d'exportations ou plus d'importations. Ce que cela change chez les voisins, et à
-  quelles émissions, n'est pas calculé.
+- **Les échanges et les voisins.** Qui servirait la consommation ajoutée (plus de nucléaire,
+  moins d'éolien et de solaire arrêtés, moins d'exportations ou plus d'importations) dépend,
+  heure par heure, de la saturation des interconnexions et des prix voisins. Ce site ne sait
+  pas encore le dire : les données des pays voisins ne sont pas branchées.
+- **Le carbone.** Aucun chiffre d'émissions n'est calculé, ni moyen ni marginal.
 - **Le réseau local.** Tout est national. Quelques centaines de MW pèsent d'abord sur un
-  poste électrique et sur ses lignes, dont la capacité d'accueil n'est pas publiée.
-- **Le risque de défaillance.** RTE l'évalue en simulant des centaines de scénarios de
+  poste électrique et sur ses lignes ; à notre connaissance, aucune capacité d'accueil en
+  consommation par poste n'est publiée en open data.
+- **Les pertes de réseau.** La consommation à laquelle s'ajoute X compte les pertes : X les
+  inclut, le simulateur ne les calcule pas à part.
+- **La forme réelle d'une consommation de data centers.** Elle est supposée plate ; la montée
+  en charge d'un parc sur plusieurs années et les variations saisonnières de sa
+  consommation ne sont pas représentées.
+- **Le comportement lors des perturbations du réseau.** La façon dont de grandes charges
+  informatiques réagissent à un creux de tension relève de l'exploitation du réseau, hors du
+  calcul d'équilibre heure par heure fait ici.
+- **Le risque de défaillance.** RTE l'évalue en simulant de nombreux scénarios de
   météo et de disponibilité ; le simulateur rejoue une seule année observée. Dépasser le
   maximum observé de cette année n'est pas une défaillance.

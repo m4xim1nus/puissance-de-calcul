@@ -138,6 +138,12 @@ def test_simuler_sans_effacement_egale_charge_plate(x_mw):
     assert s["rn_max_mw"] == a["charge_residuelle"]["max"]["valeur_mw"]
     assert s["monotone_avant"] == a["charge_residuelle"]["monotone"]
     assert s["prix_moyen_pondere_eur_mwh"] == pytest.approx(s["prix_moyen_eur_mwh"], rel=1e-12)
+    # Plancher et seuil de référence : mêmes valeurs que charge_plate.
+    sr = quand.simuler(t, x_mw, rn_max_reference_mw=40000)
+    ar = quand.indicateurs_annee(t, charges_mw=(x_mw,), rn_max_reference_mw=40000)["charges_plates"][0]
+    assert sr["part_dans_j_plancher"] == pytest.approx(ar["part_dans_j_plancher"], rel=1e-12)
+    assert sr["energie_dans_j_plancher_twh"] == pytest.approx(ar["energie_dans_j_plancher_twh"], rel=1e-12)
+    assert sr["heures_au_dessus_du_max_reference"] == ar["heures_rn_plus_x_au_dessus_du_max_reference"]
     # Heures effacées = heures tendues d'indicateurs_annee, dans le même ordre.
     s2 = quand.simuler(t, x_mw, 40)
     a2 = quand.indicateurs_annee(t, charges_mw=(x_mw,), n_tendues=40)
@@ -169,6 +175,13 @@ def test_simuler_proprietes():
         assert s["max_apres"]["valeur_mw"] >= s["rn_max_mw"]
         assert s["monotone_apres"][0][1] == s["max_apres"]["valeur_mw"]
         assert len(s["monotone_avant"]) == len(s["monotone_apres"])
+        # Fourchette : le plancher ne peut que réduire la part.
+        assert 0 <= s["part_dans_j_plancher"] <= s["part_dans_j"]
+        assert s["energie_effacee_twh"] == pytest.approx(x * effacees / 1e6)
+        assert s["heures_prix_nul_ou_negatif_j_couvre"] <= s["heures_prix_nul_ou_negatif_charge"]
+        # L'heure du maximum observé compte dès que X > 0 et qu'elle n'est pas effacée.
+        if n == 0:
+            assert s["heures_au_dessus_du_max"] >= 1
 
 
 def test_simuler_refuse_les_parametres_invalides():

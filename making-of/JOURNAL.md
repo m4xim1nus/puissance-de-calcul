@@ -419,3 +419,11 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   vérification dans les données (éCO2mix ne publie rien sur l'heure
   répétée d'octobre), effacements retirés de ce qui « couvre » la charge
   résiduelle. Claude relit les captures.
+- l'agent du simulateur rend ses corrections (138 tests du site, 100 du
+  pipeline, 19 contrôles). Claude retire deux limites qu'il avait
+  rédigées sans source (consommation « un peu plus forte par temps
+  chaud », « déconnexions simultanées lors d'un creux de tension ») au
+  profit de formulations qui n'affirment rien sur le comportement des
+  data centers, et « des centaines de scénarios ». Une vérification
+  des corrections, point par point contre les deux relectures, est
+  lancée avant publication.

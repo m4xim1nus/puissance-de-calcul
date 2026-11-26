@@ -377,18 +377,25 @@ export interface EffetCharge {
   heures_j_valides: number;
   energie_dans_j_twh: number;
   part_dans_j: number | null;
+  plancher_mw: number;
+  energie_dans_j_plancher_twh: number;
+  part_dans_j_plancher: number | null;
   heures_j_couvre_charge: number;
   solde_echanges_moyen_heures_j_couvre_mw: number | null;
   heures_rn_valides: number;
   rn_max_mw: number | null;
   max_apres: Instant | null;
   heures_au_dessus_du_max: number | null;
+  rn_max_reference_mw: number | null;
+  heures_au_dessus_du_max_reference: number | null;
   heures_prix_valides: number;
   energie_prix_valide_twh: number;
   part_prix_negatif: number | null;
   part_prix_nul_ou_negatif: number | null;
   prix_moyen_pondere_eur_mwh: number | null;
   prix_moyen_eur_mwh: number | null;
+  heures_prix_nul_ou_negatif_charge: number;
+  heures_prix_nul_ou_negatif_j_couvre: number;
   monotone_avant: Monotone;
   monotone_apres: Monotone;
 }
@@ -402,7 +409,9 @@ export function effetCharge(
   charge: readonly number[],
   solde?: readonly (number | null)[],
   nExact = N_MONOTONE_EXACT,
-  pas = PAS_MONOTONE
+  pas = PAS_MONOTONE,
+  plancherMw = PLANCHER_J_MW,
+  rnMaxReferenceMw: number | null = null
 ): EffetCharge {
   const n = heuresUtc.length;
   for (const [nom, v] of [
@@ -418,6 +427,7 @@ export function effetCharge(
   // 2. Nucléaire disponible non produit
   let baseJ = 0;
   let tenu = 0;
+  let tenuPlancher = 0;
   let heuresJ = 0;
   const soldes: number[] = [];
   let couvre = 0;
@@ -427,6 +437,7 @@ export function effetCharge(
     heuresJ++;
     baseJ += charge[i];
     tenu += Math.min(charge[i], v);
+    tenuPlancher += Math.min(charge[i], Math.max(0, v - plancherMw));
     if (charge[i] > 0 && v >= charge[i]) {
       couvre++;
       const e = solde?.[i] ?? null;
@@ -456,6 +467,8 @@ export function effetCharge(
   let neg = 0;
   let nulNeg = 0;
   let pondere = 0;
+  let heuresBas = 0;
+  let heuresBasCouvertes = 0;
   const prixValides: number[] = [];
   for (let i = 0; i < n; i++) {
     const p = prix[i];
@@ -465,6 +478,11 @@ export function effetCharge(
     pondere += charge[i] * p;
     if (p < 0) neg += charge[i];
     if (p <= 0) nulNeg += charge[i];
+    if (p <= 0 && charge[i] > 0) {
+      heuresBas++;
+      const v = j[i];
+      if (v !== null && v >= charge[i]) heuresBasCouvertes++;
+    }
   }
 
   return {
@@ -474,18 +492,26 @@ export function effetCharge(
     heures_j_valides: heuresJ,
     energie_dans_j_twh: tenu / 1e6,
     part_dans_j: baseJ > 0 ? tenu / baseJ : null,
+    plancher_mw: plancherMw,
+    energie_dans_j_plancher_twh: tenuPlancher / 1e6,
+    part_dans_j_plancher: baseJ > 0 ? tenuPlancher / baseJ : null,
     heures_j_couvre_charge: couvre,
     solde_echanges_moyen_heures_j_couvre_mw: moyenne(soldes),
     heures_rn_valides: avantVal.length,
     rn_max_mw: rnMax,
     max_apres: iMax < 0 ? null : instant(heuresUtc, iMax, (rn[iMax] as number) + charge[iMax]),
     heures_au_dessus_du_max: auDessus,
+    rn_max_reference_mw: rnMaxReferenceMw,
+    heures_au_dessus_du_max_reference:
+      rnMaxReferenceMw === null ? null : apresVal.filter((a) => a > rnMaxReferenceMw).length,
     heures_prix_valides: prixValides.length,
     energie_prix_valide_twh: baseP / 1e6,
     part_prix_negatif: baseP > 0 ? neg / baseP : null,
     part_prix_nul_ou_negatif: baseP > 0 ? nulNeg / baseP : null,
     prix_moyen_pondere_eur_mwh: baseP > 0 ? pondere / baseP : null,
     prix_moyen_eur_mwh: moyenne(prixValides),
+    heures_prix_nul_ou_negatif_charge: heuresBas,
+    heures_prix_nul_ou_negatif_j_couvre: heuresBasCouvertes,
     monotone_avant: monotone(avantVal, nExact, pas),
     monotone_apres: monotone(apresVal, nExact, pas)
   };
@@ -498,6 +524,10 @@ export interface Simulation extends EffetCharge {
   heures_effacees: string[];
   /** RN de la moins tendue des heures effacées ; null sans effacement. */
   rn_seuil_effacement_mw: number | null;
+  /** X × heures effacées : énergie perdue, reportée ni dans le temps ni sur un autre site. */
+  energie_effacee_twh: number;
+  /** Production nucléaire observée de la table (heures renseignées). */
+  production_nucleaire_twh: number;
 }
 
 /**
@@ -509,7 +539,9 @@ export function simuler(
   xMw: number,
   heuresEffacement = 0,
   nExact = N_MONOTONE_EXACT,
-  pasMonotone = PAS_MONOTONE
+  pasMonotone = PAS_MONOTONE,
+  plancherMw = PLANCHER_J_MW,
+  rnMaxReferenceMw: number | null = null
 ): Simulation {
   const hu = table.heure_utc;
   const { rn, j } = series(table);
@@ -523,13 +555,18 @@ export function simuler(
     charge,
     table.ech_physiques,
     nExact,
-    pasMonotone
+    pasMonotone,
+    plancherMw,
+    rnMaxReferenceMw
   );
   return {
     x_mw: xMw,
     heures_effacement: heuresEffacement,
     heures_effacees: effacees.map((i) => hu[i]),
     rn_seuil_effacement_mw: effacees.length ? (rn[effacees[effacees.length - 1]] as number) : null,
+    energie_effacee_twh: (xMw * effacees.length) / 1e6,
+    production_nucleaire_twh:
+      table.nucleaire.reduce<number>((s, v) => (v === null ? s : s + v), 0) / 1e6,
     ...r
   };
 }

@@ -241,11 +241,12 @@
   },
   {
    "nom": "simuler : X = 4 GW, 2 heures effacées, égalité au seuil d'effacement",
-   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Effacées : 7 h et 6 h (pas 8 h, à égalité avec 6 h mais plus tardive) ; seuil 20 000. Charge = 4 000, 0, 0, 4 000, 4 000, 4 000 → 16 000 MWh = 0,016 TWh. Σ min(charge, J) = 0 + 0 + 0 + 3 000 + 4 000 + 4 000 = 11 000 → 11 000 / 16 000 = 0,6875 ; J ≥ charge > 0 à 9 h et 10 h, solde moyen (−4 000 − 6 000) / 2 = −5 000. RN + charge = 14 000, 20 000, 30 000, 24 000, 9 000, −4 000 : maximum 30 000 à 7 h UTC (8 h à Paris), aucune heure strictement au-dessus de 30 000. Prix : énergie à prix < 0 = 4 000 (10 h) → 0,25 ; à prix ≤ 0 = 8 000 → 0,5 ; prix pondéré = 4 000 × (80 + 100 + 0 − 10) / 16 000 = 42,5 ; prix moyen simple = 490 / 6. Monotones (6 rangs exacts) : avant 30 000, 20 000, 20 000, 10 000, 5 000, −8 000 ; après 30 000, 24 000, 20 000, 14 000, 9 000, −4 000.",
+   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Effacées : 7 h et 6 h (pas 8 h, à égalité avec 6 h mais plus tardive) ; seuil 20 000. Charge = 4 000, 0, 0, 4 000, 4 000, 4 000 → 16 000 MWh = 0,016 TWh. Σ min(charge, J) = 0 + 0 + 0 + 3 000 + 4 000 + 4 000 = 11 000 → 11 000 / 16 000 = 0,6875 ; J ≥ charge > 0 à 9 h et 10 h, solde moyen (−4 000 − 6 000) / 2 = −5 000. RN + charge = 14 000, 20 000, 30 000, 24 000, 9 000, −4 000 : maximum 30 000 à 7 h UTC (8 h à Paris), aucune heure strictement au-dessus de 30 000. Prix : énergie à prix < 0 = 4 000 (10 h) → 0,25 ; à prix ≤ 0 = 8 000 → 0,5 ; prix pondéré = 4 000 × (80 + 100 + 0 − 10) / 16 000 = 42,5 ; prix moyen simple = 490 / 6. Monotones (6 rangs exacts) : avant 30 000, 20 000, 20 000, 10 000, 5 000, −8 000 ; après 30 000, 24 000, 20 000, 14 000, 9 000, −4 000. Plancher de 1 000 MW : J' = max(0, J − 1 000) = 0, 0, 0, 2 000, 5 000, 11 000. Production nucléaire : 50 000 + 49 000 + 50 500 + 47 000 + 44 000 + 38 000 = 278 500 MWh = 0,2785 TWh. Σ min(charge, J') = 2 000 + 4 000 + 4 000 = 10 000 → 10 000 / 16 000 = 0,625. Énergie effacée (perdue) : 4 000 × 2 = 8 000 MWh. Seuil de référence 25 000 : seule l'heure de 7 h (30 000) le dépasse. Heures à prix ≤ 0 avec charge : 9 h et 10 h, où J (6 000 ; 12 000) ≥ 4 000 : 2 et 2.",
    "fonction": "simuler",
    "parametres": {
     "x_mw": 4000,
-    "heures_effacement": 2
+    "heures_effacement": 2,
+    "rn_max_reference_mw": 25000
    },
    "entree": {
     "heure_utc": ["2025-01-14T05:00Z", "2025-01-14T06:00Z", "2025-01-14T07:00Z", "2025-01-14T08:00Z", "2025-01-14T09:00Z", "2025-01-14T10:00Z"],
@@ -297,12 +298,21 @@
      [4, 14000],
      [5, 9000],
      [6, -4000]
-    ]
+    ],
+    "plancher_mw": 1000,
+    "energie_dans_j_plancher_twh": 0.01,
+    "part_dans_j_plancher": 0.625,
+    "energie_effacee_twh": 0.008,
+    "production_nucleaire_twh": 0.2785,
+    "rn_max_reference_mw": 25000,
+    "heures_au_dessus_du_max_reference": 1,
+    "heures_prix_nul_ou_negatif_charge": 2,
+    "heures_prix_nul_ou_negatif_j_couvre": 2
    }
   },
   {
    "nom": "simuler : X = 4 GW sans effacement (charge plate)",
-   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Charge 4 000 partout → 24 000 MWh = 0,024 TWh. Σ min(4 000, J) = 0 + 1 000 + 0 + 3 000 + 4 000 + 4 000 = 12 000 → 0,5 (comme charge_plate). RN + 4 000 = 14 000, 24 000, 34 000, 24 000, 9 000, −4 000 : nouveau maximum 34 000 (7 h UTC), une heure au-dessus de 30 000. Prix < 0 : 4 000 / 24 000 = 1/6 ; ≤ 0 : 8 000 / 24 000 = 1/3 ; prix pondéré par une charge plate = prix moyen simple = 490 / 6.",
+   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Charge 4 000 partout → 24 000 MWh = 0,024 TWh. Σ min(4 000, J) = 0 + 1 000 + 0 + 3 000 + 4 000 + 4 000 = 12 000 → 0,5 (comme charge_plate). RN + 4 000 = 14 000, 24 000, 34 000, 24 000, 9 000, −4 000 : nouveau maximum 34 000 (7 h UTC), une heure au-dessus de 30 000. Prix < 0 : 4 000 / 24 000 = 1/6 ; ≤ 0 : 8 000 / 24 000 = 1/3 ; prix pondéré par une charge plate = prix moyen simple = 490 / 6. Plancher de 1 000 MW : J' = max(0, J − 1 000) = 0, 0, 0, 2 000, 5 000, 11 000. Production nucléaire : 50 000 + 49 000 + 50 500 + 47 000 + 44 000 + 38 000 = 278 500 MWh = 0,2785 TWh. Σ min(4 000, J') = 10 000 → 10 000 / 24 000 = 5/12. Aucune énergie effacée ; sans seuil de référence, pas de compte.",
    "fonction": "simuler",
    "parametres": {
     "x_mw": 4000
@@ -340,12 +350,19 @@
      [4, 14000],
      [5, 9000],
      [6, -4000]
-    ]
+    ],
+    "energie_dans_j_plancher_twh": 0.01,
+    "part_dans_j_plancher": 0.4166666666666667,
+    "energie_effacee_twh": 0,
+    "rn_max_reference_mw": null,
+    "heures_au_dessus_du_max_reference": null,
+    "heures_prix_nul_ou_negatif_charge": 2,
+    "heures_prix_nul_ou_negatif_j_couvre": 2
    }
   },
   {
    "nom": "simuler : X = 10 GW, 1 heure effacée, nouveau maximum à égalité avec l'ancien, monotone sous-échantillonnée",
-   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Effacée : 7 h. Charge = 10 000 sauf à 7 h → 50 000 MWh = 0,05 TWh. Σ min(charge, J) = 0 + 1 000 + 0 + 3 000 + 6 000 + 10 000 = 20 000 → 0,4 ; J ≥ charge > 0 seulement à 10 h (12 000), solde −6 000. RN + charge = 20 000, 30 000, 30 000, 30 000, 15 000, 2 000 : maximum 30 000 atteint à 6 h, 7 h et 8 h UTC, départagé par l'heure la plus ancienne (6 h UTC = 7 h à Paris) ; égal au maximum observé, donc aucune heure strictement au-dessus. Prix < 0 : 10 000 / 50 000 = 0,2 ; ≤ 0 : 0,4 ; prix pondéré = 10 000 × (80 + 120 + 100 + 0 − 10) / 50 000 = 58. Monotones avec n_exact = 2 et pas = 3 : rangs 1, 2, 5, puis le dernier (6).",
+   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Effacée : 7 h. Charge = 10 000 sauf à 7 h → 50 000 MWh = 0,05 TWh. Σ min(charge, J) = 0 + 1 000 + 0 + 3 000 + 6 000 + 10 000 = 20 000 → 0,4 ; J ≥ charge > 0 seulement à 10 h (12 000), solde −6 000. RN + charge = 20 000, 30 000, 30 000, 30 000, 15 000, 2 000 : maximum 30 000 atteint à 6 h, 7 h et 8 h UTC, départagé par l'heure la plus ancienne (6 h UTC = 7 h à Paris) ; égal au maximum observé, donc aucune heure strictement au-dessus. Prix < 0 : 10 000 / 50 000 = 0,2 ; ≤ 0 : 0,4 ; prix pondéré = 10 000 × (80 + 120 + 100 + 0 − 10) / 50 000 = 58. Monotones avec n_exact = 2 et pas = 3 : rangs 1, 2, 5, puis le dernier (6). Plancher de 1 000 MW : J' = max(0, J − 1 000) = 0, 0, 0, 2 000, 5 000, 11 000. Production nucléaire : 50 000 + 49 000 + 50 500 + 47 000 + 44 000 + 38 000 = 278 500 MWh = 0,2785 TWh. Σ min(charge, J') = 2 000 + 5 000 + 10 000 = 17 000 → 17 000 / 50 000 = 0,34. Énergie effacée : 10 000 MWh. Prix ≤ 0 avec charge : 9 h et 10 h ; J ≥ 10 000 seulement à 10 h.",
    "fonction": "simuler",
    "parametres": {
     "x_mw": 10000,
@@ -390,12 +407,17 @@
      [2, 30000],
      [5, 15000],
      [6, 2000]
-    ]
+    ],
+    "energie_dans_j_plancher_twh": 0.017,
+    "part_dans_j_plancher": 0.34,
+    "energie_effacee_twh": 0.01,
+    "heures_prix_nul_ou_negatif_charge": 2,
+    "heures_prix_nul_ou_negatif_j_couvre": 1
    }
   },
   {
    "nom": "simuler : X nul",
-   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Aucune énergie ajoutée : les parts et le prix pondéré sont absents (0 / 0), aucune heure au-dessus du maximum (RN + 0 n'est jamais strictement au-dessus de RN max), le maximum après est le maximum observé ; le prix moyen simple reste défini (490 / 6).",
+   "explication": "Table commune : 6 heures du 14/01/2025 (5 h à 10 h UTC), éolien et solaire nuls, nucléaire disponible 50 000 MW : RN = consommation − 50 000 = 10 000, 20 000, 30 000, 20 000, 5 000, −8 000 MW ; J = 0, 1 000, 0 (production 50 500 > disponible), 3 000, 6 000, 12 000 MW ; prix 80, 120, 200, 100, 0, −10 EUR/MWh ; solde des échanges 1 000, 2 000, 3 000, −1 000, −4 000, −6 000 MW. Classement des heures tendues : 7 h (30 000), puis 6 h et 8 h à égalité (20 000) départagées par l'heure UTC la plus ancienne (6 h d'abord), puis 5 h, 9 h, 10 h. Aucune énergie ajoutée : les parts et le prix pondéré sont absents (0 / 0), aucune heure au-dessus du maximum (RN + 0 n'est jamais strictement au-dessus de RN max), le maximum après est le maximum observé ; le prix moyen simple reste défini (490 / 6). Plancher de 1 000 MW : J' = max(0, J − 1 000) = 0, 0, 0, 2 000, 5 000, 11 000. Production nucléaire : 50 000 + 49 000 + 50 500 + 47 000 + 44 000 + 38 000 = 278 500 MWh = 0,2785 TWh. Charge nulle : part avec plancher absente, aucune énergie effacée, aucune heure à prix ≤ 0 avec charge.",
    "fonction": "simuler",
    "parametres": {
     "x_mw": 0
@@ -431,12 +453,18 @@
      [4, 10000],
      [5, 5000],
      [6, -8000]
-    ]
+    ],
+    "part_dans_j_plancher": null,
+    "energie_dans_j_plancher_twh": 0,
+    "energie_effacee_twh": 0,
+    "production_nucleaire_twh": 0.2785,
+    "heures_prix_nul_ou_negatif_charge": 0,
+    "heures_prix_nul_ou_negatif_j_couvre": 0
    }
   },
   {
    "nom": "simuler : données manquantes, effacement au-delà des heures valides, passage à l'heure d'été",
-   "explication": "30/03/2025, 0 h à 3 h UTC. Heure 1 (01:00Z) sans consommation : RN absente, J = 45 000 − 44 000 = 1 000, prix absent. Heure 2 (02:00Z) sans nucléaire produit : J absent, RN = 52 000 − 9 000 − 45 000 = −2 000. RN valides : −5 000 (0 h), −2 000 (2 h), −6 000 (3 h, où la production dépasse le disponible : J = 0). 5 heures d'effacement demandées, 3 heures classables : les 3 sont effacées (2 h, 0 h, 3 h ; seuil −6 000) ; l'heure 1, non classable, garde sa charge de 3 000. Énergie : 3 000 MWh = 0,003 TWh, toutes heures comprises. J renseigné à 0 h, 1 h, 3 h : Σ charge = 3 000, Σ min(charge, J) = min(3 000, 1 000) = 1 000 → 1/3 ; J < charge à 1 h, aucune heure où J couvre la charge ; pas de colonne de solde. RN + charge = RN aux 3 heures valides : maximum −2 000 à 02:00Z = 4 h à Paris (heure d'été). Prix renseignés à 0 h, 2 h, 3 h, où la charge est nulle : parts et prix pondéré absents ; prix moyen simple (10 − 5 + 0) / 3.",
+   "explication": "30/03/2025, 0 h à 3 h UTC. Heure 1 (01:00Z) sans consommation : RN absente, J = 45 000 − 44 000 = 1 000, prix absent. Heure 2 (02:00Z) sans nucléaire produit : J absent, RN = 52 000 − 9 000 − 45 000 = −2 000. RN valides : −5 000 (0 h), −2 000 (2 h), −6 000 (3 h, où la production dépasse le disponible : J = 0). 5 heures d'effacement demandées, 3 heures classables : les 3 sont effacées (2 h, 0 h, 3 h ; seuil −6 000) ; l'heure 1, non classable, garde sa charge de 3 000. Énergie : 3 000 MWh = 0,003 TWh, toutes heures comprises. J renseigné à 0 h, 1 h, 3 h : Σ charge = 3 000, Σ min(charge, J) = min(3 000, 1 000) = 1 000 → 1/3 ; J < charge à 1 h, aucune heure où J couvre la charge ; pas de colonne de solde. RN + charge = RN aux 3 heures valides : maximum −2 000 à 02:00Z = 4 h à Paris (heure d'été). Prix renseignés à 0 h, 2 h, 3 h, où la charge est nulle : parts et prix pondéré absents ; prix moyen simple (10 − 5 + 0) / 3. J' = max(0, J − 1 000) = 4 000 (0 h), 0 (1 h), 0 (3 h) : Σ min(charge, J') = 0 (charge nulle à 0 h et 3 h, J' nul à 1 h) → 0 / 3 000 = 0. Énergie effacée : 3 heures × 3 000 = 9 000 MWh. Production nucléaire (heures renseignées) : 40 000 + 44 000 + 46 000 = 130 000 MWh. Prix ≤ 0 à 2 h et 3 h, où la charge est nulle : aucune heure comptée.",
    "fonction": "simuler",
    "parametres": {
     "x_mw": 3000,
@@ -484,7 +512,13 @@
      [1, -2000],
      [2, -5000],
      [3, -6000]
-    ]
+    ],
+    "energie_dans_j_plancher_twh": 0,
+    "part_dans_j_plancher": 0,
+    "energie_effacee_twh": 0.009,
+    "production_nucleaire_twh": 0.13,
+    "heures_prix_nul_ou_negatif_charge": 0,
+    "heures_prix_nul_ou_negatif_j_couvre": 0
    }
   },
   {

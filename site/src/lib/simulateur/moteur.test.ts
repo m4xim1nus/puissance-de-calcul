@@ -75,7 +75,9 @@ function executer(cas: Cas): unknown {
         p.x_mw as number,
         (p.heures_effacement as number | undefined) ?? 0,
         p.n_exact as number | undefined,
-        p.pas_monotone as number | undefined
+        p.pas_monotone as number | undefined,
+        p.plancher_mw as number | undefined,
+        (p.rn_max_reference_mw as number | undefined) ?? null
       );
     case 'max_pluriannuel':
       return maxPluriannuel(e.maxima as Record<string, Instant | null>);
@@ -156,7 +158,8 @@ describe('parité avec data/export/quand.json sur les années réelles', () => {
       readFileSync(resolve(RACINE, `data/export/horaire/${annee}.csv`), 'utf8')
     );
     const xs = quand.parametres.charges_plates_mw as number[];
-    const r = resumeAnnee(table, { charges_mw: xs });
+    const reference = quand.rn_max_pluriannuel.valeur_mw as number;
+    const r = resumeAnnee(table, { charges_mw: xs, rn_max_reference_mw: reference });
 
     expect(r.heures).toBe(ref.heures);
     expect(r.charge_residuelle.heures_valides).toBe(ref.charge_residuelle.heures_valides);
@@ -204,6 +207,35 @@ describe('parité avec data/export/quand.json sur les années réelles', () => {
       expect(s.heures_au_dessus_du_max).toBe(e.heures_rn_plus_x_au_dessus_du_max);
       expect(s.max_apres?.valeur_mw).toBe(e.rn_max_plus_x_mw);
       expect(s.heures_j_couvre_charge).toBe(e.heures_j_superieur_ou_egal_x);
+
+      // Plancher de J et seuil pluriannuel (relecture du simulateur, SF2 et SF3).
+      expect(proche4(c.part_dans_j_plancher, e.part_dans_j_plancher)).toBe(true);
+      expect(proche4(c.energie_dans_j_plancher_twh, e.energie_dans_j_plancher_twh)).toBe(true);
+      expect(c.heures_rn_plus_x_au_dessus_du_max_reference).toBe(
+        e.heures_rn_plus_x_au_dessus_du_max_reference
+      );
+      const sr = simuler(table, e.x_mw, 0, undefined, undefined, undefined, reference);
+      expect(proche4(sr.part_dans_j_plancher, e.part_dans_j_plancher)).toBe(true);
+      expect(sr.heures_au_dessus_du_max_reference).toBe(
+        e.heures_rn_plus_x_au_dessus_du_max_reference
+      );
     });
+    expect(proche4(simuler(table, 0).production_nucleaire_twh, ref.production_nucleaire_twh)).toBe(
+      true
+    );
+  });
+
+  it('maximum pluriannuel de quand.json = maximum des CSV servis', () => {
+    const maxima = Object.fromEntries(
+      Object.keys(quand.annees).map((a) => [
+        a,
+        resumeAnnee(
+          lireCsvHoraire(readFileSync(resolve(RACINE, `data/export/horaire/${a}.csv`), 'utf8'))
+        ).charge_residuelle.max ?? null
+      ])
+    );
+    const m = maxPluriannuel(maxima as Record<string, Instant | null>);
+    expect(m?.valeur_mw).toBe(quand.rn_max_pluriannuel.valeur_mw);
+    expect(m?.heure_utc).toBe(quand.rn_max_pluriannuel.heure_utc);
   });
 });

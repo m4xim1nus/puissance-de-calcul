@@ -19,7 +19,12 @@
     <h1>Une consommation de plus, heure par heure</h1>
   </header>
   <TexteAnnote blocs={data.textes.enTete} />
-  <Simulateur annees={data.annees} sources={data.sources} extractions={data.extractions} />
+  <Simulateur
+    annees={data.annees}
+    sources={data.sources}
+    extractions={data.extractions}
+    references={data.references}
+  />
   <TexteAnnote blocs={data.textes.lecture} />
 </article>
 
