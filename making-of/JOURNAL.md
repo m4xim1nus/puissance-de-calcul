@@ -628,3 +628,26 @@ session 1, la relecture du contexte en cache domine.
   10 min (sessions 1 à 3), affichées « estimé » sans autre note ; la
   phrase de méthode déjà en place, qui disait « déclarée par l'auteur »,
   dit désormais « estimée » ;
+- **ENTSO-E branché** (agent Opus, `docs/spike/entsoe-pipeline.md`) :
+  410 fichiers, 26 min au premier passage, 3 min en incrémental ;
+  `pc check` passe à 26 contrôles, `pytest` à 147 tests. Prix FR
+  identiques à energy-charts de 2015 à 2026. Charge ENTSO-E sous
+  éCO2mix (−0,4 à −2,4 % selon les années, hypothèse : temps réel non
+  révisé). Biais du solde des flux non expliqué. Décalage d'une heure de
+  la charge et de la production FR dans ENTSO-E en 2023-2024, que Claude
+  vérifie dans les données. Licence vérifiée par Claude dans les PDF
+  d'ENTSO-E : CC BY 4.0 pour les flux et capacités seulement. Erreurs
+  de l'agent consignées ;
+- **question de l'auteur** (citée telle quelle) : *« sache que si les
+  licences de republication, pour entsoe comme pour d'autres sources,
+  bloquent tes avancées, on peut facilement envisager de passer le site
+  entier derrère un mdp, que je transmettrai à la lectrice. ça
+  débloquerait des analyses ? Ne modifie rien au plan en cours, je veux
+  juste ton pov là dessus »*. Réponse de Claude : non. Les sources
+  branchées sont libres ; un mot de passe ne lève pas le droit du
+  producteur de base de données ni un contrat qui interdit la
+  communication à un tiers ; ce qui manque, ce sont des données qui
+  n'existent pas ; et le dépôt public rendrait le mot de passe inutile.
+  Recours proposés si un jeu le justifie un jour : agrégats, lien,
+  autorisation, annexe privée en dernier ressort. Plan inchangé ;
+  l'auteur : *« ok, continue le plan »* ;

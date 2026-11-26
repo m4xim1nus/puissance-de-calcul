@@ -147,12 +147,21 @@ uv run pytest -m "not donnees"        # tests synthétiques seuls, sans réseau 
 
 - Clés de `pc download` : `eco2mix_cons_def`, `eco2mix_tr`, `prix_fr`,
   `odre_nucleaire`, `odre_ges_conso`, `odre_conso_annuelle`,
-  `odre_conso_annuelle_regionale`, `edf_remit` (défaut : toutes).
+  `odre_conso_annuelle_regionale`, `edf_remit`, et ENTSO-E : `entsoe_prix`,
+  `entsoe_production`, `entsoe_flux`, `entsoe_capacites`, `entsoe_charge`
+  (défaut : toutes).
+- ENTSO-E : jeton requis (`$ENTSOE_TOKEN` ou `source/entsoe_token`, jamais
+  écrit ailleurs) ; sans lui, ces clés échouent et le reste marche. XML bruts
+  dans `data/raw/entsoe/`, dérivés dans `data/derive/entsoe/` (non versionné,
+  aucune page ne les lit) ; ≈ 410 requêtes : ≈ 26 min la première fois,
+  ≈ 3 min en incrémental (5 en parallèle).
+  Rapport : `docs/spike/entsoe-pipeline.md`.
 - Incrémental : une année close déjà téléchargée n'est pas refaite (pour
   éCO2mix, seulement si elle était entièrement « définitive ») ; l'année en
   cours et les instantanés sont toujours retéléchargés. `--force` refait tout.
   energy-charts limite à 2 requêtes/min : compter ≈ 6 min pour un `--force`
-  sur les prix.
+  sur les prix. ENTSO-E : une année close n'est figée que si elle a été
+  extraite après le 1er février de l'année suivante.
 - Exports : `data/export/systeme_horaire.parquet`, `quand.json`, `horaire/AAAA.csv` (unités
   dans `horaire/LISEZMOI.md`), `prix_quart_horaire.csv`, `meta.json`.
 - Convention d'horodatage éCO2mix : constante `HORODATAGE_ECO2MIX` dans

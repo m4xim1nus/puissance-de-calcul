@@ -99,8 +99,9 @@ Ordre de la session 2 :
      adverse en cours ;
    - [x] **simulateur, forme** : l'outil tient sur un écran (deux
      colonnes, replis natifs) ; fond inchangé ; spécification révisée.
-2. **ENTSO-E** : le jeton est dans `source/entsoe_token` (arrivé le
-   26/11, non testé). Vérification d'accès (agent Sonnet), puis
+2. ✅ **ENTSO-E** (branché le 26/11 ; `docs/spike/entsoe-acces.md`,
+   `docs/spike/entsoe-pipeline.md` ; rien de publié, licence CC BY 4.0
+   pour les flux et capacités seulement). Vérification d'accès (agent Sonnet), puis
    branchement dans `pc download` : prix et mix des voisins, flux et
    capacités d'échange. Sert l'enquête carbone, le recoupement des prix
    energy-charts, et la question laissée ouverte par « Quand ? » (qui

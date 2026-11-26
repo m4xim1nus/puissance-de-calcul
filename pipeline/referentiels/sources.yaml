@@ -219,3 +219,14 @@ rte-enchere-mc-2026:
   url: https://www.services-rte.com/files/live/sites/services-rte/files/rapport-enchere-public-pl-26-27.pdf
   consulte_le: 2026-11-26
   note: date de couverture ; lu par la contre-vérification du 26/11/2026, copie non versionnée
+
+# Pas encore citée par un chiffre : ajoutée avec le branchement d'ENTSO-E dans le pipeline
+# (docs/spike/entsoe-pipeline.md) pour que la licence soit écrite une seule fois. Licence propre
+# à chaque donnée : voir la note et pipeline/pc/entsoe.py (LICENCES).
+entsoe-transparence:
+  editeur: ENTSO-E (Transparency Platform), données des gestionnaires de réseau et des bourses
+  titre: ENTSO-E Transparency Platform, API REST — prix day-ahead (A44), production réalisée par filière (A75), flux physiques (A11), capacités d'échange prévues (A61), charge réalisée (A65)
+  date_publication: 2026-11-26
+  url: https://web-api.tp.entsoe.eu/api
+  consulte_le: 2026-11-26
+  note: date = date d'extraction par `pc download` ; citer « ENTSO-E Transparency Platform » (conditions générales d'utilisation du 29/03/2023, § 3.1). Flux physiques (art. 12.1.g) et capacités prévues (art. 11.1.a) figurent sur la « List of data available for free re-use » (18/10/2023, CC BY 4.0), sauf « data provided by interconnectors Interconnexion France-Angleterre » ; prix day-ahead (12.1.d), production réalisée (16.1.b&c) et charge réalisée (6.1.a) n'y figurent pas et relèvent des seules conditions générales (droits éventuels du « Primary Owner of Data »)

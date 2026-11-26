@@ -2,7 +2,8 @@
 
 - `pc download [clés…] [--force]` : sources → data/raw/ (+ manifeste.json) ;
 - `pc build` : data/raw/ → data/export/ (dont `chiffres.json` : référentiel saisi + chiffres
-  calculés par le pipeline) ;
+  calculés par le pipeline) ; ENTSO-E, s'il a été téléchargé : data/raw/entsoe/ → data/derive/entsoe/
+  (non versionné, aucune page ne le lit encore : pc/entsoe_derive.py) ;
 - `pc check` : contrôles de cohérence sur data/export/ et les références
   de data/raw/ ; code de retour non nul si un contrôle échoue ;
 - `pc bilan` : relevé « En bref » du making-of (transcriptions locales de Claude Code →
@@ -18,6 +19,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parents[2]
 RAW = RACINE / "data/raw"
 EXPORT = RACINE / "data/export"
+DERIVE = RACINE / "data/derive"  # dérivés non publiés, non versionnés (ENTSO-E)
 
 
 def main(argv=None) -> int:
@@ -31,9 +33,11 @@ def main(argv=None) -> int:
     b = sub.add_parser("build", help="data/raw/ → data/export/")
     b.add_argument("--raw", type=Path, default=RAW)
     b.add_argument("--export", type=Path, default=EXPORT)
+    b.add_argument("--derive", type=Path, default=DERIVE)
     c = sub.add_parser("check", help="bilans qui bouclent, recoupements entre sources")
     c.add_argument("--raw", type=Path, default=RAW)
     c.add_argument("--export", type=Path, default=EXPORT)
+    c.add_argument("--derive", type=Path, default=DERIVE)
     sub.add_parser("bilan", help="relevé « En bref » du making-of → making-of/en-bref.json")
     args = ap.parse_args(argv)
 
@@ -58,10 +62,12 @@ def main(argv=None) -> int:
             print("Chiffres calculés invalides :\n" + "\n".join(erreurs), file=sys.stderr)
             return 1
         chiffres.exporter(complet, args.export / "chiffres.json")
+        from . import entsoe_derive
+        entsoe_derive.construire(args.raw, args.derive)
         return 0
     if args.commande == "check":
         from .check import check
-        return check(args.raw, args.export)
+        return check(args.raw, args.export, derive=args.derive)
     if args.commande == "bilan":
         from .bilan import bilan
         res = bilan(RACINE, RACINE / "making-of/en-bref.json")

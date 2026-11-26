@@ -162,3 +162,9 @@ Format :
 - **Repéré par** : un test (fidélité de la page making-of à ses fichiers source), avant tout envoi : rien n'a été poussé.
 - **Correction** : citation recomposée sans « - » en début de ligne ; commit refait après des tests au vert.
 - **Garde-fou ajouté** : le commit ne se chaîne qu'au code de retour des tests (`npm test && …`), jamais à un filtre de leur sortie.
+
+### 2026-11-26 — Pipeline ENTSO-E : une règle de lecture fausse et un build trop gourmand, avant publication
+- **Faux** : l'agent qui branchait ENTSO-E (Opus) a d'abord retenu, pour les prix day-ahead publiés en plusieurs séquences, une règle qui gardait en Espagne une enchère infrajournalière au lieu du prix du couplage day-ahead ; sa première version du build montait à 16,9 Go de mémoire, et ses processus de lecture se bloquaient sous `pc build`.
+- **Repéré par** : les contrôles écrits par l'agent lui-même (prix ENTSO-E comparés à energy-charts, point à point) et ses essais, avant tout commit.
+- **Correction** : règle documentée (série sans numéro de séquence si elle existe, sinon séquence 1 ; recoupée avec energy-charts) ; build ramené à 4,8 Go au pic ; processus lancés en `spawn`. Claude a vérifié lui-même, après coup, la licence (PDF d'ENTSO-E) et le décalage d'une heure signalé dans la source (corrélations à 0, −1 et +1 h).
+- **Garde-fou ajouté** : contrôle permanent `pc check` « prix FR ENTSO-E = energy-charts, point à point » ; aucune donnée ENTSO-E dans les exports publiés tant qu'une page ne l'exige.

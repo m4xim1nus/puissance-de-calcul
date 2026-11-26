@@ -24,7 +24,12 @@ Deux familles de sources :
   si le fichier local a déjà le md5 que data-fair publie pour le fichier en
   ligne (même contenu octet pour octet : le retélécharger ne changerait rien).
   Les métadonnées data-fair (date de mise à jour des données, nom du fichier
-  d'origine, md5) sont notées dans le manifeste.
+  d'origine, md5) sont notées dans le manifeste ;
+- **ENTSO-E Transparency Platform** (`entsoe_*`, `pc/entsoe.py`) : une requête par
+  série (zone ou frontière dans un sens) et par année civile, XML brut compressé dans
+  `data/raw/entsoe/`, en parallèle ; jeton requis (`$ENTSOE_TOKEN` ou
+  `source/entsoe_token`), jamais écrit nulle part. Sans jeton, ces clés échouent avec
+  un message clair, les autres sont téléchargées normalement.
 
 Les exports ODRÉ passent par `/exports/parquet` (l'endpoint `/records` est
 plafonné à 10 000 lignes) : sans jeton, mais lents (1 à 5 min par an et par
@@ -44,6 +49,8 @@ from pathlib import Path
 
 import httpx
 import polars as pl
+
+from . import entsoe
 
 ODRE = "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets"
 EC = "https://api.energy-charts.info"
@@ -129,6 +136,8 @@ SOURCES: dict[str, dict] = {
                   "et liste courante (événements terminés depuis moins de trois mois, mise à jour horaire)",
         **LICENCE_EDF,
     },
+    # ENTSO-E : catalogue des séries et licences dans pc/entsoe.py (licence propre à chaque donnée).
+    **{cle: {"type": "entsoe", "nature": entsoe.NATURES[cle], **entsoe.LICENCES[cle]} for cle in entsoe.CLES},
 }
 
 
@@ -305,12 +314,21 @@ def download(raw: Path, cles: list[str] | None = None, force: bool = False,
         raise SystemExit(f"clés inconnues : {sorted(inconnues)} (connues : {sorted(SOURCES)})")
     raw.mkdir(parents=True, exist_ok=True)
     manifeste = lire_manifeste(raw)
+    demandees = list(cles or SOURCES)
+    cles_entsoe = [c for c in demandees if SOURCES[c]["type"] == "entsoe"]
+    sans_jeton = bool(cles_entsoe) and not entsoe.lire_jeton()
+    if sans_jeton and cles:  # clés ENTSO-E demandées explicitement : échec immédiat, rien téléchargé
+        raise SystemExit(f"{', '.join(cles_entsoe)} : {entsoe.MESSAGE_SANS_JETON}")
+    if sans_jeton:
+        print(f"AVERTISSEMENT : {entsoe.MESSAGE_SANS_JETON} Clés ENTSO-E sautées.", file=sys.stderr)
     derniere_ec = 0.0
     # Les exports ODRÉ sont lents (jusqu'à 5 min) : délai large.
     with httpx.Client(timeout=httpx.Timeout(900, connect=60), follow_redirects=True,
                       headers={"User-Agent": "pc-pipeline (open data)"}) as client:
-        for cle in cles or list(SOURCES):
+        for cle in demandees:
             src = SOURCES[cle]
+            if src["type"] == "entsoe":
+                continue  # après les autres, en parallèle (ci-dessous)
             print(f"{cle} ({src['type']})", file=sys.stderr)
             if src["type"] == "edf_datafair":
                 _download_edf(client, raw, cle, manifeste, force)
@@ -342,3 +360,9 @@ def download(raw: Path, cles: list[str] | None = None, force: bool = False,
                         continue
                     derniere_ec = time.time()
                 maj_manifeste(raw, cle_m, _entree(cle, url, dest, annee))
+    if cles_entsoe and not sans_jeton:
+        echecs = entsoe.download(raw, cles_entsoe, manifeste, force, aujourd_hui, maj_manifeste)
+        if echecs:
+            raise SystemExit(f"ENTSO-E : {len(echecs)} échec(s) :\n" + "\n".join(echecs))
+    if sans_jeton:
+        raise SystemExit(f"{', '.join(cles_entsoe)} non téléchargées : {entsoe.MESSAGE_SANS_JETON}")

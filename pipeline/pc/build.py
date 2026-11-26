@@ -581,9 +581,10 @@ def build(raw: Path, export: Path, modulation: dict[int, dict] | None = None) ->
             {"donnees": "prix day-ahead France", **LICENCE_PRIX},
             {"donnees": "nucleaire_disponible, nucleaire_puissance_max, nucleaire_disponible_flamanville3", **LICENCE_EDF},
         ],
+        # ENTSO-E exclu : rien de ce qui est exporté ici n'en vient (data/derive/entsoe/meta.json le décrit).
         "sources": {k: {c: v[c] for c in ("url", "extrait_le", "nature", "sha256", "lignes", "natures",
                                           "mis_a_jour_source", "fichier_source")
-                        if c in v} for k, v in sorted(manifeste.items())},
+                        if c in v} for k, v in sorted(manifeste.items()) if not k.startswith("entsoe_")},
         "fichiers": {
             "systeme_horaire.parquet": "toutes années, toutes colonnes (MW moyens horaires, prix, taux_co2, nature, "
                                        "nucleaire_disponible, nucleaire_puissance_max, "

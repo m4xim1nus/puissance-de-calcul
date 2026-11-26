@@ -909,7 +909,7 @@ def controle_referentiel() -> Resultat:
                     f"{len(ref.contraintes)} contraintes d'ordre", "ÉCHEC" if erreurs else "OK", erreurs)
 
 
-def check(raw: Path, export: Path, aujourd_hui: date | None = None) -> int:
+def check(raw: Path, export: Path, aujourd_hui: date | None = None, derive: Path | None = None) -> int:
     annee_courante = (aujourd_hui or date.today()).year
     chemin = export / "systeme_horaire.parquet"
     if not chemin.exists():
@@ -940,6 +940,11 @@ def check(raw: Path, export: Path, aujourd_hui: date | None = None) -> int:
         *controles_remit,
         *controles_quand(export, table),
     ]
+    try:  # ENTSO-E (pc/check_entsoe.py) : INFO sans données, ÉCHEC si le brut existe sans dérivés
+        from . import check_entsoe
+        controles += check_entsoe.controles(raw, derive if derive is not None else export.parent / "derive", table)
+    except Exception as err:
+        controles.append(lambda err=err: Resultat("ENTSO-E", "ÉCHEC", [f"erreur : {err!r}"]))
     resultats = []
     for c in controles:
         try:

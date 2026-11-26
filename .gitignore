@@ -13,6 +13,9 @@ dist/
 # Sources téléchargées (cache local, régénérable)
 data/raw/
 
+# Dérivés non publiés, régénérés par `pc build` depuis data/raw/ (ENTSO-E : aucune page ne les lit)
+data/derive/
+
 # Dossier privé : original du brief, jetons d'API (voir CLAUDE.md)
 source/
 
