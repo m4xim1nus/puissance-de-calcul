@@ -90,7 +90,7 @@ COMPOSANTES = (
 )
 
 #: Plancher retranché à J pour la sensibilité `part_dans_j_plancher` (MW) : **hypothèse du site**,
-#: pas une donnée. J ne tombe jamais à zéro, même aux heures les plus chères (réserves FCR et aFRR
+#: pas une donnée. J reste le plus souvent au-dessus de zéro, même aux heures les plus chères (réserves FCR et aFRR
 #: portées par le parc, rampes de redémarrage, fins de cycle, décalage entre déclaration et
 #: puissance réelle) : J' = max(0, J − plancher) écarte cette part non mobilisable.
 PLANCHER_J_MW = 1000

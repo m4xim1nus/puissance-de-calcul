@@ -250,7 +250,7 @@ LIMITES = {
 
 
 def encadrement_flamanville3(t: dict[str, list]) -> dict | None:
-    """Σ J hors Flamanville 3, encadré : la production de l'EPR n'est pas publiée à part.
+    """Σ J hors Flamanville 3, encadré : la production de l'EPR n'est pas séparée dans éCO2mix.
 
     J hors EPR = max(0, (disponible − disponible EPR) − (production − production EPR)) est
     au moins `somme_j_sans_disponible_epr_twh` = Σ max(0, disponible − disponible EPR − production)
@@ -266,7 +266,7 @@ def encadrement_flamanville3(t: dict[str, list]) -> dict | None:
         "disponible_declare_epr_twh": sum(e for e in epr if e is not None) / 1e6,
         "somme_j_sans_disponible_epr_twh": sum(bas) / 1e6,
         "lecture": "Σ J hors Flamanville 3 est compris entre somme_j_sans_disponible_epr_twh et somme_twh : "
-                   "la production de l'EPR (en essais en 2025) n'est pas publiée à part dans éCO2mix",
+                   "la production de l'EPR (en essais en 2025) n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)",
     }
 
 
@@ -581,7 +581,7 @@ def chiffres_calcules(q: dict, modulation: dict[int, dict] | None = None) -> dic
                 **_valeur(f3["somme_j_sans_disponible_epr_twh"], "TWh"), "grandeur": "energie", "periode": str(an),
                 "citation": f"annees.{an}.jeu_nucleaire.flamanville3.somme_j_sans_disponible_epr_twh",
                 "calcul": "Σ max(0, nucléaire disponible déclaré − disponible déclaré de l'EPR − nucléaire produit) ; "
-                          "la production de l'EPR, non publiée à part, est retranchée avec le reste : c'est une borne "
+                          "la production de l'EPR, non séparée dans éCO2mix, est retranchée avec le reste : c'est une borne "
                           "basse de Σ J hors EPR",
                 "note": f"Σ J hors EPR est compris entre cette valeur et Σ J ({_fr(jeu['somme_twh'], 1)} TWh, EPR "
                         f"compris) ; EPR en essais, {_fr(f3['disponible_declare_epr_twh'], 2)} TWh déclarés "
@@ -636,8 +636,8 @@ def chiffres_calcules_toutes_annees(q: dict, commun: dict) -> dict[str, dict]:
                                 ".heures_rn_plus_x_au_dessus_du_max_reference",
                     "calcul": f"nombre d'heures de {an} où RN + {gw} 000 MW > {pluri['valeur_mw']} MW (maximum de RN sur "
                               f"{pluri['annees']}, atteint le {_paris(pluri['debut_paris']):%d/%m/%Y})",
-                    "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens "
-                            "(charbon, imports, prix extrêmes)",
+                    "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec "
+                            "du charbon, du fioul et des importations importantes",
                 }
         pc = jeu["prix_chers"]
         out[f"quand_heures_prix_chers_{an}"] = {

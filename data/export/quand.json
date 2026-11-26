@@ -8153,7 +8153,7 @@
     "flamanville3": {
      "disponible_declare_epr_twh": 0.001,
      "somme_j_sans_disponible_epr_twh": 25.1186,
-     "lecture": "Σ J hors Flamanville 3 est compris entre somme_j_sans_disponible_epr_twh et somme_twh : la production de l'EPR (en essais en 2025) n'est pas publiée à part dans éCO2mix"
+     "lecture": "Σ J hors Flamanville 3 est compris entre somme_j_sans_disponible_epr_twh et somme_twh : la production de l'EPR (en essais en 2025) n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)"
     }
    },
    "charges_plates": [
@@ -8970,7 +8970,7 @@
     "flamanville3": {
      "disponible_declare_epr_twh": 2.6667,
      "somme_j_sans_disponible_epr_twh": 27.129,
-     "lecture": "Σ J hors Flamanville 3 est compris entre somme_j_sans_disponible_epr_twh et somme_twh : la production de l'EPR (en essais en 2025) n'est pas publiée à part dans éCO2mix"
+     "lecture": "Σ J hors Flamanville 3 est compris entre somme_j_sans_disponible_epr_twh et somme_twh : la production de l'EPR (en essais en 2025) n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)"
     }
    },
    "charges_plates": [

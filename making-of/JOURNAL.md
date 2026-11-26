@@ -427,3 +427,17 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   data centers, et « des centaines de scénarios ». Une vérification
   des corrections, point par point contre les deux relectures, est
   lancée avant publication.
+- la vérification des corrections conclut « non publiable en l'état,
+  publiable après une dizaine de corrections de texte » : F1 à F6 et
+  SF1 à SF6 sont corrigés, mais les corrections ont réintroduit des
+  phrases fausses. Claude les vérifie dans les données (le nucléaire
+  disponible non produit est nul 183 heures en 2025, dont 14 au-dessus
+  de 150 €/MWh : « ne tombe jamais à zéro » était faux) et corrige :
+  « pires années » affiché précisément quand on dépasse tout ce que le
+  système a couvert ; deux légendes qui ramenaient l'idée d'un
+  territoire inconnu ; « prix extrêmes » pour février 2018 encore dans
+  une note ; « production de l'EPR non publiée à part » encore dans
+  trois notes ; la p. 16 du paramétrage encore citée par le simulateur ;
+  « dès quelques GW » ; accord « en les connaissant » pour une heure.
+  Le froid extrême chiffré et le jargon du glossaire vont au backlog.
+  Erreur consignée.

@@ -3347,7 +3347,7 @@
    "grandeur": "energie",
    "periode": "2025",
    "citation": "annees.2025.jeu_nucleaire.flamanville3.somme_j_sans_disponible_epr_twh",
-   "calcul": "Σ max(0, nucléaire disponible déclaré − disponible déclaré de l'EPR − nucléaire produit) ; la production de l'EPR, non publiée à part, est retranchée avec le reste : c'est une borne basse de Σ J hors EPR",
+   "calcul": "Σ max(0, nucléaire disponible déclaré − disponible déclaré de l'EPR − nucléaire produit) ; la production de l'EPR, non séparée dans éCO2mix, est retranchée avec le reste : c'est une borne basse de Σ J hors EPR",
    "note": "Σ J hors EPR est compris entre cette valeur et Σ J (29,1 TWh, EPR compris) ; EPR en essais, 2,67 TWh déclarés disponibles sur l'année"
   },
   "quand_rn_max_pluri": {
@@ -3426,7 +3426,7 @@
    "periode": "2015",
    "citation": "annees.2015.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2015 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2015": {
    "source": {
@@ -3452,7 +3452,7 @@
    "periode": "2015",
    "citation": "annees.2015.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2015 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2015": {
    "source": {
@@ -3633,7 +3633,7 @@
    "periode": "2016",
    "citation": "annees.2016.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2016 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2016": {
    "source": {
@@ -3659,7 +3659,7 @@
    "periode": "2016",
    "citation": "annees.2016.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2016 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2016": {
    "source": {
@@ -3866,7 +3866,7 @@
    "periode": "2017",
    "citation": "annees.2017.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2017 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2017": {
    "source": {
@@ -3892,7 +3892,7 @@
    "periode": "2017",
    "citation": "annees.2017.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2017 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2017": {
    "source": {
@@ -4099,7 +4099,7 @@
    "periode": "2018",
    "citation": "annees.2018.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2018 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2018": {
    "source": {
@@ -4125,7 +4125,7 @@
    "periode": "2018",
    "citation": "annees.2018.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2018 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2018": {
    "source": {
@@ -4332,7 +4332,7 @@
    "periode": "2019",
    "citation": "annees.2019.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2019 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2019": {
    "source": {
@@ -4358,7 +4358,7 @@
    "periode": "2019",
    "citation": "annees.2019.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2019 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2019": {
    "source": {
@@ -4539,7 +4539,7 @@
    "periode": "2020",
    "citation": "annees.2020.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2020 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2020": {
    "source": {
@@ -4565,7 +4565,7 @@
    "periode": "2020",
    "citation": "annees.2020.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2020 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2020": {
    "source": {
@@ -4772,7 +4772,7 @@
    "periode": "2021",
    "citation": "annees.2021.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2021 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2021": {
    "source": {
@@ -4798,7 +4798,7 @@
    "periode": "2021",
    "citation": "annees.2021.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2021 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2021": {
    "source": {
@@ -5005,7 +5005,7 @@
    "periode": "2022",
    "citation": "annees.2022.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2022 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2022": {
    "source": {
@@ -5031,7 +5031,7 @@
    "periode": "2022",
    "citation": "annees.2022.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2022 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2022": {
    "source": {
@@ -5238,7 +5238,7 @@
    "periode": "2023",
    "citation": "annees.2023.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2023 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2023": {
    "source": {
@@ -5264,7 +5264,7 @@
    "periode": "2023",
    "citation": "annees.2023.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2023 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2023": {
    "source": {
@@ -5471,7 +5471,7 @@
    "periode": "2024",
    "citation": "annees.2024.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2024 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2024": {
    "source": {
@@ -5497,7 +5497,7 @@
    "periode": "2024",
    "citation": "annees.2024.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2024 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2024": {
    "source": {
@@ -5704,7 +5704,7 @@
    "periode": "2025",
    "citation": "annees.2025.charges_plates[x_mw = 5000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2025 où RN + 5 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_rn_sup_max_pluri_10gw_2025": {
    "source": {
@@ -5730,7 +5730,7 @@
    "periode": "2025",
    "citation": "annees.2025.charges_plates[x_mw = 10000].heures_rn_plus_x_au_dessus_du_max_reference",
    "calcul": "nombre d'heures de 2025 où RN + 10 000 MW > 38582 MW (maximum de RN sur 2015-2025, atteint le 27/02/2018)",
-   "note": "un écart à l'observé, pas une défaillance ; ce maximum a été couvert avec d'autres moyens (charbon, imports, prix extrêmes)"
+   "note": "un écart à l'observé, pas une défaillance ; ce maximum (février 2018) a été couvert avec du charbon, du fioul et des importations importantes"
   },
   "quand_heures_prix_chers_2025": {
    "source": {

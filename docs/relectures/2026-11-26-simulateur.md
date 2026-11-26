@@ -349,3 +349,96 @@ suffiraient. La tuile du nucléaire, la plus dense (une part, une énergie,
 un nombre d'heures, un solde), gagnerait à être coupée en deux. Le « au
 plus » en tête de valeur fonctionne bien. À 390 px, la page ne défile pas
 horizontalement et les tuiles passent sur une colonne.
+
+## Vérification des corrections (26/11/2026)
+
+Vérification point par point sur le commit `383fd5e` (agent Opus, distinct
+de la relecture). Matériau : page construite et servie en local
+(`npm ci`, `npm run build`, `npm run preview`), lue en navigateur headless
+(Playwright) avec captures pleine page de sept scénarios : défaut (2025,
+1 GW) ; 2025, 10 GW, 100 h d'effacement ; 2022, 20 GW ; 2025, 5 GW ; 2025,
+10 GW ; 2015, 5 GW ; 2025, X = 0 avec 50 h d'effacement. Sources :
+`en-tete.md`, `lecture.md`, `phrases.ts`, `format.ts`, `references.ts`,
+`src/lib/server/simulateur.ts`, `LIMITES_J`, `docs/SIMULATEUR.md`,
+`making-of/`, `BACKLOG.md`. La relecture n'est pas refaite.
+
+**Recalculs** (Python pur depuis `data/export/horaire/2025.csv`) : part de
+5 GW dans J avec plancher de 1 GW 0,3864 (affiché 39 %) ; 1 GW 0,6491
+(65 %) ; 10 GW 0,2381 (24 %) ; énergie dans J 7,604 / 22,844 / 28,044 TWh
+pour 1 / 5 / 10 GW (affiché 7,60 / 22,8 / 28,0 TWh) ; heures où RN + 10 GW
+dépasse 38 582 MW : 2 (affiché 2) ; au-delà du maximum de 2025 : 36 (36).
+Aucun écart.
+
+| Point | Statut | Où |
+|---|---|---|
+| SF1 exportations | corrigé | tuile « Heures où ce nucléaire suffirait » (« c'est un constat. Qui servirait […] ce site ne sait pas encore le dire ») ; `lecture.md` « Qui servirait cette consommation » ; `en-tete.md` « Les échanges et les voisins » ; `LIMITES_J` |
+| SF2 plafond lâche et énergie | corrigé | tuile « Dans le nucléaire disponible non produit » : fourchette (défaut « au plus 65 à 87 % »), énergie avec et sans plancher, production observée, RTE publiée, prévision de l'exploitant pour la dernière année ; `lecture.md` « Au plus » et « En énergie ». Pour 2015 (5 GW : 416,4 + 22,9 TWh), seule la phrase générique sur le combustible avertit ; le record historique n'est pas cité, faute de source (la relecture demandait de le sourcer d'abord). Acceptable |
+| SF3 seuil sur un seul maximum | corrigé | deux tuiles (maximum de l'année, maximum 2015-2025) ; « 1 heure […] l'heure du maximum se dépasse elle-même, et c'est la seule ici » ; « il faudrait effacer au moins N heures » pour les deux seuils ; `lecture.md` « Deux maxima ». **Reste** : N1 et N2 |
+| SF4 effacement | corrigé, règle réaliste au backlog | tuile du maximum (« Par construction, les heures effacées sont celles que compte cet indicateur […] ne dit rien d'un effacement réel ») ; énergie effacée « perdue » (tuile « Énergie ajoutée ») ; `lecture.md` « L'effacement » (borne basse, ni défaillance ni prix, vraisemblance non discutée) ; règle de seuil connue à l'avance renvoyée au backlog avec raison (`DECISIONS.md`, `BACKLOG.md`) |
+| SF5 prix | corrigé | prix moyen pondéré et comparateur supprimés ; tuile prix nuls : « pas une facture », « quelle que soit la puissance », part des heures à prix ≤ 0 couvertes par J (100 % à 1 GW, 86 % à 5 GW, 39 % à 10 GW en 2025) ; `lecture.md` « Les prix ». Titre de tuile non renommé, sans objet une fois le prix moyen retiré |
+| SF6 marges de RTE | corrigé | tuile « Marge de sécurité d'approvisionnement » (« à peu près X GW en moins » ; « non calculable ici » avec effacement) ; section renommée « Les marges de RTE : un rapprochement ». **Reste** : N4 (p. 16) |
+| SP1 réseau local | corrigé | `en-tete.md` « à notre connaissance » |
+| SP2 pertes | corrigé | `en-tete.md` « Les pertes de réseau » |
+| SP3 limites manquantes | corrigé | `en-tete.md` : montée en charge et variations saisonnières, perturbations du réseau (sans affirmation non sourcée, conformément au journal), carbone |
+| SP4 froid extrême | **non traité** | `lecture.md` garde « Onze années observées ne contiennent pas forcément les froids les plus sévères » ; même absence que P8 de « Quand ? » ; ni écarté ni au backlog |
+| SP5 monotone avec effacement | corrigé | légende : « Les heures effacées gardent leur charge résiduelle observée : elles se rangent en haut de la courbe « avec » » |
+| Fo1 accords | corrigé en partie | « l'heure de charge résiduelle », « 1 heure effacée » traités ; **reste** « il faudrait effacer au moins 1 heure, en les connaissant à l'avance » (scénario par défaut, tuiles des deux maxima) |
+| Fo2 X = 0 | corrigé | « Aucune consommation ajoutée : le maximum reste 31,4 GW » ; scénario « l'effacement est sans objet » |
+| Fo3 décimales | corrigé | `format.ts` `twh` : 8,76 / 28,0 / 1,00 TWh |
+| Fo4 conditionnel | corrigé | « où le nucléaire disponible non produit aurait suffi à couvrir toute la consommation ajoutée. La France y exportait… » |
+| Lisibilité | corrigé | définitions (charge résiduelle, nucléaire disponible non produit, prix day-ahead) au-dessus des tuiles ; tuile du nucléaire coupée en deux. REMIT reste non défini (cf. Fo8 de « Quand ? ») |
+
+### Points de fond nouveaux ou résiduels
+
+- **N1. Tuile « maximum 2015-2025 » : « c'est demander au système ce qu'il
+  n'a fourni que dans ses pires années » — faux dans cette tuile.**
+  `phrases.ts`, bloc 4, écrit quand `auRef > 0`, donc précisément quand la
+  charge résiduelle dépasse **tout** ce que le système a fourni de 2015 à
+  2025. Exemple affiché : 2022, 20 GW, 1 349 heures, « Le nouveau maximum le
+  dépasse de 19,5 GW. […] c'est demander au système ce qu'il n'a fourni que
+  dans ses pires années ». Il ne l'a jamais fourni. Dans « Quand ? », la
+  phrase vient après le dépassement du maximum **de l'année**, où elle est
+  juste. Remplacer, dans cette tuile, par « c'est demander au système plus
+  qu'il n'a jamais fourni de 2015 à 2025 », et ne garder la phrase actuelle
+  que dans la tuile du maximum de l'année.
+- **N2. Légende de la monotone : « Au-dessus d'un maximum observé, le
+  système serait allé là où il n'a pas été vu fonctionner ».**
+  `MonotoneAvantApres.svelte` l. 105. C'est la formule que F1 jugeait
+  fausse, et elle l'est pour la ligne « maximum de 2025 » tracée sur le même
+  graphique (31,4 GW, très en deçà de 2018 et 2022). La réserver au maximum
+  2015-2025.
+- **N3. « Ne tombe jamais à zéro »** (`lecture.md`, « Au plus ») : J vaut 0
+  pendant 183 heures en 2025, dont 14 des 278 heures à plus de 150 €/MWh.
+  C'est la moyenne (0,5 GW) qui ne tombe pas à zéro. Même correction que
+  dans « Quand ? ».
+- **N4. p. 16 du paramétrage du mécanisme de capacité, retirée de
+  « Quand ? », gardée ici.** `lecture.md` : « pour RTE, la contribution d'une
+  consommation au risque de défaillance dépend de son profil (p. 16) ». La
+  page (relue dans le PDF pour cette vérification) décrit une « analyse de
+  sensibilité de la contribution au risque de défaillance d'un profil de
+  consommation non thermosensible comparativement à celui d'une consommation
+  purement thermosensible », pour calculer un vecteur de températures. La
+  paraphrase tient, mais la page parle de thermosensibilité et sert ici
+  d'appui à « l'équivalence cesse d'être exacte dès que la consommation
+  n'est pas plate » (montée en charge, effacement), dont elle ne dit rien.
+  C'est l'usage que F5 et `ERREURS.md` ont corrigé dans « Quand ? » : les deux
+  pages divergent. Retirer la citation, ou la restreindre à « une
+  consommation sensible au froid pèse plus que sa valeur moyenne ».
+- **N5. Phrases de fond tapées à la main dans `phrases.ts`.** « Le système
+  l'a couvert avec d'autres moyens : du charbon et du fioul, et des
+  importations importantes » (gardée par la date du maximum, ce qui limite
+  le risque) et « avant la baisse de disponibilité nucléaire prévue pour cet
+  hiver » recopient « Quand ? ». Déjà au backlog (« tirer les phrases de fond
+  d'une source unique ») : pas bloquant, mais c'est ainsi que N1 s'est
+  produit.
+
+### Verdict
+
+**Non publiable en l'état, publiable après quatre corrections de texte sans
+nouvelle relecture de fond.** SF1 à SF6, les points de précision (sauf SP4)
+et de forme (sauf un reste de Fo1) sont traités, et les calculs restent
+justes. Mais N1 est une phrase fausse affichée à chaque scénario qui dépasse
+le maximum 2015-2025, N2 réintroduit F1 dans la légende du graphique, N3 est
+faux heure par heure, N4 garde l'usage de la p. 16 que « Quand ? » a corrigé.
+SP4 (froid extrême) est à traiter ou à renvoyer explicitement au backlog,
+avec P8 de « Quand ? ».

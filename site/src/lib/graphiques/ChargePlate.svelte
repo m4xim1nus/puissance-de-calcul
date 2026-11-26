@@ -89,7 +89,7 @@
   id="charge-plate"
   titre="Une consommation plate de X GW ajoutée aux années 2022 à 2025"
   sousTitre="X GW consommés à toutes les heures de l’année, ajoutés aux données observées de chaque année. Deux grandeurs différentes, panneaux séparés, chacun son axe ; X en échelle logarithmique."
-  remarques="« Au plus » : une partie du nucléaire disponible est réservée aux services système, et une baisse de production pour économiser le combustible déplace de l’énergie dans le temps ; le plancher, hypothèse du site, retranche une part qui ne serait mobilisable à aucune heure. Qui servirait réellement la charge ajoutée (nucléaire inemployé, moins d’exportations, autres moyens) dépend de la saturation des interconnexions, que ces données ne disent pas. Dépasser un maximum observé n’est pas une défaillance : c’est sortir de ce que le système a connu. Une charge plate n’est pas le profil d’un data center réel."
+  remarques="« Au plus » : une partie du nucléaire disponible est réservée aux services système, et une baisse de production pour économiser le combustible déplace de l’énergie dans le temps ; le plancher, hypothèse du site, retranche une part qui ne serait mobilisable à aucune heure. Qui servirait réellement la charge ajoutée (nucléaire inemployé, moins d’exportations, autres moyens) dépend de la saturation des interconnexions, que ces données ne disent pas. Dépasser un maximum observé n’est pas une défaillance : au-delà du maximum de l’année, c’est plus que cette année-là ; au-delà du maximum 2015-2025, plus que toutes les années observées. Une charge plate n’est pas le profil d’un data center réel."
   sources={sourcesRn(q)}
   titreTableau="Tableau des données : consommation plate de X GW, 2022 à 2025"
 >

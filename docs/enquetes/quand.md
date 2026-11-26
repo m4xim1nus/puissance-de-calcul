@@ -28,9 +28,9 @@ sur les autres. À la pointe, elle pèse de tout son poids : X GW
 consommés en permanence retirent à peu près X GW de marge, et 10 GW
 correspondent à l'ordre de grandeur des marges que RTE évaluait pour
 l'hiver 2026-2027. Aux heures de surplus, une partie seulement de son
-énergie trouverait du nucléaire resté inemployé, et, dès quelques GW,
-l'énergie nucléaire annuelle qu'il faudrait alors produire dépasserait
-ce que l'exploitant prévoit.
+énergie trouverait du nucléaire resté inemployé, et l'énergie nucléaire
+annuelle qu'il faudrait alors produire dépasserait nettement ce que
+l'exploitant prévoit.
 
 ## Personne ne publie une marge heure par heure
 
@@ -157,13 +157,13 @@ un chiffre que RTE donne en exemple sans en préciser le calcul. X GW consommés
 **Aux heures de surplus**, une partie de cette énergie trouverait du
 nucléaire disponible et non produit. Avec les données de 2025, ce
 serait au plus {{quand_part_j_5gw_2025}} de l'énergie pour 5 GW et
-{{quand_part_j_10gw_2025}} pour 10 GW. Ce plafond est lâche. Le
-nucléaire disponible non produit ne tombe jamais à zéro, même aux
-heures les plus chères : en 2025, il valait encore en moyenne
+{{quand_part_j_10gw_2025}} pour 10 GW. Ce plafond est lâche. Même aux
+heures les plus chères, le nucléaire disponible non produit reste le
+plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait
 150 €/MWh. Une part de ce « reste » n'est pas mobilisable (réserves de
-services système, rampes, fins de cycle). En le retranchant à hauteur
-de 1 GW à toute heure, hypothèse de ce site, les parts tombent à
+services système, rampes, fins de cycle). En retranchant 1 GW à toute
+heure, un ordre de grandeur choisi par ce site, les parts tombent à
 {{quand_part_j_plancher_5gw_2025}} et {{quand_part_j_plancher_10gw_2025}}.
 
 En énergie, la limite est plus nette encore. Servir de cette façon une
@@ -202,8 +202,8 @@ augmentée de 10 GW n'aurait dépassé que pendant
 d'autres moyens : à cette heure de février 2018, du charbon et du fioul,
 et des importations importantes ; en décembre 2022, des importations
 massives à des prix extrêmes. Dépasser un maximum observé n'est pas une
-défaillance ; c'est demander au système ce qu'il n'a fourni que dans
-ses pires années.
+défaillance ; c'est demander au système de couvrir ce qu'il n'a couvert
+que dans ses pires années, voire davantage.
 
 Rapprocher X des marges de RTE est donc légitime, pour une
 consommation plate. Dans un calcul d'adéquation, ajouter X GW consommés

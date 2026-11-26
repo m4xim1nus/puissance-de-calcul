@@ -102,7 +102,7 @@
   sousTitre="En GW, moyenne de chaque heure. D’abord toute l’année, puis les {formaterNombre(
     zoom
   )} heures les plus tendues, sur une autre échelle. Chaque courbe est classée pour elle-même : l’heure de rang 1 n’est pas forcément la même avant et après."
-  remarques="Charge résiduelle = consommation − éolien − solaire − nucléaire disponible déclaré par EDF. Au-dessus d’un maximum observé, le système serait allé là où il n’a pas été vu fonctionner, ce qui n’est pas une défaillance.{effacement
+  remarques="Charge résiduelle = consommation − éolien − solaire − nucléaire disponible déclaré par EDF. Au-dessus du maximum de l’année, le système aurait dû couvrir plus que cette année-là ; au-dessus du maximum 2015-2025, plus que toutes les années observées. Ni l’un ni l’autre n’est une défaillance.{effacement
     ? ' Les heures effacées gardent leur charge résiduelle observée : elles se rangent en haut de la courbe « avec », qui s’y confond avec la courbe observée.'
     : ''} Au-delà des {formaterNombre(zoom)} premières heures, une heure sur dix est tracée."
   {sources}

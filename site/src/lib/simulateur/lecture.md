@@ -16,11 +16,12 @@ n'est pas une marge : la puissance disponible de ces moyens n'est pas observée 
 Ce n'est pas non plus la « consommation résiduelle » des publications de RTE.
 
 **« Au plus », et une fourchette.** La part de l'énergie ajoutée qui tiendrait dans le
-nucléaire disponible et non produit est un plafond, et un plafond lâche. Ce nucléaire ne tombe
-jamais à zéro, même aux heures les plus chères : en 2025, il valait encore en moyenne
+nucléaire disponible et non produit est un plafond, et un plafond lâche. Même aux heures les
+plus chères, ce nucléaire reste le plus souvent au-dessus de zéro : en 2025, il valait encore en moyenne
 {{quand_j_heures_cheres_2025}} aux heures où le prix dépassait 150 €/MWh. Une part de ce
 « reste » n'est pas mobilisable (réserves de services système, rampes, fins de cycle). D'où la
-fourchette affichée : sans plancher, et en retranchant 1 GW à toute heure, hypothèse de ce site.
+fourchette affichée : sans plancher, et en retranchant 1 GW à toute heure, un ordre de grandeur
+choisi par ce site.
 
 **En énergie, la limite est plus nette encore.** Servir ainsi la consommation ajoutée
 demanderait autant de production nucléaire en plus sur l'année : le résultat la met en regard
@@ -44,8 +45,8 @@ heures suivantes sont souvent nettement plus bas. Le maximum de 2015 à 2025,
 {{quand_rn_max_pluri}}, remet l'échelle en place. Le système l'a couvert, mais avec d'autres
 moyens : à cette heure de février 2018, du charbon et du fioul, et des importations
 importantes ; en décembre 2022, des importations massives à des prix extrêmes. Dépasser un
-maximum observé n'est pas une défaillance ; c'est demander au système ce qu'il n'a fourni que
-dans ses pires années.
+maximum observé n'est pas une défaillance ; c'est demander au système de couvrir ce qu'il n'a
+couvert que dans ses pires années, voire davantage.
 
 **L'effacement** tombe exactement sur les heures les plus tendues de l'année observée, comme si
 on les connaissait à l'avance. Prévoir la charge résiduelle du lendemain est une chose ; savoir
@@ -83,9 +84,8 @@ X GW de capacité toujours disponible : une consommation plate retire à peu pr�
 la marge. C'est un rapprochement de ce site : RTE n'écrit pas cette équivalence pour la
 consommation, mais il fait le même passage dans l'autre sens, en traduisant une hausse de la
 pointe en besoin de capacité {{source:rte-bp2025-fonctionnement|p. 25}}. L'équivalence cesse
-d'être exacte dès que la consommation n'est pas plate : pour RTE, la contribution d'une
-consommation au risque de défaillance dépend de son profil
-{{source:rte-parametrage-mc-2026|p. 16}}. Avec un effacement, le simulateur montre où la
+d'être exacte dès que la consommation n'est pas plate (montée en charge, report ou effacement
+aux heures de pointe). Avec un effacement, le simulateur montre où la
 consommation ajoutée se retire ; il ne sait pas dire combien de marge cela rend : seul un
 calcul probabiliste, comme celui de RTE, le dirait.
 

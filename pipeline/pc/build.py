@@ -447,7 +447,7 @@ NUCLEAIRE_DISPONIBLE_META = {
     "nucleaire_puissance_max": "somme des puissances maximales déclarées des tranches en exploitation (MW moyens "
                                "sur l'heure) : dénominateur d'un taux de disponibilité",
     "nucleaire_disponible_flamanville3": "part de `nucleaire_disponible` déclarée pour l'EPR de Flamanville 3 (MW "
-                                         "moyens ; 0 avant le 18/12/2024) ; sa production n'est pas publiée à part",
+                                         "moyens ; 0 avant le 18/12/2024) ; sa production n'est pas séparée dans éCO2mix (elle l'est par groupe chez RTE et ENTSO-E, avec un compte)",
 }
 
 

@@ -129,7 +129,8 @@ export function phrases(
     if (nEtoile > nEff)
       m.push(
         `Pour ne jamais dépasser ce maximum, il faudrait effacer au moins ${heures(nEtoile)}, en ` +
-          'les connaissant à l’avance : c’est une borne basse' +
+          (nEtoile > 1 ? 'les' : 'la') +
+          ' connaissant à l’avance : c’est une borne basse' +
           (nEtoile > options.maxReglable
             ? ` (plus que les ${options.maxReglable} heures que propose le réglage).`
             : '.')
@@ -163,12 +164,13 @@ export function phrases(
     r.push(`Le nouveau maximum le dépasse de ${gw(sim.max_apres.valeur_mw - pluri.valeur_mw)}.`);
   if (!aucune && nEtoileRef > nEff)
     r.push(
-      `Pour ne jamais le dépasser, il faudrait effacer au moins ${heures(nEtoileRef)}, en les ` +
-        'connaissant à l’avance : borne basse.'
+      `Pour ne jamais le dépasser, il faudrait effacer au moins ${heures(nEtoileRef)}, en ` +
+        (nEtoileRef > 1 ? 'les' : 'la') +
+        ' connaissant à l’avance : borne basse.'
     );
   if (auRef > 0)
     r.push(
-      'Ce n’est pas une défaillance : c’est demander au système ce qu’il n’a fourni que dans ses pires années.'
+      'Ce n’est pas une défaillance, mais c’est au-delà de tout ce que le système a couvert de 2015 à 2025.'
     );
   const maxPluri: Tuile = {
     titre: `Heures au-delà du maximum ${pluri.annees}`,

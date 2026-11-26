@@ -16,7 +16,7 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 ## À trier
 
 - [ ] Onglet « À toi » : missions par difficulté croissante (Linky, hypothèse du simulateur, conviction à contredire) (brief, 2026-11-25)
-- [ ] Glossaire replié (merit order, capture price, PPA, TURPE, CFE 24/7) ; y lier depuis l'accueil « prix de gros », « day-ahead », « prix négatif », « poste électrique » (brief, 2026-11-25 ; relecture, 2026-11-26)
+- [ ] Glossaire replié (merit order, capture price, PPA, TURPE, CFE 24/7) ; y lier depuis l'accueil « prix de gros », « day-ahead », « prix négatif », « poste électrique », et depuis « Quand ? » et le simulateur « REMIT », « services système », « puissance certifiée », « plages PP », « solde des échanges » (brief, 2026-11-25 ; relecture, 2026-11-26)
 - [ ] Méthode : préciser la cote A quand le recoupement porte sur un calcul (décompte des heures négatives : RTE et le site comptent sur les mêmes résultats d'enchère, Nord Pool chez RTE le 26/06/2024) (relecture, 2026-11-26)
 - [ ] Jeton ENTSO-E : compte créé par l'auteur le 26/11, jeton attendu sous ~3 jours, toujours en attente le 26/11 après la session 1 et au début de la session 2 ; à déposer dans `source/entsoe_token`, puis brancher prix et mix des voisins (enquête carbone) (user:auteur, 2026-11-26)
 - [ ] `pc check` : recompter les heures négatives sur les CSV publiés (pas seulement avant arrondi) (claude, 2026-11-26)
@@ -34,3 +34,4 @@ réfléchir avant d'arbitrer, `[refusé]` tranché négatif. **Origines** :
 - [ ] éCO2mix : écart de bilan moyen de −65 à −80 MW depuis 2021 (quelques MW avant), et saut du gaz contre ses sous-filières ; cause non établie (batteries ?) (claude, 2026-11-26)
 - [ ] Simulateur : règle d'effacement réaliste (seuil connu à l'avance, ex. celui de l'année précédente, et budget d'heures), à spécifier ; la v1 ne donne qu'une borne basse à prévision parfaite (relecture, 2026-11-26)
 - [ ] Simulateur : les textes `site/src/lib/simulateur/*.md` recopient des passages de « Quand ? » ; tirer les phrases de fond d'une source unique (claude, 2026-11-26)
+- [ ] « Quand ? » et simulateur : chiffrer la limite « froid extrême » (pointe record de février 2012, à saisir au référentiel depuis RTE) ; écarté de la v1 faute d'entrée sourcée (relecture P8, 2026-11-26)
