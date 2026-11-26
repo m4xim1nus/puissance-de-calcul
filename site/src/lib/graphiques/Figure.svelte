@@ -12,9 +12,28 @@
     trace: Snippet<[number]>;
     remarques?: string;
     sources: string;
-    lignes: LigneDonnees[];
+    /** Chiffres du référentiel montrés par le graphique (tableau standard). */
+    lignes?: LigneDonnees[];
+    /** Tableau de données propre au graphique, à la place du tableau standard. */
+    tableau?: Snippet;
+    /** Intitulé du repli du tableau. */
+    titreTableau?: string;
+    /** Contrôles au-dessus du tracé (choix d'année…), affichés seulement avec JavaScript. */
+    controles?: Snippet;
   }
-  let { id, titre, sousTitre, legende, trace, remarques, sources, lignes }: Props = $props();
+  let {
+    id,
+    titre,
+    sousTitre,
+    legende,
+    trace,
+    remarques,
+    sources,
+    lignes = [],
+    tableau,
+    titreTableau = 'Tableau des données',
+    controles
+  }: Props = $props();
 
   // Largeur mesurée après hydratation ; au prérendu, une largeur de bureau (le SVG se réduit).
   let largeur = $state(0);
@@ -28,6 +47,7 @@
   {#if legende}
     <div class="legende">{@render legende()}</div>
   {/if}
+  {#if controles}{@render controles()}{/if}
   <div class="trace" bind:clientWidth={largeur}>
     {@render trace(largeur || 840)}
   </div>
@@ -36,37 +56,41 @@
   {/if}
   <p class="sources"><span class="cle">Sources</span> {sources}</p>
   <details class="donnees">
-    <summary>Tableau des données</summary>
-    <div class="defile">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Donnée</th>
-            <th scope="col">Valeur</th>
-            <th scope="col">Période</th>
-            <th scope="col">Périmètre</th>
-            <th scope="col">Source</th>
-            <th scope="col">Confiance</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each lignes as l (l.id)}
+    <summary>{titreTableau}</summary>
+    {#if tableau}
+      <div class="defile">{@render tableau()}</div>
+    {:else}
+      <div class="defile">
+        <table>
+          <thead>
             <tr>
-              <th scope="row">{l.libelle}</th>
-              <td class="nombre"
-                >{l.valeur}{#if l.calcul}<br /><span class="calc">calcul du site</span>{/if}</td
-              >
-              <td>{l.periode}</td>
-              <td>{l.perimetre}</td>
-              <td
-                >{l.source.editeur}, <a href={l.source.url} rel="external">{l.source.titre}</a>, {l.page}</td
-              >
-              <td>{l.confiance}</td>
+              <th scope="col">Donnée</th>
+              <th scope="col">Valeur</th>
+              <th scope="col">Période</th>
+              <th scope="col">Périmètre</th>
+              <th scope="col">Source</th>
+              <th scope="col">Confiance</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {#each lignes as l (l.id)}
+              <tr>
+                <th scope="row">{l.libelle}</th>
+                <td class="nombre"
+                  >{l.valeur}{#if l.calcul}<br /><span class="calc">calcul du site</span>{/if}</td
+                >
+                <td>{l.periode}</td>
+                <td>{l.perimetre}</td>
+                <td
+                  >{l.source.editeur}, <a href={l.source.url} rel="external">{l.source.titre}</a>, {l.page}</td
+                >
+                <td>{l.confiance}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    {/if}
   </details>
 </figure>
 
@@ -126,15 +150,20 @@
     overflow-x: auto;
     margin-top: 0.5rem;
   }
-  .defile table {
+  .defile :global(table) {
     display: table;
     min-width: 40rem;
     font-size: 0.875rem;
   }
-  .defile th[scope='row'] {
+  .defile :global(th[scope='row']) {
     font-weight: 500;
     border-bottom-color: var(--trait);
     min-width: 10rem;
+  }
+  .defile :global(.num) {
+    white-space: nowrap;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
   }
   .nombre {
     white-space: nowrap;

@@ -1,7 +1,13 @@
 // Notes marginales : un appel numéroté dans le texte, une note générée depuis l'entrée du
 // référentiel (jamais de chiffre ni de source tapés à la main). Sorties en HTML, rendues avec {@html}.
 import { COTES, type Chiffre, type Source } from '$lib/chiffres';
-import { formaterDate, formaterPeriode, formaterValeur } from '$lib/format';
+import {
+  formaterDate,
+  formaterNombre,
+  formaterPeriode,
+  formaterValeur,
+  separateurUnite
+} from '$lib/format';
 import { echapper } from '$lib/markdown';
 
 /** Appel de note dans le texte. */
@@ -65,6 +71,18 @@ export function cote(c: Chiffre['confiance']): string {
   return `<a href="/methode#confiance">Confiance ${c}</a> : ${COTES[c]}.`;
 }
 
+/** Recoupements d'un chiffre, ou « Non recoupé ». */
+function recoupements(c: Chiffre, sources: ReadonlyMap<string, Source>): string[] {
+  if (!c.recoupements?.length) return [`<p>Non recoupé.</p>`];
+  return c.recoupements.map((r) => {
+    const s = sources.get(r.source);
+    const qui = s ? ` (${echapper(s.editeur)}, ${echapper(s.titre)})` : '';
+    const nature = r.independant ? 'Recoupement indépendant' : 'Recoupement non indépendant';
+    const note = r.note ? ` ; ${echapper(r.note)}` : '';
+    return `<p>${nature}${qui} : ${echapper(r.valeur)}${note}.</p>`;
+  });
+}
+
 /**
  * Note d'un chiffre du référentiel. Visible, en une ou deux lignes : numéro, éditeur, titre court
  * (lien), date, page, pastille de confiance, et « calcul du site » s'il y a lieu. Dans le repli :
@@ -76,6 +94,7 @@ export function noteChiffre(
   c: Chiffre,
   sources: ReadonlyMap<string, Source> = new Map()
 ): string {
+  if (c.produit_par) return noteCalcul(numero, c, sources);
   const exacte = c.citation.trim().startsWith('«');
   const tete =
     `<span class="note-tete">${numero === null ? '' : `<span class="note-num">${numero}</span> `}` +
@@ -92,17 +111,7 @@ export function noteChiffre(
   if (c.calcul)
     detail.push(`<p><span class="note-cle">Calcul du site</span> ${echapper(c.calcul)}.</p>`);
   if (c.note) detail.push(`<p>${echapper(majuscule(c.note))}.</p>`);
-  if (c.recoupements?.length) {
-    for (const r of c.recoupements) {
-      const s = sources.get(r.source);
-      const qui = s ? ` (${echapper(s.editeur)}, ${echapper(s.titre)})` : '';
-      const nature = r.independant ? 'Recoupement indépendant' : 'Recoupement non indépendant';
-      const note = r.note ? ` ; ${echapper(r.note)}` : '';
-      detail.push(`<p>${nature}${qui} : ${echapper(r.valeur)}${note}.</p>`);
-    }
-  } else {
-    detail.push(`<p>Non recoupé.</p>`);
-  }
+  detail.push(...recoupements(c, sources));
   detail.push(`<p>${cote(c.confiance)}</p>`);
   detail.push(apropos(c.source));
   return (
@@ -128,5 +137,49 @@ export function noteRenvoi(numero: number, premiere: number): string {
     `<div class="note note-renvoi" id="note-${numero}"><span class="note-tete">` +
     `<span class="note-num">${numero}</span> Même chiffre : voir la ` +
     `<a href="#note-${premiere}">note ${premiere}</a>.</span></div>`
+  );
+}
+
+/**
+ * Note d'un chiffre calculé par le site (`produit_par`) : pas de page de source à citer, mais la
+ * méthode et les données. Visible : numéro, « calcul du site », période, pastille. Dans le repli :
+ * méthode, données (avec lien), champ lu, période, périmètre, valeur avant arrondi, remarque,
+ * contrôle, cote, date du calcul.
+ */
+export function noteCalcul(
+  numero: number | null,
+  c: Chiffre,
+  sources: ReadonlyMap<string, Source> = new Map()
+): string {
+  if (!c.calcul) throw new Error(`Chiffre calculé sans méthode (« calcul ») : ${c.libelle}`);
+  const tete =
+    `<span class="note-tete">${numero === null ? '' : `<span class="note-num">${numero}</span> `}` +
+    `<strong class="note-calcul">Calcul du site</strong>, ${echapper(formaterPeriode(c.periode, true))} ` +
+    `${pastille(c.confiance)}</span>`;
+  const exacte =
+    c.valeur_calculee !== undefined
+      ? `${formaterNombre(c.valeur_calculee, 6)}${separateurUnite(c.unite)}${c.unite}, affiché arrondi${c.precision !== undefined ? ` au pas de ${formaterValeur(c.precision, c.unite)}` : ''}`
+      : formaterValeur(c.valeur, c.unite);
+  const detail = [
+    `<p><span class="note-cle">Méthode</span> ${echapper(c.calcul)}.</p>`,
+    `<p><span class="note-cle">Données</span> ${lienSource(c.source)}.</p>`,
+    `<p><span class="note-cle">Champ</span> ${echapper(c.citation)}.</p>`,
+    `<p><span class="note-cle">Période</span> ${echapper(formaterPeriode(c.periode))}.</p>`,
+    `<p><span class="note-cle">Périmètre</span> ${echapper(c.perimetre)}.</p>`,
+    `<p><span class="note-cle">Valeur exacte</span> ${echapper(exacte)} (${echapper(c.libelle.charAt(0).toLowerCase() + c.libelle.slice(1))}).</p>`
+  ];
+  if (c.note) detail.push(`<p>${echapper(majuscule(c.note))}.</p>`);
+  detail.push(
+    `<p>Produit par <code>${echapper(c.produit_par ?? '')}</code>` +
+      (c.verification ? `, contrôlé par <code>${echapper(c.verification)}</code>` : '') +
+      `.</p>`
+  );
+  detail.push(...recoupements(c, sources));
+  detail.push(`<p>${cote(c.confiance)}</p>`);
+  detail.push(apropos(c.source));
+  return (
+    `<div class="note note-calculee"${numero === null ? '' : ` id="note-${numero}"`}>${tete} ` +
+    `<details class="note-plus"><summary>méthode et données</summary>` +
+    `<div class="note-detail">${detail.join('')}</div></details></div>`
   );
 }

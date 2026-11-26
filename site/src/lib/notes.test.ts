@@ -82,3 +82,37 @@ describe('notes', () => {
     expect(html).not.toContain('Confiance');
   });
 });
+
+describe('note d’un chiffre calculé par le site', () => {
+  const calcule: Chiffre = {
+    ...c,
+    source: { ...source, cle: 'pdc-quand', editeur: 'Puissance de calcul (calcul du site)' },
+    page: 'data/export/quand.json',
+    libelle: 'Charge résiduelle, maximum horaire',
+    valeur: 31.4,
+    valeur_calculee: 31.433,
+    precision: 0.1,
+    unite: 'GW',
+    periode: '2025-01-14, 8 h-9 h (heure de Paris)',
+    citation: 'annees.2025.charge_residuelle.max',
+    calcul: 'consommation − éolien − solaire − nucléaire disponible',
+    produit_par: 'pc build',
+    verification: 'pc check'
+  };
+  it('dit « calcul du site », la méthode et les données, sans page de source', () => {
+    const html = noteChiffre(4, calcule);
+    const tete = html.slice(0, html.indexOf('<details'));
+    expect(tete).toContain('Calcul du site');
+    expect(tete).toContain('14 janv. 2025');
+    expect(tete).not.toContain('data/export/quand.json');
+    expect(html).toContain('<span class="note-cle">Méthode</span> consommation − éolien');
+    expect(html).toContain('<span class="note-cle">Données</span>');
+    expect(html).toContain(`31,433${FINE}GW, affiché arrondi au pas de 0,1${FINE}GW`);
+    expect(html).toContain('contrôlé par <code>pc check</code>');
+    expect(html).toContain('Non recoupé.');
+    expect(html).toContain('id="note-4"');
+  });
+  it('refuse un chiffre calculé sans méthode', () => {
+    expect(() => noteChiffre(1, { ...calcule, calcul: undefined })).toThrow(/sans méthode/);
+  });
+});

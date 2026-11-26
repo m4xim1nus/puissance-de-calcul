@@ -78,7 +78,7 @@ export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
     } else {
       notes.set(n, typographier(noteRenvoi(n, deja)));
     }
-    return `<span class="chiffre">${echapper(formaterValeur(c.valeur, c.unite, true))}</span>${appel(n)}`;
+    return `<span class="chiffre">${echapper(formaterValeur(c.valeur, c.unite, true, c.precision))}</span>${appel(n)}`;
   };
 
   const envelopper = (html: string, contexte: 'p' | 'li'): string => {
@@ -109,7 +109,12 @@ export function metaEnquete(meta: Record<string, string>, slug: string): MetaEnq
       throw new Error(`Enquête « ${slug} » : champ « ${champ} » absent du front matter`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(meta.mise_a_jour))
     throw new Error(`Enquête « ${slug} » : mise_a_jour n'est pas une date AAAA-MM-JJ`);
-  return { titre: meta.titre, question: meta.question, mise_a_jour: meta.mise_a_jour };
+  // Titre et question passent par la même typographie que le corps (insécables, apostrophe).
+  return {
+    titre: typographier(meta.titre),
+    question: typographier(meta.question),
+    mise_a_jour: meta.mise_a_jour
+  };
 }
 
 const DOSSIER = resolve(RACINE, 'docs/enquetes');

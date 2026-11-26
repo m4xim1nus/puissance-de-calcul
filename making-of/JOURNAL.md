@@ -351,3 +351,19 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   ces heures » (désormais un chiffre calculé), et Flamanville 3 « en
   essais » (« en montée en puissance »). Cinq chiffres de plus demandés
   à l'agent des indicateurs.
+- l'agent des indicateurs livre les chiffres demandés et l'arrondi des
+  valeurs publiées (la valeur non arrondie reste dans la fiche). Claude
+  corrige deux phrases de son texte où un solde négatif (exportateur)
+  aurait été lu « exportait −3,2 GW », puis relance l'agent du site
+  avec son contexte pour la page `/quand` et ses trois graphiques
+  (monotone, calendrier jour × heure, charge plate).
+- l'agent du site livre `/quand` (trois graphiques, notes « calcul du
+  site » avec méthode, données et valeur avant arrondi ; 99 tests). Il
+  relève six phrases du texte de Claude ; Claude en corrige cinq :
+  « elle ne simule rien » alors que la dernière section ajoute une
+  consommation par le calcul ; une borne basse (J 2025 sans l'EPR)
+  affichée comme une valeur ; « aucune vague de froid de l'ampleur de
+  2012 », affirmation sans source, remplacée par une limite qui
+  n'affirme rien sur la météo ; « comme en 2023 et 2024 » sans chiffre ;
+  insécables entre heures et « h ». La sixième (pointe horaire plus
+  basse que la pointe RTE, non chiffrée) reste qualitative.

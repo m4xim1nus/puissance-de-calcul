@@ -20,6 +20,20 @@ export function formaterNombre(n: number, decimales = 2): string {
   return f.format(n).replace(/[   ]/g, FINE).replace('-', '−');
 }
 
+/** Nombre de décimales qu'implique un pas d'arrondi : 0,1 → 1 ; 1 → 0 ; 0,25 → 2. */
+export function decimalesDe(precision: number): number {
+  if (!(precision > 0)) throw new Error(`Précision invalide : ${precision}`);
+  return Math.max(0, Math.ceil(-Math.log10(precision) - 1e-9));
+}
+
+/** Comme formaterNombre, mais avec exactement `decimales` décimales (8 → « 8,0 » pour 1). */
+export function formaterFixe(n: number, decimales: number): string {
+  const t = formaterNombre(n, decimales);
+  if (decimales === 0) return t;
+  const [ent, dec = ''] = t.split(',');
+  return `${ent},${dec.padEnd(decimales, '0')}`;
+}
+
 /** Une unité en toutes lettres (« sites ») prend une espace insécable ; un symbole, une fine. */
 export function separateurUnite(unite: string): string {
   return /^[a-zà-ÿ]{3,}/.test(unite) ? INSECABLE : FINE;
@@ -37,8 +51,17 @@ export function arrondir(n: number, chiffres = 3): number {
  * Avec `arrondi`, au plus 3 chiffres significatifs (affichage dans le texte et les graphiques ;
  * la valeur exacte reste dans la note et le tableau de données).
  */
-export function formaterValeur(valeur: Valeur, unite: string, arrondi = false): string {
-  const f = (n: number) => formaterNombre(arrondi ? arrondir(n) : n);
+export function formaterValeur(
+  valeur: Valeur,
+  unite: string,
+  arrondi = false,
+  precision?: number
+): string {
+  // Un chiffre calculé porte sa précision d'affichage : elle prime sur l'arrondi générique.
+  const f = (n: number) =>
+    precision !== undefined
+      ? formaterFixe(n, decimalesDe(precision))
+      : formaterNombre(arrondi ? arrondir(n) : n);
   const nombre = Array.isArray(valeur)
     ? `${f(valeur[0])}${INSECABLE}à${INSECABLE}${f(valeur[1])}`
     : f(valeur);

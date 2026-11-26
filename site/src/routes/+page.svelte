@@ -47,16 +47,16 @@
       >
       <span class="lire">Lire l’enquête →</span>
     </a>
-    <EnChantier
-      titre="Quand ?"
-      manque="L’enquête n’est pas encore écrite."
-      pourquoi="Les séries horaires de consommation, de production et de prix sont prêtes et contrôlées ; leur analyse heure par heure est en cours."
-      viendra="À quelles heures une consommation supplémentaire et continue tombe sur un système tendu, et à quelles heures sur un système en excédent."
-    />
+    <a class="enquete" href="/quand">
+      <span class="etat">Enquête</span>
+      <span class="titre">{data.quand.titre}</span>
+      <span class="question">{data.quand.question}</span>
+      <span class="lire">Lire l’enquête →</span>
+    </a>
     <EnChantier
       titre="Simulateur"
       manque="Le module de simulation n’est pas encore publié."
-      pourquoi="Son modèle est en cours de spécification ; il sera décrit et testé avant d’être mis en ligne."
+      pourquoi="Son modèle est en cours de spécification, à partir des séries horaires de l’enquête « Quand ? » ; il sera décrit et testé avant d’être mis en ligne."
       viendra="Un outil où l’on règle la puissance et le profil d’un parc de data centers pour voir, heure par heure, ce qu’il ajoute au système."
     />
   </div>

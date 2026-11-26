@@ -5,10 +5,14 @@
   import { onMount } from 'svelte';
   import type { Chiffres } from '$lib/chiffres';
   import { formaterDate } from '$lib/format';
-  import { GRAPHIQUES } from '$lib/graphiques/registre';
+  import { GRAPHIQUES, type DonneesEnquete } from '$lib/graphiques/registre';
   import type { Enquete } from '$lib/enquete';
 
-  let { enquete, chiffres }: { enquete: Enquete; chiffres: Chiffres } = $props();
+  let {
+    enquete,
+    chiffres,
+    donnees
+  }: { enquete: Enquete; chiffres: Chiffres; donnees?: DonneesEnquete } = $props();
 
   let article: HTMLElement | undefined = $state();
 
@@ -55,7 +59,7 @@
       {@html b.html}
     {:else}
       {@const Graphique = GRAPHIQUES[b.nom]}
-      <Graphique {chiffres} />
+      <Graphique {chiffres} {donnees} />
     {/if}
   {/each}
 </article>

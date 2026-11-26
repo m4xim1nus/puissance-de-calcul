@@ -35,6 +35,12 @@ export interface Chiffre {
   recoupements?: Recoupement[];
   verification?: string;
   note?: string;
+  /** Chiffre calculé par le site : étape du pipeline qui le produit (« pc build »). */
+  produit_par?: string;
+  /** Valeur calculée avant l'arrondi d'affichage. */
+  valeur_calculee?: number;
+  /** Pas d'arrondi de `valeur` (0,1 → une décimale). */
+  precision?: number;
 }
 
 export type Chiffres = Record<string, Chiffre>;

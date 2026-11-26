@@ -2,6 +2,7 @@ import { sourcesDe } from '$lib/chiffres';
 import { typographier } from '$lib/markdown';
 import { noteChiffre } from '$lib/notes';
 import { chargerChiffres } from '$lib/server/chiffres';
+import { chargerEnquete } from '$lib/server/enquetes';
 import { anneePrix, anneesPrix } from '$lib/server/prix';
 
 export const prerender = true;
@@ -20,5 +21,7 @@ export function load() {
     if (c && typeof c.valeur === 'number')
       references[a] = { valeur: c.valeur, note: typographier(noteChiffre(null, c, sources)) };
   }
-  return { annees: anneesPrix(), initiale: anneePrix(ANNEE_DEFAUT), references };
+  // Titre et question de l'enquête « Quand ? », tirés de son front matter (docs/enquetes/quand.md).
+  const quand = chargerEnquete('quand', chiffres).meta;
+  return { annees: anneesPrix(), initiale: anneePrix(ANNEE_DEFAUT), references, quand };
 }

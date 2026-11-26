@@ -34,6 +34,25 @@
   --prix-p4: #6e3410;
   --prix-absent: #b9c3cb;
 
+  /* Charge résiduelle (« Quand ? »), échelle divergente centrée sur 0 GW, 4 pas par bras à
+     luminances OKLCH égales (0,88 · 0,75 · 0,61 · 0,45), teintes de --sous-zero (surplus) et
+     --sur-zero (tension) ; validée avec le skill dataviz, bras par bras. Le pas le plus proche
+     de zéro se fond presque dans le fond : c'est le milieu neutre de l'échelle. */
+  --rn-n0: #156161;
+  --rn-n1: #309493;
+  --rn-n2: #72bdbc;
+  --rn-n3: #b6e1e0;
+  --rn-p0: #f3d0b9;
+  --rn-p1: #db9f76;
+  --rn-p2: #b76f39;
+  --rn-p3: #80430c;
+  /* Années comparées (2022 → 2025), rampe ordinale d'une seule teinte (celle de --donnee) : la plus
+     récente est la plus marquée. Validée avec le skill dataviz (contraste ≥ 2:1 sur --papier). */
+  --annee-1: #8cadde;
+  --annee-2: #618dce;
+  --annee-3: #3b6eb9;
+  --annee-4: #104a97;
+
   /* Typographie */
   --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
   --serif: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
@@ -69,6 +88,18 @@
     --prix-p3: #cc7c3e;
     --prix-p4: #f4ae70;
     --prix-absent: #56657a;
+    --rn-n0: #8dd3d1;
+    --rn-n1: #42a3a2;
+    --rn-n2: #247373;
+    --rn-n3: #1f4747;
+    --rn-p0: #543925;
+    --rn-p1: #8d5730;
+    --rn-p2: #c87e49;
+    --rn-p3: #f9b281;
+    --annee-1: #4c72ab;
+    --annee-2: #6793d5;
+    --annee-3: #89b3f1;
+    --annee-4: #b1d3ff;
   }
 }
 :root[data-theme='dark'] {
@@ -93,6 +124,18 @@
   --prix-p3: #cc7c3e;
   --prix-p4: #f4ae70;
   --prix-absent: #56657a;
+  --rn-n0: #8dd3d1;
+  --rn-n1: #42a3a2;
+  --rn-n2: #247373;
+  --rn-n3: #1f4747;
+  --rn-p0: #543925;
+  --rn-p1: #8d5730;
+  --rn-p2: #c87e49;
+  --rn-p3: #f9b281;
+  --annee-1: #4c72ab;
+  --annee-2: #6793d5;
+  --annee-3: #89b3f1;
+  --annee-4: #b1d3ff;
 }
 
 * {
