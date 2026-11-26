@@ -326,3 +326,9 @@ de l'auteur et la recette sur téléphone ouvriront la session 2.
   et la retient (registre des décisions). Claude relance `pc build`,
   `pc check` et les tests, et passe les 11 taux de RTE en
   « contre-vérifiés » dans le référentiel.
+- agent lancé (Opus) : indicateurs de « Quand ? » dans le pipeline
+  (`pipeline/pc/quand.py`, fonction de référence pure qui servira de
+  modèle au simulateur, cas de test partagés), chiffres calculés
+  produits par `pc build` dans le référentiel, chiffres de RTE cités
+  à partir des citations de la contre-vérification, contrôles. Claude
+  écrira le texte de l'enquête sur ces chiffres.
