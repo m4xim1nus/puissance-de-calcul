@@ -45,7 +45,7 @@ describe('notes', () => {
     );
     expect(tete).toContain('mars\u00a02026, p. 18');
     expect(tete).toContain('class="cote"');
-    expect(tete).toContain('Confiance B : source primaire, recoupement partiel');
+    expect(tete).toContain('Confiance B : source primaire, sans recoupement indépendant');
     expect(tete).toContain('calcul du site');
     // La citation, la période, le périmètre et le calcul détaillé sont dans le repli.
     expect(tete).not.toContain('près de 1 TWh');

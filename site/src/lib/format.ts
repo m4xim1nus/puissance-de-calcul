@@ -6,13 +6,18 @@ export const FINE = ' ';
 /** Espace insécable (U+00A0). */
 export const INSECABLE = ' ';
 
-const NOMBRE = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2, useGrouping: true });
+const formats = new Map<number, Intl.NumberFormat>();
 
-/** 4.34 → « 4,34 » ; 1400 → « 1 400 » (espace fine insécable). */
-export function formaterNombre(n: number): string {
+/** 4.34 → « 4,34 » ; 1400 → « 1 400 » (espace fine insécable). `decimales` : au plus (défaut 2). */
+export function formaterNombre(n: number, decimales = 2): string {
   if (!Number.isFinite(n)) throw new Error(`Nombre invalide : ${n}`);
+  let f = formats.get(decimales);
+  if (!f) {
+    f = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: decimales, useGrouping: true });
+    formats.set(decimales, f);
+  }
   // Intl peut grouper avec une espace insécable ordinaire selon la version d'ICU : on normalise.
-  return NOMBRE.format(n).replace(/[   ]/g, FINE).replace('-', '−');
+  return f.format(n).replace(/[   ]/g, FINE).replace('-', '−');
 }
 
 /** Une unité en toutes lettres (« sites ») prend une espace insécable ; un symbole, une fine. */

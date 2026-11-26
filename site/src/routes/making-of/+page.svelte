@@ -8,8 +8,8 @@
 
 <h1>Making-of</h1>
 <p class="colonne">
-  Ce site est construit par Claude Code, sous la direction de l'auteur. Voici la matière brute, publiée
-  telle quelle : le journal de bord, les décisions et leurs raisons, les erreurs de Claude
+  Ce site est construit par Claude Code, sous la direction de l'auteur. Voici la matière brute,
+  publiée telle quelle : le journal de bord, les décisions et leurs raisons, les erreurs de Claude
   consignées sans les embellir, et le brief de départ.
 </p>
 <nav class="sommaire" aria-label="Sections du making-of">

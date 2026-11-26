@@ -41,9 +41,9 @@ export type Chiffres = Record<string, Chiffre>;
 
 /** Légende de la cote de confiance (docs/CONCEPTION.md, « Principes »). */
 export const COTES: Record<Confiance, string> = {
-  A: 'source primaire et recoupement indépendant',
-  B: 'source primaire, recoupement partiel',
-  C: 'source unique ou définition floue'
+  A: 'source primaire et recoupement indépendant (autre éditeur, autre méthode)',
+  B: 'source primaire, sans recoupement indépendant',
+  C: 'source secondaire, ou grandeur mal définie par la source'
 };
 
 /** Le chiffre `id`, ou une erreur explicite : un identifiant inconnu doit faire échouer le build. */

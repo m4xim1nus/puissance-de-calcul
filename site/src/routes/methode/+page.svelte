@@ -67,6 +67,48 @@
     {/each}
   </ul>
 
+  <h2 id="donnees">Données</h2>
+  <p>
+    Les séries horaires (hero de l’accueil, enquêtes à venir) viennent de deux producteurs, sous
+    licence ouverte. Elles sont téléchargées par le pipeline du site, contrôlées, puis figées dans
+    le dépôt : le site publié ne télécharge rien.
+  </p>
+  <ul class="sources">
+    <li>
+      <span class="editeur">Prix day-ahead France</span> : Bundesnetzagentur / SMARD.de via
+      energy-charts.info (Fraunhofer ISE),
+      <a href="https://creativecommons.org/licenses/by/4.0/" rel="external">CC BY 4.0</a>.
+      <span class="secondaire">
+        {#if data.donnees.extractionPrix}Extraction le {formaterDate(
+            data.donnees.extractionPrix.derniere
+          )} (heure de Paris).{/if}
+        Au pas horaire jusqu’au 30 septembre 2025, au quart d’heure ensuite ; le prix d’une heure est
+        alors la moyenne simple de ses quatre quarts d’heure (convention de RTE).
+      </span>
+    </li>
+    <li>
+      <span class="editeur">Consommation, production, échanges</span> : RTE, éCO2mix, via ODRÉ (Open
+      Data Réseaux Énergies),
+      <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" rel="external"
+        >Licence Ouverte 2.0</a
+      >.
+      <span class="secondaire">
+        {#if data.donnees.extractionEco2mix}Extraction le {formaterDate(
+            data.donnees.extractionEco2mix.derniere
+          )} (heure de Paris).{/if}
+        Données définitives, consolidées puis temps réel selon l’ancienneté ; les cellules absentes ne
+        sont jamais imputées.
+      </span>
+    </li>
+  </ul>
+  <details class="lisezmoi">
+    <summary>Format des séries horaires (copie de data/export/horaire/LISEZMOI.md)</summary>
+    <div class="texte-lisezmoi">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html data.donnees.lisezmoi}
+    </div>
+  </details>
+
   <h2 id="glossaire">Glossaire</h2>
   <details class="glossaire">
     <summary>Afficher le glossaire</summary>
@@ -108,8 +150,8 @@
       <dt>PTF</dt>
       <dd>
         Proposition technique et financière : offre du gestionnaire de réseau qui décrit la solution
-        de raccordement, son coût et son délai. Sa signature par le demandeur fait entrer le projet
-        dans la file d’attente et réserve la capacité.
+        de raccordement, son coût et son délai. Son acceptation, avec le versement du premier
+        acompte, fait entrer le projet dans la file d’attente et réserve la capacité.
       </dd>
       <dt>RPT</dt>
       <dd>
@@ -197,6 +239,15 @@
     display: block;
     color: var(--encre-2);
     font-size: 0.9rem;
+  }
+  .lisezmoi {
+    margin-bottom: 1.5rem;
+  }
+  .texte-lisezmoi {
+    font-size: 0.95rem;
+  }
+  .texte-lisezmoi :global(table) {
+    font-size: 0.85rem;
   }
   .glossaire dl {
     margin-top: 0.75rem;

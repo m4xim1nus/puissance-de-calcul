@@ -35,8 +35,26 @@ function resume(numeros: number[]): string {
   return `Notes ${numeros.slice(0, -1).join(', ')} et ${numeros.at(-1)}`;
 }
 
+/**
+ * Garde-fou : une ligne qui commence par un nombre de 3 chiffres ou plus suivi d'un point
+ * (« 2035. En décarbonation… ») devient une liste ordonnée en Markdown et l'année disparaît.
+ * Aucune liste voulue ne commence ainsi : on refuse le fichier.
+ */
+export function verifierDebutsDeLigne(corps: string): void {
+  let code = false;
+  corps.split('\n').forEach((l, i) => {
+    if (/^\s*(```|~~~)/.test(l)) code = !code;
+    const m = !code && l.match(/^\s{0,3}(\d{3,})[.)](\s|$)/);
+    if (m)
+      throw new Error(
+        `Ligne ${i + 1} : « ${m[1]}. » en début de ligne serait rendu comme une liste numérotée ; reformuler ou écrire « ${m[1]}\\. »`
+      );
+  });
+}
+
 /** Rend le corps d'une enquête en blocs HTML (avec notes marginales) et emplacements de graphiques. */
 export function rendreCorps(corps: string, chiffres: Chiffres): BlocEnquete[] {
+  verifierDebutsDeLigne(corps);
   const sources = sourcesDe(chiffres);
   const notes = new Map<number, string>();
   const premiereNote = new Map<string, number>();

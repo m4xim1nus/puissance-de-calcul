@@ -98,7 +98,15 @@ interface PointSpec {
   id: string;
   /** Précision courte affichée avec la valeur (réseau, palier…). */
   precision?: string;
+  /** Marque distincte pour un point d'une autre source ou d'une autre définition sur l'étage. */
+  forme?: 'carre';
 }
+
+/**
+ * Chiffres liés à la pyramide mais qui n'en sont pas un étage : le dimensionnement des ouvrages
+ * de Fouju n'est pas un palier du contrat. Mentionnés sous la figure, jamais placés sur un étage.
+ */
+export const HORS_PYRAMIDE = ['dc_signe_fouju_terme'] as const;
 
 export const ETAGES_PYRAMIDE: { cle: string; nom: string; nature: string; points: PointSpec[] }[] =
   [
@@ -112,34 +120,35 @@ export const ETAGES_PYRAMIDE: { cle: string; nom: string; nature: string; points
     {
       cle: 'reservee',
       nom: 'Réservée',
-      nature: 'droit d’accès au réseau de transport (PTF signée) ; n’engage pas à consommer',
+      nature:
+        'droit d’accès au réseau de transport ; n’engage pas à consommer. Deux sources, deux définitions : ronds, page web de RTE (définition non précisée) ; carré, Bilan prévisionnel (PTF signées, hors sites déjà raccordés)',
       points: [
-        { id: 'dc_reserve_rte_2024_12' },
-        { id: 'dc_reserve_rte_2025_11' },
-        { id: 'dc_reserve_rte_2026_05' }
+        { id: 'dc_reserve_rte_2024_12', precision: 'page web' },
+        { id: 'dc_reserve_rte_2025_11', precision: 'BP2025', forme: 'carre' },
+        { id: 'dc_reserve_rte_2026_05', precision: 'page web' }
       ]
     },
     {
       cle: 'prereservee',
-      nom: 'Pré-réservée (fast-track)',
-      nature: 'capacité pré-réservée par RTE à la demande de l’État, sur cinq sites',
-      points: [{ id: 'dc_fasttrack_prereserve_2025_12' }]
+      nom: 'Réservée — pré-réservation fast-track, temporaire',
+      nature:
+        'capacité pré-réservée par RTE à la demande de l’État sur cinq sites, dont Fouju, qui figure aussi à l’étage « Signée » ; état actuel non vérifié',
+      points: [{ id: 'dc_fasttrack_prereserve_2025_12', precision: 'cinq sites' }]
     },
     {
       cle: 'signee',
       nom: 'Signée',
       nature:
-        'contrat de raccordement du Campus IA à Fouju : paliers de puissance mise à disposition',
+        'contrat de raccordement du Campus IA à Fouju : paliers de puissance mise à disposition',
       points: [
         { id: 'dc_signe_fouju_2027', precision: 'premier palier' },
-        { id: 'dc_signe_fouju_terme' }
+        { id: 'dc_signe_fouju_2029', precision: 'second palier' }
       ]
     },
     {
       cle: 'raccordee',
       nom: 'Raccordée',
-      nature:
-        'puissance de raccordement des data centers en service (côté Enedis, nature de la puissance non précisée)',
+      nature: 'puissance de raccordement des data centers en service',
       points: [
         { id: 'dc_raccorde_rpt_2025_12', precision: 'transport' },
         { id: 'dc_raccorde_rpd_2025', precision: 'Enedis' }
@@ -167,6 +176,7 @@ export interface PointPyramide {
   valeur: string;
   date: string;
   precision?: string;
+  forme?: 'carre';
   calcul: boolean;
   libelle: string;
 }
@@ -183,7 +193,7 @@ export function pyramide(chiffres: Chiffres): EtagePyramide[] {
     cle: e.cle,
     nom: e.nom,
     nature: e.nature,
-    points: e.points.map(({ id, precision }) => {
+    points: e.points.map(({ id, precision, forme }) => {
       const c = chiffre(chiffres, id);
       if (!GRANDEURS_PUISSANCE.has(c.grandeur))
         throw new Error(`« ${id} » : grandeur ${c.grandeur}, pas une puissance de la pyramide`);
@@ -193,6 +203,7 @@ export function pyramide(chiffres: Chiffres): EtagePyramide[] {
         valeur: formaterValeur(c.valeur, c.unite, true),
         date: formaterPeriode(c.periode, true),
         precision,
+        forme,
         calcul: Boolean(c.calcul),
         libelle: c.libelle
       };
@@ -201,6 +212,18 @@ export function pyramide(chiffres: Chiffres): EtagePyramide[] {
 }
 
 export const idsPyramide = () => ETAGES_PYRAMIDE.flatMap((e) => e.points.map((p) => p.id));
+
+/** Les chiffres hors étage, vérifiés : ils ne doivent pas être des grandeurs de la pyramide. */
+export function horsPyramide(chiffres: Chiffres): { id: string; libelle: string; texte: string }[] {
+  return HORS_PYRAMIDE.map((id) => {
+    const c = chiffre(chiffres, id);
+    if (GRANDEURS_PUISSANCE.has(c.grandeur))
+      throw new Error(
+        `« ${id} » est une grandeur de la pyramide (${c.grandeur}) : à placer sur un étage`
+      );
+    return { id, libelle: c.libelle, texte: formaterValeur(c.valeur, c.unite, true) };
+  });
+}
 
 /* ---------- Trajectoires ---------- */
 

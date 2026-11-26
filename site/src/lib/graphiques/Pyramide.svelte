@@ -7,6 +7,8 @@
   import Figure from './Figure.svelte';
   import Infobulle from './Infobulle.svelte';
   import {
+    HORS_PYRAMIDE,
+    horsPyramide,
     idsPyramide,
     ligneDonnees,
     pyramide,
@@ -18,8 +20,20 @@
   let { chiffres }: { chiffres: Chiffres } = $props();
 
   const etages = $derived(pyramide(chiffres));
-  const tableau = $derived(idsPyramide().map((id) => ligneDonnees(chiffres, id)));
-  const sources = $derived(sourcesGraphique(chiffres, idsPyramide()));
+  const hors = $derived(horsPyramide(chiffres));
+  const tableau = $derived(
+    [...idsPyramide(), ...HORS_PYRAMIDE].map((id) => ligneDonnees(chiffres, id))
+  );
+  const sources = $derived(sourcesGraphique(chiffres, [...idsPyramide(), ...HORS_PYRAMIDE]));
+  const remarques = $derived(
+    [
+      ...hors.map(
+        (h) =>
+          `Hors étage : ${h.libelle}, ${h.texte}. Ce n’est pas un palier du contrat, il ne figure donc pas à l’étage « Signée ».`
+      ),
+      'Ne figurent pas non plus la pointe appelée par une cohorte de data centers récents ni la puissance mise à disposition sur plusieurs années : ni la même cohorte, ni la même année, ni la même grandeur que les valeurs ci-dessus (voir le texte).'
+    ].join(' ')
+  );
 
   const TAILLE = 14;
   const PAS_VOIE = 19;
@@ -42,9 +56,9 @@
 
 <Figure
   id="pyramide"
-  titre="Les puissances des data centers en France, étage par étage : recherchée, réservée, pré-réservée, signée, raccordée, appelée"
+  titre="Les puissances des data centers en France, étage par étage : recherchée, réservée (dont la pré-réservation fast-track), signée, raccordée, appelée"
   sousTitre="En MW ou GW, sur une échelle logarithmique (chaque graduation principale vaut dix fois la précédente). Chaque valeur porte sa date. Les étages ne s’additionnent pas et ne forment pas un entonnoir : ni les périmètres ni les dates ne coïncident."
-  remarques="Ne figurent pas ici la pointe appelée par une cohorte de data centers récents ni la puissance mise à disposition sur plusieurs années : ni la même cohorte, ni la même année, ni la même grandeur que les valeurs ci-dessus (voir le texte)."
+  {remarques}
   {sources}
   lignes={tableau}
 >
@@ -65,6 +79,11 @@
           stroke-width="2"
         /></svg
       > calcul du site à partir de valeurs publiées</span
+    >
+    <span class="cle"
+      ><svg width="14" height="14" aria-hidden="true"
+        ><rect x="2" y="2" width="10" height="10" fill="var(--donnee)" /></svg
+      > autre source et autre définition que les ronds du même étage</span
     >
   {/snippet}
   {#snippet trace(largeur: number)}
@@ -133,7 +152,9 @@
                   <line class="renvoi" x1={px} x2={px} y1={Y_POINT - 7} y2={yl + 4} />
                 {/if}
                 <rect class="cible" x={px - 12} y={Y_POINT - 12} width="24" height="24" />
-                {#if p.calcul}
+                {#if p.forme === 'carre'}
+                  <rect x={px - 5} y={Y_POINT - 5} width="10" height="10" class="plein" />
+                {:else if p.calcul}
                   <circle cx={px} cy={Y_POINT} r="5" class="creux" />
                 {:else}
                   <circle cx={px} cy={Y_POINT} r="5.5" class="plein" />

@@ -110,6 +110,14 @@ describe('rendu du corps', () => {
       '<p>Il dit\u00a0: «\u00a0oui\u00a0»\u202f; vraiment\u202f? aujourd’hui</p>'
     );
   });
+  it('refuse une ligne qui commence par une année suivie d’un point (liste involontaire)', () => {
+    expect(() => rendreCorps('atteint 21 TWh en\n2035. En décarbonation rapide', chiffres)).toThrow(
+      /Ligne 2.*2035/
+    );
+    expect(() => rendreCorps('1. une liste voulue\n2. suite', chiffres)).not.toThrow();
+    expect(() => rendreCorps('en\n2035\\. suite', chiffres)).not.toThrow();
+    expect(() => rendreCorps('```\n2035. dans du code\n```', chiffres)).not.toThrow();
+  });
   it('ne rend pas le commentaire HTML de tête', () => {
     const blocs = rendreCorps('<!--\nSyntaxe : {{id}}\n-->\n\nTexte', chiffres);
     expect(blocs).toEqual([{ type: 'html', html: '<p>Texte</p>' }]);
@@ -125,6 +133,9 @@ describe('enquêtes du dépôt', () => {
       const e = chargerEnquete(slug, reel);
       const html = e.blocs.map((b) => (b.type === 'html' ? b.html : '')).join('');
       expect(html).not.toMatch(/\{\{|\}\}|<!--|:::/);
+      // Une seule liste numérotée voulue au plus par enquête (la pyramide), jamais une liste
+      // ouverte par une année.
+      expect(html).not.toMatch(/<ol><li>[^<]*(En|en) décarbonation/);
     }
   });
 });

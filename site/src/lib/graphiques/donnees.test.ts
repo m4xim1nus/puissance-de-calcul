@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { chargerChiffres } from '$lib/server/chiffres';
-import { estimations2024, idsPyramide, pyramide, trajectoires } from './donnees';
+import { estimations2024, horsPyramide, idsPyramide, pyramide, trajectoires } from './donnees';
 import { placerEtiquettes } from './etiquettes';
 
 const chiffres = chargerChiffres();
@@ -28,6 +28,16 @@ describe('données des graphiques', () => {
       'appelee'
     ]);
     expect(etages[1].points).toHaveLength(3);
+    expect(etages[1].points.filter((p) => p.forme === 'carre').map((p) => p.id)).toEqual([
+      'dc_reserve_rte_2025_11'
+    ]);
+    // Fouju : les deux paliers du contrat, pas le dimensionnement des ouvrages.
+    expect(etages[3].points.map((p) => p.id)).toEqual([
+      'dc_signe_fouju_2027',
+      'dc_signe_fouju_2029'
+    ]);
+    expect(ids).not.toContain('dc_signe_fouju_terme');
+    expect(horsPyramide(chiffres).map((h) => h.id)).toEqual(['dc_signe_fouju_terme']);
     for (const e of etages) for (const p of e.points) expect(p.date).not.toBe('');
   });
   it('convertit les GW en MW pour l’échelle commune', () => {
@@ -52,8 +62,8 @@ describe('placement des étiquettes', () => {
     const p = placerEtiquettes(
       [
         { x: 10, largeur: 100 },
-        { x: 50, largeur: 100 },
-        { x: 300, largeur: 50 }
+        { x: 200, largeur: 100 },
+        { x: 250, largeur: 100 }
       ],
       400
     );
@@ -65,8 +75,22 @@ describe('placement des étiquettes', () => {
         e.points.map((pt) => ({ x: (Math.log10(pt.mw) - 1.8) * 300, largeur: 150 })),
         900
       );
-      for (const pl of p) expect([0, -1]).toContain(pl.voie);
+      for (const pl of p) expect(Math.abs(pl.voie)).toBeLessThanOrEqual(2);
     }
+  });
+  it('ne pose pas une étiquette proche de l’axe sur le point d’une autre valeur', () => {
+    const items = [
+      { x: 627, largeur: 150 },
+      { x: 766, largeur: 210 },
+      { x: 800, largeur: 120 }
+    ];
+    const p = placerEtiquettes(items, 934);
+    p.forEach((e, i) => {
+      if (Math.abs(e.voie + 0.5) > 0.5) return; // voies 0 et −1 seulement
+      const [a, b] =
+        e.ancre === 'start' ? [e.x, e.x + items[i].largeur] : [e.x - items[i].largeur, e.x];
+      items.forEach((it, k) => k !== i && expect(it.x < a - 6 || it.x > b + 6).toBe(true));
+    });
   });
   it('aligne à droite une étiquette qui déborderait', () => {
     const [e] = placerEtiquettes([{ x: 390, largeur: 100 }], 400);

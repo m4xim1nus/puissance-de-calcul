@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { chargerChiffres } from '$lib/server/chiffres';
 import { anneePrix, anneesPrix, prixExacts } from '$lib/server/prix';
-import { arrondiStockage, classe, decalageParis, grille, heuresNegatives } from './heatmap';
+import {
+  arrondiStockage,
+  classe,
+  comparaisonReference,
+  decalageParis,
+  grille,
+  heuresNegatives,
+  statistiques
+} from './heatmap';
 
 describe('heure de Paris', () => {
   it('applique la règle européenne des changements d’heure', () => {
@@ -76,6 +84,24 @@ describe('prix négatifs et arrondis', () => {
     const a = prixExacts(2025);
     const j = (Date.parse('2025-10-05T01:00Z') - Date.parse(a.debut)) / 3_600_000;
     expect(a.prix[j]).toBeLessThan(0);
+  });
+  it('compte heures sans prix, prix planchers et heures écrêtées', () => {
+    const st = statistiques(grille(anneePrix(2025)));
+    expect(st.negatives).toBe(513);
+    expect(st.planchers).toBeGreaterThan(0);
+    expect(st.planchers).toBeLessThan(st.negatives);
+    expect(st.sansPrix).toBe(0);
+    expect(statistiques(grille(anneePrix(2015))).sansPrix).toBeGreaterThan(0);
+    expect(statistiques(grille(anneePrix(2022))).ecretees).toBeGreaterThan(8760 * 0.1);
+  });
+  it('n’affirme l’égalité avec RTE que si elle est vérifiée', () => {
+    expect(comparaisonReference(513, 513)).toEqual({
+      egal: true,
+      texte: 'égal au chiffre publié par RTE'
+    });
+    const c = comparaisonReference(506, 513);
+    expect(c.egal).toBe(false);
+    expect(c.texte).toBe('RTE publie 513\u00a0h\u202f; écart de −7\u00a0h');
   });
   it('produit un fichier compact d’environ 35 Ko par an', () => {
     const taille = JSON.stringify(anneePrix(2022)).length;

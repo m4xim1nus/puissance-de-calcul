@@ -121,18 +121,81 @@ export function heuresNegatives(a: Pick<AnneePrix, 'annee' | 'debut' | 'prix'>):
 }
 
 /**
- * Valeur stockée pour un prix strictement négatif mais arrondi à « -0.0 » dans le CSV (moyenne de
- * quarts d'heure entre −0,005 et 0 €/MWh) : le signe est connu, pas la valeur. JSON ne sait pas
- * écrire −0 ; ce marqueur, hors de la précision publiée, le remplace.
+ * Marqueur d'un prix strictement négatif dont la valeur exacte est inférieure à 0,0001 €/MWh en
+ * valeur absolue (JSON ne sait pas écrire −0). Le CSV porte 4 décimales : ce cas ne se produit
+ * pas aujourd'hui, le marqueur est un garde-fou.
  */
-export const NEGATIF_ARRONDI = -0.001;
+export const NEGATIF_INFIME = -0.00001;
 
-/** Prix strictement négatif, y compris un −0 (négatif arrondi à zéro dans la source). */
+/** Prix strictement négatif, y compris un −0. */
 export const estNegatif = (v: number) => v < 0 || Object.is(v, -0);
 
-/** Arrondi de stockage : à l'euro, sauf entre −1 et 1 € (au centime) pour garder le signe. */
+/**
+ * Arrondi de stockage, fait par le site : à l'euro, sauf entre −1 et 1 €/MWh où les 4 décimales
+ * de la source sont gardées (prix planchers comme −0,01 ou −0,0025 €/MWh : signe et valeur intacts).
+ */
 export function arrondiStockage(v: number): number {
-  if (Object.is(v, -0)) return NEGATIF_ARRONDI;
-  const r = Math.abs(v) < 1 ? Math.round(v * 100) / 100 : Math.round(v);
-  return r === 0 && v < 0 ? NEGATIF_ARRONDI : r;
+  if (Math.abs(v) >= 1) return Math.round(v);
+  const r = Math.round(v * 10_000) / 10_000;
+  return r === 0 && estNegatif(v) ? NEGATIF_INFIME : r === 0 ? 0 : r;
+}
+
+/** Seuil des « prix planchers » : heures négatives à −0,10 €/MWh ou plus près de zéro. */
+export const PLANCHER = -0.1;
+
+export interface Statistiques {
+  negatives: number;
+  parMois: number[];
+  /** Heures négatives entre −0,10 et 0 €/MWh (prix planchers). */
+  planchers: number;
+  /** Heures de l'année (publiées ou attendues) sans prix. */
+  sansPrix: number;
+  avecPrix: number;
+  /** Heures à prix ≥ ECRETAGE (couleur écrêtée). */
+  ecretees: number;
+}
+
+/** Décomptes sur les jours de la grille (heures de Paris), hors jours pas encore publiés. */
+export function statistiques(jours: Jour[]): Statistiques {
+  const st: Statistiques = {
+    negatives: 0,
+    parMois: Array(12).fill(0) as number[],
+    planchers: 0,
+    sansPrix: 0,
+    avecPrix: 0,
+    ecretees: 0
+  };
+  for (const j of jours) {
+    const m = Number(j.date.slice(5, 7)) - 1;
+    for (const c of j.cases) {
+      const valeurs = c.type === 'prix' ? [c.v] : c.type === 'double' ? c.v : [];
+      for (const v of valeurs) {
+        if (v === null) {
+          st.sansPrix++;
+          continue;
+        }
+        st.avecPrix++;
+        if (estNegatif(v)) {
+          st.negatives++;
+          st.parMois[m]++;
+          if (v >= PLANCHER) st.planchers++;
+        }
+        if (v >= ECRETAGE) st.ecretees++;
+      }
+    }
+  }
+  return st;
+}
+
+/** Comparaison du décompte du site au chiffre publié : l'égalité n'est affirmée que vérifiée. */
+export function comparaisonReference(
+  calcul: number,
+  reference: number
+): { egal: boolean; texte: string } {
+  if (calcul === reference) return { egal: true, texte: 'égal au chiffre publié par RTE' };
+  const ecart = calcul - reference;
+  return {
+    egal: false,
+    texte: `RTE publie ${reference}\u00a0h\u202f; écart de ${ecart > 0 ? '+' : '−'}${Math.abs(ecart)}\u00a0h`
+  };
 }

@@ -58,7 +58,13 @@ export function placerEtiquettes(
         const renvoiLibre =
           !exigerRenvoi || traversees(voie).every((v) => libre(v, x - 1, x + 1, 2));
         const debut = debuts[ancre];
-        if (renvoiLibre && libre(voie, debut, debut + largeur)) {
+        // Près de l'axe (voies 0 et −1), une étiquette ne doit pas passer sur le point d'une autre
+        // valeur : on lirait la mauvaise valeur sur le mauvais point.
+        const surAutrePoint =
+          exigerRenvoi &&
+          (voie === 0 || voie === -1) &&
+          items.some((it, k) => k !== i && it.x > debut - 6 && it.x < debut + largeur + 6);
+        if (renvoiLibre && !surAutrePoint && libre(voie, debut, debut + largeur)) {
           prendre(voie, debut, debut + largeur);
           for (const v of traversees(voie)) prendre(v, x - 1, x + 1);
           choix = { x: ancre === 'start' ? x - 4 : x + 4, ancre, voie };

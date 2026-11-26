@@ -7,11 +7,13 @@
   import {
     ECRETAGE,
     LIBELLES_CLASSES,
-    NEGATIF_ARRONDI,
+    NEGATIF_INFIME,
+    PLANCHER,
+    comparaisonReference,
+    statistiques,
     SEUILS,
     classe,
     grille,
-    heuresNegatives,
     type AnneePrix,
     type Case
   } from '$lib/heatmap';
@@ -32,8 +34,20 @@
   let erreur = $state('');
 
   const jours = $derived(grille(donnees));
-  const negatives = $derived(heuresNegatives(donnees));
   const reference = $derived(references[donnees.annee]);
+  const stats = $derived(statistiques(jours));
+  const comparaison = $derived(
+    reference ? comparaisonReference(stats.negatives, reference.valeur) : null
+  );
+  const partEcretee = $derived(stats.avecPrix ? stats.ecretees / stats.avecPrix : 0);
+  const heures = (n: number) => `${formaterNombre(n)}${INSECABLE}${n <= 1 ? 'heure' : 'heures'}`;
+  const plancher = PLANCHER.toFixed(2).replace('.', ',').replace('-', '−');
+  const precisions = $derived(
+    [
+      reference ? '' : 'calcul du site sur les données affichées, non recoupé',
+      stats.sansPrix > 0 ? `${heures(stats.sansPrix)} sans prix publié dans l’année` : ''
+    ].filter(Boolean)
+  );
 
   async function choisir(a: number) {
     annee = a;
@@ -212,9 +226,9 @@
   const prixTexte = (v: number | null) =>
     v === null
       ? 'pas de prix publié'
-      : v === NEGATIF_ARRONDI
-        ? `−0,00${FINE}€/MWh (négatif, arrondi à zéro dans la source)`
-        : `${formaterNombre(v)}${FINE}€/MWh`;
+      : v === NEGATIF_INFIME
+        ? `négatif, moins de 0,0001${FINE}€/MWh en valeur absolue`
+        : `${formaterNombre(v, Math.abs(v) < 1 ? 4 : 0)}${FINE}€/MWh`;
   const plage = (h: number) => `${h}${INSECABLE}h – ${(h + 1) % 24}${INSECABLE}h`;
   const jourTexte = (date: string) => {
     const j = new Date(`${date}T12:00Z`).toLocaleDateString('fr-FR', {
@@ -276,13 +290,15 @@
 <section class="hero" aria-labelledby="hero-titre">
   <div class="tete">
     <h2 id="hero-titre">
-      Prix de l’électricité en France, heure par heure, {donnees.annee}
+      Prix de gros day-ahead en France, heure par heure, {donnees.annee}
     </h2>
     <p class="sous-titre">
       Prix day-ahead, en €/MWh. Une ligne par jour, du 1er janvier (en haut) au 31 décembre ; une
       colonne par heure, en heure de Paris.
       {#if donnees.provisoire && derniereDate}
-        <strong>Année en cours, données provisoires</strong>, jusqu’au {formaterDate(derniereDate)}.
+        <strong>Année en cours, incomplète</strong> : prix publiés jusqu’au {formaterDate(
+          derniereDate
+        )}.
       {/if}
     </p>
   </div>
@@ -291,13 +307,13 @@
     {#each annees as a (a)}
       <button type="button" aria-pressed={a === annee} onclick={() => choisir(a)}
         >{a}{#if a === annees.at(-1) && a > initiale.annee}<span class="lecteur">
-            (année en cours, données provisoires)</span
+            (année en cours, incomplète)</span
           >*{/if}</button
       >
     {/each}
   </div>
   {#if annees.at(-1)! > initiale.annee}
-    <p class="note-annees">* année en cours, données provisoires et incomplètes.</p>
+    <p class="note-annees">* année en cours, incomplète.</p>
   {/if}
   {#if erreur}<p class="erreur" role="alert">{erreur}</p>{/if}
 
@@ -369,6 +385,14 @@
     <p class="lecteur" aria-live="polite">{annonce}</p>
   </div>
 
+  {#if partEcretee > 0.1}
+    <p class="ecretage">
+      {formaterNombre(Math.round(partEcretee * 100))}{FINE}% des heures de {donnees.annee} sont au-delà
+      de
+      {ECRETAGE}{FINE}€/MWh : la carte les montre toutes dans la même couleur. Les valeurs exactes
+      sont dans l’infobulle.
+    </p>
+  {/if}
   <ul class="speciales">
     {#if donnees.provisoire}
       <li>
@@ -399,11 +423,16 @@
   <div class="negatives">
     <p>
       {phraseNegatives}<strong class="nombre"
-        >{formaterNombre(reference ? reference.valeur : negatives.total)}{INSECABLE}heures</strong
-      >{#if !reference}{' '}<span class="calcul"
-          >(calcul du site sur les données affichées, non recoupé)</span
+        >{heures(reference ? reference.valeur : stats.negatives)}</strong
+      >{#if precisions.length}{' '}<span class="calcul">({precisions.join(`${FINE}; `)})</span
         >{/if}.
     </p>
+    {#if stats.negatives > 0}
+      <p class="planchers">
+        {stats.planchers === 0 ? 'Aucune' : `Dont ${heures(stats.planchers)}`} à des prix compris entre
+        {plancher}{FINE}€/MWh (inclus) et 0{FINE}€/MWh (exclu) : prix planchers, décompte du site.
+      </p>
+    {/if}
     {#if reference}
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <div class="source-ref">{@html reference.note}</div>
@@ -414,8 +443,8 @@
     Prix day-ahead France : Bundesnetzagentur / SMARD.de via energy-charts.info,
     <a href="https://creativecommons.org/licenses/by/4.0/" rel="external">CC BY 4.0</a>. Extraction
     du {formaterDate(dateParis(donnees.extrait_le))}. Depuis le 1er octobre 2025, le prix d’une
-    heure est la moyenne de ses quatre quarts d’heure. Prix arrondis à l’euro (au centime entre −1
-    et 1{FINE}€/MWh).
+    heure est la moyenne de ses quatre quarts d’heure. Le site arrondit les prix à l’euro, sauf
+    entre −1 et 1{FINE}€/MWh (quatre décimales, comme la source).
   </p>
 
   <details class="donnees">
@@ -425,16 +454,16 @@
         <tr><th scope="col">Mois</th><th scope="col">Heures à prix strictement négatif</th></tr>
       </thead>
       <tbody>
-        {#each negatives.parMois as n, m (m)}
+        {#each stats.parMois as n, m (m)}
           <tr><th scope="row">{NOMS_MOIS[m]}</th><td class="nombre">{n}</td></tr>
         {/each}
         <tr class="total">
-          <th scope="row">Année</th><td class="nombre">{negatives.total}</td>
+          <th scope="row">Année</th><td class="nombre">{stats.negatives}</td>
         </tr>
       </tbody>
     </table>
     <p class="table-note">
-      Décompte du site sur les prix affichés{#if reference}, égal au chiffre publié par RTE{/if}.
+      Décompte du site sur les prix affichés{#if comparaison}, {comparaison.texte}{/if}.
     </p>
   </details>
 </section>
@@ -605,6 +634,19 @@
   .calcul {
     color: var(--encre-2);
     font-size: 0.95em;
+  }
+  .planchers {
+    margin: 0.2rem 0 0;
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    color: var(--encre-2);
+    max-width: var(--mesure);
+  }
+  .ecretage {
+    margin: 0.6rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    max-width: 40rem;
   }
   .source-ref {
     margin-top: 0.3rem;
